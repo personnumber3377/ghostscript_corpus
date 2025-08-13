@@ -44,7 +44,7 @@ def save_item(item):
 
 def scrape_ps(max_pages=10):
     # widen as you like: 'extension:ps OR extension:eps language:PostScript size:>0'
-    query = 'extension:ps'
+    query = 'extension:ps NOT annex size:<50000'
     page = 1
     while page <= max_pages:
         try:

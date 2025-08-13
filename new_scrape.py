@@ -38,11 +38,14 @@ def download_file(item):
 
     filename = f"{item['repository']['full_name'].replace('/', '_')}__{item['name']}"
     filepath = os.path.join(OUTPUT_DIR, filename)
+    if os.path.exists(filepath):
+        print(f"[✓] Already have {filepath} !!!")
+        return
     with open(filepath, "wb") as f:
         f.write(data)
     print(f"    [✓] Saved {filepath} ({len(data)} bytes)")
 
-for page in range(1, MAX_PAGES + 1):
+for page in range(1, 1000):
     actual_page = random.randrange(1, MAX_PAGES)
     search_url = f"https://api.github.com/search/code?q={quote(SEARCH_QUERY)}&page={actual_page}&per_page=100"
     print(f"[PAGE {page}] {search_url}")

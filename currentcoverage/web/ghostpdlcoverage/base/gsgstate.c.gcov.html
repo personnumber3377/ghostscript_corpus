@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsgstate.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsgstate.c<span style="font-size: 80%;"> (source / <a href="gsgstate.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">82.2&nbsp;%</td>
+            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntry">106</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryMed">87.5&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">7</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* gs_gstate housekeeping */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;gx.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gscspace.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gscie.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsutil.h&quot;           /* for gs_next_ids */</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxbitmap.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxcmap.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxdht.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gxgstate.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gzht.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gzline.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gxfmap.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gsicc_cache.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;gsicc_manage.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;gsicc_profilecache.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : /******************************************************************************</span>
+<span id="L36"><span class="lineNum">      36</span>              :  * See gsstate.c for a discussion of graphics state memory management. *</span>
+<span id="L37"><span class="lineNum">      37</span>              :  ******************************************************************************/</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* Imported values */</span>
+<span id="L40"><span class="lineNum">      40</span>              : /* The following should include a 'const', but for some reason */</span>
+<span id="L41"><span class="lineNum">      41</span>              : /* the Watcom compiler won't accept it, even though it happily accepts */</span>
+<span id="L42"><span class="lineNum">      42</span>              : /* the same construct everywhere else. */</span>
+<span id="L43"><span class="lineNum">      43</span>              : extern /*const*/ gx_color_map_procs *const cmap_procs_default;</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : /* GC procedures for gx_line_params */</span>
+<span id="L46"><span class="lineNum">      46</span>              : static</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">      151696 : ENUM_PTRS_WITH(line_params_enum_ptrs, gx_line_params *plp) return 0;</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">       75848 :     case 0: return ENUM_OBJ((plp-&gt;dash.pattern_size == 0 ?</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :                              NULL : plp-&gt;dash.pattern));</span>
+<span id="L50"><span class="lineNum">      50</span>              : ENUM_PTRS_END</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       75848 : static RELOC_PTRS_WITH(line_params_reloc_ptrs, gx_line_params *plp)</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : {</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       75848 :     if (plp-&gt;dash.pattern_size)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :         RELOC_VAR(plp-&gt;dash.pattern);</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">       75848 : } RELOC_PTRS_END</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : private_st_line_params();</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : /*</span>
+<span id="L59"><span class="lineNum">      59</span>              :  * GC procedures for gs_gstate</span>
+<span id="L60"><span class="lineNum">      60</span>              :  *</span>
+<span id="L61"><span class="lineNum">      61</span>              :  * See comments in gixstate.h before the definition of gs_cr_state_do_rc and</span>
+<span id="L62"><span class="lineNum">      62</span>              :  * st_cr_state_num_ptrs for an explanation about why the effective_transfer</span>
+<span id="L63"><span class="lineNum">      63</span>              :  * pointers are handled in this manner.</span>
+<span id="L64"><span class="lineNum">      64</span>              :  */</span>
+<span id="L65"><span class="lineNum">      65</span>              : public_st_gs_gstate();</span>
+<span id="L66"><span class="lineNum">      66</span>              : static</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">     3109768 : ENUM_PTRS_WITH(gs_gstate_enum_ptrs, gs_gstate *gisvptr)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">      151696 :     ENUM_SUPER(gs_gstate, st_line_params, line_params, st_gs_gstate_num_ptrs - st_line_params_num_ptrs);</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : #define e1(i,elt) ENUM_PTR(i,gs_gstate,elt);</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">     1592808 :     gs_gstate_do_ptrs(e1)</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : #undef e1</span>
+<span id="L72"><span class="lineNum">      72</span>              : #define E1(i,elt) ENUM_PTR(i + gs_gstate_num_ptrs,gs_gstate,elt);</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">     1289416 :     gs_cr_state_do_ptrs(E1)</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : #undef E1</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">       75848 :     case (gs_gstate_num_ptrs + st_cr_state_num_ptrs): /* handle device specially */</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">       75848 :         ENUM_RETURN(gx_device_enum_ptr(gisvptr-&gt;device));</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : ENUM_PTRS_END</span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">       75848 : static RELOC_PTRS_WITH(gs_gstate_reloc_ptrs, gs_gstate *gisvptr)</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : {</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       75848 :     RELOC_SUPER(gs_gstate, st_line_params, line_params);</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : #define r1(i,elt) RELOC_PTR(gs_gstate,elt);</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">       75848 :     gs_gstate_do_ptrs(r1)</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : #undef r1</span>
+<span id="L85"><span class="lineNum">      85</span>              : #define R1(i,elt) RELOC_PTR(gs_gstate,elt);</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">       75848 :     gs_cr_state_do_ptrs(R1)</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : #undef R1</span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">       75848 :     gisvptr-&gt;device = gx_device_reloc_ptr(gisvptr-&gt;device, gcst);</span></span>
+<span id="L90"><span class="lineNum">      90</span>              :     {</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">       75848 :         int i = GX_DEVICE_COLOR_MAX_COMPONENTS - 1;</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">     4930120 :         for (; i &gt;= 0; i--)</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">     4854272 :             RELOC_PTR(gs_gstate, effective_transfer[i]);</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :     }</span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">       75848 : } RELOC_PTRS_END</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : /* Initialize an gs_gstate, other than the parts covered by */</span>
+<span id="L99"><span class="lineNum">      99</span>              : /* GS_STATE_INIT_VALUES(). */</span>
+<span id="L100"><span class="lineNum">     100</span>              : int</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">        9717 : gs_gstate_initialize(gs_gstate * pgs, gs_memory_t * mem)</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : {</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">        9717 :     int i;</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">        9717 :     pgs-&gt;memory = mem;</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">        9717 :     pgs-&gt;client_data = 0;</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">        9717 :     pgs-&gt;trans_device = 0;</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :     /* Color rendering state */</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">        9717 :     pgs-&gt;halftone = 0;</span></span>
+<span id="L109"><span class="lineNum">     109</span>              :     {</span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">        9717 :         int i;</span></span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">       29151 :         for (i = 0; i &lt; gs_color_select_count; ++i)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">       19434 :             pgs-&gt;screen_phase[i].x = pgs-&gt;screen_phase[i].y = 0;</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :     }</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">       48585 :     for (i=0; i &lt; HT_OBJTYPE_COUNT; i++)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">       38868 :         pgs-&gt;dev_ht[i] = NULL;</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">        9717 :     pgs-&gt;cie_render = 0;</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">        9717 :     pgs-&gt;cie_to_xyz = false;</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">        9717 :     pgs-&gt;black_generation = 0;</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">        9717 :     pgs-&gt;undercolor_removal = 0;</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :     /* Allocate an initial transfer map. */</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">        9717 :     rc_alloc_struct_n(pgs-&gt;set_transfer.gray,</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :                       gx_transfer_map, &amp;st_transfer_map,</span>
+<span id="L124"><span class="lineNum">     124</span>              :                       mem, return_error(gs_error_VMerror),</span>
+<span id="L125"><span class="lineNum">     125</span>              :                       &quot;gs_gstate_init(transfer)&quot;, 1);</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">        9717 :     pgs-&gt;set_transfer.gray-&gt;proc = gs_identity_transfer;</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">        9717 :     pgs-&gt;set_transfer.gray-&gt;id = gs_next_ids(pgs-&gt;memory, 1);</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">        9717 :     pgs-&gt;set_transfer.gray-&gt;values[0] = frac_0;</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">        9717 :     pgs-&gt;set_transfer.red =</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">        9717 :         pgs-&gt;set_transfer.green =</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">        9717 :         pgs-&gt;set_transfer.blue = NULL;</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">      631605 :     for (i = 0; i &lt; GX_DEVICE_COLOR_MAX_COMPONENTS; i++)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">      621888 :         pgs-&gt;effective_transfer[i] = pgs-&gt;set_transfer.gray;</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">        9717 :     pgs-&gt;cie_joint_caches = NULL;</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">        9717 :     pgs-&gt;cie_joint_caches_alt = NULL;</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">        9717 :     pgs-&gt;cmap_procs = cmap_procs_default;</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">        9717 :     pgs-&gt;pattern_cache = NULL;</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">        9717 :     pgs-&gt;have_pattern_streams = false;</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">        9717 :     pgs-&gt;devicergb_cs = gs_cspace_new_DeviceRGB(mem);</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">        9717 :     pgs-&gt;devicecmyk_cs = gs_cspace_new_DeviceCMYK(mem);</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">        9717 :     if (pgs-&gt;devicergb_cs == NULL || pgs-&gt;devicecmyk_cs == NULL)</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">        9717 :     pgs-&gt;icc_link_cache = gsicc_cache_new(pgs-&gt;memory);</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">        9717 :     if (pgs-&gt;icc_link_cache == NULL)</span></span>
+<span id="L145"><span class="lineNum">     145</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">        9717 :     pgs-&gt;icc_manager = gsicc_manager_new(pgs-&gt;memory);</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        9717 :     if (pgs-&gt;icc_manager == NULL)</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        9717 :     pgs-&gt;icc_profile_cache = gsicc_profilecache_new(pgs-&gt;memory);</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">        9717 :     if (pgs-&gt;icc_profile_cache == NULL)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">        9717 :     pgs-&gt;black_textvec_state = NULL;</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : #if ENABLE_CUSTOM_COLOR_CALLBACK</span>
+<span id="L154"><span class="lineNum">     154</span>              :     pgs-&gt;custom_color_callback = INIT_CUSTOM_COLOR_PTR;</span>
+<span id="L155"><span class="lineNum">     155</span>              : #endif</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">        9717 :     return 0;</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : /* Increment reference counts to note that an gs_gstate has been copied. */</span>
+<span id="L160"><span class="lineNum">     160</span>              : void</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">      417305 : gs_gstate_copied(gs_gstate * pgs)</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : {</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">      417305 :     int i;</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;halftone);</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">     2086525 :     for (i=0; i &lt; HT_OBJTYPE_COUNT; i++)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">     1669220 :         rc_increment(pgs-&gt;dev_ht[i]);</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;cie_render);</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;black_generation);</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;undercolor_removal);</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;set_transfer.gray);</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;set_transfer.red);</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;set_transfer.green);</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;set_transfer.blue);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;cie_joint_caches);</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;cie_joint_caches_alt);</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;devicergb_cs);</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;devicecmyk_cs);</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;icc_link_cache);</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;icc_profile_cache);</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;icc_manager);</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">      417305 :     rc_increment(pgs-&gt;black_textvec_state);</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">      417305 : }</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span>              : /* Adjust reference counts before assigning one gs_gstate to another. */</span>
+<span id="L186"><span class="lineNum">     186</span>              : void</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC tlaBgUNC">           0 : gs_gstate_pre_assign(gs_gstate *pto, const gs_gstate *pfrom)</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : {</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     const char *const cname = &quot;gs_gstate_pre_assign&quot;;</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              : #define RCCOPY(element)\</span>
+<span id="L193"><span class="lineNum">     193</span>              :     rc_pre_assign(pto-&gt;element, pfrom-&gt;element, cname)</span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     RCCOPY(cie_joint_caches);</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     RCCOPY(cie_joint_caches_alt);</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     RCCOPY(set_transfer.blue);</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     RCCOPY(set_transfer.green);</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :     RCCOPY(set_transfer.red);</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     RCCOPY(set_transfer.gray);</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     RCCOPY(undercolor_removal);</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     RCCOPY(black_generation);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     RCCOPY(cie_render);</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :     for (i=0; i &lt; HT_OBJTYPE_COUNT; i++)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         RCCOPY(dev_ht[i]);</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     RCCOPY(halftone);</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     RCCOPY(devicergb_cs);</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     RCCOPY(devicecmyk_cs);</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     RCCOPY(icc_link_cache);</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     RCCOPY(icc_profile_cache);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     RCCOPY(icc_manager);</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     RCCOPY(black_textvec_state);</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : #undef RCCOPY</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : /* Release a gs_gstate. */</span>
+<span id="L217"><span class="lineNum">     217</span>              : void</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">      694892 : gs_gstate_release(gs_gstate * pgs)</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : {</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">      694892 :     const char *const cname = &quot;gs_gstate_release&quot;;</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">      694892 :     gx_device_halftone *pdht;</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">      694892 :     int i;</span></span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : #define RCDECR(element)\</span>
+<span id="L225"><span class="lineNum">     225</span>              :     rc_decrement(pgs-&gt;element, cname);\</span>
+<span id="L226"><span class="lineNum">     226</span>              :     pgs-&gt;element = NULL      /* prevent subsequent decrements from this gs_gstate */</span>
+<span id="L227"><span class="lineNum">     227</span>              : </span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">      694892 :     RCDECR(cie_joint_caches);</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">      694892 :     RCDECR(set_transfer.gray);</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">      694892 :     RCDECR(set_transfer.blue);</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">      694892 :     RCDECR(set_transfer.green);</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">      694892 :     RCDECR(set_transfer.red);</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">      694892 :     RCDECR(undercolor_removal);</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">      694892 :     RCDECR(black_generation);</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">      694892 :     RCDECR(cie_render);</span></span>
+<span id="L236"><span class="lineNum">     236</span>              :     /*</span>
+<span id="L237"><span class="lineNum">     237</span>              :      * If we're going to free a device halftone, make sure we free the</span>
+<span id="L238"><span class="lineNum">     238</span>              :      * dependent structures as well.</span>
+<span id="L239"><span class="lineNum">     239</span>              :      */</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">     3474460 :     for (i=0; i &lt; HT_OBJTYPE_COUNT; i++) {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">     2779568 :         pdht = pgs-&gt;dev_ht[i];</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">     2779568 :         if (pdht != NULL &amp;&amp; pdht-&gt;rc.ref_count == 1) {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">          36 :             gx_device_halftone_release(pdht, pdht-&gt;rc.memory);</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :         }</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">     2779568 :         RCDECR(dev_ht[i]);</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :     }</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">      694892 :     RCDECR(halftone);</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">      694892 :     RCDECR(devicergb_cs);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">      694892 :     RCDECR(devicecmyk_cs);</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">      694892 :     RCDECR(icc_link_cache);</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">      694892 :     RCDECR(icc_profile_cache);</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">      694892 :     RCDECR(icc_manager);</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">      694892 :     RCDECR(black_textvec_state);</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : #undef RCDECR</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">      694892 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

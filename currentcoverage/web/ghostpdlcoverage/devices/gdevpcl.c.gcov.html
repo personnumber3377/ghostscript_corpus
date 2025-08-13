@@ -1,0 +1,524 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/devices/gdevpcl.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/devices</a> - gdevpcl.c<span style="font-size: 80%;"> (source / <a href="gdevpcl.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Utilities for PCL printers */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;gdevprn.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gdevpcl.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;math_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : /* ------ Get paper size ------ */</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : /* Get the paper size code, based on width and height. */</span>
+<span id="L25"><span class="lineNum">      25</span>              : int</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 : gdev_pcl_paper_size(gx_device * dev)</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :     float width_inches = dev-&gt;width / dev-&gt;x_pixels_per_inch;</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :     float height_inches = dev-&gt;height / dev-&gt;y_pixels_per_inch;</span></span>
+<span id="L30"><span class="lineNum">      30</span>              :     /* The initial value for height_difference, and for code below, is</span>
+<span id="L31"><span class="lineNum">      31</span>              :        unnecessary and is here just to stop the compiler from</span>
+<span id="L32"><span class="lineNum">      32</span>              :        complaining about a possible uninitialized variable usage. */</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :     float width_difference = -1.0, height_difference = -1.0;</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :     float new_width_difference, new_height_difference;</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :     int code = PAPER_SIZE_LETTER;</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     if (dev-&gt;width &gt; dev-&gt;height) {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         /* Landscape orientation, switch width and height to find paper size */</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         width_inches = dev-&gt;height / dev-&gt;y_pixels_per_inch;</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         height_inches = dev-&gt;width / dev-&gt;x_pixels_per_inch;</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :     }</span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              :     /* Since we're telling the printer when to eject and start a new</span>
+<span id="L44"><span class="lineNum">      44</span>              :        page, the paper height doesn't matter a great deal, as long as</span>
+<span id="L45"><span class="lineNum">      45</span>              :        we ensure that it's at least as high as we want our pages to</span>
+<span id="L46"><span class="lineNum">      46</span>              :        be.  However, the paper width is important, because on printers</span>
+<span id="L47"><span class="lineNum">      47</span>              :        which center the paper in the input tray, having the wrong</span>
+<span id="L48"><span class="lineNum">      48</span>              :        width will cause the image to appear in the wrong place on the</span>
+<span id="L49"><span class="lineNum">      49</span>              :        paper (perhaps even partially missing the paper completely).</span>
+<span id="L50"><span class="lineNum">      50</span>              :        Therefore, we choose our paper size by finding one whose width</span>
+<span id="L51"><span class="lineNum">      51</span>              :        and height are both equal to or greater than the desired width</span>
+<span id="L52"><span class="lineNum">      52</span>              :        and height and whose width is the closest to what we want.  We</span>
+<span id="L53"><span class="lineNum">      53</span>              :        only pay close attention to the height when the widths of two</span>
+<span id="L54"><span class="lineNum">      54</span>              :        different paper sizes are equal.</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              :        We use &quot;foo - bar &gt; -0.01&quot; instead of &quot;foo &gt;= bar&quot; to avoid</span>
+<span id="L57"><span class="lineNum">      57</span>              :        minor floating point and rounding errors.</span>
+<span id="L58"><span class="lineNum">      58</span>              :     */</span>
+<span id="L59"><span class="lineNum">      59</span>              : #define CHECK_PAPER_SIZE(w,h,c)                                                 \</span>
+<span id="L60"><span class="lineNum">      60</span>              :     new_width_difference = w - width_inches;                                    \</span>
+<span id="L61"><span class="lineNum">      61</span>              :     new_height_difference = h - height_inches;                                  \</span>
+<span id="L62"><span class="lineNum">      62</span>              :     if ((new_width_difference &gt; -0.01) &amp;&amp; (new_height_difference &gt; -0.01) &amp;&amp;      \</span>
+<span id="L63"><span class="lineNum">      63</span>              :         ((width_difference == -1.0) ||                                          \</span>
+<span id="L64"><span class="lineNum">      64</span>              :          (new_width_difference &lt; width_difference) ||                                \</span>
+<span id="L65"><span class="lineNum">      65</span>              :          ((new_width_difference == width_difference) &amp;&amp;                         \</span>
+<span id="L66"><span class="lineNum">      66</span>              :           (new_height_difference &lt; height_difference)))) {                   \</span>
+<span id="L67"><span class="lineNum">      67</span>              :       width_difference = new_width_difference;                                  \</span>
+<span id="L68"><span class="lineNum">      68</span>              :       height_difference = new_height_difference;                                \</span>
+<span id="L69"><span class="lineNum">      69</span>              :       code = c;                                                                 \</span>
+<span id="L70"><span class="lineNum">      70</span>              :     }</span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 7.25, 10.5 , PAPER_SIZE_EXECUTIVE);</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 8.5 , 11.0 , PAPER_SIZE_LETTER);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 8.5 , 14.0 , PAPER_SIZE_LEGAL);</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(11.0 , 17.0 , PAPER_SIZE_LEDGER);</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 5.83,  8.27, PAPER_SIZE_A5);</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 8.27, 11.69, PAPER_SIZE_A4);</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(11.69, 16.54, PAPER_SIZE_A3);</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(16.54, 23.39, PAPER_SIZE_A2);</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(23.39, 33.11, PAPER_SIZE_A1);</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(33.11, 46.81, PAPER_SIZE_A0);</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 7.16, 10.12, PAPER_SIZE_JIS_B5);</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE(10.12, 14.33, PAPER_SIZE_JIS_B4);</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 3.94,  5.83, PAPER_SIZE_JPOST);</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 5.83,  7.87, PAPER_SIZE_JPOSTD);</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 3.87,  7.5 , PAPER_SIZE_MONARCH);</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 4.12,  9.5 , PAPER_SIZE_COM10);</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 4.33,  8.66, PAPER_SIZE_DL);</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 6.38,  9.01, PAPER_SIZE_C5);</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     CHECK_PAPER_SIZE( 6.93,  9.84, PAPER_SIZE_B5);</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              : #undef CHECK_PAPER_SIZE</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L95"><span class="lineNum">      95</span>              : }</span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span>              : /* ------ Get page orientation ------ */</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : /* Get the page orientation, based on width and height. */</span>
+<span id="L100"><span class="lineNum">     100</span>              : int</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 : gdev_pcl_page_orientation(gx_device * dev)</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : {</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :     if (dev-&gt;height &gt;= dev-&gt;width)</span></span>
+<span id="L104"><span class="lineNum">     104</span>              :         return PAGE_ORIENTATION_PORTRAIT;</span>
+<span id="L105"><span class="lineNum">     105</span>              :     else</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         return PAGE_ORIENTATION_LANDSCAPE;</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : }</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              : /* ------ Color mapping ------ */</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : /* The PaintJet and DeskJet 500C use additive colors in separate planes. */</span>
+<span id="L112"><span class="lineNum">     112</span>              : /* We only keep one bit of color, with 1 = R, 2 = G, 4 = B. */</span>
+<span id="L113"><span class="lineNum">     113</span>              : /* Because the buffering routines assume 0 = white, */</span>
+<span id="L114"><span class="lineNum">     114</span>              : /* we complement all the color components. */</span>
+<span id="L115"><span class="lineNum">     115</span>              : #define cv_shift (sizeof(gx_color_value) * 8 - 1)</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : /* Map an RGB color to a printer color. */</span>
+<span id="L118"><span class="lineNum">     118</span>              : gx_color_index</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 : gdev_pcl_3bit_map_rgb_color(gx_device * dev, const gx_color_value cv[])</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : {</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :     gx_color_value r, g, b;</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :     r = cv[0]; g = cv[1]; b = cv[2];</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :     return (((b &gt;&gt; cv_shift) &lt;&lt; 2) + ((g &gt;&gt; cv_shift) &lt;&lt; 1) + (r &gt;&gt; cv_shift)) ^ 7;</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : }</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span>              : /* Map the printer color back to RGB. */</span>
+<span id="L127"><span class="lineNum">     127</span>              : int</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 : gdev_pcl_3bit_map_color_rgb(gx_device * dev, gx_color_index color,</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :                             gx_color_value prgb[3])</span>
+<span id="L130"><span class="lineNum">     130</span>              : {</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :     ushort cc = (ushort) color ^ 7;</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :     prgb[0] = -(cc &amp; 1);</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :     prgb[1] = -((cc &gt;&gt; 1) &amp; 1);</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     prgb[2] = -(cc &gt;&gt; 2);</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : }</span>
+<span id="L138"><span class="lineNum">     138</span>              : </span>
+<span id="L139"><span class="lineNum">     139</span>              : /* ------ Compression ------ */</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : /*</span>
+<span id="L142"><span class="lineNum">     142</span>              :  * Mode 2 Row compression routine for the HP DeskJet &amp; LaserJet IIp.</span>
+<span id="L143"><span class="lineNum">     143</span>              :  * Compresses data from row up to end_row, storing the result</span>
+<span id="L144"><span class="lineNum">     144</span>              :  * starting at compressed.  Returns the number of bytes stored.</span>
+<span id="L145"><span class="lineNum">     145</span>              :  * Runs of K&lt;=127 literal bytes are encoded as K-1 followed by</span>
+<span id="L146"><span class="lineNum">     146</span>              :  * the bytes; runs of 2&lt;=K&lt;=127 identical bytes are encoded as</span>
+<span id="L147"><span class="lineNum">     147</span>              :  * 257-K followed by the byte.</span>
+<span id="L148"><span class="lineNum">     148</span>              :  * In the worst case, the result is N+(N/127)+1 bytes long,</span>
+<span id="L149"><span class="lineNum">     149</span>              :  * where N is the original byte count (end_row - row).</span>
+<span id="L150"><span class="lineNum">     150</span>              :  * To speed up the search, we examine an entire word at a time.</span>
+<span id="L151"><span class="lineNum">     151</span>              :  * We will miss a few blocks of identical bytes; tant pis.</span>
+<span id="L152"><span class="lineNum">     152</span>              :  */</span>
+<span id="L153"><span class="lineNum">     153</span>              : int</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : gdev_pcl_mode2compress_padded(const word * row, const word * end_row,</span></span>
+<span id="L155"><span class="lineNum">     155</span>              :                               byte * compressed, bool pad)</span>
+<span id="L156"><span class="lineNum">     156</span>              : {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :     register const word *exam = row;    /* word being examined in the row to compress */</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     register byte *cptr = compressed;   /* output pointer into compressed bytes */</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     while (exam &lt; end_row) { /* Search ahead in the input looking for a run */</span></span>
+<span id="L161"><span class="lineNum">     161</span>              :         /* of at least 4 identical bytes. */</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         const byte *compr = (const byte *)exam;</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         const byte *end_dis;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         const word *next;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         register word test = *exam;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         while (((test &lt;&lt; 8) ^ test) &gt; 0xff) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :             if (++exam &gt;= end_row)</span></span>
+<span id="L169"><span class="lineNum">     169</span>              :                 break;</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :             test = *exam;</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :         }</span>
+<span id="L172"><span class="lineNum">     172</span>              : </span>
+<span id="L173"><span class="lineNum">     173</span>              :         /* Find out how long the run is */</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         end_dis = (const byte *)exam;</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         if (exam == end_row) {  /* no run */</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :             /* See if any of the last 3 &quot;dissimilar&quot; bytes are 0. */</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :             if (!pad &amp;&amp; end_dis &gt; compr &amp;&amp; end_dis[-1] == 0) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 if (end_dis[-2] != 0)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                     end_dis--;</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 else if (end_dis[-3] != 0)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                     end_dis -= 2;</span></span>
+<span id="L182"><span class="lineNum">     182</span>              :                 else</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                     end_dis -= 3;</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :             }</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :             next = --end_row;</span></span>
+<span id="L186"><span class="lineNum">     186</span>              :         } else {</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :             next = exam + 1;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :             while (next &lt; end_row &amp;&amp; *next == test)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 next++;</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :             /* See if any of the last 3 &quot;dissimilar&quot; bytes */</span>
+<span id="L191"><span class="lineNum">     191</span>              :             /* are the same as the repeated byte. */</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :             if (end_dis &gt; compr &amp;&amp; end_dis[-1] == (byte) test) {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 if (end_dis[-2] != (byte) test)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                     end_dis--;</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 else if (end_dis[-3] != (byte) test)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                     end_dis -= 2;</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :                 else</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                     end_dis -= 3;</span></span>
+<span id="L199"><span class="lineNum">     199</span>              :             }</span>
+<span id="L200"><span class="lineNum">     200</span>              :         }</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              :         /* Now [compr..end_dis) should be encoded as dissimilar, */</span>
+<span id="L203"><span class="lineNum">     203</span>              :         /* and [end_dis..next) should be encoded as similar. */</span>
+<span id="L204"><span class="lineNum">     204</span>              :         /* Note that either of these ranges may be empty. */</span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         for (;;) {              /* Encode up to 127 dissimilar bytes */</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :             uint count = end_dis - compr;       /* uint for faster switch */</span></span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :             switch (count) {    /* Use memcpy only if it's worthwhile. */</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 case 6:</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                     cptr[6] = compr[5];</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 case 5:</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                     cptr[5] = compr[4];</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 case 4:</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                     cptr[4] = compr[3];</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 case 3:</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                     cptr[3] = compr[2];</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 case 2:</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                     cptr[2] = compr[1];</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 case 1:</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                     cptr[1] = compr[0];</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                     *cptr = count - 1;</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                     cptr += count + 1;</span></span>
+<span id="L224"><span class="lineNum">     224</span>              :                 case 0: /* all done */</span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                     break;</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 default:</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                     if (count &gt; 127)</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :                         count = 127;</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                     *cptr++ = count - 1;</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                     memcpy(cptr, compr, count);</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                     cptr += count, compr += count;</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                     continue;</span></span>
+<span id="L233"><span class="lineNum">     233</span>              :             }</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :         }</span>
+<span id="L236"><span class="lineNum">     236</span>              : </span>
+<span id="L237"><span class="lineNum">     237</span>              :         {                       /* Encode up to 127 similar bytes. */</span>
+<span id="L238"><span class="lineNum">     238</span>              :             /* Note that count may be &lt;0 at end of row. */</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :             int count = (const byte *)next - end_dis;</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :             while (count &gt; 0) {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 int this = (count &gt; 127 ? 127 : count);</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 *cptr++ = 257 - this;</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 *cptr++ = (byte) test;</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 count -= this;</span></span>
+<span id="L247"><span class="lineNum">     247</span>              :             }</span>
+<span id="L248"><span class="lineNum">     248</span>              :             exam = next;</span>
+<span id="L249"><span class="lineNum">     249</span>              :         }</span>
+<span id="L250"><span class="lineNum">     250</span>              :     }</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :     return (cptr - compressed);</span></span>
+<span id="L252"><span class="lineNum">     252</span>              : }</span>
+<span id="L253"><span class="lineNum">     253</span>              : int</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 : gdev_pcl_mode2compress(const word * row, const word * end_row,</span></span>
+<span id="L255"><span class="lineNum">     255</span>              :                        byte * compressed)</span>
+<span id="L256"><span class="lineNum">     256</span>              : {</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :     return gdev_pcl_mode2compress_padded(row, end_row, compressed, false);</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : /*</span>
+<span id="L261"><span class="lineNum">     261</span>              :  * Mode 3 compression routine for the HP LaserJet III family.</span>
+<span id="L262"><span class="lineNum">     262</span>              :  * Compresses bytecount bytes starting at current, storing the result</span>
+<span id="L263"><span class="lineNum">     263</span>              :  * in compressed, comparing against and updating previous.</span>
+<span id="L264"><span class="lineNum">     264</span>              :  * Returns the number of bytes stored.  In the worst case,</span>
+<span id="L265"><span class="lineNum">     265</span>              :  * the number of bytes is bytecount+(bytecount/8)+1.</span>
+<span id="L266"><span class="lineNum">     266</span>              :  */</span>
+<span id="L267"><span class="lineNum">     267</span>              : int</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 : gdev_pcl_mode3compress(int bytecount, const byte * current, byte * previous, byte * compressed)</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : {</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :     register const byte *cur = current;</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :     register byte *prev = previous;</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :     register byte *out = compressed;</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :     const byte *end = current + bytecount;</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :     while (cur &lt; end) {              /* Detect a maximum run of unchanged bytes. */</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :         const byte *run = cur;</span>
+<span id="L277"><span class="lineNum">     277</span>              :         register const byte *diff;</span>
+<span id="L278"><span class="lineNum">     278</span>              :         const byte *stop;</span>
+<span id="L279"><span class="lineNum">     279</span>              :         int offset, cbyte;</span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         while (cur &lt; end &amp;&amp; *cur == *prev) {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :             cur++, prev++;</span></span>
+<span id="L283"><span class="lineNum">     283</span>              :         }</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         if (cur == end)</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :             break;              /* rest of row is unchanged */</span>
+<span id="L286"><span class="lineNum">     286</span>              :         /* Detect a run of up to 8 changed bytes. */</span>
+<span id="L287"><span class="lineNum">     287</span>              :         /* We know that *cur != *prev. */</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         diff = cur;</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         stop = (end - cur &gt; 8 ? cur + 8 : end);</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         do {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :             *prev++ = *cur++;</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :         }</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         while (cur &lt; stop &amp;&amp; *cur != *prev);</span></span>
+<span id="L294"><span class="lineNum">     294</span>              :         /* Now [run..diff) are unchanged, and */</span>
+<span id="L295"><span class="lineNum">     295</span>              :         /* [diff..cur) are changed. */</span>
+<span id="L296"><span class="lineNum">     296</span>              :         /* Generate the command byte(s). */</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :         offset = diff - run;</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         cbyte = (cur - diff - 1) &lt;&lt; 5;</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         if (offset &lt; 31)</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :             *out++ = cbyte + offset;</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :         else {</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :             *out++ = cbyte + 31;</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :             offset -= 31;</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :             while (offset &gt;= 255)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                 *out++ = 255, offset -= 255;</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :             *out++ = offset;</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :         }</span>
+<span id="L308"><span class="lineNum">     308</span>              :         /* Copy the changed data. */</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         while (diff &lt; cur)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :             *out++ = *diff++;</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :     }</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     return out - compressed;</span></span>
+<span id="L313"><span class="lineNum">     313</span>              : }</span>
+<span id="L314"><span class="lineNum">     314</span>              : </span>
+<span id="L315"><span class="lineNum">     315</span>              : /*</span>
+<span id="L316"><span class="lineNum">     316</span>              :  * Mode 9 2D compression for the HP DeskJets . This mode can give</span>
+<span id="L317"><span class="lineNum">     317</span>              :  * very good compression ratios, especially if there are areas of flat</span>
+<span id="L318"><span class="lineNum">     318</span>              :  * colour (or blank areas), and so is 'highly recommended' for colour</span>
+<span id="L319"><span class="lineNum">     319</span>              :  * printing in particular because of the very large amounts of data which</span>
+<span id="L320"><span class="lineNum">     320</span>              :  * can be generated</span>
+<span id="L321"><span class="lineNum">     321</span>              :  */</span>
+<span id="L322"><span class="lineNum">     322</span>              : int</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 : gdev_pcl_mode9compress(int bytecount, const byte *current,</span></span>
+<span id="L324"><span class="lineNum">     324</span>              :                        const byte *previous, byte *compressed)</span>
+<span id="L325"><span class="lineNum">     325</span>              : {</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :     register const byte *cur = current;</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :     register const byte *prev = previous;</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     register byte *out = compressed;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :     const byte *end = current + bytecount;</span></span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :     while (cur &lt; end) {              /* Detect a run of unchanged bytes. */</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :         const byte *run = cur;</span>
+<span id="L333"><span class="lineNum">     333</span>              :         register const byte *diff;</span>
+<span id="L334"><span class="lineNum">     334</span>              :         int offset;</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         while (cur &lt; end &amp;&amp; *cur == *prev) {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :             cur++, prev++;</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :         }</span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         if (cur == end)</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :             break;              /* rest of row is unchanged */</span>
+<span id="L341"><span class="lineNum">     341</span>              :         /* Detect a run of changed bytes. */</span>
+<span id="L342"><span class="lineNum">     342</span>              :         /* We know that *cur != *prev. */</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         diff = cur;</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         do {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :             prev++;</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :             cur++;</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :         }</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         while (cur &lt; end &amp;&amp; *cur != *prev);</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :         /* Now [run..diff) are unchanged, and */</span>
+<span id="L350"><span class="lineNum">     350</span>              :         /* [diff..cur) are changed. */</span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         offset = diff - run;</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :         {</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :             const byte *stop_test = cur - 4;</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :             int dissimilar, similar;</span></span>
+<span id="L355"><span class="lineNum">     355</span>              : </span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :             while (diff &lt; cur) {</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 const byte *compr = diff;</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :                 const byte *next;       /* end of run */</span>
+<span id="L359"><span class="lineNum">     359</span>              :                 byte value = 0;</span>
+<span id="L360"><span class="lineNum">     360</span>              : </span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 while (diff &lt;= stop_test &amp;&amp;</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                        ((value = *diff) != diff[1] ||</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                         value != diff[2] ||</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         value != diff[3]))</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                     diff++;</span></span>
+<span id="L366"><span class="lineNum">     366</span>              : </span>
+<span id="L367"><span class="lineNum">     367</span>              :                 /* Find out how long the run is */</span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 if (diff &gt; stop_test)        /* no run */</span></span>
+<span id="L369"><span class="lineNum">     369</span>              :                     next = diff = cur;</span>
+<span id="L370"><span class="lineNum">     370</span>              :                 else {</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                     next = diff + 4;</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                     while (next &lt; cur &amp;&amp; *next == value)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                         next++;</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :                 }</span>
+<span id="L375"><span class="lineNum">     375</span>              : </span>
+<span id="L376"><span class="lineNum">     376</span>              : #define MAXOFFSETU 15</span>
+<span id="L377"><span class="lineNum">     377</span>              : #define MAXCOUNTU 7</span>
+<span id="L378"><span class="lineNum">     378</span>              :                 /* output 'dissimilar' bytes, uncompressed */</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 if ((dissimilar = diff - compr)) {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                     int temp, i;</span></span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                     if ((temp = --dissimilar) &gt; MAXCOUNTU)</span></span>
+<span id="L383"><span class="lineNum">     383</span>              :                         temp = MAXCOUNTU;</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                     if (offset &lt; MAXOFFSETU)</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                         *out++ = (offset &lt;&lt; 3) | (byte) temp;</span></span>
+<span id="L386"><span class="lineNum">     386</span>              :                     else {</span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                         *out++ = (MAXOFFSETU &lt;&lt; 3) | (byte) temp;</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                         offset -= MAXOFFSETU;</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                         while (offset &gt;= 255) {</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                             *out++ = 255;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                             offset -= 255;</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :                         }</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                         *out++ = offset;</span></span>
+<span id="L394"><span class="lineNum">     394</span>              :                     }</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                     if (temp == MAXCOUNTU) {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                         temp = dissimilar - MAXCOUNTU;</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                         while (temp &gt;= 255) {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                             *out++ = 255;</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                             temp -= 255;</span></span>
+<span id="L400"><span class="lineNum">     400</span>              :                         }</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                         *out++ = (byte) temp;</span></span>
+<span id="L402"><span class="lineNum">     402</span>              :                     }</span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                     for (i = 0; i &lt;= dissimilar; i++)</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                         *out++ = *compr++;</span></span>
+<span id="L405"><span class="lineNum">     405</span>              :                     offset = 0;</span>
+<span id="L406"><span class="lineNum">     406</span>              :                 }               /* end uncompressed */</span>
+<span id="L407"><span class="lineNum">     407</span>              : #undef MAXOFFSETU</span>
+<span id="L408"><span class="lineNum">     408</span>              : #undef MAXCOUNTU</span>
+<span id="L409"><span class="lineNum">     409</span>              : </span>
+<span id="L410"><span class="lineNum">     410</span>              : #define MAXOFFSETC 3</span>
+<span id="L411"><span class="lineNum">     411</span>              : #define MAXCOUNTC 31</span>
+<span id="L412"><span class="lineNum">     412</span>              :                 /* output 'similar' bytes, run-length encoded */</span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 if ((similar = next - diff)) {</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                     int temp;</span></span>
+<span id="L415"><span class="lineNum">     415</span>              : </span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                     if ((temp = (similar -= 2)) &gt; MAXCOUNTC)</span></span>
+<span id="L417"><span class="lineNum">     417</span>              :                         temp = MAXCOUNTC;</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                     if (offset &lt; MAXOFFSETC)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                         *out++ = 0x80 | (offset &lt;&lt; 5) | (byte) temp;</span></span>
+<span id="L420"><span class="lineNum">     420</span>              :                     else {</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                         *out++ = 0x80 | (MAXOFFSETC &lt;&lt; 5) | (byte) temp;</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                         offset -= MAXOFFSETC;</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                         while (offset &gt;= 255) {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                             *out++ = 255;</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                             offset -= 255;</span></span>
+<span id="L426"><span class="lineNum">     426</span>              :                         }</span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                         *out++ = offset;</span></span>
+<span id="L428"><span class="lineNum">     428</span>              :                     }</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                     if (temp == MAXCOUNTC) {</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                         temp = similar - MAXCOUNTC;</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                         while (temp &gt;= 255) {</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                             *out++ = 255;</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                             temp -= 255;</span></span>
+<span id="L434"><span class="lineNum">     434</span>              :                         }</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                         *out++ = (byte) temp;</span></span>
+<span id="L436"><span class="lineNum">     436</span>              :                     }</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                     *out++ = value;</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                     offset = 0;</span></span>
+<span id="L439"><span class="lineNum">     439</span>              :                 }               /* end compressed */</span>
+<span id="L440"><span class="lineNum">     440</span>              : #undef MAXOFFSETC</span>
+<span id="L441"><span class="lineNum">     441</span>              : #undef MAXCOUNTC</span>
+<span id="L442"><span class="lineNum">     442</span>              : </span>
+<span id="L443"><span class="lineNum">     443</span>              :                 diff = next;</span>
+<span id="L444"><span class="lineNum">     444</span>              :             }</span>
+<span id="L445"><span class="lineNum">     445</span>              :         }</span>
+<span id="L446"><span class="lineNum">     446</span>              :     }</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :     return out - compressed;</span></span>
+<span id="L448"><span class="lineNum">     448</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

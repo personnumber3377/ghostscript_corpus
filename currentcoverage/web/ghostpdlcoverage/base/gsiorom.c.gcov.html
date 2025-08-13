@@ -1,0 +1,528 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsiorom.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsiorom.c<span style="font-size: 80%;"> (source / <a href="gsiorom.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">82.0&nbsp;%</td>
+            <td class="headerCovTableEntry">194</td>
+            <td class="headerCovTableEntry">159</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryMed">84.6&nbsp;%</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">11</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2024 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* %rom% IODevice implementation for a compressed in-memory filesystem */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : /*</span>
+<span id="L20"><span class="lineNum">      20</span>              :  * This file implements a special %rom% IODevice designed for embedded</span>
+<span id="L21"><span class="lineNum">      21</span>              :  * use. It accesses a compressed filesytem image which may be stored</span>
+<span id="L22"><span class="lineNum">      22</span>              :  * in literal ROM, or more commonly is just static data linked directly</span>
+<span id="L23"><span class="lineNum">      23</span>              :  * into the executable. This can be used for storing postscript library</span>
+<span id="L24"><span class="lineNum">      24</span>              :  * files, fonts, Resources or other data files that Ghostscript needs</span>
+<span id="L25"><span class="lineNum">      25</span>              :  * to run.</span>
+<span id="L26"><span class="lineNum">      26</span>              :  */</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;std.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;stdint_.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;string_.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gsiorom.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;gx.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;gpcheck.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;gsutil.h&quot;</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;gxiodev.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;stream.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;stat_.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;zlib.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : /* device method prototypes */</span>
+<span id="L43"><span class="lineNum">      43</span>              : static iodev_proc_init(romfs_init);</span>
+<span id="L44"><span class="lineNum">      44</span>              : static iodev_proc_finit(romfs_finit);</span>
+<span id="L45"><span class="lineNum">      45</span>              : static iodev_proc_open_file(romfs_open_file);</span>
+<span id="L46"><span class="lineNum">      46</span>              : static iodev_proc_file_status(romfs_file_status);</span>
+<span id="L47"><span class="lineNum">      47</span>              : static iodev_proc_enumerate_files(romfs_enumerate_files_init);</span>
+<span id="L48"><span class="lineNum">      48</span>              : static iodev_proc_enumerate_next(romfs_enumerate_next);</span>
+<span id="L49"><span class="lineNum">      49</span>              : static iodev_proc_enumerate_close(romfs_enumerate_close);</span>
+<span id="L50"><span class="lineNum">      50</span>              : /* close is handled by stream closure */</span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : /* device definition */</span>
+<span id="L53"><span class="lineNum">      53</span>              : const gx_io_device gs_iodev_rom =</span>
+<span id="L54"><span class="lineNum">      54</span>              : {</span>
+<span id="L55"><span class="lineNum">      55</span>              :     &quot;%rom%&quot;, &quot;FileSystem&quot;,</span>
+<span id="L56"><span class="lineNum">      56</span>              :     {romfs_init, romfs_finit, iodev_no_open_device,</span>
+<span id="L57"><span class="lineNum">      57</span>              :      romfs_open_file,</span>
+<span id="L58"><span class="lineNum">      58</span>              :      iodev_no_fopen, iodev_no_fclose,</span>
+<span id="L59"><span class="lineNum">      59</span>              :      iodev_no_delete_file, iodev_no_rename_file,</span>
+<span id="L60"><span class="lineNum">      60</span>              :      romfs_file_status,</span>
+<span id="L61"><span class="lineNum">      61</span>              :      romfs_enumerate_files_init, romfs_enumerate_next, romfs_enumerate_close,</span>
+<span id="L62"><span class="lineNum">      62</span>              :      iodev_no_get_params, iodev_no_put_params</span>
+<span id="L63"><span class="lineNum">      63</span>              :     },</span>
+<span id="L64"><span class="lineNum">      64</span>              :     NULL,</span>
+<span id="L65"><span class="lineNum">      65</span>              :     NULL</span>
+<span id="L66"><span class="lineNum">      66</span>              : };</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : /* internal state for our device */</span>
+<span id="L69"><span class="lineNum">      69</span>              : typedef struct romfs_state_s {</span>
+<span id="L70"><span class="lineNum">      70</span>              :     int atblock;                        /* for later when we decompress by blocks */</span>
+<span id="L71"><span class="lineNum">      71</span>              : } romfs_state;</span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              : gs_private_st_simple(st_romfs_state, struct romfs_state_s, &quot;romfs_state&quot;);</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : typedef struct romfs_file_enum_s {</span>
+<span id="L76"><span class="lineNum">      76</span>              :     char *pattern;              /* pattern pointer    */</span>
+<span id="L77"><span class="lineNum">      77</span>              :     int  list_index;            /* next node to visit */</span>
+<span id="L78"><span class="lineNum">      78</span>              :     gs_memory_t *memory;        /* memory structure used */</span>
+<span id="L79"><span class="lineNum">      79</span>              : } romfs_file_enum;</span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              : gs_private_st_ptrs1(st_romfs_file_enum, struct romfs_file_enum_s, &quot;romfs_file_enum&quot;,</span>
+<span id="L82"><span class="lineNum">      82</span>              :     romfs_file_enum_enum_ptrs, romfs_file_enum_reloc_ptrs, pattern);</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : static uint32_t get_u32_big_endian(const uint32_t *a);</span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : /* coverity[ -tainted_data_return ] */</span>
+<span id="L87"><span class="lineNum">      87</span>              : /* coverity[ -tainted_data_argument : arg-0 ] */</span>
+<span id="L88"><span class="lineNum">      88</span>              : static uint32_t</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC tlaBgGNC">    79523071 : get_u32_big_endian(const uint32_t *a)</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : {</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">    79523071 :     uint32_t v;</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">    79523071 :     const unsigned char *c=(const unsigned char *)a;</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">    79523071 :     v = (((uint32_t)c[0])&lt;&lt;24) | (((uint32_t)c[1])&lt;&lt;16) | (((uint32_t)c[2])&lt;&lt;8) | c[3];</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">    79523071 :     return v;</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : }</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : /* ------ Block streams, potentially compressed (read only) ------ */</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : /* String stream procedures */</span>
+<span id="L101"><span class="lineNum">     101</span>              : static int</span>
+<span id="L102"><span class="lineNum">     102</span>              :     s_block_read_available(stream *, gs_offset_t *),</span>
+<span id="L103"><span class="lineNum">     103</span>              :     s_block_read_seek(stream *, gs_offset_t),</span>
+<span id="L104"><span class="lineNum">     104</span>              :     s_block_read_close(stream *),</span>
+<span id="L105"><span class="lineNum">     105</span>              :     s_block_read_process(stream_state *, stream_cursor_read *,</span>
+<span id="L106"><span class="lineNum">     106</span>              :                           stream_cursor_write *, bool);</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : /* Initialize a stream for reading from a collection of blocks */</span>
+<span id="L109"><span class="lineNum">     109</span>              : static void</span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">      154152 : sread_block(register stream *s,  const byte *ptr, uint len, const uint32_t *node )</span></span>
+<span id="L111"><span class="lineNum">     111</span>              : {</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">      154152 :     static const stream_procs p = {</span></span>
+<span id="L113"><span class="lineNum">     113</span>              :          s_block_read_available, s_block_read_seek, s_std_read_reset,</span>
+<span id="L114"><span class="lineNum">     114</span>              :          s_std_read_flush, s_block_read_close, s_block_read_process,</span>
+<span id="L115"><span class="lineNum">     115</span>              :          NULL           /* no read_switch */</span>
+<span id="L116"><span class="lineNum">     116</span>              :     };</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">      154152 :     s_std_init(s, (byte *)ptr, len, &amp;p, s_mode_read + s_mode_seek);</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">      154152 :     s-&gt;end_status = 0;</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">      154152 :     s-&gt;file = (gp_file *)node;       /* convenient place to put it for %rom% files */</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">      154152 :     s-&gt;file_modes = s-&gt;modes;</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">      154152 :     s-&gt;file_offset = 0;</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">      154152 :     s-&gt;file_limit = S_FILE_LIMIT_MAX;</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">      154152 : }</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span>              : /* Return the number of available bytes */</span>
+<span id="L126"><span class="lineNum">     126</span>              : static int</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">       48621 : s_block_read_available(stream *s, gs_offset_t *pl)</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : {</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">       48621 :     uint32_t *node = (uint32_t *)s-&gt;file;</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">       48621 :     uint32_t filelen = get_u32_big_endian(node) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">       48621 :     *pl = filelen - s-&gt;position - (sbufptr(s) - s-&gt;cbuf);</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">       48621 :     if (*pl == 0 &amp;&amp; s-&gt;close_at_eod) /* EOF */</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :         *pl = -1;</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC tlaBgGNC">       48621 :     return 0;</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : /* Seek in a string being read.  Return 0 if OK, ERRC if not. */</span>
+<span id="L139"><span class="lineNum">     139</span>              : static int</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">      145863 : s_block_read_seek(register stream * s, gs_offset_t pos)</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">      145863 :     uint32_t *node = (uint32_t *)s-&gt;file;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">      145863 :     uint32_t filelen = get_u32_big_endian(node) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">      145863 :     uint end = s-&gt;cursor.r.limit - s-&gt;cbuf + 1;</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">      145863 :     long offset = pos - s-&gt;position;</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : </span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">      145863 :     if (pos &lt; 0 || pos &gt; filelen)</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         return ERRC;</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">      145863 :     if (offset &lt; 0 || offset &gt; end) {</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         /* Need to pull a different block into the buffer */</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">       58338 :         stream_cursor_write pw;</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              :         /* buffer stays aligned to blocks */</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">       58338 :         offset = (s-&gt;file_offset + pos) % ROMFS_BLOCKSIZE;</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">       58338 :         s-&gt;position = pos - offset;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">       58338 :         pw.ptr = s-&gt;cbuf - 1;</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">       58338 :         pw.limit = pw.ptr + s-&gt;cbsize;</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">       58338 :         s-&gt;cursor.r.ptr = s-&gt;cursor.r.limit = s-&gt;cbuf - 1;</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">       58338 :         if ((s-&gt;end_status = s_block_read_process((stream_state *)s, NULL, &amp;pw, 0)) == ERRC)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :             return ERRC;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">       58338 :         if (s-&gt;end_status == 1)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">       58338 :             s-&gt;end_status = 0;</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">       58338 :         s-&gt;cursor.r.ptr = s-&gt;cbuf - 1;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">       58338 :         s-&gt;cursor.r.limit = pw.ptr;          /* limit of the block just read */</span></span>
+<span id="L165"><span class="lineNum">     165</span>              :     }</span>
+<span id="L166"><span class="lineNum">     166</span>              :     /* Now set the read pointer to the correct place in the buffer */</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">      145863 :     s-&gt;cursor.r.ptr = s-&gt;cbuf + offset - 1;</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">      145863 :     return 0;</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span>              : static int</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">      154152 : s_block_read_close(stream * s)</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : {</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">      154152 :     gs_free_object(s-&gt;memory, s-&gt;cbuf, &quot;file_close(buffer)&quot;);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">      154152 :     s-&gt;file = 0;                     /* disconnect the node */</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :     /* Increment the IDs to prevent further access. */</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      154152 :     s-&gt;read_id = s-&gt;write_id = (s-&gt;read_id | s-&gt;write_id) + 1;</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">      154152 :     return 0;</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : }</span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              : static int</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">      558546 : s_block_read_process(stream_state * st, stream_cursor_read * ignore_pr,</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :                       stream_cursor_write * pw, bool last)</span>
+<span id="L184"><span class="lineNum">     184</span>              : {</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">      558546 :     int  code;</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">      558546 :     stream *s = (stream *)st;   /* no separate state */</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">      558546 :     uint32_t *node = (uint32_t *)s-&gt;file;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">      558546 :     uint max_count = pw-&gt;limit - pw-&gt;ptr;</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">      558546 :     int status = 1;</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">      558546 :     int compression = ((get_u32_big_endian(node) &amp; 0x80000000) != 0) ? 1 : 0;</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">      558546 :     uint32_t filelen = get_u32_big_endian(node) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">      558546 :     uint32_t blocks = (filelen+ROMFS_BLOCKSIZE-1) / ROMFS_BLOCKSIZE;</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">      558546 :     uint32_t iblock = (s-&gt;position + s-&gt;file_offset + (s-&gt;cursor.r.limit + 1 - s-&gt;cbuf)) / ROMFS_BLOCKSIZE;</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">      558546 :     uint32_t block_length = get_u32_big_endian(node+1+(2*iblock));</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">      558546 :     uint32_t block_offset = get_u32_big_endian(node+2+(2*iblock));</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">      558546 :     unsigned const char *block_data = ((unsigned char *)node) + block_offset;</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">      558546 :     int count = iblock &lt; (blocks - 1) ? ROMFS_BLOCKSIZE : filelen - (ROMFS_BLOCKSIZE * iblock);</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : </span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">      558546 :     if (s-&gt;position + (s-&gt;cursor.r.limit - s-&gt;cbuf + 1) &gt;= filelen || block_data == NULL)</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :         return EOFC;                    /* at EOF */</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">      481798 :     if (s-&gt;file_limit &lt; S_FILE_LIMIT_MAX) {</span></span>
+<span id="L202"><span class="lineNum">     202</span>              :         /* Adjust count for subfile limit */</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :         uint32_t limit_count = s-&gt;file_offset + s-&gt;file_limit - s-&gt;position;</span></span>
+<span id="L204"><span class="lineNum">     204</span>              : </span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         if (count &gt; limit_count)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :             count = limit_count;</span></span>
+<span id="L207"><span class="lineNum">     207</span>              :     }</span>
+<span id="L208"><span class="lineNum">     208</span>              :     /* get the block into the buffer */</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">      481798 :     if (compression) {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">      481798 :         unsigned long buflen = ROMFS_BLOCKSIZE;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">      481798 :         byte *dest = (pw-&gt;ptr + 1);  /* destination for unpack */</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">      481798 :         int need_copy = false;</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : </span>
+<span id="L214"><span class="lineNum">     214</span>              :         /* If the dest is not in our buffer, we can only use it if there */</span>
+<span id="L215"><span class="lineNum">     215</span>              :         /* is enough space in it                                         */</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">      481798 :         if ((dest &lt; s-&gt;cbuf) || (dest &gt;= (s-&gt;cbuf + s-&gt;cbsize))) {</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :             /* the destination is _not_ in our buffer. If the area isn't */</span>
+<span id="L218"><span class="lineNum">     218</span>              :             /* big enough we need to ucompress to our buffer, then copy  */</span>
+<span id="L219"><span class="lineNum">     219</span>              :             /* the data afterward. INVARIANT: if the buffer is outside   */</span>
+<span id="L220"><span class="lineNum">     220</span>              :             /* the cbuf, then the cbuf must be empty.                    */</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">       58302 :             if (max_count &lt; count) {</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : #ifdef DEBUG</span>
+<span id="L223"><span class="lineNum">     223</span>              :                 if ((sbufptr(s)) &lt; s-&gt;cursor.r.limit)</span>
+<span id="L224"><span class="lineNum">     224</span>              :                     emprintf(s-&gt;memory, &quot;cbuf not empty as expected\n.&quot;);</span>
+<span id="L225"><span class="lineNum">     225</span>              : #endif</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">      481798 :                 dest = s-&gt;cbuf;</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">      481798 :                 need_copy = true;</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :             }</span>
+<span id="L229"><span class="lineNum">     229</span>              :         }</span>
+<span id="L230"><span class="lineNum">     230</span>              :         /* Decompress the data into this block */</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">      481798 :         code = uncompress (dest, &amp;buflen, block_data, block_length);</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">      481798 :         if (code != Z_OK || count != buflen)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :             return ERRC;</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">      481798 :         if (need_copy) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :             memcpy(pw-&gt;ptr+1, dest, max_count);</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :             count = max_count;</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :         }</span>
+<span id="L238"><span class="lineNum">     238</span>              :     } else {</span>
+<span id="L239"><span class="lineNum">     239</span>              :         /* not compressed -- just copy it */</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         count = block_length;</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         if (count &gt; max_count)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :             count = max_count;</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         memcpy(pw-&gt;ptr+1, block_data, count);</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :     }</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC tlaBgGNC">      481798 :     if (count &lt; 0)</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :         count = 0;</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">      481798 :     pw-&gt;ptr += count;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">      481798 :     process_interrupts(s-&gt;memory);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">      481798 :     return status;</span></span>
+<span id="L250"><span class="lineNum">     250</span>              : }</span>
+<span id="L251"><span class="lineNum">     251</span>              : </span>
+<span id="L252"><span class="lineNum">     252</span>              : static int</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">        9593 : romfs_init(gx_io_device *iodev, gs_memory_t *mem)</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">        9593 :     romfs_state *state = gs_alloc_struct(mem, romfs_state, &amp;st_romfs_state,</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :                                          &quot;romfs_init(state)&quot;);</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">        9593 :     if (!state)</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">        9593 :     iodev-&gt;state = state;</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">        9593 :     return 0;</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span>              : static void</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC tlaBgUNC">           0 : romfs_finit(gx_io_device *iodev, gs_memory_t *mem)</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : {</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     gs_free_object(mem, iodev-&gt;state, &quot;romfs_finit&quot;);</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :     iodev-&gt;state = NULL;</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     return;</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : }</span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              : static int</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC tlaBgGNC">      298435 : romfs_open_file(gx_io_device *iodev, const char *fname, uint namelen,</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :     const char *access, stream **ps, gs_memory_t *mem)</span>
+<span id="L274"><span class="lineNum">     274</span>              : {</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">      298435 :     extern const uint32_t *gs_romfs[];</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">      298435 :     int code;</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">      298435 :     const uint32_t *node_scan = gs_romfs[0], *node = NULL;</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">      298435 :     uint32_t filelen, blocks;</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">      298435 :     int i;</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">      298435 :     char *filename;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">      298435 :     char fmode[4] = &quot;\000\000\000\000&quot;;</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span>              :     /* return an empty stream on error */</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">      298435 :     *ps = NULL;</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              :     /* scan the inodes to find the requested file */</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">    58846787 :     for (i=0; node_scan != 0; i++, node_scan = gs_romfs[i]) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">    58702504 :         filelen = get_u32_big_endian(node_scan) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">    58702504 :         blocks = (filelen+ROMFS_BLOCKSIZE-1)/ ROMFS_BLOCKSIZE;</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">    58702504 :         filename = (char *)(&amp;(node_scan[1+(2*blocks)]));</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">    58702504 :         if ((namelen == strlen(filename)) &amp;&amp;</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">     3701789 :             (strncmp(filename, fname, namelen) == 0)) {</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :             node = node_scan;</span>
+<span id="L294"><span class="lineNum">     294</span>              :             break;</span>
+<span id="L295"><span class="lineNum">     295</span>              :         }</span>
+<span id="L296"><span class="lineNum">     296</span>              :     }</span>
+<span id="L297"><span class="lineNum">     297</span>              :     /* inode points to the file (or NULL if not found */</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">      298435 :     if (node == NULL)</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :         return_error(gs_error_undefinedfilename);</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              :     /* Initialize a stream for reading this romfs file using a common function */</span>
+<span id="L302"><span class="lineNum">     302</span>              :     /* we get a buffer that is larger than what we need for decompression */</span>
+<span id="L303"><span class="lineNum">     303</span>              :     /* we need extra space since some filters may leave data in the buffer when */</span>
+<span id="L304"><span class="lineNum">     304</span>              :     /* calling 'read_process' */</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">      154152 :     code = file_prepare_stream(fname, namelen, access, ROMFS_BLOCKSIZE+256, ps, fmode, mem);</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">      154152 :     if (code &lt; 0)</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :         return code;</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">      154152 :     (*ps)-&gt;modes = s_mode_read;</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">      154152 :     sread_block(*ps, (*ps)-&gt;cbuf, (*ps)-&gt;cbsize, node);</span></span>
+<span id="L310"><span class="lineNum">     310</span>              :     /* return success */</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">      154152 :     return 0;</span></span>
+<span id="L312"><span class="lineNum">     312</span>              : }</span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span>              : static int</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">      134363 : romfs_file_status(gx_io_device * iodev, const char *fname, struct stat *pstat)</span></span>
+<span id="L316"><span class="lineNum">     316</span>              : {</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">      134363 :     extern const uint32_t *gs_romfs[];</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">      134363 :     extern const time_t gs_romfs_buildtime;</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">      134363 :     const uint32_t *node_scan = gs_romfs[0], *node = NULL;</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">      134363 :     uint32_t filelen, blocks;</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">      134363 :     int i;</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">      134363 :     char *filename;</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">      134363 :     uint namelen = strlen(fname);</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span>              :     /* a build time of zero indicates we have the &quot;dummy&quot; romfs</span>
+<span id="L326"><span class="lineNum">     326</span>              :      * used when COMPILE_INITS==0 - returning a specific error here</span>
+<span id="L327"><span class="lineNum">     327</span>              :      * gives us a quick way to check for that.</span>
+<span id="L328"><span class="lineNum">     328</span>              :      */</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">      134363 :     if (gs_romfs_buildtime == (time_t)0) {</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :         return_error(gs_error_unregistered);</span>
+<span id="L331"><span class="lineNum">     331</span>              :     }</span>
+<span id="L332"><span class="lineNum">     332</span>              : </span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">      134363 :     memset(pstat, 0, sizeof(struct stat));</span></span>
+<span id="L334"><span class="lineNum">     334</span>              :     /* scan the inodes to find the requested file */</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">    12335641 :     for (i=0; node_scan != 0; i++, node_scan = gs_romfs[i]) {</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">    12325986 :         filelen = get_u32_big_endian(node_scan) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">    12325986 :         blocks = (filelen+ROMFS_BLOCKSIZE-1)/ ROMFS_BLOCKSIZE;</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">    12325986 :         filename = (char *)(&amp;(node_scan[1+(2*blocks)]));</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">    12325986 :         if ((namelen == strlen(filename)) &amp;&amp;</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">     1095837 :             (strncmp(filename, fname, namelen) == 0)) {</span></span>
+<span id="L341"><span class="lineNum">     341</span>              :             node = node_scan;</span>
+<span id="L342"><span class="lineNum">     342</span>              :             break;</span>
+<span id="L343"><span class="lineNum">     343</span>              :         }</span>
+<span id="L344"><span class="lineNum">     344</span>              :     }</span>
+<span id="L345"><span class="lineNum">     345</span>              :     /* inode points to the file (or NULL if not found */</span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">      134363 :     if (node == NULL)</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :         return_error(gs_error_undefinedfilename);</span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span>              :     /* fill in the values used by zstatus */</span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">      124708 :     pstat-&gt;st_size = filelen;</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">      124708 :     pstat-&gt;st_mtime = gs_romfs_buildtime;</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">      124708 :     pstat-&gt;st_ctime = gs_romfs_buildtime;</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">      124708 :     return 0;   /* success */</span></span>
+<span id="L354"><span class="lineNum">     354</span>              : }</span>
+<span id="L355"><span class="lineNum">     355</span>              : </span>
+<span id="L356"><span class="lineNum">     356</span>              : static file_enum *</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">       28779 : romfs_enumerate_files_init(gs_memory_t * mem, gx_io_device *iodev, const char *pat,</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :                            uint patlen)</span>
+<span id="L359"><span class="lineNum">     359</span>              : {</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">       28779 :     romfs_file_enum *penum = gs_alloc_struct(mem, romfs_file_enum, &amp;st_romfs_file_enum,</span></span>
+<span id="L361"><span class="lineNum">     361</span>              :                                                         &quot;romfs_enumerate_files_init(file_enum)&quot;);</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">       28779 :     if (penum == NULL)</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :         return NULL;</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">       28779 :     memset(penum, 0, sizeof(romfs_file_enum));</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">       28779 :     penum-&gt;pattern = (char *)gs_alloc_bytes(mem, patlen+1, &quot;romfs_enumerate_file_init(pattern)&quot;);</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">       28779 :     penum-&gt;list_index = 0;           /* start at first node */</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">       28779 :     penum-&gt;memory = mem;</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">       28779 :     if (penum-&gt;pattern == NULL) {</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC tlaBgUNC">           0 :         romfs_enumerate_close(mem, (file_enum *) penum);</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L371"><span class="lineNum">     371</span>              :     }</span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC tlaBgGNC">       28779 :     memcpy(penum-&gt;pattern, pat, patlen);     /* Copy string to buffer */</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">       28779 :     penum-&gt;pattern[patlen]=0;                        /* Terminate string */</span></span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">       28779 :     return (file_enum *)penum;</span></span>
+<span id="L376"><span class="lineNum">     376</span>              : }</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : static void</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">       28779 : romfs_enumerate_close(gs_memory_t * mem, file_enum *pfen)</span></span>
+<span id="L380"><span class="lineNum">     380</span>              : {</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">       28779 :     romfs_file_enum *penum = (romfs_file_enum *)pfen;</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">       28779 :     gs_memory_t *mem2 = penum-&gt;memory;</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">       28779 :     (void)mem;</span></span>
+<span id="L384"><span class="lineNum">     384</span>              : </span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">       28779 :     if (penum-&gt;pattern)</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">       28779 :         gs_free_object(mem2, penum-&gt;pattern, &quot;romfs_enum_init(pattern)&quot;);</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">       28779 :     gs_free_object(mem2, penum, &quot;romfs_enum_init(romfs_enum)&quot;);</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">       28779 : }</span></span>
+<span id="L389"><span class="lineNum">     389</span>              : </span>
+<span id="L390"><span class="lineNum">     390</span>              : static uint</span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">       47965 : romfs_enumerate_next(gs_memory_t * mem, file_enum *pfen, char *ptr, uint maxlen)</span></span>
+<span id="L392"><span class="lineNum">     392</span>              : {</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">       47965 :     extern const uint32_t *gs_romfs[];</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">       47965 :     romfs_file_enum *penum = (romfs_file_enum *)pfen;</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">       47965 :     (void)mem;</span></span>
+<span id="L396"><span class="lineNum">     396</span>              : </span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">     7770330 :     while (gs_romfs[penum-&gt;list_index] != 0) {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">     7741551 :         const uint32_t *node = gs_romfs[penum-&gt;list_index];</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">     7741551 :         uint32_t filelen = get_u32_big_endian(node) &amp; 0x7fffffff;   /* ignore compression bit */</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">     7741551 :         uint32_t blocks = (filelen+ROMFS_BLOCKSIZE-1)/ ROMFS_BLOCKSIZE;</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">     7741551 :         char *filename = (char *)(&amp;(node[1+(2*blocks)]));</span></span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">     7741551 :         penum-&gt;list_index++;         /* bump to next unconditionally */</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">     7741551 :         if (string_match((byte *)filename, strlen(filename),</span></span>
+<span id="L405"><span class="lineNum">     405</span>              :                          (byte *)penum-&gt;pattern,</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">     7741551 :                          strlen(penum-&gt;pattern), 0)) {</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">       19186 :             if (strlen(filename) &lt; maxlen)</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">       19186 :                 memcpy(ptr, filename, strlen(filename));</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">       19186 :             return strlen(filename);    /* if &gt; maxlen, caller will detect rangecheck */</span></span>
+<span id="L410"><span class="lineNum">     410</span>              :         }</span>
+<span id="L411"><span class="lineNum">     411</span>              :     }</span>
+<span id="L412"><span class="lineNum">     412</span>              :     /* ran off end of list, close the enum */</span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">       28779 :     romfs_enumerate_close(mem, pfen);</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">       28779 :     return ~(uint)0;</span></span>
+<span id="L415"><span class="lineNum">     415</span>              : }</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              : int</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC tlaBgUNC">           0 : romfs_file_len(gs_memory_t * mem, const char *fname)</span></span>
+<span id="L419"><span class="lineNum">     419</span>              : {</span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :     extern const uint32_t *gs_romfs[];</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :     extern const time_t gs_romfs_buildtime;</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :     const uint32_t *node_scan = gs_romfs[0], *node = NULL;</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :     uint32_t filelen, blocks;</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :     char *filename;</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :     uint namelen = strlen(fname);</span></span>
+<span id="L427"><span class="lineNum">     427</span>              : </span>
+<span id="L428"><span class="lineNum">     428</span>              :     /* a build time of zero indicates we have the &quot;dummy&quot; romfs</span>
+<span id="L429"><span class="lineNum">     429</span>              :      * used when COMPILE_INITS==0 - returning a specific error here</span>
+<span id="L430"><span class="lineNum">     430</span>              :      * gives us a quick way to check for that.</span>
+<span id="L431"><span class="lineNum">     431</span>              :      */</span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :     if (gs_romfs_buildtime == (time_t)0) {</span></span>
+<span id="L433"><span class="lineNum">     433</span>              :         return_error(gs_error_unregistered);</span>
+<span id="L434"><span class="lineNum">     434</span>              :     }</span>
+<span id="L435"><span class="lineNum">     435</span>              : </span>
+<span id="L436"><span class="lineNum">     436</span>              :     /* scan the inodes to find the requested file */</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :     for (i=0; node_scan != 0; i++, node_scan = gs_romfs[i]) {</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         filelen = get_u32_big_endian(node_scan) &amp; 0x7fffffff;       /* ignore compression bit */</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :         blocks = (filelen+ROMFS_BLOCKSIZE-1)/ ROMFS_BLOCKSIZE;</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         filename = (char *)(&amp;(node_scan[1+(2*blocks)]));</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         if ((namelen == strlen(filename)) &amp;&amp;</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :             (strncmp(filename, fname, namelen) == 0)) {</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :             node = node_scan;</span>
+<span id="L444"><span class="lineNum">     444</span>              :             break;</span>
+<span id="L445"><span class="lineNum">     445</span>              :         }</span>
+<span id="L446"><span class="lineNum">     446</span>              :     }</span>
+<span id="L447"><span class="lineNum">     447</span>              :     /* inode points to the file (or NULL if not found */</span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :     if (node == NULL)</span></span>
+<span id="L449"><span class="lineNum">     449</span>              :         return_error(gs_error_undefinedfilename);</span>
+<span id="L450"><span class="lineNum">     450</span>              : </span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :     return (int)filelen;</span></span>
+<span id="L452"><span class="lineNum">     452</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

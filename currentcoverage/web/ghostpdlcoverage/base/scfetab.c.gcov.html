@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/scfetab.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - scfetab.c<span style="font-size: 80%;"> (source / <a href="scfetab.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Tables for CCITTFaxEncode filter */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;std.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;scommon.h&quot;          /* for scf.h */</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;scf.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : /* We make this a separate file so that it can be used by */</span>
+<span id="L23"><span class="lineNum">      23</span>              : /* the program that generates the tables for the CCITTFaxDecode filter. */</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : /* ------ Run encoding tables ------ */</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : /* Abbreviate hce_entry to make the file smaller. */</span>
+<span id="L28"><span class="lineNum">      28</span>              : #define RUN(c,len) hce_entry(c,len)</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : /* Define the end-of-line code. */</span>
+<span id="L31"><span class="lineNum">      31</span>              : /* Code in scfd.c and scfdgen.c knows that the run value is 1. */</span>
+<span id="L32"><span class="lineNum">      32</span>              : const cfe_run cf_run_eol =</span>
+<span id="L33"><span class="lineNum">      33</span>              : RUN(run_eol_code_value, run_eol_code_length);</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : /* Define the 1-D code that signals uncompressed data. */</span>
+<span id="L36"><span class="lineNum">      36</span>              : const cfe_run cf1_run_uncompressed =</span>
+<span id="L37"><span class="lineNum">      37</span>              : RUN(0xf, 12);</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* Define the 2-D run codes. */</span>
+<span id="L40"><span class="lineNum">      40</span>              : const cfe_run cf2_run_pass =</span>
+<span id="L41"><span class="lineNum">      41</span>              : RUN(cf2_run_pass_value, cf2_run_pass_length);</span>
+<span id="L42"><span class="lineNum">      42</span>              : const cfe_run cf2_run_vertical[7] =</span>
+<span id="L43"><span class="lineNum">      43</span>              : {</span>
+<span id="L44"><span class="lineNum">      44</span>              :     RUN(0x3, 7),</span>
+<span id="L45"><span class="lineNum">      45</span>              :     RUN(0x3, 6),</span>
+<span id="L46"><span class="lineNum">      46</span>              :     RUN(0x3, 3),</span>
+<span id="L47"><span class="lineNum">      47</span>              :     RUN(0x1, 1),</span>
+<span id="L48"><span class="lineNum">      48</span>              :     RUN(0x2, 3),</span>
+<span id="L49"><span class="lineNum">      49</span>              :     RUN(0x2, 6),</span>
+<span id="L50"><span class="lineNum">      50</span>              :     RUN(0x2, 7)</span>
+<span id="L51"><span class="lineNum">      51</span>              : };</span>
+<span id="L52"><span class="lineNum">      52</span>              : const cfe_run cf2_run_horizontal =</span>
+<span id="L53"><span class="lineNum">      53</span>              : RUN(cf2_run_horizontal_value, cf2_run_horizontal_length);</span>
+<span id="L54"><span class="lineNum">      54</span>              : const cfe_run cf2_run_uncompressed =</span>
+<span id="L55"><span class="lineNum">      55</span>              : RUN(0xf, 10);</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /* EOL codes for Group 3 2-D. */</span>
+<span id="L58"><span class="lineNum">      58</span>              : /* Code in scfd.c knows that these are 0...01x. */</span>
+<span id="L59"><span class="lineNum">      59</span>              : const cfe_run cf2_run_eol_1d =</span>
+<span id="L60"><span class="lineNum">      60</span>              : RUN((run_eol_code_value &lt;&lt; 1) + 1, run_eol_code_length + 1);</span>
+<span id="L61"><span class="lineNum">      61</span>              : const cfe_run cf2_run_eol_2d =</span>
+<span id="L62"><span class="lineNum">      62</span>              : RUN((run_eol_code_value &lt;&lt; 1) + 0, run_eol_code_length + 1);</span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              : /* White run codes. */</span>
+<span id="L65"><span class="lineNum">      65</span>              : const cf_runs cf_white_runs =</span>
+<span id="L66"><span class="lineNum">      66</span>              : {</span>
+<span id="L67"><span class="lineNum">      67</span>              :     {                           /* Termination codes */</span>
+<span id="L68"><span class="lineNum">      68</span>              :         RUN(0x35, 8), RUN(0x7, 6), RUN(0x7, 4), RUN(0x8, 4),</span>
+<span id="L69"><span class="lineNum">      69</span>              :         RUN(0xb, 4), RUN(0xc, 4), RUN(0xe, 4), RUN(0xf, 4),</span>
+<span id="L70"><span class="lineNum">      70</span>              :         RUN(0x13, 5), RUN(0x14, 5), RUN(0x7, 5), RUN(0x8, 5),</span>
+<span id="L71"><span class="lineNum">      71</span>              :         RUN(0x8, 6), RUN(0x3, 6), RUN(0x34, 6), RUN(0x35, 6),</span>
+<span id="L72"><span class="lineNum">      72</span>              :         RUN(0x2a, 6), RUN(0x2b, 6), RUN(0x27, 7), RUN(0xc, 7),</span>
+<span id="L73"><span class="lineNum">      73</span>              :         RUN(0x8, 7), RUN(0x17, 7), RUN(0x3, 7), RUN(0x4, 7),</span>
+<span id="L74"><span class="lineNum">      74</span>              :         RUN(0x28, 7), RUN(0x2b, 7), RUN(0x13, 7), RUN(0x24, 7),</span>
+<span id="L75"><span class="lineNum">      75</span>              :         RUN(0x18, 7), RUN(0x2, 8), RUN(0x3, 8), RUN(0x1a, 8),</span>
+<span id="L76"><span class="lineNum">      76</span>              :         RUN(0x1b, 8), RUN(0x12, 8), RUN(0x13, 8), RUN(0x14, 8),</span>
+<span id="L77"><span class="lineNum">      77</span>              :         RUN(0x15, 8), RUN(0x16, 8), RUN(0x17, 8), RUN(0x28, 8),</span>
+<span id="L78"><span class="lineNum">      78</span>              :         RUN(0x29, 8), RUN(0x2a, 8), RUN(0x2b, 8), RUN(0x2c, 8),</span>
+<span id="L79"><span class="lineNum">      79</span>              :         RUN(0x2d, 8), RUN(0x4, 8), RUN(0x5, 8), RUN(0xa, 8),</span>
+<span id="L80"><span class="lineNum">      80</span>              :         RUN(0xb, 8), RUN(0x52, 8), RUN(0x53, 8), RUN(0x54, 8),</span>
+<span id="L81"><span class="lineNum">      81</span>              :         RUN(0x55, 8), RUN(0x24, 8), RUN(0x25, 8), RUN(0x58, 8),</span>
+<span id="L82"><span class="lineNum">      82</span>              :         RUN(0x59, 8), RUN(0x5a, 8), RUN(0x5b, 8), RUN(0x4a, 8),</span>
+<span id="L83"><span class="lineNum">      83</span>              :         RUN(0x4b, 8), RUN(0x32, 8), RUN(0x33, 8), RUN(0x34, 8)</span>
+<span id="L84"><span class="lineNum">      84</span>              :     },</span>
+<span id="L85"><span class="lineNum">      85</span>              :     {                           /* Make-up codes */</span>
+<span id="L86"><span class="lineNum">      86</span>              :         RUN(0, 0) /* dummy */ , RUN(0x1b, 5), RUN(0x12, 5), RUN(0x17, 6),</span>
+<span id="L87"><span class="lineNum">      87</span>              :         RUN(0x37, 7), RUN(0x36, 8), RUN(0x37, 8), RUN(0x64, 8),</span>
+<span id="L88"><span class="lineNum">      88</span>              :         RUN(0x65, 8), RUN(0x68, 8), RUN(0x67, 8), RUN(0xcc, 9),</span>
+<span id="L89"><span class="lineNum">      89</span>              :         RUN(0xcd, 9), RUN(0xd2, 9), RUN(0xd3, 9), RUN(0xd4, 9),</span>
+<span id="L90"><span class="lineNum">      90</span>              :         RUN(0xd5, 9), RUN(0xd6, 9), RUN(0xd7, 9), RUN(0xd8, 9),</span>
+<span id="L91"><span class="lineNum">      91</span>              :         RUN(0xd9, 9), RUN(0xda, 9), RUN(0xdb, 9), RUN(0x98, 9),</span>
+<span id="L92"><span class="lineNum">      92</span>              :         RUN(0x99, 9), RUN(0x9a, 9), RUN(0x18, 6), RUN(0x9b, 9),</span>
+<span id="L93"><span class="lineNum">      93</span>              :         RUN(0x8, 11), RUN(0xc, 11), RUN(0xd, 11), RUN(0x12, 12),</span>
+<span id="L94"><span class="lineNum">      94</span>              :         RUN(0x13, 12), RUN(0x14, 12), RUN(0x15, 12), RUN(0x16, 12),</span>
+<span id="L95"><span class="lineNum">      95</span>              :         RUN(0x17, 12), RUN(0x1c, 12), RUN(0x1d, 12), RUN(0x1e, 12),</span>
+<span id="L96"><span class="lineNum">      96</span>              :         RUN(0x1f, 12)</span>
+<span id="L97"><span class="lineNum">      97</span>              :     }</span>
+<span id="L98"><span class="lineNum">      98</span>              : };</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : /* Black run codes. */</span>
+<span id="L101"><span class="lineNum">     101</span>              : const cf_runs cf_black_runs =</span>
+<span id="L102"><span class="lineNum">     102</span>              : {</span>
+<span id="L103"><span class="lineNum">     103</span>              :     {                           /* Termination codes */</span>
+<span id="L104"><span class="lineNum">     104</span>              :         RUN(0x37, 10), RUN(0x2, 3), RUN(0x3, 2), RUN(0x2, 2),</span>
+<span id="L105"><span class="lineNum">     105</span>              :         RUN(0x3, 3), RUN(0x3, 4), RUN(0x2, 4), RUN(0x3, 5),</span>
+<span id="L106"><span class="lineNum">     106</span>              :         RUN(0x5, 6), RUN(0x4, 6), RUN(0x4, 7), RUN(0x5, 7),</span>
+<span id="L107"><span class="lineNum">     107</span>              :         RUN(0x7, 7), RUN(0x4, 8), RUN(0x7, 8), RUN(0x18, 9),</span>
+<span id="L108"><span class="lineNum">     108</span>              :         RUN(0x17, 10), RUN(0x18, 10), RUN(0x8, 10), RUN(0x67, 11),</span>
+<span id="L109"><span class="lineNum">     109</span>              :         RUN(0x68, 11), RUN(0x6c, 11), RUN(0x37, 11), RUN(0x28, 11),</span>
+<span id="L110"><span class="lineNum">     110</span>              :         RUN(0x17, 11), RUN(0x18, 11), RUN(0xca, 12), RUN(0xcb, 12),</span>
+<span id="L111"><span class="lineNum">     111</span>              :         RUN(0xcc, 12), RUN(0xcd, 12), RUN(0x68, 12), RUN(0x69, 12),</span>
+<span id="L112"><span class="lineNum">     112</span>              :         RUN(0x6a, 12), RUN(0x6b, 12), RUN(0xd2, 12), RUN(0xd3, 12),</span>
+<span id="L113"><span class="lineNum">     113</span>              :         RUN(0xd4, 12), RUN(0xd5, 12), RUN(0xd6, 12), RUN(0xd7, 12),</span>
+<span id="L114"><span class="lineNum">     114</span>              :         RUN(0x6c, 12), RUN(0x6d, 12), RUN(0xda, 12), RUN(0xdb, 12),</span>
+<span id="L115"><span class="lineNum">     115</span>              :         RUN(0x54, 12), RUN(0x55, 12), RUN(0x56, 12), RUN(0x57, 12),</span>
+<span id="L116"><span class="lineNum">     116</span>              :         RUN(0x64, 12), RUN(0x65, 12), RUN(0x52, 12), RUN(0x53, 12),</span>
+<span id="L117"><span class="lineNum">     117</span>              :         RUN(0x24, 12), RUN(0x37, 12), RUN(0x38, 12), RUN(0x27, 12),</span>
+<span id="L118"><span class="lineNum">     118</span>              :         RUN(0x28, 12), RUN(0x58, 12), RUN(0x59, 12), RUN(0x2b, 12),</span>
+<span id="L119"><span class="lineNum">     119</span>              :         RUN(0x2c, 12), RUN(0x5a, 12), RUN(0x66, 12), RUN(0x67, 12)</span>
+<span id="L120"><span class="lineNum">     120</span>              :     },</span>
+<span id="L121"><span class="lineNum">     121</span>              :     {                           /* Make-up codes. */</span>
+<span id="L122"><span class="lineNum">     122</span>              :         RUN(0, 0) /* dummy */ , RUN(0xf, 10), RUN(0xc8, 12), RUN(0xc9, 12),</span>
+<span id="L123"><span class="lineNum">     123</span>              :         RUN(0x5b, 12), RUN(0x33, 12), RUN(0x34, 12), RUN(0x35, 12),</span>
+<span id="L124"><span class="lineNum">     124</span>              :         RUN(0x6c, 13), RUN(0x6d, 13), RUN(0x4a, 13), RUN(0x4b, 13),</span>
+<span id="L125"><span class="lineNum">     125</span>              :         RUN(0x4c, 13), RUN(0x4d, 13), RUN(0x72, 13), RUN(0x73, 13),</span>
+<span id="L126"><span class="lineNum">     126</span>              :         RUN(0x74, 13), RUN(0x75, 13), RUN(0x76, 13), RUN(0x77, 13),</span>
+<span id="L127"><span class="lineNum">     127</span>              :         RUN(0x52, 13), RUN(0x53, 13), RUN(0x54, 13), RUN(0x55, 13),</span>
+<span id="L128"><span class="lineNum">     128</span>              :         RUN(0x5a, 13), RUN(0x5b, 13), RUN(0x64, 13), RUN(0x65, 13),</span>
+<span id="L129"><span class="lineNum">     129</span>              :         RUN(0x8, 11), RUN(0xc, 11), RUN(0xd, 11), RUN(0x12, 12),</span>
+<span id="L130"><span class="lineNum">     130</span>              :         RUN(0x13, 12), RUN(0x14, 12), RUN(0x15, 12), RUN(0x16, 12),</span>
+<span id="L131"><span class="lineNum">     131</span>              :         RUN(0x17, 12), RUN(0x1c, 12), RUN(0x1d, 12), RUN(0x1e, 12),</span>
+<span id="L132"><span class="lineNum">     132</span>              :         RUN(0x1f, 12)</span>
+<span id="L133"><span class="lineNum">     133</span>              :     }</span>
+<span id="L134"><span class="lineNum">     134</span>              : };</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              : /* Uncompressed codes. */</span>
+<span id="L137"><span class="lineNum">     137</span>              : const cfe_run cf_uncompressed[6] =</span>
+<span id="L138"><span class="lineNum">     138</span>              : {</span>
+<span id="L139"><span class="lineNum">     139</span>              :     RUN(1, 1),</span>
+<span id="L140"><span class="lineNum">     140</span>              :     RUN(1, 2),</span>
+<span id="L141"><span class="lineNum">     141</span>              :     RUN(1, 3),</span>
+<span id="L142"><span class="lineNum">     142</span>              :     RUN(1, 4),</span>
+<span id="L143"><span class="lineNum">     143</span>              :     RUN(1, 5),</span>
+<span id="L144"><span class="lineNum">     144</span>              :     RUN(1, 6)</span>
+<span id="L145"><span class="lineNum">     145</span>              : };</span>
+<span id="L146"><span class="lineNum">     146</span>              : </span>
+<span id="L147"><span class="lineNum">     147</span>              : /* Uncompressed exit codes. */</span>
+<span id="L148"><span class="lineNum">     148</span>              : const cfe_run cf_uncompressed_exit[10] =</span>
+<span id="L149"><span class="lineNum">     149</span>              : {</span>
+<span id="L150"><span class="lineNum">     150</span>              :     RUN(2, 8), RUN(3, 8),</span>
+<span id="L151"><span class="lineNum">     151</span>              :     RUN(2, 9), RUN(3, 9),</span>
+<span id="L152"><span class="lineNum">     152</span>              :     RUN(2, 10), RUN(3, 10),</span>
+<span id="L153"><span class="lineNum">     153</span>              :     RUN(2, 11), RUN(3, 11),</span>
+<span id="L154"><span class="lineNum">     154</span>              :     RUN(2, 12), RUN(3, 12)</span>
+<span id="L155"><span class="lineNum">     155</span>              : };</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : /* Some C compilers insist on having executable code in every file.... */</span>
+<span id="L158"><span class="lineNum">     158</span>              : void scfetab_dummy(void);       /* for picky compilers */</span>
+<span id="L159"><span class="lineNum">     159</span>              : void</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 : scfetab_dummy(void)</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : {</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

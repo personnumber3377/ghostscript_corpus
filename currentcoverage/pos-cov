@@ -1,0 +1,3537 @@
+# All functions / lines in this file were executed by at
+# least one AFL test case. See the cov/id-delta-cov file
+# for more information.
+File: /home/oof/ghostpdlcoverage/base/aes.c
+File: /home/oof/ghostpdlcoverage/base/claptrap-impl.h
+File: /home/oof/ghostpdlcoverage/base/claptrap-init.c
+File: /home/oof/ghostpdlcoverage/base/claptrap-planar.c
+File: /home/oof/ghostpdlcoverage/base/claptrap.c
+File: /home/oof/ghostpdlcoverage/base/echogs.c
+File: /home/oof/ghostpdlcoverage/base/ets.c
+File: /home/oof/ghostpdlcoverage/base/fapi_ft.c
+    function: gs_fapi_ft_init()
+File: /home/oof/ghostpdlcoverage/base/gdevabuf.c
+    function: alpha_buffer_bits()
+File: /home/oof/ghostpdlcoverage/base/gdevbbox.c
+File: /home/oof/ghostpdlcoverage/base/gdevdbit.c
+File: /home/oof/ghostpdlcoverage/base/gdevdcrd.c
+File: /home/oof/ghostpdlcoverage/base/gdevddrw.c
+    function: compute_dx()
+    function: compute_ldx()
+    function: gx_default_fill_parallelogram()
+    function: gx_default_fill_trapezoid()
+    function: gx_default_fill_triangle()
+    function: gx_default_fillpage()
+File: /home/oof/ghostpdlcoverage/base/gdevdevn.c
+File: /home/oof/ghostpdlcoverage/base/gdevdflt.c
+    function: check_device_separable()
+    function: device_is_contone()
+    function: get_decode_color()
+    function: get_encode_color()
+    function: gx_default_begin_page()
+    function: gx_default_close_device()
+    function: gx_default_dev_spec_op()
+    function: gx_default_end_page()
+    function: gx_default_get_alpha_bits()
+    function: gx_default_get_initial_matrix()
+    function: gx_default_get_page_device()
+    function: gx_default_install()
+    function: gx_default_open_device()
+    function: gx_default_output_page()
+    function: gx_default_set_graphics_type_tag()
+    function: gx_default_sync_output()
+    function: gx_device_fill_in_procs()
+    function: gx_null_composite()
+    function: gx_page_device_get_page_device()
+    function: gx_upright_get_initial_matrix()
+    function: is_like_DeviceRGB()
+File: /home/oof/ghostpdlcoverage/base/gdevdgbr.c
+File: /home/oof/ghostpdlcoverage/base/gdevdrop.c
+File: /home/oof/ghostpdlcoverage/base/gdevdsha.c
+File: /home/oof/ghostpdlcoverage/base/gdevepo.c
+    function: device_wants_optimization()
+    function: epo_check_and_install()
+File: /home/oof/ghostpdlcoverage/base/gdevflp.c
+File: /home/oof/ghostpdlcoverage/base/gdevhit.c
+    function: hit_fill_rectangle()
+    function: hit_initialize_device_procs()
+File: /home/oof/ghostpdlcoverage/base/gdevkrnlsclass.c
+File: /home/oof/ghostpdlcoverage/base/gdevm1.c
+File: /home/oof/ghostpdlcoverage/base/gdevm16.c
+File: /home/oof/ghostpdlcoverage/base/gdevm2.c
+File: /home/oof/ghostpdlcoverage/base/gdevm24.c
+File: /home/oof/ghostpdlcoverage/base/gdevm32.c
+File: /home/oof/ghostpdlcoverage/base/gdevm4.c
+File: /home/oof/ghostpdlcoverage/base/gdevm40.c
+File: /home/oof/ghostpdlcoverage/base/gdevm48.c
+File: /home/oof/ghostpdlcoverage/base/gdevm56.c
+File: /home/oof/ghostpdlcoverage/base/gdevm64.c
+File: /home/oof/ghostpdlcoverage/base/gdevm8.c
+File: /home/oof/ghostpdlcoverage/base/gdevmem.c
+    function: gs_device_is_memory()
+    function: gs_make_mem_mono_device()
+    function: mem_dev_initialize_device_procs()
+    function: mem_initialize_device_procs()
+File: /home/oof/ghostpdlcoverage/base/gdevmpla.c
+File: /home/oof/ghostpdlcoverage/base/gdevmplt.c
+File: /home/oof/ghostpdlcoverage/base/gdevmr1.c
+File: /home/oof/ghostpdlcoverage/base/gdevmr2n.c
+File: /home/oof/ghostpdlcoverage/base/gdevmr8n.c
+File: /home/oof/ghostpdlcoverage/base/gdevmrun.c
+File: /home/oof/ghostpdlcoverage/base/gdevnfwd.c
+    function: gx_device_forward_finalize()
+    function: gx_device_set_target()
+    function: gx_forward_encode_color()
+    function: gx_forward_get_color_mapping_procs()
+    function: gx_forward_get_initial_matrix()
+    function: gx_forward_get_params()
+    function: gx_forward_get_profile()
+    function: gx_forward_map_color_rgb()
+    function: gx_forward_put_params()
+    function: gx_forward_set_graphics_type_tag()
+    function: gx_forward_upright_get_initial_matrix()
+    function: null_fill_rectangle()
+    function: null_fill_rectangle_hl_color()
+    function: null_initialize_device_procs()
+    function: null_put_params()
+    function: null_spec_op()
+    function: nullpage_initialize_device_procs()
+File: /home/oof/ghostpdlcoverage/base/gdevnup.c
+File: /home/oof/ghostpdlcoverage/base/gdevoflt.c
+File: /home/oof/ghostpdlcoverage/base/gdevp14.c
+    function: gs_create_pdf14trans()
+    function: send_pdf14trans()
+File: /home/oof/ghostpdlcoverage/base/gdevpccm.c
+File: /home/oof/ghostpdlcoverage/base/gdevpipe.c
+    function: pipe_init()
+File: /home/oof/ghostpdlcoverage/base/gdevplnx.c
+File: /home/oof/ghostpdlcoverage/base/gdevppla.c
+File: /home/oof/ghostpdlcoverage/base/gdevprn.c
+File: /home/oof/ghostpdlcoverage/base/gdevrops.c
+File: /home/oof/ghostpdlcoverage/base/gdevsclass.c
+File: /home/oof/ghostpdlcoverage/base/gdevvec.c
+    function: gdev_vector_put_params()
+File: /home/oof/ghostpdlcoverage/base/gen_ordered.c
+    function: htsc_allocate_supercell()
+    function: htsc_create_dot_mask()
+    function: htsc_create_dot_profile()
+    function: htsc_create_nondithered_mask()
+    function: htsc_determine_cell_shape()
+    function: htsc_find_bin_center()
+    function: htsc_gcd()
+    function: htsc_gen_ordered()
+    function: htsc_mask_to_tos()
+    function: htsc_matrix_inverse()
+    function: htsc_set_default_params()
+    function: htsc_spot_value()
+    function: htsc_tile_supercell()
+File: /home/oof/ghostpdlcoverage/base/genarch.c
+File: /home/oof/ghostpdlcoverage/base/genconf.c
+File: /home/oof/ghostpdlcoverage/base/gp.h
+File: /home/oof/ghostpdlcoverage/base/gp_getnv.c
+    function: gp_getenv()
+File: /home/oof/ghostpdlcoverage/base/gp_nsync.c
+File: /home/oof/ghostpdlcoverage/base/gp_nxpsprn.c
+File: /home/oof/ghostpdlcoverage/base/gp_psync.c
+    function: gp_get_globals()
+    function: gp_monitor_close()
+    function: gp_monitor_enter()
+    function: gp_monitor_leave()
+    function: gp_monitor_open()
+    function: gp_monitor_sizeof()
+    function: gp_semaphore_open()
+    function: gp_semaphore_sizeof()
+    function: gp_set_debug_mem_ptr()
+    function: init_globals()
+File: /home/oof/ghostpdlcoverage/base/gp_stdib.c
+File: /home/oof/ghostpdlcoverage/base/gp_strdl.c
+    function: gp_readline_init()
+File: /home/oof/ghostpdlcoverage/base/gp_unifn.c
+    function: gp_file_name_combine()
+    function: gp_file_name_current()
+    function: gp_file_name_directory_separator()
+    function: gp_file_name_is_current()
+    function: gp_file_name_is_empty_item_meanful()
+    function: gp_file_name_is_parent()
+    function: gp_file_name_root()
+    function: gp_file_name_separator()
+    function: gs_file_name_check_separator()
+File: /home/oof/ghostpdlcoverage/base/gp_unifs.c
+    function: gp_enumerate_files_close_impl()
+    function: gp_enumerate_files_init_impl()
+    function: gp_enumerate_files_next_impl()
+    function: gp_fopen_impl()
+    function: gp_fseek_impl()
+    function: gp_ftell_impl()
+    function: gp_open_scratch_file_impl()
+    function: gp_unlink_impl()
+    function: popdir()
+File: /home/oof/ghostpdlcoverage/base/gp_unix.c
+    function: gp_get_realtime()
+    function: gp_get_usertime()
+    function: gp_init()
+    function: gp_serialnumber()
+File: /home/oof/ghostpdlcoverage/base/gp_upapr.c
+    function: gp_defaultpapersize()
+File: /home/oof/ghostpdlcoverage/base/gp_utf8.c
+File: /home/oof/ghostpdlcoverage/base/gpmisc.c
+    function: append()
+    function: do_open_scratch_file()
+    function: gp_enumerate_files_close()
+    function: gp_enumerate_files_init()
+    function: gp_enumerate_files_next()
+    function: gp_file_FILE_alloc()
+    function: gp_file_FILE_clearerr()
+    function: gp_file_FILE_ferror()
+    function: gp_file_FILE_fflush()
+    function: gp_file_FILE_get_file()
+    function: gp_file_FILE_is_char_buffered()
+    function: gp_file_FILE_seek()
+    function: gp_file_FILE_set()
+    function: gp_file_FILE_tell()
+    function: gp_file_FILE_write()
+    function: gp_file_alloc()
+    function: gp_file_dealloc()
+    function: gp_file_name_combine_generic()
+    function: gp_file_name_is_absolute()
+    function: gp_file_name_parents()
+    function: gp_file_name_prefix()
+    function: gp_file_name_reduce()
+    function: gp_fopen()
+    function: gp_gettmpdir()
+    function: gp_open_scratch_file()
+    function: gp_stat()
+    function: gp_unlink()
+    function: gp_validate_path()
+    function: gp_validate_path_len()
+    function: search_separator()
+    function: validate()
+File: /home/oof/ghostpdlcoverage/base/gsalloc.c
+    function: alloc_acquire_clump()
+    function: alloc_add_clump()
+    function: alloc_array_check_size()
+    function: alloc_close_clump()
+    function: alloc_free_clump()
+    function: alloc_init_clump()
+    function: alloc_init_free_strings()
+    function: alloc_link_clump()
+    function: alloc_obj()
+    function: alloc_open_clump()
+    function: clump_locate_ptr()
+    function: clump_splay_app()
+    function: clump_splay_remove()
+    function: clump_splay_walk_bwd()
+    function: clump_splay_walk_bwd_init()
+    function: clump_splay_walk_fwd()
+    function: clump_splay_walk_init()
+    function: compute_free_objects()
+    function: consolidate_clump_free()
+    function: free_all_not_allocator()
+    function: gs_memory_gc_status()
+    function: gs_memory_set_gc_status()
+    function: gs_memory_set_vm_reclaim()
+    function: gs_memory_set_vm_threshold()
+    function: i_alloc_byte_array()
+    function: i_alloc_bytes()
+    function: i_alloc_bytes_immovable()
+    function: i_alloc_string()
+    function: i_alloc_string_immovable()
+    function: i_alloc_struct()
+    function: i_alloc_struct_array()
+    function: i_alloc_struct_array_immovable()
+    function: i_alloc_struct_immovable()
+    function: i_enable_free()
+    function: i_free_all()
+    function: i_free_object()
+    function: i_free_string()
+    function: i_object_size()
+    function: i_object_type()
+    function: i_register_root()
+    function: i_resize_object()
+    function: i_resize_string()
+    function: i_stable()
+    function: i_status()
+    function: i_unregister_root()
+    function: ialloc_alloc_state()
+    function: ialloc_gc_prepare()
+    function: ialloc_reset()
+    function: ialloc_reset_free()
+    function: ialloc_set_limit()
+    function: ialloc_solo()
+    function: large_freelist_alloc()
+    function: ptr_is_within_mem_clumps()
+    function: ref_memory_enum_ptrs()
+    function: ref_memory_reloc_ptrs()
+    function: remove_range_from_freelist()
+    function: splay_insert()
+    function: splay_move_to_root()
+    function: trim_obj()
+File: /home/oof/ghostpdlcoverage/base/gsargs.c
+    function: arg_copy()
+    function: arg_free()
+    function: arg_init()
+    function: arg_next()
+    function: arg_strcmp()
+    function: codepoint_to_utf8()
+    function: get_codepoint()
+    function: get_codepoint_utf8()
+File: /home/oof/ghostpdlcoverage/base/gsbitcom.c
+File: /home/oof/ghostpdlcoverage/base/gsbitops.c
+File: /home/oof/ghostpdlcoverage/base/gsbitops.h
+File: /home/oof/ghostpdlcoverage/base/gsbittab.c
+File: /home/oof/ghostpdlcoverage/base/gscdevn.c
+File: /home/oof/ghostpdlcoverage/base/gscencs.c
+    function: gs_c_glyph_name()
+    function: gs_c_known_encode()
+File: /home/oof/ghostpdlcoverage/base/gschar.c
+File: /home/oof/ghostpdlcoverage/base/gschar0.c
+File: /home/oof/ghostpdlcoverage/base/gscicach.c
+File: /home/oof/ghostpdlcoverage/base/gscie.c
+    function: abc_identity()
+    function: cache3_set_linear()
+    function: cache_is_linear()
+    function: cache_set_linear()
+    function: check_interpolation_required()
+    function: cie_cache3_set_interpolation()
+    function: cie_cache_mult()
+    function: cie_cache_mult3()
+    function: cie_cache_restrict()
+    function: cie_cache_set_interpolation()
+    function: cie_cs_common_abc()
+    function: cie_invert3()
+    function: cie_matrix_init()
+    function: cie_matrix_mult3()
+    function: cie_mult3()
+    function: cie_transform_range()
+    function: cie_transform_range3()
+    function: common_identity()
+    function: defg_identity()
+    function: gs_cie_abc_complete()
+    function: gs_cie_cache_init()
+    function: gs_cie_cache_to_fracs()
+    function: gs_cie_cs_common()
+    function: gs_cie_defg_complete()
+    function: gs_cie_defx_scale()
+    function: gs_cie_render_complete()
+    function: gs_cie_render_init()
+    function: gs_cie_render_sample()
+    function: gs_setcolorrendering()
+    function: gx_cie_load_common_cache()
+    function: gx_init_CIE()
+    function: gx_install_CIEDEFG()
+    function: gx_install_cie_abc()
+    function: gx_restrict_CIEDEFG()
+    function: gx_unshare_cie_caches()
+File: /home/oof/ghostpdlcoverage/base/gsciemap.c
+File: /home/oof/ghostpdlcoverage/base/gsclipsr.c
+    function: gs_cliprestore()
+    function: gs_clipsave()
+    function: rc_free_clip_stack()
+File: /home/oof/ghostpdlcoverage/base/gscolor.c
+    function: gs_setgray()
+    function: gs_settransfer()
+    function: gs_settransfer_remap()
+    function: gx_init_paint_1()
+    function: gx_init_paint_3()
+    function: gx_init_paint_4()
+    function: gx_no_adjust_color_count()
+    function: gx_restrict01_paint_1()
+    function: gx_set_device_color_1()
+    function: load_transfer_map()
+    function: transfer_map_enum_ptrs()
+    function: transfer_map_reloc_ptrs()
+    function: transfer_use_proc()
+File: /home/oof/ghostpdlcoverage/base/gscolor1.c
+    function: gs_setblackgeneration_remap()
+    function: gs_setcolortransfer_remap()
+    function: gs_setundercolorremoval_remap()
+File: /home/oof/ghostpdlcoverage/base/gscolor2.c
+    function: gs_currentcolor()
+    function: gs_currentcolorspace()
+    function: gs_setcolor()
+    function: gs_setcolorspace()
+    function: gs_setcolorspace_only()
+File: /home/oof/ghostpdlcoverage/base/gscolor3.c
+    function: gs_currentsmoothness()
+    function: gs_setsmoothness()
+File: /home/oof/ghostpdlcoverage/base/gscoord.c
+    function: ctm_set_inverse()
+    function: gs_concat()
+    function: gs_currentcharmatrix()
+    function: gs_currentmatrix()
+    function: gs_defaultmatrix()
+    function: gs_dtransform()
+    function: gs_idtransform()
+    function: gs_initmatrix()
+    function: gs_itransform()
+    function: gs_rotate()
+    function: gs_scale()
+    function: gs_setcharmatrix()
+    function: gs_setdefaultmatrix()
+    function: gs_settocharmatrix()
+    function: gs_transform()
+    function: gs_translate()
+    function: gs_updatematrices()
+    function: gx_translate_to_fixed()
+File: /home/oof/ghostpdlcoverage/base/gscparam.c
+    function: c_param_add()
+    function: c_param_enum_ptrs()
+    function: c_param_reloc_ptrs()
+    function: c_param_write()
+    function: c_param_write_typed()
+    function: gs_c_param_list_alloc()
+    function: gs_c_param_list_release()
+    function: gs_c_param_list_write()
+File: /home/oof/ghostpdlcoverage/base/gscpixel.c
+File: /home/oof/ghostpdlcoverage/base/gscrd.c
+    function: cie_render1_enum_ptrs()
+    function: cie_render1_reloc_ptrs()
+    function: gs_cie_render1_build()
+    function: render_identity()
+File: /home/oof/ghostpdlcoverage/base/gscrdp.c
+File: /home/oof/ghostpdlcoverage/base/gscrypt1.c
+File: /home/oof/ghostpdlcoverage/base/gscscie.c
+    function: gs_cspace_build_CIEDEFG()
+    function: gx_build_cie_space()
+    function: gx_install_CIE()
+    function: gx_set_common_cie_defaults()
+    function: set_cie_abc_defaults()
+File: /home/oof/ghostpdlcoverage/base/gscsepr.c
+File: /home/oof/ghostpdlcoverage/base/gscspace.c
+    function: color_space_enum_ptrs()
+    function: color_space_reloc_ptrs()
+    function: cs_adjust_counts_icc()
+    function: cs_adjust_swappedcounts_icc()
+    function: gs_color_space_get_index()
+    function: gs_color_space_is_CIE()
+    function: gs_color_space_num_components()
+    function: gs_cspace_alloc()
+    function: gs_cspace_alloc_with_id()
+    function: gs_cspace_base_space()
+    function: gs_cspace_final()
+    function: gs_cspace_new_DeviceCMYK()
+    function: gs_cspace_new_DeviceGray()
+    function: gs_cspace_new_DeviceRGB()
+    function: gs_cspace_new_ICC()
+    function: gx_install_DeviceCMYK()
+    function: gx_install_DeviceGray()
+    function: gx_install_DeviceRGB()
+    function: gx_num_components_1()
+    function: gx_num_components_4()
+    function: rc_decrement_cs()
+    function: rc_decrement_only_cs()
+    function: rc_increment_cs()
+File: /home/oof/ghostpdlcoverage/base/gsdevice.c
+    function: device_enum_ptrs()
+    function: device_forward_enum_ptrs()
+    function: device_forward_reloc_ptrs()
+    function: device_reloc_ptrs()
+    function: gs_closedevice()
+    function: gs_copydevice2()
+    function: gs_currentdevice()
+    function: gs_deviceinitialmatrix()
+    function: gs_flushpage()
+    function: gs_getdevice()
+    function: gs_gstate_update_device()
+    function: gs_is_null_device()
+    function: gs_make_null_device()
+    function: gs_nulldevice()
+    function: gs_opendevice()
+    function: gs_output_page()
+    function: gs_setdevice_no_erase()
+    function: gs_setdevice_no_init()
+    function: gx_device_copy_color_params()
+    function: gx_device_copy_color_procs()
+    function: gx_device_enum_ptr()
+    function: gx_device_finalize()
+    function: gx_device_init()
+    function: gx_device_init_on_stack()
+    function: gx_device_raster()
+    function: gx_device_reloc_ptr()
+    function: gx_device_retain()
+    function: gx_device_set_hwsize_from_media()
+    function: gx_device_set_media_size()
+    function: gx_finish_output_page()
+    function: gx_set_device_only()
+File: /home/oof/ghostpdlcoverage/base/gsdevmem.c
+File: /home/oof/ghostpdlcoverage/base/gsdparam.c
+    function: gs_get_device_or_hw_params()
+    function: gs_putdeviceparams()
+    function: gx_default_get_param()
+    function: gx_default_get_params()
+    function: gx_default_put_blackpreserve()
+    function: gx_default_put_blackptcomp()
+    function: gx_default_put_blacktext()
+    function: gx_default_put_blackthresholds()
+    function: gx_default_put_blackvector()
+    function: gx_default_put_graydetection()
+    function: gx_default_put_graytok()
+    function: gx_default_put_icc()
+    function: gx_default_put_icc_colorants()
+    function: gx_default_put_intent()
+    function: gx_default_put_overprint_control()
+    function: gx_default_put_params()
+    function: gx_default_put_prebandthreshold()
+    function: gx_default_put_usefastcolor()
+    function: param_HWColorMap()
+    function: param_MediaSize()
+    function: param_anti_alias_bits()
+    function: param_check_bool()
+    function: param_check_bytes()
+    function: param_check_long()
+File: /home/oof/ghostpdlcoverage/base/gsdps1.c
+    function: black_vectors()
+    function: gs_rectappend_compat()
+    function: gs_rectclip()
+    function: gs_rectfill()
+    function: gs_rectstroke()
+    function: gs_setbbox()
+File: /home/oof/ghostpdlcoverage/base/gsdsrc.c
+File: /home/oof/ghostpdlcoverage/base/gsequivc.c
+File: /home/oof/ghostpdlcoverage/base/gsfcid.c
+File: /home/oof/ghostpdlcoverage/base/gsfcid2.c
+File: /home/oof/ghostpdlcoverage/base/gsfcmap.c
+File: /home/oof/ghostpdlcoverage/base/gsfcmap1.c
+File: /home/oof/ghostpdlcoverage/base/gsflip.c
+File: /home/oof/ghostpdlcoverage/base/gsfname.c
+    function: gs_free_file_name()
+    function: gs_parse_file_name()
+    function: gs_parse_real_file_name()
+    function: gs_terminate_file_name()
+File: /home/oof/ghostpdlcoverage/base/gsfont.c
+    function: font_dir_enum_ptrs()
+    function: font_dir_reloc_ptrs()
+    function: font_enum_ptrs()
+    function: font_reloc_ptrs()
+    function: gs_base_make_font()
+    function: gs_cachestatus()
+    function: gs_currentaligntopixels()
+    function: gs_currentcachelower()
+    function: gs_currentcachesize()
+    function: gs_currentcacheupper()
+    function: gs_currentfont()
+    function: gs_currentgridfittt()
+    function: gs_definefont()
+    function: gs_font_alloc()
+    function: gs_font_dir_alloc2()
+    function: gs_font_dir_alloc2_limits()
+    function: gs_font_notify_init()
+    function: gs_makefont()
+    function: gs_no_define_font()
+    function: gs_rootfont()
+    function: gs_set_currentfont()
+    function: gs_setaligntopixels()
+    function: gs_setcachelower()
+    function: gs_setcachesize()
+    function: gs_setcacheupper()
+    function: gs_setfont()
+    function: gs_setgridfittt()
+File: /home/oof/ghostpdlcoverage/base/gsfont0.c
+File: /home/oof/ghostpdlcoverage/base/gsfont0c.c
+File: /home/oof/ghostpdlcoverage/base/gsfunc.c
+File: /home/oof/ghostpdlcoverage/base/gsfunc0.c
+File: /home/oof/ghostpdlcoverage/base/gsfunc3.c
+File: /home/oof/ghostpdlcoverage/base/gsfunc4.c
+File: /home/oof/ghostpdlcoverage/base/gsgcache.c
+File: /home/oof/ghostpdlcoverage/base/gsgdata.c
+File: /home/oof/ghostpdlcoverage/base/gsgstate.c
+    function: gs_gstate_copied()
+    function: gs_gstate_enum_ptrs()
+    function: gs_gstate_initialize()
+    function: gs_gstate_release()
+    function: gs_gstate_reloc_ptrs()
+    function: line_params_enum_ptrs()
+    function: line_params_reloc_ptrs()
+File: /home/oof/ghostpdlcoverage/base/gsht.c
+    function: compare_samples()
+    function: gs_color_name_component_number()
+    function: gs_currenthalftone()
+    function: gx_device_halftone_release()
+    function: gx_gstate_dev_ht_install()
+    function: gx_gstate_set_effective_xfer()
+    function: gx_ht_alloc_ht_order()
+    function: gx_ht_alloc_order()
+    function: gx_ht_construct_bit()
+    function: gx_ht_construct_bits()
+    function: gx_ht_construct_spot_order()
+    function: gx_ht_copy_ht_order()
+    function: gx_ht_install()
+    function: gx_ht_order_release()
+    function: gx_set_effective_transfer()
+    function: gx_sort_ht_order()
+    function: halftone_enum_ptrs()
+    function: halftone_reloc_ptrs()
+    function: ht_order_element_enum_ptrs()
+    function: ht_order_element_reloc_ptrs()
+    function: ht_order_enum_ptrs()
+    function: ht_order_reloc_ptrs()
+File: /home/oof/ghostpdlcoverage/base/gsht1.c
+File: /home/oof/ghostpdlcoverage/base/gshtscr.c
+    function: gs_currentaccuratescreens()
+    function: gs_currentminscreenlevels()
+    function: gs_gshtscr_init()
+    function: gs_screen_currentpoint()
+    function: gs_screen_enum_alloc()
+    function: gs_screen_enum_init_memory()
+    function: gs_screen_install()
+    function: gs_screen_next()
+    function: gs_screen_order_alloc()
+    function: gs_screen_order_init_memory()
+    function: gs_setaccuratescreens()
+    function: gs_setminscreenlevels()
+    function: gx_compute_cell_values()
+    function: pick_cell_size()
+File: /home/oof/ghostpdlcoverage/base/gshtx.c
+File: /home/oof/ghostpdlcoverage/base/gsicc.c
+    function: gx_default_get_profile()
+    function: gx_final_ICC()
+    function: gx_init_ICC()
+    function: gx_install_ICC()
+    function: gx_num_components_ICC()
+    function: gx_remap_ICC()
+    function: gx_remap_ICC_with_link()
+    function: gx_remap_concrete_ICC()
+    function: gx_restrict_ICC()
+File: /home/oof/ghostpdlcoverage/base/gsicc_blacktext.c
+File: /home/oof/ghostpdlcoverage/base/gsicc_cache.c
+    function: gsicc_alloc_link()
+    function: gsicc_alloc_link_entry()
+    function: gsicc_cache_new()
+    function: gsicc_compute_linkhash()
+    function: gsicc_findcachelink()
+    function: gsicc_get_buff_hash()
+    function: gsicc_get_cspace_hash()
+    function: gsicc_get_device_profile_comps()
+    function: gsicc_get_icc_buff_hash()
+    function: gsicc_get_link()
+    function: gsicc_get_link_profile()
+    function: gsicc_release_link()
+    function: gsicc_set_link_data()
+File: /home/oof/ghostpdlcoverage/base/gsicc_create.c
+File: /home/oof/ghostpdlcoverage/base/gsicc_lcms2mt.c
+    function: gs_lcms2_createMutex()
+    function: gs_lcms2_destroyMutex()
+    function: gs_lcms2_free()
+    function: gs_lcms2_lockMutex()
+    function: gs_lcms2_malloc()
+    function: gs_lcms2_realloc()
+    function: gs_lcms2_unlockMutex()
+    function: gscms_create()
+    function: gscms_destroy()
+    function: gscms_get_accuracy()
+    function: gscms_get_input_channel_count()
+    function: gscms_get_link()
+    function: gscms_get_link_dim()
+    function: gscms_get_output_channel_count()
+    function: gscms_get_profile_data_space()
+    function: gscms_get_profile_handle_mem()
+    function: gscms_is_threadsafe()
+    function: gscms_release_profile()
+    function: gscms_transform_color()
+    function: gscms_transform_color_const()
+File: /home/oof/ghostpdlcoverage/base/gsicc_manage.c
+    function: gs_currentdefaultcmykicc()
+    function: gs_currentdefaultgrayicc()
+    function: gs_currentdefaultrgbicc()
+    function: gs_currentdevicenicc()
+    function: gs_currenticcdirectory()
+    function: gs_currentlabicc()
+    function: gs_currentnamedicc()
+    function: gs_currentoverrideicc()
+    function: gs_currentsrcgtagicc()
+    function: gs_setdefaultcmykicc()
+    function: gs_setdefaultgrayicc()
+    function: gs_setdefaultrgbicc()
+    function: gs_setdevicenprofileicc()
+    function: gs_seticcdirectory()
+    function: gs_setlabicc()
+    function: gs_setnamedprofileicc()
+    function: gs_setoverrideicc()
+    function: gs_setsrcgtagicc()
+    function: gsicc_adjust_profile_rc()
+    function: gsicc_currentcoloraccuracy()
+    function: gsicc_extract_profile()
+    function: gsicc_get_profile_handle_buffer()
+    function: gsicc_init_device_profile_struct()
+    function: gsicc_init_iccmanager()
+    function: gsicc_initialize_default_profile()
+    function: gsicc_load_profile_buffer()
+    function: gsicc_manager_new()
+    function: gsicc_new_device_profile_array()
+    function: gsicc_open_search()
+    function: gsicc_profile_from_ps()
+    function: gsicc_profile_new()
+    function: gsicc_set_device_blackpreserve()
+    function: gsicc_set_device_blackptcomp()
+    function: gsicc_set_device_profile()
+    function: gsicc_set_device_profile_intent()
+    function: gsicc_set_icc_range()
+    function: gsicc_set_profile()
+    function: gsicc_setcoloraccuracy()
+    function: gsicc_use_fast_color()
+    function: gsicc_verify_device_profiles()
+    function: rc_free_icc_profile()
+    function: rc_free_profile_array()
+File: /home/oof/ghostpdlcoverage/base/gsicc_monitorcm.c
+File: /home/oof/ghostpdlcoverage/base/gsicc_nocm.c
+File: /home/oof/ghostpdlcoverage/base/gsicc_profilecache.c
+    function: gsicc_add_cs()
+    function: gsicc_find_cs()
+    function: gsicc_profilecache_new()
+File: /home/oof/ghostpdlcoverage/base/gsicc_replacecm.c
+File: /home/oof/ghostpdlcoverage/base/gsimage.c
+File: /home/oof/ghostpdlcoverage/base/gsimpath.c
+File: /home/oof/ghostpdlcoverage/base/gsinit.c
+    function: gs_lib_init1()
+File: /home/oof/ghostpdlcoverage/base/gsiodev.c
+    function: gs_findiodevice()
+    function: gs_getiodevice()
+    function: gs_iodev_init()
+    function: gs_iodev_register_dev()
+    function: iodev_no_init()
+    function: iodev_os_gp_fopen()
+    function: iodev_ptr_elt_enum_ptrs()
+    function: iodev_ptr_elt_reloc_ptrs()
+    function: iodev_ptr_enum_ptrs()
+    function: iodev_ptr_reloc_ptrs()
+    function: os_delete()
+    function: os_enumerate()
+    function: os_status()
+File: /home/oof/ghostpdlcoverage/base/gsiodevs.c
+File: /home/oof/ghostpdlcoverage/base/gsioram.c
+    function: iodev_ram_init()
+File: /home/oof/ghostpdlcoverage/base/gsiorom.c
+    function: romfs_enumerate_close()
+    function: romfs_enumerate_files_init()
+    function: romfs_enumerate_next()
+    function: romfs_file_status()
+    function: romfs_init()
+    function: romfs_open_file()
+    function: s_block_read_available()
+    function: s_block_read_close()
+    function: s_block_read_process()
+    function: s_block_read_seek()
+    function: sread_block()
+File: /home/oof/ghostpdlcoverage/base/gslibctx.c
+    function: errwrite()
+    function: fs_file_open_file()
+    function: fs_file_open_scratch()
+    function: gs_activate_path_control()
+    function: gs_add_control_path()
+    function: gs_add_control_path_flags()
+    function: gs_add_control_path_len()
+    function: gs_add_control_path_len_flags()
+    function: gs_add_outputfile_control_path()
+    function: gs_check_file_permission()
+    function: gs_globals_init()
+    function: gs_is_path_control_active()
+    function: gs_lib_ctx_alloc_root_structure()
+    function: gs_lib_ctx_fin()
+    function: gs_lib_ctx_get_act_on_uel()
+    function: gs_lib_ctx_get_cms_context()
+    function: gs_lib_ctx_get_interp_instance()
+    function: gs_lib_ctx_init()
+    function: gs_lib_ctx_set_default_device_list()
+    function: gs_lib_ctx_set_icc_directory()
+    function: gs_lib_ctx_stash_exe()
+    function: gs_lib_ctx_stash_sanitized_arg()
+    function: gs_purge_control_paths()
+    function: gs_purge_permitted_devices()
+    function: gs_purge_scratch_files()
+    function: outwrite()
+    function: remove_ctx_pointers()
+    function: rewrite_percent_specifiers()
+File: /home/oof/ghostpdlcoverage/base/gsline.c
+    function: gs_currentdash_offset()
+    function: gs_currentflat()
+    function: gs_currentlinecap()
+    function: gs_currentlinejoin()
+    function: gs_currentlinewidth()
+    function: gs_currentmiterlimit()
+    function: gs_currentstrokeadjust()
+    function: gs_setaccuratecurves()
+    function: gs_setcurvejoin()
+    function: gs_setdash()
+    function: gs_setdashadapt()
+    function: gs_setdotlength()
+    function: gs_setdotorientation()
+    function: gs_setflat()
+    function: gs_setlinedashcap()
+    function: gs_setlineendcap()
+    function: gs_setlinejoin()
+    function: gs_setlinestartcap()
+    function: gs_setlinewidth()
+    function: gs_setmiterlimit()
+    function: gs_setstrokeadjust()
+    function: gx_set_dash()
+    function: gx_set_miter_limit()
+File: /home/oof/ghostpdlcoverage/base/gsmalloc.c
+    function: gs_heap_alloc_byte_array()
+    function: gs_heap_alloc_bytes()
+    function: gs_heap_alloc_string()
+    function: gs_heap_alloc_struct()
+    function: gs_heap_free_all()
+    function: gs_heap_free_object()
+    function: gs_heap_object_size()
+    function: gs_heap_resize_object()
+    function: gs_heap_status()
+    function: gs_malloc_init_with_context()
+    function: gs_malloc_memory_init()
+    function: gs_malloc_release()
+    function: heap_available()
+File: /home/oof/ghostpdlcoverage/base/gsmatrix.c
+    function: bbox_transform_either()
+    function: bbox_transform_either_only()
+    function: gs_bbox_transform()
+    function: gs_bbox_transform_inverse()
+    function: gs_distance_transform()
+    function: gs_distance_transform2fixed()
+    function: gs_distance_transform_inverse()
+    function: gs_make_identity()
+    function: gs_make_rotation()
+    function: gs_make_scaling()
+    function: gs_make_translation()
+    function: gs_matrix_invert()
+    function: gs_matrix_multiply()
+    function: gs_matrix_rotate()
+    function: gs_matrix_translate()
+    function: gs_point_transform()
+    function: gs_point_transform2fixed()
+    function: gs_point_transform2fixed_rounding()
+    function: gs_point_transform_inverse()
+    function: gs_points_bbox()
+File: /home/oof/ghostpdlcoverage/base/gsmchunk.c
+    function: chunk_alloc_bytes()
+    function: chunk_alloc_bytes_immovable()
+    function: chunk_alloc_string()
+    function: chunk_alloc_struct()
+    function: chunk_alloc_struct_array()
+    function: chunk_alloc_struct_immovable()
+    function: chunk_free_object()
+    function: chunk_free_string()
+    function: chunk_obj_alloc()
+    function: chunk_stable()
+    function: gs_memory_chunk_wrap()
+    function: insert_free()
+    function: insert_free_loc()
+    function: insert_free_size()
+    function: remove_free_loc()
+    function: remove_free_size()
+    function: remove_free_size_fast()
+File: /home/oof/ghostpdlcoverage/base/gsmd5.c
+    function: gs_md5_append()
+    function: gs_md5_finish()
+    function: gs_md5_init()
+    function: gs_md5_process()
+File: /home/oof/ghostpdlcoverage/base/gsmemory.c
+    function: basic_enum_ptrs()
+    function: basic_reloc_ptrs()
+    function: gs_free_const_object()
+    function: gs_free_const_string()
+    function: gs_no_struct_enum_ptrs()
+    function: gs_no_struct_reloc_ptrs()
+    function: gs_raw_alloc_struct_immovable()
+    function: gs_register_struct_root()
+    function: gs_struct_type_size()
+    function: rc_free_struct_only()
+File: /home/oof/ghostpdlcoverage/base/gsmemret.c
+File: /home/oof/ghostpdlcoverage/base/gsmisc.c
+    function: emprintf_program_ident()
+    function: errprintf()
+    function: fixed_mult_quo()
+    function: gs_atan2_degrees()
+    function: gs_cos_degrees()
+    function: gs_debug_c()
+    function: gs_log_error()
+    function: gs_realloc()
+    function: gs_sin_degrees()
+    function: gs_sincos_degrees()
+    function: igcd()
+    function: ilog2()
+    function: imod()
+File: /home/oof/ghostpdlcoverage/base/gsnogc.c
+File: /home/oof/ghostpdlcoverage/base/gsnotify.c
+    function: gs_notify_init()
+File: /home/oof/ghostpdlcoverage/base/gsovrc.c
+File: /home/oof/ghostpdlcoverage/base/gspaint.c
+    function: black_vectors()
+    function: do_fill()
+    function: do_stroke()
+    function: fill_stroke_with_rule()
+    function: fill_with_rule()
+    function: gs_eofill()
+    function: gs_eofillstroke()
+    function: gs_fill()
+    function: gs_fillpage()
+    function: gs_fillstroke()
+    function: gs_stroke()
+    function: gs_strokepath()
+    function: gs_strokepath_aux()
+File: /home/oof/ghostpdlcoverage/base/gsparam.c
+    function: gs_param_list_init()
+    function: gs_param_list_set_persist_keys()
+    function: gs_param_read_items()
+    function: gs_param_typed_value_enum_ptrs()
+    function: gs_param_typed_value_reloc_ptrs()
+    function: param_coerce_typed()
+    function: param_init_enumerator()
+    function: param_read_bool()
+    function: param_read_float()
+    function: param_read_float_array()
+    function: param_read_i64()
+    function: param_read_int()
+    function: param_read_int_array()
+    function: param_read_long()
+    function: param_read_name()
+    function: param_read_name_array()
+    function: param_read_null()
+    function: param_read_requested_typed()
+    function: param_read_size_t()
+    function: param_read_string()
+    function: param_read_string_array()
+    function: param_write_bool()
+    function: param_write_float()
+    function: param_write_float_array()
+    function: param_write_i64()
+    function: param_write_int()
+    function: param_write_int_array()
+    function: param_write_long()
+    function: param_write_name()
+    function: param_write_name_array()
+    function: param_write_null()
+    function: param_write_size_t()
+    function: param_write_string()
+File: /home/oof/ghostpdlcoverage/base/gsparaml.c
+File: /home/oof/ghostpdlcoverage/base/gsparams.c
+File: /home/oof/ghostpdlcoverage/base/gsparamx.c
+    function: gs_param_string_eq()
+    function: param_list_copy()
+    function: param_put_bool()
+    function: param_put_enum()
+    function: param_put_int()
+File: /home/oof/ghostpdlcoverage/base/gspath.c
+    function: clamp_point()
+    function: clamp_point_aux()
+    function: common_clip()
+    function: gs_clip()
+    function: gs_clippath()
+    function: gs_closepath()
+    function: gs_currentpoint()
+    function: gs_curveto()
+    function: gs_curveto_aux()
+    function: gs_eoclip()
+    function: gs_initclip()
+    function: gs_lineto()
+    function: gs_lineto_aux()
+    function: gs_moveto()
+    function: gs_moveto_aux()
+    function: gs_newpath()
+    function: gs_rcurveto()
+    function: gs_rlineto()
+    function: gs_rmoveto()
+    function: gs_upmergepath()
+    function: gx_clip_to_path()
+    function: gx_clip_to_rectangle()
+    function: gx_default_clip_box()
+    function: gx_effective_clip_path()
+File: /home/oof/ghostpdlcoverage/base/gspath1.c
+    function: arc_add()
+    function: gs_arc()
+    function: gs_arc_add_inline()
+    function: gs_arcn()
+    function: gs_arcto()
+    function: gs_flattenpath()
+    function: gs_gstate_arc_add()
+    function: gs_path_enum_copy_init()
+    function: gs_path_enum_next()
+    function: gs_reversepath()
+    function: gs_upathbbox()
+    function: next_arc_curve()
+    function: next_arc_quadrant()
+File: /home/oof/ghostpdlcoverage/base/gspcolor.c
+File: /home/oof/ghostpdlcoverage/base/gsptype1.c
+    function: gx_dc_is_pattern1_color()
+    function: gx_dc_is_pattern1_color_clist_based()
+File: /home/oof/ghostpdlcoverage/base/gsptype2.c
+    function: gx_dc_is_pattern2_color()
+File: /home/oof/ghostpdlcoverage/base/gsrop.c
+File: /home/oof/ghostpdlcoverage/base/gsroprun.c
+File: /home/oof/ghostpdlcoverage/base/gsroprun1.h
+File: /home/oof/ghostpdlcoverage/base/gsroprun24.h
+File: /home/oof/ghostpdlcoverage/base/gsroprun8.h
+File: /home/oof/ghostpdlcoverage/base/gsropt.h
+File: /home/oof/ghostpdlcoverage/base/gsroptab.c
+File: /home/oof/ghostpdlcoverage/base/gsserial.c
+File: /home/oof/ghostpdlcoverage/base/gsshade.c
+File: /home/oof/ghostpdlcoverage/base/gssprintf.c
+    function: apr_cvt()
+    function: apr_gcvt()
+    function: apr_vformatter()
+    function: conv_10()
+    function: conv_10_quad()
+    function: gs_snprintf()
+File: /home/oof/ghostpdlcoverage/base/gsstate.c
+    function: clip_stack_rc_adjust()
+    function: gs_currentcpsimode()
+    function: gs_currentfilladjust()
+    function: gs_currentfilloverprint()
+    function: gs_currentoverprint()
+    function: gs_currentstrokeoverprint()
+    function: gs_getscanconverter()
+    function: gs_grestore()
+    function: gs_grestore_only()
+    function: gs_grestoreall_for_restore()
+    function: gs_gsave()
+    function: gs_gsave_for_save()
+    function: gs_gstate_alloc()
+    function: gs_gstate_client_data()
+    function: gs_gstate_copy()
+    function: gs_gstate_finalize()
+    function: gs_gstate_memory()
+    function: gs_gstate_saved()
+    function: gs_gstate_set_client()
+    function: gs_initgraphics()
+    function: gs_setfilladjust()
+    function: gs_setfilloverprint()
+    function: gs_setlimitclamp()
+    function: gs_setoverprint()
+    function: gs_setoverprintmode()
+    function: gs_setstrokeoverprint()
+    function: gs_settextrenderingmode()
+    function: gs_settextspacing()
+    function: gs_swapcolors_quick()
+    function: gstate_alloc()
+    function: gstate_alloc_parts()
+    function: gstate_clone_core()
+    function: gstate_clone_for_gsave()
+    function: gstate_clone_for_gstate()
+    function: gstate_copy_client_data()
+    function: gstate_copy_dash()
+    function: gstate_free_contents()
+    function: gstate_free_parts()
+    function: gstate_parts_init_dev_color()
+    function: sanitize_fill_adjust()
+File: /home/oof/ghostpdlcoverage/base/gsstrl.c
+File: /home/oof/ghostpdlcoverage/base/gsstrtok.c
+File: /home/oof/ghostpdlcoverage/base/gstext.c
+    function: gs_ashow_begin()
+    function: gs_awidthshow_begin()
+    function: gs_charpath_begin()
+    function: gs_cshow_begin()
+    function: gs_default_init_fstack()
+    function: gs_default_next_char_glyph()
+    function: gs_glyphshow_begin()
+    function: gs_no_build_char()
+    function: gs_show_begin()
+    function: gs_stringwidth_begin()
+    function: gs_text_begin()
+    function: gs_text_current_char()
+    function: gs_text_current_font()
+    function: gs_text_current_glyph()
+    function: gs_text_current_width()
+    function: gs_text_enum_init()
+    function: gs_text_enum_init_dynamic()
+    function: gs_text_is_width_only()
+    function: gs_text_process()
+    function: gs_text_release()
+    function: gs_text_setcharwidth()
+    function: gs_text_total_width()
+    function: gs_text_update_dev_color()
+    function: gs_widthshow_begin()
+    function: gs_xyshow_begin()
+    function: gx_default_text_release()
+    function: gx_device_text_begin()
+    function: rc_free_text_enum()
+File: /home/oof/ghostpdlcoverage/base/gstiffio.c
+File: /home/oof/ghostpdlcoverage/base/gstrans.c
+    function: check_for_nontrans_pattern()
+    function: gs_begin_transparency_group()
+    function: gs_getalphaisshape()
+    function: gs_getfillconstantalpha()
+    function: gs_getstrokeconstantalpha()
+    function: gs_gstate_update_pdf14trans2()
+    function: gs_pop_transparency_state()
+    function: gs_push_transparency_state()
+    function: gs_setalphaisshape()
+    function: gs_setblendmode()
+    function: gs_setfillconstantalpha()
+    function: gs_setstrokeconstantalpha()
+    function: gs_settextknockout()
+    function: gs_trans_group_params_init()
+File: /home/oof/ghostpdlcoverage/base/gstype1.c
+File: /home/oof/ghostpdlcoverage/base/gstype2.c
+File: /home/oof/ghostpdlcoverage/base/gstype42.c
+File: /home/oof/ghostpdlcoverage/base/gsutil.c
+    function: bytes_compare()
+    function: gs_next_ids()
+    function: string_match()
+    function: uid_copy()
+File: /home/oof/ghostpdlcoverage/base/gxacpath.c
+    function: accum_alloc_rect()
+    function: accum_close()
+    function: accum_fill_rectangle()
+    function: accum_open_device()
+    function: cpath_accum_initialize_device_procs()
+    function: gx_cpath_accum_begin()
+    function: gx_cpath_accum_end()
+    function: gx_cpath_intersect_path_slow()
+File: /home/oof/ghostpdlcoverage/base/gxbcache.c
+    function: gx_bits_cache_chunk_init()
+    function: gx_bits_cache_init()
+File: /home/oof/ghostpdlcoverage/base/gxblend.c
+File: /home/oof/ghostpdlcoverage/base/gxblend.h
+File: /home/oof/ghostpdlcoverage/base/gxblend1.c
+File: /home/oof/ghostpdlcoverage/base/gxccache.c
+    function: gx_compute_ccache_key()
+    function: gx_lookup_cached_char()
+    function: gx_lookup_fm_pair()
+File: /home/oof/ghostpdlcoverage/base/gxccman.c
+    function: cc_ptr_element_enum_ptrs()
+    function: cc_ptr_element_reloc_ptrs()
+    function: cc_ptr_enum_ptrs()
+    function: cc_ptr_reloc_ptrs()
+    function: fm_pair_element_enum_ptrs()
+    function: fm_pair_element_reloc_ptrs()
+    function: fm_pair_insert_into_list()
+    function: gx_add_fm_pair()
+    function: gx_char_cache_alloc()
+    function: gx_char_cache_init()
+    function: gx_provide_fm_pair_attributes()
+    function: gx_touch_fm_pair()
+File: /home/oof/ghostpdlcoverage/base/gxchar.c
+    function: compute_glyph_raster_params()
+    function: continue_kshow()
+    function: continue_show()
+    function: continue_show_update()
+    function: get_next_char_glyph()
+    function: gs_show_enum_alloc()
+    function: gs_text_count_chars()
+    function: gx_compute_text_oversampling()
+    function: gx_default_text_begin()
+    function: gx_show_text_current_width()
+    function: gx_show_text_is_width_only()
+    function: gx_show_text_process()
+    function: gx_show_text_release()
+    function: gx_show_text_set_cache()
+    function: set_char_width()
+    function: show_cache_setup()
+    function: show_fast_move()
+    function: show_finish()
+    function: show_move()
+    function: show_origin_setup()
+    function: show_proceed()
+    function: show_set_encode_char()
+    function: show_state_setup()
+    function: show_update()
+File: /home/oof/ghostpdlcoverage/base/gxchrout.c
+File: /home/oof/ghostpdlcoverage/base/gxcht.c
+File: /home/oof/ghostpdlcoverage/base/gxclbits.c
+File: /home/oof/ghostpdlcoverage/base/gxcldev.h
+File: /home/oof/ghostpdlcoverage/base/gxclfile.c
+    function: gs_gxclfile_init()
+File: /home/oof/ghostpdlcoverage/base/gxclimag.c
+File: /home/oof/ghostpdlcoverage/base/gxclip.c
+    function: clip_call_fill_rectangle()
+    function: clip_enumerate_rest()
+    function: clip_fill_rectangle()
+    function: clip_fill_rectangle_s0()
+    function: clip_fill_rectangle_t0()
+    function: clip_open()
+    function: clipper_initialize_device_procs()
+    function: gx_destroy_clip_device_on_stack()
+    function: gx_make_clip_device_on_stack()
+File: /home/oof/ghostpdlcoverage/base/gxclip2.c
+File: /home/oof/ghostpdlcoverage/base/gxclipm.c
+File: /home/oof/ghostpdlcoverage/base/gxclist.c
+File: /home/oof/ghostpdlcoverage/base/gxclmem.c
+    function: gs_gxclmem_init()
+File: /home/oof/ghostpdlcoverage/base/gxclpage.c
+File: /home/oof/ghostpdlcoverage/base/gxclpath.c
+File: /home/oof/ghostpdlcoverage/base/gxclrast.c
+File: /home/oof/ghostpdlcoverage/base/gxclread.c
+File: /home/oof/ghostpdlcoverage/base/gxclrect.c
+File: /home/oof/ghostpdlcoverage/base/gxclthrd.c
+File: /home/oof/ghostpdlcoverage/base/gxclutil.c
+File: /home/oof/ghostpdlcoverage/base/gxclzlib.c
+File: /home/oof/ghostpdlcoverage/base/gxcmap.c
+    function: cmap_gray_halftoned()
+    function: device_color_enum_ptrs()
+    function: device_color_reloc_ptrs()
+    function: gray_cs_to_gray_cm()
+    function: gs_identity_transfer()
+    function: gs_mapped_transfer()
+    function: gx_default_DevGray_get_color_comp_index()
+    function: gx_default_DevGray_get_color_mapping_procs()
+    function: gx_default_get_cmap_procs()
+    function: gx_default_gray_fast_encode()
+    function: gx_default_w_b_map_color_rgb()
+    function: gx_remap_DeviceGray()
+    function: gx_remap_color()
+    function: gx_remap_concrete_DGray()
+    function: gx_select_dev_ht()
+    function: gx_set_cmap_procs()
+    function: gx_set_identity_transfer()
+File: /home/oof/ghostpdlcoverage/base/gxcpath.c
+    function: clip_path_enum_ptrs()
+    function: clip_path_reloc_ptrs()
+    function: cpath_alloc_list()
+    function: cpath_init_own_contents()
+    function: cpath_init_rectangle()
+    function: cpath_set_rectangle()
+    function: gx_clip_list_free()
+    function: gx_clip_list_from_rectangle()
+    function: gx_clip_list_init()
+    function: gx_cpath_alloc_shared()
+    function: gx_cpath_assign_free()
+    function: gx_cpath_assign_preserve()
+    function: gx_cpath_clip()
+    function: gx_cpath_ensure_path_list()
+    function: gx_cpath_enum_init()
+    function: gx_cpath_enum_next()
+    function: gx_cpath_free()
+    function: gx_cpath_from_rectangle()
+    function: gx_cpath_includes_rectangle()
+    function: gx_cpath_init_contained_shared()
+    function: gx_cpath_init_local_shared()
+    function: gx_cpath_init_local_shared_nested()
+    function: gx_cpath_inner_box()
+    function: gx_cpath_intersect_with_params()
+    function: gx_cpath_list()
+    function: gx_cpath_outer_box()
+    function: gx_cpath_path_list_new()
+    function: gx_cpath_set_outer_box()
+    function: gx_cpath_to_path()
+    function: gx_cpath_to_path_synthesize()
+    function: rc_free_cpath_list()
+File: /home/oof/ghostpdlcoverage/base/gxctable.c
+File: /home/oof/ghostpdlcoverage/base/gxdcconv.c
+File: /home/oof/ghostpdlcoverage/base/gxdcolor.c
+    function: gx_complete_halftone()
+    function: gx_dc_pure_fill_rectangle()
+    function: gx_dc_pure_load()
+    function: gx_device_decache_colors()
+File: /home/oof/ghostpdlcoverage/base/gxdda.h
+File: /home/oof/ghostpdlcoverage/base/gxdevcli.h
+File: /home/oof/ghostpdlcoverage/base/gxdevice.h
+File: /home/oof/ghostpdlcoverage/base/gxdevndi.c
+    function: gx_devn_reduce_colored_halftone()
+    function: gx_render_device_DeviceN()
+File: /home/oof/ghostpdlcoverage/base/gxdhtserial.c
+File: /home/oof/ghostpdlcoverage/base/gxdownscale.c
+File: /home/oof/ghostpdlcoverage/base/gxdtfill.h
+    function: gx_fill_trapezoid_ns_fd()
+File: /home/oof/ghostpdlcoverage/base/gxfapi.c
+    function: gs_fapi_available()
+    function: gs_fapi_find_server()
+    function: gs_fapi_init()
+File: /home/oof/ghostpdlcoverage/base/gxfill.c
+    function: gx_default_fill_path()
+    function: gx_general_fill_path()
+File: /home/oof/ghostpdlcoverage/base/gxfillsl.h
+File: /home/oof/ghostpdlcoverage/base/gxfilltr.h
+File: /home/oof/ghostpdlcoverage/base/gxfillts.h
+File: /home/oof/ghostpdlcoverage/base/gxgstate.h
+    function: ensure_tag_is_set()
+File: /home/oof/ghostpdlcoverage/base/gxhintn.c
+File: /home/oof/ghostpdlcoverage/base/gxhintn1.c
+File: /home/oof/ghostpdlcoverage/base/gxhldevc.c
+    function: gx_hld_is_hl_color_available()
+File: /home/oof/ghostpdlcoverage/base/gxht.c
+    function: gx_dc_ht_binary_load()
+    function: gx_ht_alloc_cache()
+    function: gx_ht_cache_default_bits_size()
+    function: gx_ht_free_cache()
+    function: gx_ht_init_cache()
+    function: ht_tiles_enum_ptrs()
+    function: ht_tiles_reloc_ptrs()
+File: /home/oof/ghostpdlcoverage/base/gxht_thresh.c
+File: /home/oof/ghostpdlcoverage/base/gxhtbit.c
+File: /home/oof/ghostpdlcoverage/base/gxi12bit.c
+File: /home/oof/ghostpdlcoverage/base/gxi16bit.c
+File: /home/oof/ghostpdlcoverage/base/gxicolor.c
+File: /home/oof/ghostpdlcoverage/base/gxidata.c
+File: /home/oof/ghostpdlcoverage/base/gxifast.c
+File: /home/oof/ghostpdlcoverage/base/gximag3x.c
+File: /home/oof/ghostpdlcoverage/base/gximage.c
+    function: gs_data_image_t_init()
+    function: gs_pixel_image_t_init()
+File: /home/oof/ghostpdlcoverage/base/gximage1.c
+    function: gs_image_t_init_adjust()
+File: /home/oof/ghostpdlcoverage/base/gximage3.c
+File: /home/oof/ghostpdlcoverage/base/gximage4.c
+File: /home/oof/ghostpdlcoverage/base/gximask.c
+File: /home/oof/ghostpdlcoverage/base/gximdecode.c
+File: /home/oof/ghostpdlcoverage/base/gximono.c
+File: /home/oof/ghostpdlcoverage/base/gxipixel.c
+File: /home/oof/ghostpdlcoverage/base/gxiscale.c
+File: /home/oof/ghostpdlcoverage/base/gxmclip.c
+File: /home/oof/ghostpdlcoverage/base/gxoprect.c
+File: /home/oof/ghostpdlcoverage/base/gxp1fill.c
+File: /home/oof/ghostpdlcoverage/base/gxpaint.c
+    function: caching_an_outline_font()
+    function: gx_fill_path()
+    function: gx_stroke_add()
+    function: gx_stroke_fill()
+File: /home/oof/ghostpdlcoverage/base/gxpath.c
+    function: gx_path_add_curve_notes()
+    function: gx_path_add_line_notes()
+    function: gx_path_add_lines_notes()
+    function: gx_path_add_partial_arc_notes()
+    function: gx_path_add_path()
+    function: gx_path_add_point()
+    function: gx_path_alloc_shared()
+    function: gx_path_assign_free()
+    function: gx_path_assign_preserve()
+    function: gx_path_close_subpath_notes()
+    function: gx_path_free()
+    function: gx_path_init_contained_shared()
+    function: gx_path_init_contents()
+    function: gx_path_init_local_shared()
+    function: gx_path_new()
+    function: gx_path_new_subpath()
+    function: gx_path_unshare()
+    function: gz_path_add_curve_notes()
+    function: gz_path_add_line_notes()
+    function: gz_path_add_point()
+    function: gz_path_close_subpath_notes()
+    function: path_alloc_copy()
+    function: path_alloc_segment()
+    function: path_alloc_segments()
+    function: path_open()
+    function: path_unshare()
+    function: rc_free_path_segments()
+    function: rc_free_path_segments_local()
+File: /home/oof/ghostpdlcoverage/base/gxpath2.c
+    function: gx_path_bbox()
+    function: gx_path_bbox_set()
+    function: gx_path_copy_reversed()
+    function: gx_path_current_point()
+    function: gx_path_enum_init()
+    function: gx_path_enum_next()
+    function: gx_path_is_null()
+    function: gx_path_is_rectangular()
+    function: gx_path_translate()
+    function: gx_subpath_is_rectangular()
+File: /home/oof/ghostpdlcoverage/base/gxpcmap.c
+    function: color_tile_elt_enum_ptrs()
+    function: color_tile_elt_reloc_ptrs()
+    function: gstate_set_pattern_cache()
+    function: gx_device_is_pattern_accum()
+    function: gx_device_is_pattern_clist()
+    function: gx_pat_cache_default_bits()
+    function: gx_pat_cache_default_tiles()
+    function: gx_pattern_alloc_cache()
+    function: gx_pattern_cache_winnow()
+    function: pattern_cache_free_all()
+File: /home/oof/ghostpdlcoverage/base/gxpcopy.c
+    function: adjust_point_to_tangent()
+    function: break_line_if_long()
+    function: gx_path_copy_reducing()
+    function: gx_path_has_long_segments()
+File: /home/oof/ghostpdlcoverage/base/gxpdash.c
+File: /home/oof/ghostpdlcoverage/base/gxpflat.c
+    function: curve_coeffs_ranged()
+    function: generate_segments()
+    function: gx_check_fixed_diff_overflow()
+    function: gx_curve_log2_samples()
+    function: gx_flattened_iterator__init()
+    function: gx_flattened_iterator__next()
+    function: gx_subdivide_curve()
+    function: gx_subdivide_curve_rec()
+    function: split_curve_midpoint()
+File: /home/oof/ghostpdlcoverage/base/gxsample.c
+File: /home/oof/ghostpdlcoverage/base/gxsamplp.h
+File: /home/oof/ghostpdlcoverage/base/gxscanc.c
+    function: cursor_always_inrange_step_left_tr()
+    function: cursor_always_inrange_step_right_tr()
+    function: cursor_always_step_tr()
+    function: cursor_down_tr()
+    function: cursor_flush_tr()
+    function: cursor_output_inrange_tr()
+    function: cursor_output_tr()
+    function: cursor_step_tr()
+    function: cursor_up_tr()
+    function: fill_zero_app_tr()
+    function: gx_edgebuffer_fin()
+    function: gx_fill_edgebuffer_tr()
+    function: gx_fill_edgebuffer_tr_app()
+    function: gx_filter_edgebuffer_tr()
+    function: gx_filter_edgebuffer_tr_app()
+    function: gx_scan_convert_and_fill()
+    function: gx_scan_convert_tr()
+    function: gx_scan_convert_tr_app()
+    function: make_bbox()
+    function: make_table_template()
+    function: mark_curve_top_tr_app()
+    function: mark_curve_tr_app()
+    function: mark_line_tr()
+    function: mark_line_tr_app()
+    function: mark_line_zero()
+    function: zero_case()
+File: /home/oof/ghostpdlcoverage/base/gxshade.c
+File: /home/oof/ghostpdlcoverage/base/gxshade1.c
+File: /home/oof/ghostpdlcoverage/base/gxshade4.c
+File: /home/oof/ghostpdlcoverage/base/gxshade6.c
+File: /home/oof/ghostpdlcoverage/base/gxstroke.c
+    function: add_pie_join()
+    function: add_points()
+    function: adjust_stroke()
+    function: adjust_stroke_transversal()
+    function: cap_points()
+    function: check_miter()
+    function: compute_caps()
+    function: do_pie_join()
+    function: gx_default_stroke_path()
+    function: gx_stroke_path_expansion()
+    function: gx_stroke_path_only()
+    function: gx_stroke_path_only_aux()
+    function: join_under_pie()
+    function: line_intersect()
+    function: line_join_points()
+    function: stroke_add()
+    function: stroke_add_compat()
+    function: stroke_fill()
+File: /home/oof/ghostpdlcoverage/base/gxsync.c
+    function: gx_monitor_alloc()
+    function: gx_monitor_free()
+    function: gx_semaphore_alloc()
+File: /home/oof/ghostpdlcoverage/base/gxttfb.c
+File: /home/oof/ghostpdlcoverage/base/gxtype1.c
+File: /home/oof/ghostpdlcoverage/base/gzspotan.c
+File: /home/oof/ghostpdlcoverage/base/jmemcust.c
+File: /home/oof/ghostpdlcoverage/base/memento.c
+File: /home/oof/ghostpdlcoverage/base/mkromfs.c
+File: /home/oof/ghostpdlcoverage/base/pack_ps.c
+File: /home/oof/ghostpdlcoverage/base/pagelist.c
+File: /home/oof/ghostpdlcoverage/base/ramfs.c
+    function: ramfs_new()
+File: /home/oof/ghostpdlcoverage/base/sa85d.c
+File: /home/oof/ghostpdlcoverage/base/saes.c
+File: /home/oof/ghostpdlcoverage/base/sarc4.c
+File: /home/oof/ghostpdlcoverage/base/sbrotlic.c
+File: /home/oof/ghostpdlcoverage/base/sbrotlid.c
+File: /home/oof/ghostpdlcoverage/base/sbrotlie.c
+File: /home/oof/ghostpdlcoverage/base/scfd.c
+File: /home/oof/ghostpdlcoverage/base/scfdtab.c
+File: /home/oof/ghostpdlcoverage/base/scfe.c
+File: /home/oof/ghostpdlcoverage/base/scfetab.c
+File: /home/oof/ghostpdlcoverage/base/scfparam.c
+File: /home/oof/ghostpdlcoverage/base/scommon.h
+File: /home/oof/ghostpdlcoverage/base/sdcparam.c
+File: /home/oof/ghostpdlcoverage/base/sdctc.c
+File: /home/oof/ghostpdlcoverage/base/sdctd.c
+File: /home/oof/ghostpdlcoverage/base/sdcte.c
+File: /home/oof/ghostpdlcoverage/base/sddparam.c
+File: /home/oof/ghostpdlcoverage/base/sdeparam.c
+File: /home/oof/ghostpdlcoverage/base/seexec.c
+File: /home/oof/ghostpdlcoverage/base/sfilter1.c
+    function: s_SFD_init()
+    function: s_SFD_process()
+    function: s_SFD_set_defaults()
+File: /home/oof/ghostpdlcoverage/base/sfilter2.c
+File: /home/oof/ghostpdlcoverage/base/sfxcommon.c
+    function: file_alloc_stream()
+    function: file_close_file()
+    function: file_init_stream()
+    function: file_open_stream()
+    function: file_prepare_stream()
+File: /home/oof/ghostpdlcoverage/base/sfxstdio.c
+    function: sappend_file()
+    function: sread_file()
+    function: swrite_file()
+File: /home/oof/ghostpdlcoverage/base/sha2.c
+File: /home/oof/ghostpdlcoverage/base/shc.c
+File: /home/oof/ghostpdlcoverage/base/sidscale.c
+File: /home/oof/ghostpdlcoverage/base/siinterp.c
+File: /home/oof/ghostpdlcoverage/base/simscale.c
+File: /home/oof/ghostpdlcoverage/base/simscale_foo.c
+File: /home/oof/ghostpdlcoverage/base/siscale.c
+File: /home/oof/ghostpdlcoverage/base/sjbig2.c
+File: /home/oof/ghostpdlcoverage/base/sjpegc.c
+File: /home/oof/ghostpdlcoverage/base/sjpegd.c
+File: /home/oof/ghostpdlcoverage/base/sjpege.c
+File: /home/oof/ghostpdlcoverage/base/sjpx_openjpeg.c
+    function: sjpxd_create()
+    function: sjpxd_destroy()
+File: /home/oof/ghostpdlcoverage/base/slzwc.c
+File: /home/oof/ghostpdlcoverage/base/slzwd.c
+File: /home/oof/ghostpdlcoverage/base/slzwe.c
+File: /home/oof/ghostpdlcoverage/base/smd5.c
+File: /home/oof/ghostpdlcoverage/base/spdiff.c
+File: /home/oof/ghostpdlcoverage/base/spngp.c
+File: /home/oof/ghostpdlcoverage/base/spprint.c
+File: /home/oof/ghostpdlcoverage/base/spsdf.c
+File: /home/oof/ghostpdlcoverage/base/spwgd.c
+File: /home/oof/ghostpdlcoverage/base/srld.c
+File: /home/oof/ghostpdlcoverage/base/srle.c
+File: /home/oof/ghostpdlcoverage/base/ssha2.c
+File: /home/oof/ghostpdlcoverage/base/sstring.c
+    function: s_AXD_process()
+    function: s_PSSD_process()
+    function: s_hex_process()
+File: /home/oof/ghostpdlcoverage/base/stream.c
+    function: file_close_disable()
+    function: s_alloc()
+    function: s_alloc_state()
+    function: s_disable()
+    function: s_filter_close()
+    function: s_init()
+    function: s_init_state()
+    function: s_process_read_buf()
+    function: s_process_write_buf()
+    function: s_std_init()
+    function: s_std_noavailable()
+    function: s_std_noseek()
+    function: s_std_null()
+    function: s_std_read_flush()
+    function: s_std_read_reset()
+    function: s_std_write_flush()
+    function: s_std_write_reset()
+    function: s_string_available()
+    function: savailable()
+    function: sclose()
+    function: sfilename()
+    function: sgets()
+    function: spgetcc()
+    function: spputc()
+    function: spseek()
+    function: sputs()
+    function: sread_string()
+    function: sreadbuf()
+    function: sreadline()
+    function: ssetfilename()
+    function: stell()
+    function: stream_compact()
+    function: stream_enum_ptrs()
+    function: stream_finalize()
+    function: stream_move()
+    function: stream_reloc_ptrs()
+    function: swritebuf()
+File: /home/oof/ghostpdlcoverage/base/strmio.c
+    function: sfclose()
+    function: sfopen()
+    function: sfread()
+    function: sfseek()
+    function: sftell()
+    function: srewind()
+File: /home/oof/ghostpdlcoverage/base/szlibc.c
+File: /home/oof/ghostpdlcoverage/base/szlibd.c
+File: /home/oof/ghostpdlcoverage/base/szlibe.c
+File: /home/oof/ghostpdlcoverage/base/ttcalc.c
+File: /home/oof/ghostpdlcoverage/base/ttfinp.c
+File: /home/oof/ghostpdlcoverage/base/ttfmain.c
+File: /home/oof/ghostpdlcoverage/base/ttfmemd.c
+File: /home/oof/ghostpdlcoverage/base/ttinterp.c
+File: /home/oof/ghostpdlcoverage/base/ttload.c
+File: /home/oof/ghostpdlcoverage/base/ttobjs.c
+File: /home/oof/ghostpdlcoverage/base/wrfont.c
+File: /home/oof/ghostpdlcoverage/base/write_t1.c
+File: /home/oof/ghostpdlcoverage/base/write_t2.c
+File: /home/oof/ghostpdlcoverage/brotli/c/common/constants.h
+File: /home/oof/ghostpdlcoverage/brotli/c/common/dictionary.c
+File: /home/oof/ghostpdlcoverage/brotli/c/common/platform.c
+File: /home/oof/ghostpdlcoverage/brotli/c/common/platform.h
+File: /home/oof/ghostpdlcoverage/brotli/c/common/shared_dictionary.c
+File: /home/oof/ghostpdlcoverage/brotli/c/common/transform.c
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/bit_reader.c
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/bit_reader.h
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/decode.c
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/huffman.c
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/huffman.h
+File: /home/oof/ghostpdlcoverage/brotli/c/dec/state.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/backward_references.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/backward_references_hq.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/backward_references_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/bit_cost.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/bit_cost_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/block_encoder_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/block_splitter.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/block_splitter_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/brotli_bit_stream.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/cluster.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/cluster_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/command.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/compound_dictionary.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/compress_fragment.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/compress_fragment_two_pass.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/encode.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/encoder_dict.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/entropy_encode.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/entropy_encode.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/entropy_encode_static.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/fast_log.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/find_match_length.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_composite_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_forgetful_chain_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_longest_match64_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_longest_match_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_longest_match_quickly_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_rolling_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/hash_to_binary_tree_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/histogram.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/histogram_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/literal_cost.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/metablock.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/metablock.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/metablock_inc.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/prefix.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/quality.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/ringbuffer.h
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/static_dict.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/utf8_util.c
+File: /home/oof/ghostpdlcoverage/brotli/c/enc/write_bits.h
+File: /home/oof/ghostpdlcoverage/conftest.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/eprnfs.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/eprnparm.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/eprnrend.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/gdeveprn.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/mediasize.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/eprn/pagecount.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/src/gdevpcl3.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/src/pclcap.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/src/pclcomp.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/src/pclgen.c
+File: /home/oof/ghostpdlcoverage/contrib/pcl3/src/pclsize.c
+File: /home/oof/ghostpdlcoverage/cups/gdevcups.c
+File: /home/oof/ghostpdlcoverage/devices/gdevbmp.c
+File: /home/oof/ghostpdlcoverage/devices/gdevbmpc.c
+File: /home/oof/ghostpdlcoverage/devices/gdevdjet.c
+File: /home/oof/ghostpdlcoverage/devices/gdevdljm.c
+File: /home/oof/ghostpdlcoverage/devices/gdevfax.c
+File: /home/oof/ghostpdlcoverage/devices/gdevpbm.c
+File: /home/oof/ghostpdlcoverage/devices/gdevpcl.c
+File: /home/oof/ghostpdlcoverage/devices/gdevpng.c
+File: /home/oof/ghostpdlcoverage/devices/gdevpsd.c
+File: /home/oof/ghostpdlcoverage/devices/gdevpxut.c
+File: /home/oof/ghostpdlcoverage/devices/gdevtifs.c
+File: /home/oof/ghostpdlcoverage/devices/gdevtsep.c
+File: /home/oof/ghostpdlcoverage/devices/gdevupd.c
+File: /home/oof/ghostpdlcoverage/devices/gxfcopy.c
+File: /home/oof/ghostpdlcoverage/devices/minftrsz.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdf.c
+    function: device_pdfwrite_enum_ptrs()
+    function: device_pdfwrite_reloc_ptrs()
+    function: pdfwrite_initialize_device()
+    function: pdfwrite_initialize_device_procs()
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfb.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfc.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfd.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfe.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfg.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfi.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfj.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfk.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfm.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfo.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfp.c
+    function: gdev_pdf_put_params()
+    function: gdev_pdf_put_params_impl()
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfr.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdft.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfu.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfv.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdfx.h
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdt.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtb.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtc.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtd.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdte.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtf.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtf.h
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdti.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdts.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtt.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpdtw.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsdi.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsdp.c
+    function: add_embed()
+    function: delete_embed()
+    function: gdev_psdf_put_params()
+    function: merge_embed()
+    function: param_read_embed_array()
+    function: param_string_elt_enum_ptrs()
+    function: param_string_elt_reloc_ptrs()
+    function: param_string_enum_ptrs()
+    function: param_string_eq()
+    function: param_string_reloc_ptrs()
+    function: psdf_put_embed_param()
+    function: psdf_put_image_dict_param()
+    function: psdf_put_image_params()
+    function: psdf_read_copy_param_string_array()
+    function: psdf_read_string_param()
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsds.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsdu.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsf1.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsf2.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsfm.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsft.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsfu.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpsfx.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevpx.c
+File: /home/oof/ghostpdlcoverage/devices/vector/gdevxps.c
+File: /home/oof/ghostpdlcoverage/devices/vector/whitelst.c
+File: /home/oof/ghostpdlcoverage/freetype/include/freetype/internal/ftcalc.h
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afcjk.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afdummy.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afglobal.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afhints.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afindic.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/aflatin.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afloader.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afmodule.c
+File: /home/oof/ghostpdlcoverage/freetype/src/autofit/afshaper.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftadvanc.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftbbox.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftbdf.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftbitmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftcalc.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftdebug.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftfntfmt.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftgasp.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftgloadr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftglyph.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftgxval.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/fthash.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftinit.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftlcdfil.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftmm.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftotval.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftoutln.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftpatent.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftpfr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftpsprop.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftrfork.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftsnames.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftstream.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftstroke.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftsynth.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftsystem.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/fttrigon.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/fttype1.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftutil.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/ftwinfnt.c
+File: /home/oof/ghostpdlcoverage/freetype/src/base/md5.c
+File: /home/oof/ghostpdlcoverage/freetype/src/bdf/bdfdrivr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/bdf/bdflib.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcbasic.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftccache.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftccmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcglyph.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcimage.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcmanag.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcmru.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cache/ftcsbits.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffcmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffdrivr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffgload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cff/cffparse.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cid/cidgload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cid/cidload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cid/cidobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cid/cidparse.c
+File: /home/oof/ghostpdlcoverage/freetype/src/cid/cidriver.c
+File: /home/oof/ghostpdlcoverage/freetype/src/gzip/ftgzip.c
+File: /home/oof/ghostpdlcoverage/freetype/src/lzw/ftlzw.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pcf/pcfdrivr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pcf/pcfread.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pcf/pcfutil.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrcmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrdrivr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrgload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pfr/pfrsbit.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/afmparse.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/cffdecode.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psarrst.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psblues.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psconv.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/pserror.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psfont.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psft.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/pshints.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psintrp.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psread.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/psstack.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/t1cmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psaux/t1decode.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pshinter/pshalgo.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pshinter/pshglob.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pshinter/pshmod.c
+File: /home/oof/ghostpdlcoverage/freetype/src/pshinter/pshrec.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psnames/psmodule.c
+File: /home/oof/ghostpdlcoverage/freetype/src/psnames/pstables.h
+File: /home/oof/ghostpdlcoverage/freetype/src/raster/ftraster.c
+File: /home/oof/ghostpdlcoverage/freetype/src/raster/ftrend1.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sdf/ftbsdf.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sdf/ftsdf.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sdf/ftsdfcommon.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sdf/ftsdfrend.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/sfdriver.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/sfobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttcmap.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttkern.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttmtx.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttpost.c
+File: /home/oof/ghostpdlcoverage/freetype/src/sfnt/ttsvg.c
+File: /home/oof/ghostpdlcoverage/freetype/src/smooth/ftgrays.c
+File: /home/oof/ghostpdlcoverage/freetype/src/smooth/ftsmooth.c
+File: /home/oof/ghostpdlcoverage/freetype/src/svg/ftsvg.c
+File: /home/oof/ghostpdlcoverage/freetype/src/truetype/ttdriver.c
+File: /home/oof/ghostpdlcoverage/freetype/src/truetype/ttgload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/truetype/ttinterp.c
+File: /home/oof/ghostpdlcoverage/freetype/src/truetype/ttobjs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/truetype/ttpload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1afm.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1driver.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1gload.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1load.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1objs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type1/t1parse.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type42/t42drivr.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type42/t42objs.c
+File: /home/oof/ghostpdlcoverage/freetype/src/type42/t42parse.c
+File: /home/oof/ghostpdlcoverage/freetype/src/winfonts/winfnt.c
+File: /home/oof/ghostpdlcoverage/fuzzer_coverage.c
+    function: LLVMFuzzerInitialize()
+    function: LLVMFuzzerTestOneInput()
+    function: elapsed_ms()
+    function: main()
+    function: process_path()
+    function: read_file()
+    function: write_program()
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_arith.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_arith_iaid.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_arith_int.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_generic.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_halftone.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_huffman.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_image.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_mmr.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_page.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_refinement.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_segment.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_symbol_dict.c
+File: /home/oof/ghostpdlcoverage/jbig2dec/jbig2_text.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsalpha.c
+    function: _cmsHandleExtraChannels()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmscam02.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmscgats.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmscnvrt.c
+    function: AddConversion()
+    function: ColorSpaceIsCompatible()
+    function: ComputeBlackPointCompensation()
+    function: ComputeConversion()
+    function: DefaultICCintents()
+    function: IsEmptyLayer()
+    function: SearchIntent()
+    function: _cmsAllocIntentsPluginChunk()
+    function: _cmsLinkProfiles()
+    function: _cmsRegisterRenderingIntentPlugin()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmserr.c
+    function: _cmsAllocLogErrorChunk()
+    function: _cmsAllocMemPluginChunk()
+    function: _cmsAllocMutexPluginChunk()
+    function: _cmsCalloc()
+    function: _cmsCallocDefaultFn()
+    function: _cmsCreateMutex()
+    function: _cmsCreateSubAlloc()
+    function: _cmsCreateSubAllocChunk()
+    function: _cmsDestroyMutex()
+    function: _cmsDupDefaultFn()
+    function: _cmsDupMem()
+    function: _cmsFree()
+    function: _cmsFreeDefaultFn()
+    function: _cmsInstallAllocFunctions()
+    function: _cmsLockMutex()
+    function: _cmsMalloc()
+    function: _cmsMallocDefaultFn()
+    function: _cmsMallocZero()
+    function: _cmsMallocZeroDefaultFn()
+    function: _cmsRealloc()
+    function: _cmsRegisterMemHandlerPlugin()
+    function: _cmsRegisterMutexPlugin()
+    function: _cmsSubAlloc()
+    function: _cmsSubAllocDestroy()
+    function: _cmsSubAllocDup()
+    function: _cmsUnlockMutex()
+    function: cmsSetLogErrorHandler()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsgamma.c
+    function: AllocateToneCurveStruct()
+    function: DefaultEvalParametricFn()
+    function: EvalSegmentedFn()
+    function: GetInterval()
+    function: GetParametricCurveByType()
+    function: IsInSet()
+    function: _cmsAllocCurvesPluginChunk()
+    function: _cmsRegisterParametricCurvesPlugin()
+    function: cmsBuildGamma()
+    function: cmsBuildParametricToneCurve()
+    function: cmsBuildSegmentedToneCurve()
+    function: cmsBuildTabulatedToneCurve16()
+    function: cmsBuildTabulatedToneCurveFloat()
+    function: cmsDupToneCurve()
+    function: cmsEstimateGamma()
+    function: cmsEvalToneCurveFloat()
+    function: cmsFreeToneCurve()
+    function: cmsReverseToneCurve()
+    function: cmsReverseToneCurveEx()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsgmt.c
+    function: cmsDetectRGBProfileGamma()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmshalf.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsintrp.c
+    function: DefaultInterpolatorsFactory()
+    function: Eval4Inputs()
+    function: LinLerp1D()
+    function: LinLerp1Dfloat()
+    function: TetrahedralInterp16()
+    function: TrilinearInterp16()
+    function: _cmsAllocInterpPluginChunk()
+    function: _cmsComputeInterpParams()
+    function: _cmsComputeInterpParamsEx()
+    function: _cmsFreeInterpParams()
+    function: _cmsRegisterInterpPlugin()
+    function: _cmsSetInterpolationRoutine()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsio0.c
+    function: BaseToBase()
+    function: MemoryClose()
+    function: MemoryRead()
+    function: MemorySeek()
+    function: _cmsDeleteTagByPos()
+    function: _cmsGetTagTrueType()
+    function: _cmsNewTag()
+    function: _cmsReadHeader()
+    function: _cmsSearchTag()
+    function: _validatedVersion()
+    function: cmsCloseProfile()
+    function: cmsCreateProfilePlaceholder()
+    function: cmsGetColorSpace()
+    function: cmsGetDeviceClass()
+    function: cmsGetEncodedICCversion()
+    function: cmsGetPCS()
+    function: cmsGetProfileVersion()
+    function: cmsIsTag()
+    function: cmsOpenIOhandlerFromMem()
+    function: cmsOpenProfileFromMem()
+    function: cmsReadTag()
+    function: cmsSetColorSpace()
+    function: cmsSetDeviceClass()
+    function: cmsSetHeaderRenderingIntent()
+    function: cmsSetPCS()
+    function: cmsSetProfileVersion()
+    function: cmsWriteTag()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsio1.c
+    function: BuildGrayInputMatrixPipeline()
+    function: BuildGrayOutputPipeline()
+    function: BuildRGBInputMatrixShaper()
+    function: ChangeInterpolationToTrilinear()
+    function: ReadICCMatrixRGB2XYZ()
+    function: _cmsReadDevicelinkLUT()
+    function: _cmsReadInputLUT()
+    function: _cmsReadOutputLUT()
+    function: cmsIsCLUT()
+    function: cmsIsIntentSupported()
+    function: cmsIsMatrixShaper()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmslut.c
+    function: BlessLUT()
+    function: CLUTElemDup()
+    function: CLutElemTypeFree()
+    function: CubeSize()
+    function: CurveSetDup()
+    function: CurveSetElemTypeFree()
+    function: EvaluateCLUTfloatIn16()
+    function: EvaluateCurves()
+    function: EvaluateLab2XYZ()
+    function: EvaluateMatrix()
+    function: EvaluateXYZ2Lab()
+    function: From16ToFloat()
+    function: FromFloatTo16()
+    function: IdentitySampler()
+    function: MatrixElemDup()
+    function: MatrixElemTypeFree()
+    function: _LUTeval16()
+    function: _LUTevalFloat()
+    function: _cmsPipelineSetOptimizationParameters()
+    function: _cmsQuantizeVal()
+    function: _cmsStageAllocIdentityCLut()
+    function: _cmsStageAllocIdentityCurves()
+    function: _cmsStageAllocLab2XYZ()
+    function: _cmsStageAllocLabV2ToV4()
+    function: _cmsStageAllocLabV4ToV2()
+    function: _cmsStageAllocPlaceholder()
+    function: _cmsStageAllocXYZ2Lab()
+    function: cmsPipelineAlloc()
+    function: cmsPipelineCat()
+    function: cmsPipelineCheckAndRetreiveStages()
+    function: cmsPipelineDup()
+    function: cmsPipelineEval16()
+    function: cmsPipelineEvalFloat()
+    function: cmsPipelineFree()
+    function: cmsPipelineGetPtrToFirstStage()
+    function: cmsPipelineInputChannels()
+    function: cmsPipelineInsertStage()
+    function: cmsPipelineOutputChannels()
+    function: cmsPipelineStageCount()
+    function: cmsStageAllocCLut16bit()
+    function: cmsStageAllocCLut16bitGranular()
+    function: cmsStageAllocMatrix()
+    function: cmsStageAllocToneCurves()
+    function: cmsStageData()
+    function: cmsStageDup()
+    function: cmsStageFree()
+    function: cmsStageInputChannels()
+    function: cmsStageNext()
+    function: cmsStageOutputChannels()
+    function: cmsStageSampleCLut16bit()
+    function: cmsStageType()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsmd5.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsmtrx.c
+    function: _cmsMAT3eval()
+    function: _cmsMAT3identity()
+    function: _cmsMAT3inverse()
+    function: _cmsMAT3isIdentity()
+    function: _cmsMAT3per()
+    function: _cmsVEC3init()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsnamed.c
+    function: AddMLUBlock()
+    function: GrowMLUpool()
+    function: SearchMLUEntry()
+    function: cmsMLUalloc()
+    function: cmsMLUdup()
+    function: cmsMLUfree()
+    function: cmsMLUsetWide()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsopt.c
+    function: FixWhiteMisalignment()
+    function: OptimizeByComputingLinearization()
+    function: OptimizeByJoiningCurves()
+    function: OptimizeByResampling()
+    function: OptimizeMatrixShaper()
+    function: PatchLUT()
+    function: PreOptimize()
+    function: WhitesAreEqual()
+    function: XFormSampler16()
+    function: _MultiplyMatrix()
+    function: _Remove1Op()
+    function: _Remove2Op()
+    function: _cmsAllocOptimizationPluginChunk()
+    function: _cmsLutIsIdentity()
+    function: _cmsOptimizePipeline()
+    function: _cmsRegisterOptimizationPlugin()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmspack.c
+    function: PackLabDoubleFrom16()
+    function: PackLabDoubleFromFloat()
+    function: PackXYZDoubleFrom16()
+    function: Unroll1Word()
+    function: Unroll3Words()
+    function: UnrollLabDoubleToFloat()
+    function: _cmsAllocFormattersPluginChunk()
+    function: _cmsFormatterIsFloat()
+    function: _cmsGetFormatter()
+    function: _cmsGetStockInputFormatter()
+    function: _cmsGetStockOutputFormatter()
+    function: _cmsRegisterFormattersPlugin()
+    function: cmsFormatterForColorspaceOfProfile()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmspcs.c
+    function: _cmsEndPointsBySpace()
+    function: _cmsICCcolorSpace()
+    function: _cmsLCMScolorSpace()
+    function: _cmsReasonableGridpointsByColorspace()
+    function: cmsChannelsOf()
+    function: cmsLab2XYZ()
+    function: cmsLabEncoded2Float()
+    function: cmsXYZ2Lab()
+    function: cmsXYZ2xyY()
+    function: cmsXYZEncoded2Float()
+    function: cmsxyY2XYZ()
+    function: f()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsplugin.c
+    function: _cms15Fixed16toDouble()
+    function: _cmsAdjustEndianess32()
+    function: _cmsAdjustEndianess64()
+    function: _cmsAdjustReferenceCount()
+    function: _cmsContextGetClientChunk()
+    function: _cmsDecodeDateTimeNumber()
+    function: _cmsFindMemoryPlugin()
+    function: _cmsGetContext()
+    function: _cmsGetTime()
+    function: _cmsRead15Fixed16Number()
+    function: _cmsReadTypeBase()
+    function: _cmsReadUInt16Array()
+    function: _cmsReadUInt16Number()
+    function: _cmsReadUInt32Number()
+    function: _cmsReadUInt8Number()
+    function: _cmsReadXYZNumber()
+    function: cmsCreateContext()
+    function: cmsDeleteContext()
+    function: cmsGetContextUserData()
+    function: cmsPlugin()
+    function: cmsUnregisterPlugins()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsps2.c
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmssamp.c
+    function: BlackPointAsDarkerColorant()
+    function: BlackPointUsingPerceptualBlack()
+    function: CreateRoundtripXForm()
+    function: cmsDetectBlackPoint()
+    function: cmsDetectDestinationBlackPoint()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmstypes.c
+    function: DecideLUTtypeA2B()
+    function: DecideTextDescType()
+    function: DecideTextType()
+    function: GetHandler()
+    function: Read16bitTables()
+    function: Read8bitTables()
+    function: RegisterTypesPlugin()
+    function: Type_Curve_Read()
+    function: Type_LUT16_Dup()
+    function: Type_LUT16_Free()
+    function: Type_LUT16_Read()
+    function: Type_LUT8_Read()
+    function: Type_LUTA2B_Dup()
+    function: Type_LUTA2B_Free()
+    function: Type_MLU_Dup()
+    function: Type_MLU_Free()
+    function: Type_S15Fixed16_Dup()
+    function: Type_S15Fixed16_Free()
+    function: Type_Text_Description_Dup()
+    function: Type_Text_Description_Free()
+    function: Type_Text_Dup()
+    function: Type_Text_Free()
+    function: Type_XYZ_Dup()
+    function: Type_XYZ_Free()
+    function: Type_XYZ_Read()
+    function: _cmsAllocMPETypePluginChunk()
+    function: _cmsAllocTagPluginChunk()
+    function: _cmsAllocTagTypePluginChunk()
+    function: _cmsGetTagDescriptor()
+    function: _cmsGetTagTypeHandler()
+    function: _cmsRegisterMultiProcessElementPlugin()
+    function: _cmsRegisterTagPlugin()
+    function: _cmsRegisterTagTypePlugin()
+    function: uipow()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsvirt.c
+    function: SetTextTags()
+    function: cmsCreateLab2Profile()
+    function: cmsCreateLab4Profile()
+    function: cmsCreateRGBProfile()
+    function: cmsCreateXYZProfile()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmswtpnt.c
+    function: ComputeChromaticAdaptation()
+    function: _cmsAdaptationMatrix()
+    function: cmsD50_XYZ()
+    function: cmsD50_xyY()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/cmsxform.c
+    function: AllocEmptyTransform()
+    function: FloatXFORM()
+    function: GetXFormColorSpaces()
+    function: IsProperColorSpace()
+    function: NormalizeXYZ()
+    function: SetWhitePoint()
+    function: _cmsAllocAdaptationStateChunk()
+    function: _cmsAllocAlarmCodesChunk()
+    function: _cmsAllocTransformPluginChunk()
+    function: _cmsFindFormatter()
+    function: _cmsRegisterTransformPlugin()
+    function: cmsCreateExtendedTransform()
+    function: cmsCreateMultiprofileTransform()
+    function: cmsCreateTransform()
+    function: cmsDeleteTransform()
+    function: cmsDoTransform()
+    function: cmsGetTransformInputFormat()
+    function: cmsGetTransformOutputFormat()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/extra_xform.h
+    function: CachedXFORM3x2to1x2()
+    function: CachedXFORM4x2to1x2()
+    function: PrecalculatedXFORM()
+File: /home/oof/ghostpdlcoverage/lcms2mt/src/lcms2_internal.h
+File: /home/oof/ghostpdlcoverage/libpng/png.c
+File: /home/oof/ghostpdlcoverage/libpng/pngerror.c
+File: /home/oof/ghostpdlcoverage/libpng/pngget.c
+File: /home/oof/ghostpdlcoverage/libpng/pngmem.c
+File: /home/oof/ghostpdlcoverage/libpng/pngread.c
+File: /home/oof/ghostpdlcoverage/libpng/pngrio.c
+File: /home/oof/ghostpdlcoverage/libpng/pngrtran.c
+File: /home/oof/ghostpdlcoverage/libpng/pngrutil.c
+File: /home/oof/ghostpdlcoverage/libpng/pngset.c
+File: /home/oof/ghostpdlcoverage/libpng/pngtrans.c
+File: /home/oof/ghostpdlcoverage/libpng/pngwio.c
+File: /home/oof/ghostpdlcoverage/libpng/pngwrite.c
+File: /home/oof/ghostpdlcoverage/libpng/pngwtran.c
+File: /home/oof/ghostpdlcoverage/libpng/pngwutil.c
+File: /home/oof/ghostpdlcoverage/obj/aux/gscdefs.c
+File: /home/oof/ghostpdlcoverage/obj/brotlimemory.c
+File: /home/oof/ghostpdlcoverage/obj/gconfig.c
+    function: gs_get_fapi_server_inits()
+    function: gs_lib_device_list()
+File: /home/oof/ghostpdlcoverage/obj/gscdefs.c
+    function: gs_program_name()
+    function: gs_revision_number()
+File: /home/oof/ghostpdlcoverage/obj/jcapimin.c
+File: /home/oof/ghostpdlcoverage/obj/jcapistd.c
+File: /home/oof/ghostpdlcoverage/obj/jcarith.c
+File: /home/oof/ghostpdlcoverage/obj/jccoefct.c
+File: /home/oof/ghostpdlcoverage/obj/jccolor.c
+File: /home/oof/ghostpdlcoverage/obj/jcdctmgr.c
+File: /home/oof/ghostpdlcoverage/obj/jchuff.c
+File: /home/oof/ghostpdlcoverage/obj/jcinit.c
+File: /home/oof/ghostpdlcoverage/obj/jcmainct.c
+File: /home/oof/ghostpdlcoverage/obj/jcmarker.c
+File: /home/oof/ghostpdlcoverage/obj/jcmaster.c
+File: /home/oof/ghostpdlcoverage/obj/jcomapi.c
+File: /home/oof/ghostpdlcoverage/obj/jcparam.c
+File: /home/oof/ghostpdlcoverage/obj/jcprepct.c
+File: /home/oof/ghostpdlcoverage/obj/jcsample.c
+File: /home/oof/ghostpdlcoverage/obj/jdapimin.c
+File: /home/oof/ghostpdlcoverage/obj/jdapistd.c
+File: /home/oof/ghostpdlcoverage/obj/jdarith.c
+File: /home/oof/ghostpdlcoverage/obj/jdcoefct.c
+File: /home/oof/ghostpdlcoverage/obj/jdcolor.c
+File: /home/oof/ghostpdlcoverage/obj/jddctmgr.c
+File: /home/oof/ghostpdlcoverage/obj/jdhuff.c
+File: /home/oof/ghostpdlcoverage/obj/jdinput.c
+File: /home/oof/ghostpdlcoverage/obj/jdmainct.c
+File: /home/oof/ghostpdlcoverage/obj/jdmarker.c
+File: /home/oof/ghostpdlcoverage/obj/jdmaster.c
+File: /home/oof/ghostpdlcoverage/obj/jdpostct.c
+File: /home/oof/ghostpdlcoverage/obj/jdsample.c
+File: /home/oof/ghostpdlcoverage/obj/jerror.c
+File: /home/oof/ghostpdlcoverage/obj/jfdctint.c
+File: /home/oof/ghostpdlcoverage/obj/jidctint.c
+File: /home/oof/ghostpdlcoverage/obj/jmemmgr.c
+File: /home/oof/ghostpdlcoverage/obj/jutils.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/bio.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/cidx_manager.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/cio.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/dwt.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/event.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/function_list.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/ht_dec.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/image.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/invert.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/j2k.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/jp2.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/mct.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/mqc.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/mqc_inl.h
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/openjpeg.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/opj_includes.h
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/opj_intmath.h
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/phix_manager.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/pi.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/ppix_manager.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/sparse_array.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/t1.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/t2.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/tcd.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/tgt.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/thix_manager.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/thread.c
+File: /home/oof/ghostpdlcoverage/openjpeg/src/lib/openjp2/tpix_manager.c
+File: /home/oof/ghostpdlcoverage/pdf/ghostpdf.c
+    function: pdfi_create_context()
+    function: pdfi_gstate_from_PS()
+    function: pdfi_gstate_to_PS()
+    function: pdfi_open_pdf_file()
+File: /home/oof/ghostpdlcoverage/pdf/ghostpdf.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_annot.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_array.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_array.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_check.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_cmap.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_colour.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_colour.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_deref.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_device.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_dict.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_dict.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_doc.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_fapi.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_file.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_fmap.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font.c
+    function: pdfi_init_font_directory()
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font0.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font1.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font11.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font1C.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font3.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_font9.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_fontTT.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_fontps.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_fontps.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_func.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_gstate.c
+    function: pdfi_gstate_alloc_cb()
+    function: pdfi_gstate_copy_cb()
+    function: pdfi_gstate_free_cb()
+    function: pdfi_gstate_set_client()
+    function: pdfi_gstate_smask_free()
+    function: pdfi_gstate_smask_install()
+File: /home/oof/ghostpdlcoverage/pdf/pdf_image.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_int.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_int.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_loop_detect.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_mark.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_misc.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_obj.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_obj.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_optcontent.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_page.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_path.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_pattern.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_repair.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_sec.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_shading.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_stack.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_stack.h
+    function: pdfi_countdown_impl()
+File: /home/oof/ghostpdlcoverage/pdf/pdf_text.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_trans.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_types.h
+File: /home/oof/ghostpdlcoverage/pdf/pdf_utf8.c
+File: /home/oof/ghostpdlcoverage/pdf/pdf_xref.c
+File: /home/oof/ghostpdlcoverage/psi/dscparse.c
+    function: dsc_init2()
+    function: dsc_init_with_alloc()
+    function: dsc_memalloc()
+    function: dsc_reset()
+    function: dsc_set_error_function()
+File: /home/oof/ghostpdlcoverage/psi/ialloc.c
+    function: gs_alloc_ref_array()
+    function: gs_alloc_string_ref()
+    function: gs_free_ref_array()
+    function: gs_register_ref_root()
+    function: ialloc_init()
+    function: ialloc_reset_requested()
+    function: ialloc_set_space()
+    function: imemory_new_mask()
+    function: imemory_save_level()
+    function: imemory_space()
+File: /home/oof/ghostpdlcoverage/psi/iapi.c
+    function: gsapi_delete_instance()
+    function: gsapi_init_with_args()
+    function: gsapi_new_instance()
+    function: gsapi_run_string_begin()
+    function: gsapi_run_string_continue()
+    function: gsapi_run_string_end()
+    function: gsapi_run_string_with_length()
+    function: gsapi_set_arg_encoding()
+File: /home/oof/ghostpdlcoverage/psi/ibnum.c
+    function: num_array_format()
+    function: num_array_get()
+    function: num_array_size()
+File: /home/oof/ghostpdlcoverage/psi/icontext.c
+    function: context_state_alloc()
+    function: context_state_clear_marks()
+    function: context_state_enum_ptrs()
+    function: context_state_load()
+    function: context_state_reloc_ptrs()
+    function: context_state_store()
+File: /home/oof/ghostpdlcoverage/psi/idebug.c
+File: /home/oof/ghostpdlcoverage/psi/idict.c
+    function: dict_alloc()
+    function: dict_copy_elements()
+    function: dict_copy_entries()
+    function: dict_create_contents()
+    function: dict_create_unpacked_keys()
+    function: dict_find()
+    function: dict_find_string()
+    function: dict_first()
+    function: dict_grow()
+    function: dict_length()
+    function: dict_max_index()
+    function: dict_maxlength()
+    function: dict_next()
+    function: dict_put()
+    function: dict_put_string()
+    function: dict_put_string_copy()
+    function: dict_resize()
+    function: dict_round_size_large()
+    function: dict_undef()
+    function: dict_unpack()
+    function: dict_value_index()
+File: /home/oof/ghostpdlcoverage/psi/idicttpl.h
+File: /home/oof/ghostpdlcoverage/psi/idisp.c
+    function: reopen_device_if_required()
+File: /home/oof/ghostpdlcoverage/psi/idparam.c
+    function: dict_bool_param()
+    function: dict_float_array_check_param()
+    function: dict_float_param()
+    function: dict_floats_param()
+    function: dict_int_null_param()
+    function: dict_int_param()
+    function: dict_matrix_param()
+    function: dict_uid_param()
+File: /home/oof/ghostpdlcoverage/psi/idstack.c
+    function: dstack_dict_is_permanent()
+    function: dstack_find_name_by_index()
+    function: dstack_gc_cleanup()
+    function: dstack_set_top()
+File: /home/oof/ghostpdlcoverage/psi/igc.c
+    function: free_if_empty()
+    function: gc_clear_reloc()
+    function: gc_do_reloc()
+    function: gc_extend_stack()
+    function: gc_free_empty_clumps()
+    function: gc_objects_clear_marks()
+    function: gc_objects_compact()
+    function: gc_objects_set_reloc()
+    function: gc_trace()
+    function: gc_trace_clump()
+    function: gc_trace_finish()
+    function: gc_unmark_names()
+    function: gs_gc_reclaim()
+    function: igc_reloc_struct_ptr()
+    function: ptr_string_mark()
+    function: ptr_struct_mark()
+    function: ptr_struct_unmark()
+File: /home/oof/ghostpdlcoverage/psi/igcref.c
+    function: igc_reloc_ref_ptr()
+    function: igc_reloc_ref_ptr_nocheck()
+    function: igc_reloc_refs()
+    function: ptr_ref_unmark()
+    function: ref_struct_clear_marks()
+    function: ref_struct_enum_ptrs()
+    function: ref_struct_reloc_ptrs()
+    function: refs_clear_marks()
+    function: refs_clear_reloc()
+    function: refs_compact()
+    function: refs_do_reloc()
+    function: refs_set_reloc()
+File: /home/oof/ghostpdlcoverage/psi/igcstr.c
+    function: gc_mark_string()
+    function: gc_string_mark()
+    function: gc_strings_clear_reloc()
+    function: gc_strings_compact()
+    function: gc_strings_set_marks()
+    function: gc_strings_set_reloc()
+    function: igc_reloc_const_string()
+    function: igc_reloc_param_string()
+    function: igc_reloc_string()
+File: /home/oof/ghostpdlcoverage/psi/iinit.c
+    function: alloc_op_array_table()
+    function: gs_have_level2()
+    function: gs_op_language_level()
+    function: i_initial_enter_name()
+    function: i_initial_enter_name_copy()
+    function: i_initial_enter_name_copy_in()
+    function: i_initial_enter_name_in()
+    function: i_iodev_init()
+    function: make_initial_dict()
+    function: obj_init()
+    function: op_init()
+    function: zop_init()
+File: /home/oof/ghostpdlcoverage/psi/ilocate.c
+    function: gc_locate()
+File: /home/oof/ghostpdlcoverage/psi/imain.c
+    function: get_global_op_array()
+    function: get_local_op_array()
+    function: get_minst_from_memory()
+    function: get_op_array()
+    function: gs_main_alloc_instance()
+    function: gs_main_init0()
+    function: gs_main_init1()
+    function: gs_main_init2()
+    function: gs_main_init2aux()
+    function: gs_main_lib_open()
+    function: gs_main_push_params()
+    function: gs_main_run_file_open()
+    function: gs_main_run_string()
+    function: gs_main_run_string_begin()
+    function: gs_main_run_string_continue()
+    function: gs_main_run_string_end()
+    function: gs_main_run_string_with_length()
+    function: gs_main_set_lib_paths()
+    function: gs_run_init_file()
+    function: lib_path_add()
+    function: lib_path_insert_copy_of_string()
+    function: set_lib_path_length()
+File: /home/oof/ghostpdlcoverage/psi/imainarg.c
+    function: gs_main_init_with_args()
+    function: gs_main_init_with_args01()
+    function: gs_main_init_with_args2()
+    function: gs_main_inst_arg_decode()
+    function: swproc()
+    function: try_stdout_redirect()
+File: /home/oof/ghostpdlcoverage/psi/iname.c
+    function: name_alloc_sub()
+    function: name_scan_sub()
+    function: name_string_sub_enum_ptrs()
+    function: name_string_sub_reloc_ptrs()
+    function: name_table_enum_ptrs()
+    function: name_table_reloc_ptrs()
+    function: names_enter_string()
+    function: names_from_string()
+    function: names_index()
+    function: names_index_ref()
+    function: names_index_string_sub_table()
+    function: names_index_sub_table()
+    function: names_init()
+    function: names_invalidate_value_cache()
+    function: names_mark_index()
+    function: names_memory()
+    function: names_next_valid_index()
+    function: names_ref()
+    function: names_ref_sub_table()
+    function: names_string_ref()
+    function: names_trace_finish()
+    function: names_unmark_all()
+File: /home/oof/ghostpdlcoverage/psi/inobtokn.c
+File: /home/oof/ghostpdlcoverage/psi/inouparm.c
+File: /home/oof/ghostpdlcoverage/psi/interp.c
+    function: copy_stack()
+    function: do_call_operator()
+    function: errorexec_cleanup()
+    function: errorexec_find()
+    function: errorexec_pop()
+    function: gs_call_interp()
+    function: gs_errorname()
+    function: gs_interp_alloc_stacks()
+    function: gs_interp_init()
+    function: gs_interp_make_oper()
+    function: gs_interp_reset()
+    function: gs_interpret()
+    function: interp()
+    function: interp_exit()
+    function: interp_reclaim()
+    function: oparray_cleanup()
+    function: oparray_find()
+    function: oparray_pop()
+    function: set_gc_signal()
+    function: zactonuel()
+    function: zerrorexec()
+    function: zfinderrorobject()
+    function: zsetstackprotect()
+File: /home/oof/ghostpdlcoverage/psi/iparam.c
+    function: dict_param_enumerate()
+    function: dict_param_list_read()
+    function: dict_param_read()
+    function: ref_array_param_requested()
+    function: ref_param_begin_read_collection()
+    function: ref_param_end_read_collection()
+    function: ref_param_get_next_key()
+    function: ref_param_key()
+    function: ref_param_make_float()
+    function: ref_param_make_int()
+    function: ref_param_read()
+    function: ref_param_read_array()
+    function: ref_param_read_commit()
+    function: ref_param_read_float_array()
+    function: ref_param_read_init()
+    function: ref_param_read_int_array()
+    function: ref_param_read_string_array()
+    function: ref_param_read_string_value()
+    function: ref_param_read_typed()
+    function: ref_param_requested()
+    function: ref_param_write()
+    function: ref_param_write_init()
+    function: ref_param_write_name_value()
+    function: ref_param_write_string_value()
+    function: ref_param_write_typed()
+    function: ref_param_write_typed_array()
+    function: ref_to_key()
+    function: stack_param_list_read()
+    function: stack_param_list_write()
+    function: stack_param_read()
+    function: stack_param_write()
+File: /home/oof/ghostpdlcoverage/psi/iplugin.c
+    function: i_plugin_init()
+File: /home/oof/ghostpdlcoverage/psi/ireclaim.c
+    function: gs_vmreclaim()
+    function: ireclaim()
+    function: ireclaim_init()
+File: /home/oof/ghostpdlcoverage/psi/isave.c
+    function: alloc_any_names_since_save()
+    function: alloc_find_save()
+    function: alloc_is_since_save()
+    function: alloc_name_is_since_save()
+    function: alloc_restore_step_in()
+    function: alloc_save__filter_changes()
+    function: alloc_save__filter_changes_in_space()
+    function: alloc_save_change()
+    function: alloc_save_change_alloc()
+    function: alloc_save_change_in()
+    function: alloc_save_client_data()
+    function: alloc_save_current()
+    function: alloc_save_current_id()
+    function: alloc_save_init()
+    function: alloc_save_remove()
+    function: alloc_save_space()
+    function: alloc_save_state()
+    function: alloc_set_in_save()
+    function: alloc_set_masks()
+    function: alloc_set_not_in_save()
+    function: change_clear_marks()
+    function: change_enum_ptrs()
+    function: change_reloc_ptrs()
+    function: check_l_mark()
+    function: gs_save_any_memory()
+    function: mark_allocated()
+    function: restore_finalize()
+    function: restore_resources()
+    function: restore_space()
+    function: save_set_new()
+    function: save_set_new_changes()
+File: /home/oof/ghostpdlcoverage/psi/iscan.c
+    function: dynamic_free()
+    function: dynamic_grow()
+    function: dynamic_make_string()
+    function: dynamic_resize()
+    function: dynamic_save()
+    function: gs_scan_handle_refill()
+    function: gs_scan_string_token_options()
+    function: gs_scan_token()
+    function: gs_scanner_error_object()
+    function: gs_scanner_init_options()
+    function: gs_scanner_init_stream_options()
+    function: scan_comment()
+File: /home/oof/ghostpdlcoverage/psi/iscanbin.c
+File: /home/oof/ghostpdlcoverage/psi/iscannum.c
+    function: scan_number()
+File: /home/oof/ghostpdlcoverage/psi/istack.c
+    function: init_block()
+    function: ref_stack_allow_expansion()
+    function: ref_stack_cleanup()
+    function: ref_stack_count()
+    function: ref_stack_counttomark()
+    function: ref_stack_enum_begin()
+    function: ref_stack_enum_next()
+    function: ref_stack_enum_ptrs()
+    function: ref_stack_extend()
+    function: ref_stack_index()
+    function: ref_stack_init()
+    function: ref_stack_pop()
+    function: ref_stack_pop_block()
+    function: ref_stack_push()
+    function: ref_stack_push_block()
+    function: ref_stack_reloc_ptrs()
+    function: ref_stack_set_error_codes()
+    function: ref_stack_set_max_count()
+    function: ref_stack_store()
+    function: ref_stack_store_check()
+File: /home/oof/ghostpdlcoverage/psi/iutil.c
+    function: array_get()
+    function: check_proc_failed()
+    function: check_type_failed()
+    function: ensure_dot()
+    function: float_param()
+    function: float_params()
+    function: int_param()
+    function: make_floats()
+    function: num_params()
+    function: obj_cvp()
+    function: obj_cvs()
+    function: obj_eq()
+    function: obj_string_data()
+    function: op_find_index()
+    function: op_index_ref()
+    function: packed_get()
+    function: process_float_array()
+    function: read_matrix()
+    function: real_param()
+    function: ref_to_string()
+    function: refcpy_to_old()
+    function: refs_check_space()
+    function: refset_null_new()
+    function: write_matrix_in()
+File: /home/oof/ghostpdlcoverage/psi/iutil2.c
+File: /home/oof/ghostpdlcoverage/psi/psapi.c
+    function: psapi_delete_instance()
+    function: psapi_init_with_args()
+    function: psapi_new_instance()
+    function: psapi_run_string_begin()
+    function: psapi_run_string_continue()
+    function: psapi_run_string_end()
+    function: psapi_run_string_with_length()
+    function: psapi_set_arg_encoding()
+File: /home/oof/ghostpdlcoverage/psi/zalg.c
+    function: zsort()
+    function: zsort_continue()
+File: /home/oof/ghostpdlcoverage/psi/zarith.c
+    function: mul_64_64_overflowcheck()
+    function: zabs()
+    function: zceiling()
+    function: zdiv()
+    function: zfloor()
+    function: zidiv()
+    function: zmod()
+    function: zmul()
+    function: zneg()
+    function: zop_add()
+    function: zop_sub()
+    function: zround()
+    function: ztruncate()
+File: /home/oof/ghostpdlcoverage/psi/zarray.c
+    function: zaload()
+    function: zarray()
+    function: zastore()
+File: /home/oof/ghostpdlcoverage/psi/zbfont.c
+    function: build_gs_font()
+    function: build_gs_font_procs()
+    function: build_gs_simple_font()
+    function: build_gs_sub_font()
+    function: build_proc_name_refs()
+    function: copy_font_name()
+    function: define_gs_font()
+    function: font_data_clear_marks()
+    function: font_data_enum_ptrs()
+    function: font_data_reloc_ptrs()
+    function: get_GlyphNames2Unicode()
+    function: get_font_name()
+    function: get_zfont_glyph_name()
+    function: lookup_gs_simple_font_encoding()
+    function: sub_font_params()
+    function: zbuildfont3()
+    function: zfont_encode_char()
+File: /home/oof/ghostpdlcoverage/psi/zbseq.c
+    function: create_names_array()
+    function: zbseq_init()
+    function: zcurrentobjectformat()
+    function: zinstallsystemnames()
+    function: zsetobjectformat()
+File: /home/oof/ghostpdlcoverage/psi/zcfont.c
+    function: cshow_continue()
+    function: cshow_restore_font()
+    function: zcshow()
+    function: zrootfont()
+File: /home/oof/ghostpdlcoverage/psi/zchar.c
+    function: awidthshow_aux()
+    function: finish_show()
+    function: finish_stringwidth()
+    function: font_bbox_param()
+    function: glyph_ref()
+    function: map_glyph_to_char()
+    function: op_show_continue()
+    function: op_show_continue_dispatch()
+    function: op_show_continue_pop()
+    function: op_show_enum_setup()
+    function: op_show_find()
+    function: op_show_find_index()
+    function: op_show_finish_setup()
+    function: op_show_free()
+    function: op_show_restore()
+    function: op_show_setup()
+    function: widthshow_aux()
+    function: zashow()
+    function: zawidthshow()
+    function: zchar_path()
+    function: zchar_show_width_only()
+    function: zcharpath()
+    function: zfontbbox()
+    function: zincachedevice()
+    function: zkshow()
+    function: zsetcachedevice()
+    function: zsetcharwidth()
+    function: zshow()
+    function: zstringwidth()
+    function: zwidthshow()
+File: /home/oof/ghostpdlcoverage/psi/zchar1.c
+File: /home/oof/ghostpdlcoverage/psi/zchar2.c
+File: /home/oof/ghostpdlcoverage/psi/zchar32.c
+File: /home/oof/ghostpdlcoverage/psi/zchar42.c
+File: /home/oof/ghostpdlcoverage/psi/zcharout.c
+File: /home/oof/ghostpdlcoverage/psi/zcharx.c
+    function: glyph_show_setup()
+    function: moveshow()
+    function: zglyphshow()
+    function: zxshow()
+    function: zxyshow()
+    function: zyshow()
+File: /home/oof/ghostpdlcoverage/psi/zcid.c
+File: /home/oof/ghostpdlcoverage/psi/zcie.c
+    function: cie_3d_table_param()
+    function: cie_abc_param()
+    function: cie_cache_push_finish()
+    function: cie_create_icc()
+    function: cie_defg_finish()
+    function: cie_defg_param()
+    function: cie_lmnp_param()
+    function: cie_points_param()
+    function: cie_prepare_iccproc()
+    function: cie_set_finish()
+    function: cie_table_param()
+    function: ciedefgspace()
+    function: cieicc_prepare_caches()
+    function: dict_matrix3_param()
+    function: dict_proc3_param()
+    function: dict_proc_array_param()
+    function: dict_range3_param()
+    function: dict_ranges_param()
+File: /home/oof/ghostpdlcoverage/psi/zcolor.c
+    function: absolute_setcolorspace()
+    function: checkBlackPoint()
+    function: checkDecodeLMN()
+    function: checkMatrixLMN()
+    function: checkRangeLMN()
+    function: checkWhitePoint()
+    function: cmykbasecolor()
+    function: cmykvalidate()
+    function: copy_cspace_array()
+    function: copy_cspace_dict()
+    function: copy_cspace_string()
+    function: currentbasecolor()
+    function: fourcomponent()
+    function: get_cie_param_array()
+    function: get_space_object()
+    function: graybasecolor()
+    function: grayvalidate()
+    function: hasharray_impl()
+    function: hashciedefgspace()
+    function: hashdictkey()
+    function: hsb2rgb()
+    function: is_same_colorspace()
+    function: name_is_device_color()
+    function: onecomponent()
+    function: rgb2hsb()
+    function: rgbbasecolor()
+    function: rgbvalidate()
+    function: setblackgeneration_remap_one_finish()
+    function: setciedefgspace()
+    function: setcmykspace()
+    function: setcolor_cont()
+    function: setcolorspace_cont()
+    function: setcolorspace_nosubst()
+    function: setdevicecolor_cont()
+    function: setgrayspace()
+    function: setrgbspace()
+    function: setundercolor_remap_one_signed_finish()
+    function: threecomponent()
+    function: transfer_remap_gray_finish()
+    function: transfer_remap_one_finish()
+    function: truecompareproc()
+    function: validate_spaces()
+    function: validatecieabcspace()
+    function: validateciedefgspace()
+    function: validateseparationspace()
+    function: zcolor_remap_color()
+    function: zcolor_remap_one()
+    function: zcolor_remap_one_store()
+    function: zcolor_reset_transfer()
+    function: zcurrentcmykcolor()
+    function: zcurrentcolor()
+    function: zcurrentcolorspace()
+    function: zcurrentgray()
+    function: zcurrenthsbcolor()
+    function: zcurrentrgbcolor()
+    function: zcurrenttransfer()
+    function: zgetuseciecolor()
+    function: zprocesscolors()
+    function: zsetcmykcolor()
+    function: zsetcolor()
+    function: zsetcolorspace()
+    function: zsetgray()
+    function: zsethsbcolor()
+    function: zsetrgbcolor()
+    function: zsettransfer()
+    function: zswapcolors()
+File: /home/oof/ghostpdlcoverage/psi/zcolor1.c
+    function: zcurrentblackgeneration()
+    function: zcurrentcolortransfer()
+    function: zcurrentundercolorremoval()
+    function: zsetblackgeneration()
+    function: zsetcolortransfer()
+    function: zsetundercolorremoval()
+File: /home/oof/ghostpdlcoverage/psi/zcolor2.c
+File: /home/oof/ghostpdlcoverage/psi/zcolor3.c
+    function: zsetuseciecolor()
+File: /home/oof/ghostpdlcoverage/psi/zcontrol.c
+    function: check_for_exec()
+    function: count_exec_stack()
+    function: count_to_stopped()
+    function: do_execstack()
+    function: execstack_continue()
+    function: for_neg_int_continue()
+    function: for_pos_int_continue()
+    function: for_real_continue()
+    function: for_samples_continue()
+    function: loop_continue()
+    function: no_cleanup()
+    function: pop_estack()
+    function: push_execstack()
+    function: repeat_continue()
+    function: stopped_push()
+    function: z_current_file()
+    function: zcountexecstack()
+    function: zcurrentfile()
+    function: zexec()
+    function: zexecn()
+    function: zexecstack()
+    function: zexit()
+    function: zfor()
+    function: zfor_samples()
+    function: zget_current_file()
+    function: zinstopped()
+    function: zloop()
+    function: zneedinput()
+    function: zquit()
+    function: zrepeat()
+    function: zstop()
+    function: zstopped()
+    function: zzstopped()
+File: /home/oof/ghostpdlcoverage/psi/zcrd.c
+    function: zbuildcolorrendering1()
+    function: zcrd1_params()
+    function: zcrd1_proc_params()
+    function: zcurrentcolorrendering()
+    function: zsetcolorrendering1()
+File: /home/oof/ghostpdlcoverage/psi/zcsindex.c
+File: /home/oof/ghostpdlcoverage/psi/zcssepr.c
+    function: zcurrentfilloverprint()
+    function: zcurrentoverprint()
+    function: zcurrentstrokeoverprint()
+    function: zsetfilloverprint()
+    function: zsetoverprint()
+    function: zsetoverprintmode()
+    function: zsetstrokeoverprint()
+File: /home/oof/ghostpdlcoverage/psi/zdevcal.c
+File: /home/oof/ghostpdlcoverage/psi/zdevice.c
+    function: psi_device_ref_enum_ptrs()
+    function: psi_device_ref_finalize()
+    function: psi_device_ref_reloc_ptrs()
+    function: zcopydevice2()
+    function: zcurrentdevice()
+    function: zcurrentoutputdevice()
+    function: zdevicename()
+    function: zdoneshowpage()
+    function: zflushpage()
+    function: zget_device_params()
+    function: zgetdevice()
+    function: zgetdeviceparams()
+    function: znulldevice()
+    function: zoutputpage()
+    function: zputdeviceparams()
+    function: zsetdevice()
+    function: zsetdevice_no_safer()
+    function: zspec_op()
+File: /home/oof/ghostpdlcoverage/psi/zdevice2.c
+    function: push_callout()
+    function: restore_page_device()
+    function: save_page_device()
+    function: z2copy()
+    function: z2copy_gstate()
+    function: z2currentgstate()
+    function: z2grestore()
+    function: z2grestoreall()
+    function: z2gsave()
+    function: z2gstate()
+    function: z2restore()
+    function: z2save()
+    function: z2setgstate()
+    function: zcallbeginpage()
+    function: zcallendpage()
+    function: zcallinstall()
+    function: zcurrentpagedevice()
+    function: zcurrentshowpagecount()
+    function: zsetpagedevice()
+File: /home/oof/ghostpdlcoverage/psi/zdict.c
+    function: zbegin()
+    function: zcleardictstack()
+    function: zcopy_dict()
+    function: zcountdictstack()
+    function: zcurrentdict()
+    function: zdict()
+    function: zdictstack()
+    function: zdicttomark()
+    function: zend()
+    function: zforcecopynew()
+    function: zforceundef()
+    function: zknown()
+    function: zknownget()
+    function: zload()
+    function: zmaxlength()
+    function: zop_def()
+    function: zsetmaxlength()
+    function: zundef()
+    function: zwhere()
+File: /home/oof/ghostpdlcoverage/psi/zdps1.c
+    function: gstate_check_space()
+    function: rect_get()
+    function: rect_release()
+    function: zcopy_gstate()
+    function: zcurrentgstate()
+    function: zcurrentstrokeadjust()
+    function: zgstate()
+    function: zrectclip()
+    function: zrectfill()
+    function: zrectstroke()
+    function: zsetbbox()
+    function: zsetstrokeadjust()
+File: /home/oof/ghostpdlcoverage/psi/zdscpars.c
+    function: zDSC_memalloc()
+    function: zinitialize_dsc_parser()
+File: /home/oof/ghostpdlcoverage/psi/zfapi.c
+    function: FAPI_char()
+    function: zFAPIBuildChar()
+    function: zFAPIBuildGlyph()
+    function: zFAPIBuildGlyph9()
+    function: zFAPIavailable()
+File: /home/oof/ghostpdlcoverage/psi/zfbrotli.c
+File: /home/oof/ghostpdlcoverage/psi/zfcid.c
+    function: cid_font_data_param()
+    function: cid_font_system_info_param()
+File: /home/oof/ghostpdlcoverage/psi/zfcid0.c
+    function: zbuildfont9()
+    function: ztype9mapcid()
+File: /home/oof/ghostpdlcoverage/psi/zfcid1.c
+    function: zbuildfont10()
+    function: zbuildfont11()
+File: /home/oof/ghostpdlcoverage/psi/zfcmap.c
+File: /home/oof/ghostpdlcoverage/psi/zfdctd.c
+File: /home/oof/ghostpdlcoverage/psi/zfdcte.c
+File: /home/oof/ghostpdlcoverage/psi/zfdecode.c
+File: /home/oof/ghostpdlcoverage/psi/zfile.c
+    function: check_file_permissions()
+    function: check_file_permissions_reduced()
+    function: file_continue()
+    function: filter_open()
+    function: iodev_os_open_file()
+    function: lib_file_open()
+    function: lib_file_open_search_with_combine()
+    function: make_stream_file()
+    function: parse_file_access_string()
+    function: parse_file_name()
+    function: parse_real_file_name()
+    function: prefix_is_simple()
+    function: record_file_is_tempfile()
+    function: z_check_file_permissions()
+    function: zactivatepathcontrol()
+    function: zaddcontrolpath()
+    function: zcurrentpathcontrolstate()
+    function: zdeletefile()
+    function: zfile()
+    function: zfilenameforall()
+    function: zlibfile()
+    function: zopen_file()
+    function: zrenamefile()
+    function: zstatus()
+    function: ztempfile()
+File: /home/oof/ghostpdlcoverage/psi/zfile1.c
+    function: push_string()
+    function: zfile_name_combine()
+    function: zfile_name_current()
+    function: zfile_name_directory_separator()
+    function: zfile_name_is_absolute()
+    function: zfile_name_separator()
+File: /home/oof/ghostpdlcoverage/psi/zfileio.c
+    function: handle_read_status()
+    function: write_string()
+    function: zbytesavailable()
+    function: zclosefile()
+    function: zecho()
+    function: zfilename()
+    function: zfileposition()
+    function: zflush()
+    function: zflushfile()
+    function: zpeekstring()
+    function: zprint()
+    function: zread()
+    function: zreadhexstring()
+    function: zreadhexstring_at()
+    function: zreadhexstring_continue()
+    function: zreadline()
+    function: zreadline_at()
+    function: zreadline_from()
+    function: zreadstring()
+    function: zreadstring_at()
+    function: zresetfile()
+    function: zsetfileposition()
+    function: zwrite()
+    function: zwritecvp()
+    function: zwritecvp_at()
+    function: zwritecvp_continue()
+    function: zwritehexstring()
+    function: zwritehexstring_at()
+    function: zwritestring()
+    function: zxfileposition()
+File: /home/oof/ghostpdlcoverage/psi/zfilter.c
+    function: filter_ensure_buf()
+    function: filter_read()
+    function: zSFD()
+File: /home/oof/ghostpdlcoverage/psi/zfilter2.c
+File: /home/oof/ghostpdlcoverage/psi/zfimscale.c
+File: /home/oof/ghostpdlcoverage/psi/zfont.c
+    function: add_FID()
+    function: font_param()
+    function: font_restore()
+    function: make_font()
+    function: zbase_make_font()
+    function: zcachestatus()
+    function: zcurrentcacheparams()
+    function: zcurrentfont()
+    function: zdefault_make_font()
+    function: zfont_init()
+    function: zmakefont()
+    function: zscalefont()
+    function: zsetcacheparams()
+    function: zsetfont()
+File: /home/oof/ghostpdlcoverage/psi/zfont0.c
+    function: zbuildfont0()
+File: /home/oof/ghostpdlcoverage/psi/zfont1.c
+    function: buildfont1or4()
+    function: charstring_font_get_refs()
+    function: zbuildfont1()
+    function: zbuildfont4()
+File: /home/oof/ghostpdlcoverage/psi/zfont2.c
+    function: zbuildfont2()
+File: /home/oof/ghostpdlcoverage/psi/zfont32.c
+    function: zbuildfont32()
+File: /home/oof/ghostpdlcoverage/psi/zfont42.c
+    function: build_gs_TrueType_font()
+    function: zbuildfont42()
+File: /home/oof/ghostpdlcoverage/psi/zfontenum.c
+File: /home/oof/ghostpdlcoverage/psi/zform.c
+File: /home/oof/ghostpdlcoverage/psi/zfproc.c
+    function: s_handle_read_exception()
+    function: s_proc_init()
+    function: s_proc_read_continue()
+    function: s_proc_read_process()
+    function: sproc_clear_marks()
+    function: sproc_enum_ptrs()
+    function: sproc_reloc_ptrs()
+    function: sread_proc()
+File: /home/oof/ghostpdlcoverage/psi/zfrsd.c
+File: /home/oof/ghostpdlcoverage/psi/zfsample.c
+File: /home/oof/ghostpdlcoverage/psi/zfunc.c
+File: /home/oof/ghostpdlcoverage/psi/zfunc0.c
+File: /home/oof/ghostpdlcoverage/psi/zfunc3.c
+File: /home/oof/ghostpdlcoverage/psi/zfunc4.c
+File: /home/oof/ghostpdlcoverage/psi/zfzlib.c
+File: /home/oof/ghostpdlcoverage/psi/zgeneric.c
+    function: array_continue()
+    function: copy_interval()
+    function: dict_continue()
+    function: forall_cleanup()
+    function: packedarray_continue()
+    function: string_continue()
+    function: zcopy()
+    function: zcopy_integer()
+    function: zcopy_interval()
+    function: zforall()
+    function: zforceput()
+    function: zget()
+    function: zgetinterval()
+    function: zlength()
+    function: zput()
+    function: zputinterval()
+File: /home/oof/ghostpdlcoverage/psi/zgstate.c
+    function: gs_istate_alloc()
+    function: gs_istate_copy()
+    function: gs_istate_free()
+    function: int_gstate_alloc()
+    function: zcurrentdash()
+    function: zcurrentfilladjust2()
+    function: zcurrentflat()
+    function: zcurrentlinecap()
+    function: zcurrentlinejoin()
+    function: zcurrentlinewidth()
+    function: zcurrentmiterlimit()
+    function: zgrestore()
+    function: zgsave()
+    function: zinitgraphics()
+    function: zset_real()
+    function: zset_uint()
+    function: zsetdash()
+    function: zsetfilladjust2()
+    function: zsetflat()
+    function: zsetlinewidth()
+    function: zsetmiterlimit()
+    function: zsettextrenderingmode()
+File: /home/oof/ghostpdlcoverage/psi/zht.c
+    function: screen_cleanup()
+    function: screen_sample()
+    function: set_screen_continue()
+    function: setscreen_finish()
+    function: zcurrenthalftone()
+    function: zscreen_enum_init()
+    function: zscreen_params()
+    function: zsetscreen()
+File: /home/oof/ghostpdlcoverage/psi/zht1.c
+File: /home/oof/ghostpdlcoverage/psi/zht2.c
+    function: ht_object_type_from_name()
+    function: zgenordered()
+    function: zsetobjtypeHT()
+File: /home/oof/ghostpdlcoverage/psi/zicc.c
+File: /home/oof/ghostpdlcoverage/psi/zimage.c
+    function: data_image_params()
+    function: pixel_image_params()
+    function: zimage1()
+File: /home/oof/ghostpdlcoverage/psi/zimage3.c
+File: /home/oof/ghostpdlcoverage/psi/ziodev.c
+    function: zgetiodevice()
+File: /home/oof/ghostpdlcoverage/psi/ziodev2.c
+File: /home/oof/ghostpdlcoverage/psi/ziodevsc.c
+    function: s_stdout_write_process()
+    function: stderr_open()
+    function: stdin_init()
+    function: stdin_open()
+    function: stdout_open()
+    function: zget_stdout()
+    function: zis_stdin()
+File: /home/oof/ghostpdlcoverage/psi/zmath.c
+    function: zarccos()
+    function: zarcsin()
+    function: zatan()
+    function: zcos()
+    function: zexp()
+    function: zln()
+    function: zlog()
+    function: zrand()
+    function: zrrand()
+    function: zsin()
+    function: zsqrt()
+    function: zsrand()
+File: /home/oof/ghostpdlcoverage/psi/zmatrix.c
+    function: common_transform()
+    function: zconcat()
+    function: zconcatmatrix()
+    function: zcurrentmatrix()
+    function: zdefaultmatrix()
+    function: zdtransform()
+    function: zidtransform()
+    function: zinitmatrix()
+    function: zinvertmatrix()
+    function: zitransform()
+    function: zrotate()
+    function: zscale()
+    function: zsetdefaultmatrix()
+    function: ztransform()
+    function: ztranslate()
+    function: zupdatematrices()
+File: /home/oof/ghostpdlcoverage/psi/zmedia2.c
+    function: make_adjustment_matrix()
+    function: match_page_size()
+    function: zmatch_page_size()
+    function: zmatchmedia()
+    function: zmatchpagesize()
+File: /home/oof/ghostpdlcoverage/psi/zmisc.c
+    function: r_is_ex_oper()
+    function: zbind()
+    function: zdefaultpapersize()
+    function: zgetenv()
+    function: zmakeoperator()
+    function: zrealtime()
+    function: zserialnumber()
+    function: zsetoserrno()
+    function: zusertime()
+File: /home/oof/ghostpdlcoverage/psi/zmisc1.c
+File: /home/oof/ghostpdlcoverage/psi/zmisc2.c
+    function: set_language_level()
+    function: swap_entry()
+    function: swap_level_dict()
+    function: zlanguagelevel()
+    function: zsetlanguagelevel()
+File: /home/oof/ghostpdlcoverage/psi/zmisc3.c
+    function: zcliprestore()
+    function: zclipsave()
+    function: zeqproc()
+File: /home/oof/ghostpdlcoverage/psi/zncdummy.c
+File: /home/oof/ghostpdlcoverage/psi/zpacked.c
+    function: make_packed_array()
+    function: zcurrentpacking()
+    function: zpackedarray()
+    function: zsetpacking()
+File: /home/oof/ghostpdlcoverage/psi/zpaint.c
+    function: eofillstroke_cont()
+    function: fillstroke_cont()
+    function: zeofill()
+    function: zeofillstroke()
+    function: zfill()
+    function: zfillpage()
+    function: zfillstroke()
+    function: zstroke()
+File: /home/oof/ghostpdlcoverage/psi/zpath.c
+    function: common_curve()
+    function: common_to()
+    function: zclip()
+    function: zclosepath()
+    function: zcurrentpoint()
+    function: zcurveto()
+    function: zeoclip()
+    function: zinitclip()
+    function: zlineto()
+    function: zmoveto()
+    function: znewpath()
+    function: zrcurveto()
+    function: zrlineto()
+    function: zrmoveto()
+File: /home/oof/ghostpdlcoverage/psi/zpath1.c
+    function: common_arc()
+    function: common_arct()
+    function: z1pathbbox()
+    function: zarc()
+    function: zarcn()
+    function: zarct()
+    function: zarcto()
+    function: zclippath()
+    function: zflattenpath()
+    function: zpathbbox()
+    function: zpathforall()
+    function: zreversepath()
+    function: zstrokepath()
+File: /home/oof/ghostpdlcoverage/psi/zpcolor.c
+    function: zpcolor_init()
+File: /home/oof/ghostpdlcoverage/psi/zpdfops.c
+    function: zPDFAvailable()
+    function: zPDFInit()
+    function: zPDFSetParams()
+    function: zPDFclose()
+    function: zPDFdrawannots()
+    function: zPDFdrawpage()
+    function: zPDFfile()
+    function: zPDFinfo()
+    function: zPDFmetadata()
+    function: zPDFpageinfo()
+    function: zPDFpageinfoExt()
+    function: zPDFparsePageList()
+    function: zPDFstream()
+    function: zpdfi_populate_fontmap_files()
+    function: zpdfi_populate_search_paths()
+File: /home/oof/ghostpdlcoverage/psi/zrelbit.c
+    function: obj_le()
+    function: zand()
+    function: zbitshift()
+    function: zeq()
+    function: zge()
+    function: zgt()
+    function: zle()
+    function: zlt()
+    function: zmax()
+    function: zmin()
+    function: zne()
+    function: znot()
+    function: zor()
+    function: zxor()
+File: /home/oof/ghostpdlcoverage/psi/zshade.c
+    function: zcurrentsmoothness()
+    function: zsetsmoothness()
+File: /home/oof/ghostpdlcoverage/psi/zstack.c
+    function: zargindex()
+    function: zclear_stack()
+    function: zcleartomark()
+    function: zcount()
+    function: zcounttomark()
+    function: zdup()
+    function: zindex()
+    function: zmark()
+    function: zpop()
+    function: zroll()
+File: /home/oof/ghostpdlcoverage/psi/zstring.c
+    function: search_impl()
+    function: zanchorsearch()
+    function: znamestring()
+    function: zrsearch()
+    function: zsearch()
+    function: zstring()
+File: /home/oof/ghostpdlcoverage/psi/zsysvm.c
+    function: specific_vm_op()
+    function: zlocalvmpackedarray()
+    function: zsystemvmSFD()
+    function: zsystemvmarray()
+    function: zsystemvmlibfile()
+    function: zsystemvmstring()
+File: /home/oof/ghostpdlcoverage/psi/ztoken.c
+    function: token_continue()
+    function: tokenexec_continue()
+    function: ztoken()
+    function: ztoken_continue()
+    function: ztoken_get_scanner_option()
+    function: ztoken_scanner_options()
+    function: ztokenexec_continue()
+File: /home/oof/ghostpdlcoverage/psi/ztrans.c
+    function: common_transparency_group()
+    function: current_float_value()
+    function: enum_param()
+    function: rect_param()
+    function: zbegintransparencygroup()
+    function: zgetfillconstantalpha()
+    function: zgetstrokeconstantalpha()
+    function: zpopextendedgstate()
+    function: zpushextendedgstate()
+    function: zsetblendmode()
+    function: zsettextknockout()
+File: /home/oof/ghostpdlcoverage/psi/ztype.c
+    function: access_check()
+    function: convert_to_string()
+    function: zcvi()
+    function: zcvlit()
+    function: zcvn()
+    function: zcvr()
+    function: zcvrs()
+    function: zcvs()
+    function: zcvx()
+    function: zexecuteonly()
+    function: znoaccess()
+    function: zrcheck()
+    function: zreadonly()
+    function: ztype()
+    function: ztypenames()
+    function: zwcheck()
+    function: zxcheck()
+File: /home/oof/ghostpdlcoverage/psi/zupath.c
+    function: in_path()
+    function: in_path_result()
+    function: in_test()
+    function: in_upath()
+    function: in_upath_result()
+    function: in_utest()
+    function: make_upath()
+    function: path_length_for_upath()
+    function: upath_append()
+    function: upath_append_aux()
+    function: upath_stroke()
+    function: zineofill()
+    function: zinfill()
+    function: zinstroke()
+    function: zinueofill()
+    function: zinufill()
+    function: zinustroke()
+    function: zuappend()
+    function: zucache()
+    function: zueofill()
+    function: zufill()
+    function: zupath()
+    function: zustroke()
+    function: zustrokepath()
+File: /home/oof/ghostpdlcoverage/psi/zusparam.c
+    function: current_AccurateScreens()
+    function: current_AlignToPixels()
+    function: current_BuildTime()
+    function: current_ByteOrder()
+    function: current_CurFontCache()
+    function: current_GridFitTT()
+    function: current_JobTimeout()
+    function: current_LockFilePermissions()
+    function: current_MaxDictStack()
+    function: current_MaxExecStack()
+    function: current_MaxFontCache()
+    function: current_MaxFontItem()
+    function: current_MaxGlobalVM()
+    function: current_MaxLocalVM()
+    function: current_MaxOpStack()
+    function: current_MinFontCompress()
+    function: current_MinScreenLevels()
+    function: current_OverrideICC()
+    function: current_PageCount()
+    function: current_RealFormat()
+    function: current_RenderTTNotdef()
+    function: current_Revision()
+    function: current_VMReclaim()
+    function: current_VMThreshold()
+    function: current_WaitTimeout()
+    function: current_default_cmyk_icc()
+    function: current_default_gray_icc()
+    function: current_default_rgb_icc()
+    function: current_devicen_icc()
+    function: current_icc_directory()
+    function: current_lab_icc()
+    function: current_named_icc()
+    function: current_param_list()
+    function: current_srcgtag_icc()
+    function: currentparam1()
+    function: pname_matches()
+    function: set_AccurateScreens()
+    function: set_AlignToPixels()
+    function: set_GridFitTT()
+    function: set_JobTimeout()
+    function: set_LockFilePermissions()
+    function: set_MaxDictStack()
+    function: set_MaxExecStack()
+    function: set_MaxFontItem()
+    function: set_MaxLocalVM()
+    function: set_MaxOpStack()
+    function: set_MinFontCompress()
+    function: set_MinScreenLevels()
+    function: set_OverrideICC()
+    function: set_RenderTTNotdef()
+    function: set_WaitTimeout()
+    function: set_default_cmyk_icc()
+    function: set_default_gray_icc()
+    function: set_default_rgb_icc()
+    function: set_devicen_profile_icc()
+    function: set_icc_directory()
+    function: set_lab_icc()
+    function: set_named_profile_icc()
+    function: set_srcgtag_icc()
+    function: set_user_params()
+    function: setparams()
+    function: zcurrentsystemparams()
+    function: zcurrentuserparams()
+    function: zgetsystemparam()
+    function: zgetuserparam()
+    function: zsetuserparams()
+File: /home/oof/ghostpdlcoverage/psi/zvmem.c
+    function: dorestore()
+    function: ivalidate_clean_spaces()
+    function: restore_check_operand()
+    function: restore_check_save()
+    function: restore_check_stack()
+    function: restore_fix_stack()
+    function: zsave()
+    function: zvmstatus()
+File: /home/oof/ghostpdlcoverage/psi/zvmem2.c
+    function: set_vm_reclaim()
+    function: set_vm_threshold()
+    function: zcurrentglobal()
+    function: zgcheck()
+    function: zsetglobal()
+    function: zvmreclaim()
+File: /home/oof/ghostpdlcoverage/python_mut.c
+    function: call_custom_mutator_py()
+    function: finalize_python()
+    function: init_python()
+File: /home/oof/ghostpdlcoverage/tiff-config/conftest.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_aux.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_close.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_codec.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_color.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_compress.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_dir.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_dirinfo.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_dirread.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_dirwrite.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_dumpmode.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_error.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_extension.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_fax3.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_flush.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_getimage.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_hash_set.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_jpeg.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_luv.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_lzw.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_next.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_ojpeg.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_open.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_packbits.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_predict.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_print.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_read.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_strip.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_swab.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_thunder.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_tile.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_version.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_warning.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_write.c
+File: /home/oof/ghostpdlcoverage/tiff/libtiff/tif_zip.c
+File: /home/oof/ghostpdlcoverage/urf/surfd.c
+File: /home/oof/ghostpdlcoverage/zlib/adler32.c
+File: /home/oof/ghostpdlcoverage/zlib/compress.c
+File: /home/oof/ghostpdlcoverage/zlib/crc32.c
+File: /home/oof/ghostpdlcoverage/zlib/deflate.c
+File: /home/oof/ghostpdlcoverage/zlib/inffast.c
+File: /home/oof/ghostpdlcoverage/zlib/inffixed.h
+File: /home/oof/ghostpdlcoverage/zlib/inflate.c
+File: /home/oof/ghostpdlcoverage/zlib/inftrees.c
+File: /home/oof/ghostpdlcoverage/zlib/trees.c
+File: /home/oof/ghostpdlcoverage/zlib/uncompr.c
+File: /home/oof/ghostpdlcoverage/zlib/zutil.c
+File: /usr/lib/gcc/x86_64-linux-gnu/13/include/emmintrin.h
+File: /usr/lib/gcc/x86_64-linux-gnu/13/include/xmmintrin.h

@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxclip2.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxclip2.c<span style="font-size: 80%;"> (source / <a href="gxclip2.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">156</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Mask clipping for patterns */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gx.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gpcheck.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gxdevice.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxdevmem.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxclip2.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxdcolor.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gdevmpla.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : private_st_device_tile_clip();</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : /* Device procedures */</span>
+<span id="L32"><span class="lineNum">      32</span>              : static dev_proc_fill_rectangle(tile_clip_fill_rectangle);</span>
+<span id="L33"><span class="lineNum">      33</span>              : static dev_proc_fill_rectangle_hl_color(tile_clip_fill_rectangle_hl_color);</span>
+<span id="L34"><span class="lineNum">      34</span>              : static dev_proc_copy_mono(tile_clip_copy_mono);</span>
+<span id="L35"><span class="lineNum">      35</span>              : static dev_proc_copy_color(tile_clip_copy_color);</span>
+<span id="L36"><span class="lineNum">      36</span>              : static dev_proc_copy_planes(tile_clip_copy_planes);</span>
+<span id="L37"><span class="lineNum">      37</span>              : static dev_proc_copy_alpha(tile_clip_copy_alpha);</span>
+<span id="L38"><span class="lineNum">      38</span>              : static dev_proc_copy_alpha_hl_color(tile_clip_copy_alpha_hl_color);</span>
+<span id="L39"><span class="lineNum">      39</span>              : static dev_proc_strip_copy_rop2(tile_clip_strip_copy_rop2);</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : /* The device descriptor. */</span>
+<span id="L42"><span class="lineNum">      42</span>              : static void</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC tlaBgUNC">           0 : tile_clipper_initialize_device_procs(gx_device *dev)</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : {</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_initial_matrix, gx_forward_get_initial_matrix);</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, map_rgb_color, gx_forward_map_rgb_color);</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, map_color_rgb, gx_forward_map_color_rgb);</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_rectangle, tile_clip_fill_rectangle);</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, copy_mono, tile_clip_copy_mono);</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, copy_color, tile_clip_copy_color);</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_params, gx_forward_get_params);</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, put_params, gx_forward_put_params);</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, map_cmyk_color, gx_forward_map_cmyk_color);</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_page_device, gx_forward_get_page_device);</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_alpha_bits, gx_forward_get_alpha_bits);</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, copy_alpha, tile_clip_copy_alpha);</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_clipping_box, gx_forward_get_clipping_box);</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_bits_rectangle, gx_forward_get_bits_rectangle);</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, composite, gx_no_composite);</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_hardware_params, gx_forward_get_hardware_params);</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_color_mapping_procs, gx_forward_get_color_mapping_procs);</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_color_comp_index, gx_forward_get_color_comp_index);</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, encode_color, gx_forward_encode_color);</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, decode_color, gx_forward_decode_color);</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_rectangle_hl_color, tile_clip_fill_rectangle_hl_color);</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, include_color_space, gx_forward_include_color_space);</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_linear_color_scanline, gx_forward_fill_linear_color_scanline);</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_linear_color_trapezoid, gx_forward_fill_linear_color_trapezoid);</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_linear_color_triangle, gx_forward_fill_linear_color_triangle);</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, update_spot_equivalent_colors, gx_forward_update_spot_equivalent_colors);</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, ret_devn_params, gx_forward_ret_devn_params);</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fillpage, gx_forward_fillpage);</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, dev_spec_op, gx_forward_dev_spec_op);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, copy_planes, tile_clip_copy_planes);</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, strip_copy_rop2, tile_clip_strip_copy_rop2);</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, copy_alpha_hl_color, tile_clip_copy_alpha_hl_color);</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : </span>
+<span id="L78"><span class="lineNum">      78</span>              :     /* Ideally the following defaults would be set up for us, but this</span>
+<span id="L79"><span class="lineNum">      79</span>              :      * does not currently work. */</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, open_device, gx_default_open_device);</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, sync_output, gx_default_sync_output);</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, output_page, gx_default_output_page);</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, close_device, gx_default_close_device);</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_path, gx_default_fill_path);</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, stroke_path, gx_default_stroke_path);</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_mask, gx_default_fill_mask);</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_trapezoid, gx_default_fill_trapezoid);</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_parallelogram, gx_default_fill_parallelogram);</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, fill_triangle, gx_default_fill_triangle);</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, draw_thin_line, gx_default_draw_thin_line);</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, strip_tile_rectangle, gx_default_strip_tile_rectangle);</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, begin_typed_image, gx_default_begin_typed_image);</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, text_begin, gx_default_text_begin);</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, strip_tile_rect_devn, gx_default_strip_tile_rect_devn);</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span>              : static const gx_device_tile_clip gs_tile_clip_device =</span>
+<span id="L98"><span class="lineNum">      98</span>              : {std_device_std_body_open(gx_device_tile_clip,</span>
+<span id="L99"><span class="lineNum">      99</span>              :                           tile_clipper_initialize_device_procs,</span>
+<span id="L100"><span class="lineNum">     100</span>              :                           &quot;tile clipper&quot;,</span>
+<span id="L101"><span class="lineNum">     101</span>              :                           0, 0, 1, 1)</span>
+<span id="L102"><span class="lineNum">     102</span>              : };</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : /* Initialize a tile clipping device from a mask. */</span>
+<span id="L105"><span class="lineNum">     105</span>              : int</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 : tile_clip_initialize(gx_device_tile_clip * cdev, const gx_strip_bitmap * tiles,</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                      gx_device * tdev, int px, int py)</span>
+<span id="L108"><span class="lineNum">     108</span>              : {</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     int code =</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :     gx_mask_clip_initialize(cdev, &amp;gs_tile_clip_device,</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :                             (const gx_bitmap *)tiles,</span>
+<span id="L112"><span class="lineNum">     112</span>              :                             tdev, 0, 0, NULL);  /* phase will be reset */</span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :     if (code &gt;= 0) {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         cdev-&gt;tiles = *tiles;</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         tile_clip_set_phase(cdev, px, py);</span></span>
+<span id="L117"><span class="lineNum">     117</span>              :     }</span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : }</span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : void</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : tile_clip_free(gx_device_tile_clip *cdev)</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : {</span>
+<span id="L124"><span class="lineNum">     124</span>              :     /* release the target reference */</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :     if(cdev-&gt;finalize)</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         cdev-&gt;finalize((gx_device *)cdev);  /* this also sets the target to NULL */</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :     gs_free_object(cdev-&gt;memory, cdev, &quot;tile_clip_free(cdev)&quot;);</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : /* Set the phase of the tile. */</span>
+<span id="L131"><span class="lineNum">     131</span>              : void</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : tile_clip_set_phase(gx_device_tile_clip * cdev, int px, int py)</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : {</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :     cdev-&gt;phase.x = px;</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     cdev-&gt;phase.y = py;</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : /* Fill a rectangle with high level devn color by tiling with the mask. */</span>
+<span id="L139"><span class="lineNum">     139</span>              : static int</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : tile_clip_fill_rectangle_hl_color(gx_device *dev, const gs_fixed_rect *rect,</span></span>
+<span id="L141"><span class="lineNum">     141</span>              :                 const gs_gstate *pgs, const gx_drawing_color *pdcolor,</span>
+<span id="L142"><span class="lineNum">     142</span>              :                 const gx_clip_path *pcpath)</span>
+<span id="L143"><span class="lineNum">     143</span>              : {</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     gx_device *tdev = cdev-&gt;target;</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :     int x, y, w, h;</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     gx_device_color dcolor0, dcolor1;</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :     int k;</span></span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              :     /* Have to pack the no color index into the pure device type */</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     dcolor0.type = gx_dc_type_pure;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     dcolor0.colors.pure = gx_no_color_index;</span></span>
+<span id="L153"><span class="lineNum">     153</span>              :     /* Have to set the dcolor1 to a non mask type */</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :     dcolor1.type = gx_dc_type_devn;</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     for (k = 0; k &lt; GS_CLIENT_COLOR_MAX_COMPONENTS; k++) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         dcolor1.colors.devn.values[k] = pdcolor-&gt;colors.devn.values[k];</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :     }</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     x = fixed2int(rect-&gt;p.x);</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     y = fixed2int(rect-&gt;p.y);</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     w = fixed2int(rect-&gt;q.x) - x;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     h = fixed2int(rect-&gt;q.y) - y;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :     return (*dev_proc(tdev, strip_tile_rect_devn))(tdev, &amp;cdev-&gt;tiles,</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :                                                     x, y, w, h, &amp;dcolor0, &amp;dcolor1,</span>
+<span id="L164"><span class="lineNum">     164</span>              :                                                     cdev-&gt;phase.x, cdev-&gt;phase.y);</span>
+<span id="L165"><span class="lineNum">     165</span>              : }</span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span>              : /* Fill a rectangle by tiling with the mask. */</span>
+<span id="L168"><span class="lineNum">     168</span>              : static int</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 : tile_clip_fill_rectangle(gx_device * dev, int x, int y, int w, int h,</span></span>
+<span id="L170"><span class="lineNum">     170</span>              :                          gx_color_index color)</span>
+<span id="L171"><span class="lineNum">     171</span>              : {</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     gx_device *tdev = cdev-&gt;target;</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : </span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     return (*dev_proc(tdev, strip_tile_rectangle)) (tdev, &amp;cdev-&gt;tiles,</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :                                                     x, y, w, h,</span>
+<span id="L177"><span class="lineNum">     177</span>              :                     gx_no_color_index, color, cdev-&gt;phase.x, cdev-&gt;phase.y);</span>
+<span id="L178"><span class="lineNum">     178</span>              : }</span>
+<span id="L179"><span class="lineNum">     179</span>              : </span>
+<span id="L180"><span class="lineNum">     180</span>              : /* Calculate the X offset corresponding to a given Y, taking the phase */</span>
+<span id="L181"><span class="lineNum">     181</span>              : /* and shift into account. */</span>
+<span id="L182"><span class="lineNum">     182</span>              : #define x_offset(ty, cdev)\</span>
+<span id="L183"><span class="lineNum">     183</span>              :   ((cdev)-&gt;phase.x + (((ty) + (cdev)-&gt;phase.y) / (cdev)-&gt;tiles.rep_height) *\</span>
+<span id="L184"><span class="lineNum">     184</span>              :    (cdev)-&gt;tiles.rep_shift)</span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span>              : /* Copy a monochrome bitmap.  We divide it up into maximal chunks */</span>
+<span id="L187"><span class="lineNum">     187</span>              : /* that line up with a single tile, and then do the obvious Boolean */</span>
+<span id="L188"><span class="lineNum">     188</span>              : /* combination of the tile mask and the source. */</span>
+<span id="L189"><span class="lineNum">     189</span>              : static int</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : tile_clip_copy_mono(gx_device * dev,</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :                 const byte * data, int sourcex, int raster, gx_bitmap_id id,</span>
+<span id="L192"><span class="lineNum">     192</span>              :                     int x, int y, int w, int h,</span>
+<span id="L193"><span class="lineNum">     193</span>              :                     gx_color_index color0, gx_color_index color1)</span>
+<span id="L194"><span class="lineNum">     194</span>              : {</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     gx_color_index color, mcolor0, mcolor1;</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     int ty, ny;</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     setup_mask_copy_mono(cdev, color, mcolor0, mcolor1);</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     for (ty = y; ty &lt; y + h; ty += ny) {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         int tx, nx;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         int cy;</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         int xoff;</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         if (cdev-&gt;tiles.rep_height == 0 || cdev-&gt;tiles.rep_width == 0)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              :             return 0;</span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         cy = (ty + cdev-&gt;phase.y) % cdev-&gt;tiles.rep_height;</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         xoff = x_offset(ty, cdev);</span></span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         ny = min(y + h - ty, cdev-&gt;tiles.size.y - cy);</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         if (ny &gt; cdev-&gt;mdev.height)</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :             ny = cdev-&gt;mdev.height;</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         for (tx = x; tx &lt; x + w; tx += nx) {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :             int cx = (tx + xoff) % cdev-&gt;tiles.rep_width;</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : </span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :             nx = min(x + w - tx, cdev-&gt;tiles.size.x - cx);</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :             /* Copy a tile slice to the memory device buffer. */</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :             memcpy(cdev-&gt;buffer.bytes,</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                    cdev-&gt;tiles.data + cy * cdev-&gt;tiles.raster,</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                    (size_t)cdev-&gt;tiles.raster * ny);</span></span>
+<span id="L223"><span class="lineNum">     223</span>              :             /* Intersect the tile with the source data. */</span>
+<span id="L224"><span class="lineNum">     224</span>              :             /* mcolor0 and mcolor1 invert the data if needed. */</span>
+<span id="L225"><span class="lineNum">     225</span>              :             /* This call can't fail. */</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :             (*dev_proc(&amp;cdev-&gt;mdev, copy_mono)) ((gx_device *) &amp; cdev-&gt;mdev,</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                                  data + (ty - y) * raster, sourcex + tx - x,</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :                                                  raster, gx_no_bitmap_id,</span>
+<span id="L229"><span class="lineNum">     229</span>              :                                            cx, 0, nx, ny, mcolor0, mcolor1);</span>
+<span id="L230"><span class="lineNum">     230</span>              :             /* Now copy the color through the double mask. */</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :             code = (*dev_proc(cdev-&gt;target, copy_mono)) (cdev-&gt;target,</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :                                  cdev-&gt;buffer.bytes, cx, cdev-&gt;tiles.raster,</span>
+<span id="L233"><span class="lineNum">     233</span>              :                                                          gx_no_bitmap_id,</span>
+<span id="L234"><span class="lineNum">     234</span>              :                                   tx, ty, nx, ny, gx_no_color_index, color);</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :         }</span>
+<span id="L238"><span class="lineNum">     238</span>              :     }</span>
+<span id="L239"><span class="lineNum">     239</span>              :     return 0;</span>
+<span id="L240"><span class="lineNum">     240</span>              : }</span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              : /*</span>
+<span id="L243"><span class="lineNum">     243</span>              :  * Define the skeleton for the other copying operations.  We can't use the</span>
+<span id="L244"><span class="lineNum">     244</span>              :  * BitBlt tricks: we have to scan for runs of 1s.  There are many obvious</span>
+<span id="L245"><span class="lineNum">     245</span>              :  * ways to speed this up; we'll implement some if we need to.  The schema</span>
+<span id="L246"><span class="lineNum">     246</span>              :  * is:</span>
+<span id="L247"><span class="lineNum">     247</span>              :  *      FOR_RUNS(data_row, tx1, tx, ty) {</span>
+<span id="L248"><span class="lineNum">     248</span>              :  *        ... process the run ([tx1,tx),ty) ...</span>
+<span id="L249"><span class="lineNum">     249</span>              :  *      } END_FOR_RUNS();</span>
+<span id="L250"><span class="lineNum">     250</span>              :  * Free variables: cdev, data, sourcex, raster, x, y, w, h.</span>
+<span id="L251"><span class="lineNum">     251</span>              :  */</span>
+<span id="L252"><span class="lineNum">     252</span>              : #define t_next(tx)\</span>
+<span id="L253"><span class="lineNum">     253</span>              :   BEGIN {\</span>
+<span id="L254"><span class="lineNum">     254</span>              :     if ( ++cx == cdev-&gt;tiles.size.x )\</span>
+<span id="L255"><span class="lineNum">     255</span>              :       cx = 0, tp = tile_row, tbit = 0x80;\</span>
+<span id="L256"><span class="lineNum">     256</span>              :     else if ( (tbit &gt;&gt;= 1) == 0 )\</span>
+<span id="L257"><span class="lineNum">     257</span>              :       tp++, tbit = 0x80;\</span>
+<span id="L258"><span class="lineNum">     258</span>              :     tx++;\</span>
+<span id="L259"><span class="lineNum">     259</span>              :   } END</span>
+<span id="L260"><span class="lineNum">     260</span>              : #define FOR_RUNS(data_row, tx1, tx, ty)\</span>
+<span id="L261"><span class="lineNum">     261</span>              :         const byte *data_row = data;\</span>
+<span id="L262"><span class="lineNum">     262</span>              :         int cy;\</span>
+<span id="L263"><span class="lineNum">     263</span>              :         byte *tile_row;\</span>
+<span id="L264"><span class="lineNum">     264</span>              :          int ty;\</span>
+<span id="L265"><span class="lineNum">     265</span>              : \</span>
+<span id="L266"><span class="lineNum">     266</span>              :         if (cdev-&gt;tiles.rep_height == 0 || cdev-&gt;tiles.rep_width == 0)\</span>
+<span id="L267"><span class="lineNum">     267</span>              :             return 0;\</span>
+<span id="L268"><span class="lineNum">     268</span>              :         cy = imod(y + cdev-&gt;phase.y, cdev-&gt;tiles.rep_height);\</span>
+<span id="L269"><span class="lineNum">     269</span>              :         tile_row = cdev-&gt;tiles.data + cy * cdev-&gt;tiles.raster;\</span>
+<span id="L270"><span class="lineNum">     270</span>              : \</span>
+<span id="L271"><span class="lineNum">     271</span>              :         for ( ty = y; ty &lt; y + h; ty++, data_row += raster ) {\</span>
+<span id="L272"><span class="lineNum">     272</span>              :           int cx = imod(x + x_offset(ty, cdev), cdev-&gt;tiles.rep_width);\</span>
+<span id="L273"><span class="lineNum">     273</span>              :           const byte *tp = tile_row + (cx &gt;&gt; 3);\</span>
+<span id="L274"><span class="lineNum">     274</span>              :           byte tbit = 0x80 &gt;&gt; (cx &amp; 7);\</span>
+<span id="L275"><span class="lineNum">     275</span>              :           int tx;\</span>
+<span id="L276"><span class="lineNum">     276</span>              : \</span>
+<span id="L277"><span class="lineNum">     277</span>              :           for ( tx = x; tx &lt; x + w; ) {\</span>
+<span id="L278"><span class="lineNum">     278</span>              :             int tx1;\</span>
+<span id="L279"><span class="lineNum">     279</span>              : \</span>
+<span id="L280"><span class="lineNum">     280</span>              :             /* Skip a run of 0s. */\</span>
+<span id="L281"><span class="lineNum">     281</span>              :             while ( tx &lt; x + w &amp;&amp; (*tp &amp; tbit) == 0 )\</span>
+<span id="L282"><span class="lineNum">     282</span>              :               t_next(tx);\</span>
+<span id="L283"><span class="lineNum">     283</span>              :             if ( tx == x + w )\</span>
+<span id="L284"><span class="lineNum">     284</span>              :               break;\</span>
+<span id="L285"><span class="lineNum">     285</span>              :             /* Scan a run of 1s. */\</span>
+<span id="L286"><span class="lineNum">     286</span>              :             tx1 = tx;\</span>
+<span id="L287"><span class="lineNum">     287</span>              :             do {\</span>
+<span id="L288"><span class="lineNum">     288</span>              :               t_next(tx);\</span>
+<span id="L289"><span class="lineNum">     289</span>              :             } while ( tx &lt; x + w &amp;&amp; (*tp &amp; tbit) != 0 );\</span>
+<span id="L290"><span class="lineNum">     290</span>              :             if_debug3m('T', cdev-&gt;memory, &quot;[T]run x=(%d,%d), y=%d\n&quot;, tx1, tx, ty);</span>
+<span id="L291"><span class="lineNum">     291</span>              : /* (body goes here) */</span>
+<span id="L292"><span class="lineNum">     292</span>              : #define END_FOR_RUNS()\</span>
+<span id="L293"><span class="lineNum">     293</span>              :           }\</span>
+<span id="L294"><span class="lineNum">     294</span>              :           if ( ++cy == cdev-&gt;tiles.size.y )\</span>
+<span id="L295"><span class="lineNum">     295</span>              :             cy = 0, tile_row = cdev-&gt;tiles.data;\</span>
+<span id="L296"><span class="lineNum">     296</span>              :           else\</span>
+<span id="L297"><span class="lineNum">     297</span>              :             tile_row += cdev-&gt;tiles.raster;\</span>
+<span id="L298"><span class="lineNum">     298</span>              :         }</span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span>              : /* Copy a color rectangle. */</span>
+<span id="L301"><span class="lineNum">     301</span>              : static int</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 : tile_clip_copy_color(gx_device * dev,</span></span>
+<span id="L303"><span class="lineNum">     303</span>              :                 const byte * data, int sourcex, int raster, gx_bitmap_id id,</span>
+<span id="L304"><span class="lineNum">     304</span>              :                      int x, int y, int w, int h)</span>
+<span id="L305"><span class="lineNum">     305</span>              : {</span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     fit_copy(dev, data, sourcex, raster, id, x, y, w, h);</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :     {</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         FOR_RUNS(data_row, txrun, tx, ty) {</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :             /* Copy the run. */</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :             int code = (*dev_proc(cdev-&gt;target, copy_color))</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :             (cdev-&gt;target, data_row, sourcex + txrun - x, raster,</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :              gx_no_bitmap_id, txrun, ty, tx - txrun, 1);</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L318"><span class="lineNum">     318</span>              :         }</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         END_FOR_RUNS();</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :     }</span>
+<span id="L321"><span class="lineNum">     321</span>              :     return 0;</span>
+<span id="L322"><span class="lineNum">     322</span>              : }</span>
+<span id="L323"><span class="lineNum">     323</span>              : </span>
+<span id="L324"><span class="lineNum">     324</span>              : /* Copy a color rectangle. */</span>
+<span id="L325"><span class="lineNum">     325</span>              : static int</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 : tile_clip_copy_planes(gx_device * dev,</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :                 const byte * data, int sourcex, int raster, gx_bitmap_id id,</span>
+<span id="L328"><span class="lineNum">     328</span>              :                      int x, int y, int w, int h, int plane_height)</span>
+<span id="L329"><span class="lineNum">     329</span>              : {</span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     fit_copy(dev, data, sourcex, raster, id, x, y, w, h);</span></span>
+<span id="L333"><span class="lineNum">     333</span>              :     {</span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         FOR_RUNS(data_row, txrun, tx, ty) {</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :             /* Copy the run. */</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :             int code = (*dev_proc(cdev-&gt;target, copy_planes))</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :             (cdev-&gt;target, data_row, sourcex + txrun - x, raster,</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :              gx_no_bitmap_id, txrun, ty, tx - txrun, 1, plane_height);</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :         }</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         END_FOR_RUNS();</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :     }</span>
+<span id="L345"><span class="lineNum">     345</span>              :     return 0;</span>
+<span id="L346"><span class="lineNum">     346</span>              : }</span>
+<span id="L347"><span class="lineNum">     347</span>              : </span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span>              : /* Copy an alpha rectangle similarly. */</span>
+<span id="L350"><span class="lineNum">     350</span>              : static int</span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 : tile_clip_copy_alpha(gx_device * dev,</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :                 const byte * data, int sourcex, int raster, gx_bitmap_id id,</span>
+<span id="L353"><span class="lineNum">     353</span>              :                 int x, int y, int w, int h, gx_color_index color, int depth)</span>
+<span id="L354"><span class="lineNum">     354</span>              : {</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :     fit_copy(dev, data, sourcex, raster, id, x, y, w, h);</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :     {</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         FOR_RUNS(data_row, txrun, tx, ty) {</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :             /* Copy the run. */</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :             int code = (*dev_proc(cdev-&gt;target, copy_alpha))</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :             (cdev-&gt;target, data_row, sourcex + txrun - x, raster,</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :              gx_no_bitmap_id, txrun, ty, tx - txrun, 1, color, depth);</span>
+<span id="L364"><span class="lineNum">     364</span>              : </span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L367"><span class="lineNum">     367</span>              :         }</span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :         END_FOR_RUNS();</span></span>
+<span id="L369"><span class="lineNum">     369</span>              :     }</span>
+<span id="L370"><span class="lineNum">     370</span>              :     return 0;</span>
+<span id="L371"><span class="lineNum">     371</span>              : }</span>
+<span id="L372"><span class="lineNum">     372</span>              : </span>
+<span id="L373"><span class="lineNum">     373</span>              : static int</span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 : tile_clip_copy_alpha_hl_color(gx_device * dev,</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :                 const byte * data, int sourcex, int raster, gx_bitmap_id id,</span>
+<span id="L376"><span class="lineNum">     376</span>              :                 int x, int y, int w, int h, const gx_drawing_color *pdcolor,</span>
+<span id="L377"><span class="lineNum">     377</span>              :                 int depth)</span>
+<span id="L378"><span class="lineNum">     378</span>              : {</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L380"><span class="lineNum">     380</span>              : </span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :     fit_copy(dev, data, sourcex, raster, id, x, y, w, h);</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :     {</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :         FOR_RUNS(data_row, txrun, tx, ty) {</span></span>
+<span id="L384"><span class="lineNum">     384</span>              :             /* Copy the run. */</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :             int code = (*dev_proc(cdev-&gt;target, copy_alpha_hl_color))</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :             (cdev-&gt;target, data_row, sourcex + txrun - x, raster,</span></span>
+<span id="L387"><span class="lineNum">     387</span>              :              gx_no_bitmap_id, txrun, ty, tx - txrun, 1, pdcolor, depth);</span>
+<span id="L388"><span class="lineNum">     388</span>              : </span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L391"><span class="lineNum">     391</span>              :         }</span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         END_FOR_RUNS();</span></span>
+<span id="L393"><span class="lineNum">     393</span>              :     }</span>
+<span id="L394"><span class="lineNum">     394</span>              :     return 0;</span>
+<span id="L395"><span class="lineNum">     395</span>              : }</span>
+<span id="L396"><span class="lineNum">     396</span>              : </span>
+<span id="L397"><span class="lineNum">     397</span>              : static int</span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 : tile_clip_strip_copy_rop2(gx_device * dev,</span></span>
+<span id="L399"><span class="lineNum">     399</span>              :                const byte * data, int sourcex, uint raster, gx_bitmap_id id,</span>
+<span id="L400"><span class="lineNum">     400</span>              :                          const gx_color_index * scolors,</span>
+<span id="L401"><span class="lineNum">     401</span>              :            const gx_strip_bitmap * textures, const gx_color_index * tcolors,</span>
+<span id="L402"><span class="lineNum">     402</span>              :                          int x, int y, int w, int h,</span>
+<span id="L403"><span class="lineNum">     403</span>              :                        int phase_x, int phase_y, gs_logical_operation_t lop,</span>
+<span id="L404"><span class="lineNum">     404</span>              :                        uint planar_height)</span>
+<span id="L405"><span class="lineNum">     405</span>              : {</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :     gx_device_tile_clip *cdev = (gx_device_tile_clip *) dev;</span></span>
+<span id="L407"><span class="lineNum">     407</span>              : </span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :     fit_copy(dev, data, sourcex, raster, id, x, y, w, h);</span></span>
+<span id="L409"><span class="lineNum">     409</span>              :     {</span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         FOR_RUNS(data_row, txrun, tx, ty) {</span></span>
+<span id="L411"><span class="lineNum">     411</span>              :             /* Copy the run. */</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :             int code = (*dev_proc(cdev-&gt;target, strip_copy_rop2))</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :             (cdev-&gt;target, data_row, sourcex + txrun - x, raster,</span></span>
+<span id="L414"><span class="lineNum">     414</span>              :              gx_no_bitmap_id, scolors, textures, tcolors,</span>
+<span id="L415"><span class="lineNum">     415</span>              :              txrun, ty, tx - txrun, 1, phase_x, phase_y, lop,</span>
+<span id="L416"><span class="lineNum">     416</span>              :              planar_height);</span>
+<span id="L417"><span class="lineNum">     417</span>              : </span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L420"><span class="lineNum">     420</span>              :         }</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         END_FOR_RUNS();</span></span>
+<span id="L422"><span class="lineNum">     422</span>              :     }</span>
+<span id="L423"><span class="lineNum">     423</span>              :     return 0;</span>
+<span id="L424"><span class="lineNum">     424</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

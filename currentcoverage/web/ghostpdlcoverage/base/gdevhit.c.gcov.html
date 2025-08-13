@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gdevhit.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gdevhit.c<span style="font-size: 80%;"> (source / <a href="gdevhit.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">21</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /* Hit detection device */</span>
+<span id="L17"><span class="lineNum">      17</span>              : #include &quot;std.h&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gstypes.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gsmemory.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gxdevice.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : /* Define the value returned for a detected hit. */</span>
+<span id="L24"><span class="lineNum">      24</span>              : const int gs_hit_detected = gs_error_hit_detected;</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : /*</span>
+<span id="L27"><span class="lineNum">      27</span>              :  * Define a minimal device for insideness testing.</span>
+<span id="L28"><span class="lineNum">      28</span>              :  * It returns e_hit whenever it is asked to actually paint any pixels.</span>
+<span id="L29"><span class="lineNum">      29</span>              :  */</span>
+<span id="L30"><span class="lineNum">      30</span>              : static dev_proc_fill_rectangle(hit_fill_rectangle);</span>
+<span id="L31"><span class="lineNum">      31</span>              : static void</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">       59878 : hit_initialize_device_procs(gx_device *dev)</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, fill_rectangle, hit_fill_rectangle);</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, composite, gx_non_imaging_composite);</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, map_rgb_color, gx_default_map_rgb_color);</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, map_color_rgb, gx_default_map_color_rgb);</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, map_cmyk_color, gx_default_map_cmyk_color);</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, get_page_device, gx_default_get_page_device);</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, get_alpha_bits, gx_default_get_alpha_bits);</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, fill_path, gx_default_fill_path);</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, fill_trapezoid, gx_default_fill_trapezoid);</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, fill_parallelogram, gx_default_fill_parallelogram);</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, fill_triangle, gx_default_fill_triangle);</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, draw_thin_line, gx_default_draw_thin_line);</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, strip_tile_rectangle, gx_default_strip_tile_rectangle);</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, strip_copy_rop2, gx_default_strip_copy_rop2);</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, get_clipping_box, gx_get_largest_clipping_box);</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">       59878 :     set_dev_proc(dev, begin_typed_image, gx_default_begin_typed_image);</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       59878 : }</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : const gx_device gs_hit_device = {</span>
+<span id="L53"><span class="lineNum">      53</span>              :  std_device_std_body(gx_device, hit_initialize_device_procs, &quot;hit detector&quot;,</span>
+<span id="L54"><span class="lineNum">      54</span>              :                      0, 0, 1, 1)</span>
+<span id="L55"><span class="lineNum">      55</span>              : };</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /* Test for a hit when filling a rectangle. */</span>
+<span id="L58"><span class="lineNum">      58</span>              : static int</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">         108 : hit_fill_rectangle(gx_device * dev, int x, int y, int w, int h,</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :                    gx_color_index color)</span>
+<span id="L61"><span class="lineNum">      61</span>              : {</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">         108 :     if (w &gt; 0 &amp;&amp; h &gt; 0)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">         108 :         return_error(gs_error_hit_detected);</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :     return 0;</span>
+<span id="L65"><span class="lineNum">      65</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

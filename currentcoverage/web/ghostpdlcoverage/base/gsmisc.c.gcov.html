@@ -1,0 +1,1334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsmisc.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsmisc.c<span style="font-size: 80%;"> (source / <a href="gsmisc.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">28.8&nbsp;%</td>
+            <td class="headerCovTableEntry">320</td>
+            <td class="headerCovTableEntry">92</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">37.1&nbsp;%</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">13</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Miscellaneous utilities for Ghostscript library */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : /*</span>
+<span id="L20"><span class="lineNum">      20</span>              :  * In order to capture the original definition of sqrt, which might be</span>
+<span id="L21"><span class="lineNum">      21</span>              :  * either a procedure or a macro and might not have an ANSI-compliant</span>
+<span id="L22"><span class="lineNum">      22</span>              :  * prototype (!), we need to do the following:</span>
+<span id="L23"><span class="lineNum">      23</span>              :  */</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;std.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #if defined(VMS) &amp;&amp; defined(__GNUC__)</span>
+<span id="L26"><span class="lineNum">      26</span>              : /*  DEC VAX/VMS C comes with a math.h file, but GNU VAX/VMS C does not. */</span>
+<span id="L27"><span class="lineNum">      27</span>              : #  include &quot;vmsmath.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #else</span>
+<span id="L29"><span class="lineNum">      29</span>              : #  include &lt;math.h&gt;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #endif</span>
+<span id="L31"><span class="lineNum">      31</span>              : static inline double</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 : orig_sqrt(double x)</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :     return sqrt(x);</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : /* Here is the real #include section. */</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;ctype_.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;malloc_.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;math_.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L42"><span class="lineNum">      42</span>              : #include &quot;string_.h&quot;</span>
+<span id="L43"><span class="lineNum">      43</span>              : #include &quot;gx.h&quot;</span>
+<span id="L44"><span class="lineNum">      44</span>              : #include &quot;gpcheck.h&quot;            /* for gs_return_check_interrupt */</span>
+<span id="L45"><span class="lineNum">      45</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L46"><span class="lineNum">      46</span>              : #include &quot;gxfarith.h&quot;</span>
+<span id="L47"><span class="lineNum">      47</span>              : #include &quot;gxfixed.h&quot;</span>
+<span id="L48"><span class="lineNum">      48</span>              : #include &quot;stdint_.h&quot;</span>
+<span id="L49"><span class="lineNum">      49</span>              : #include &quot;stdio_.h&quot;</span>
+<span id="L50"><span class="lineNum">      50</span>              : #include &quot;gp.h&quot;</span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : /* ------ Redirected stdout and stderr  ------ */</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : #include &lt;stdarg.h&gt;</span>
+<span id="L55"><span class="lineNum">      55</span>              : #define PRINTF_BUF_LENGTH 1024</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : static const char msg_truncated[] = &quot;\n*** Previous line has been truncated.\n&quot;;</span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : int outprintf(const gs_memory_t *mem, const char *fmt, ...)</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : {</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     int count;</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :     char buf[PRINTF_BUF_LENGTH];</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     va_list args;</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     va_start(args, fmt);</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     count = vsnprintf(buf, sizeof(buf), fmt, args);</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     if (count &lt; 0 || count &gt;= sizeof(buf))  { /* MSVC || C99 */</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         outwrite(mem, buf, sizeof(buf) - 1);</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         outwrite(mem, msg_truncated, sizeof(msg_truncated) - 1);</span></span>
+<span id="L70"><span class="lineNum">      70</span>              :     } else {</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         outwrite(mem, buf, count);</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :     }</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     va_end(args);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     return count;</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : }</span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 : int errprintf_nomem(const char *fmt, ...)</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : {</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     int count;</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     char buf[PRINTF_BUF_LENGTH];</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     va_list args;</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = gp_get_debug_mem_ptr();</span></span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     if (mem == NULL)</span></span>
+<span id="L85"><span class="lineNum">      85</span>              :         return 0;</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :     va_start(args, fmt);</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     count = vsnprintf(buf, sizeof(buf), fmt, args);</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     if (count &lt; 0 || count &gt;= sizeof(buf))  { /* MSVC || C99*/</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         errwrite(mem, buf, sizeof(buf) - 1);</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         errwrite(mem, msg_truncated, sizeof(msg_truncated) - 1);</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :     } else {</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         errwrite(mem, buf, count);</span></span>
+<span id="L93"><span class="lineNum">      93</span>              :     }</span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     va_end(args);</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :     return count;</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : }</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">          34 : int errprintf(const gs_memory_t *mem, const char *fmt, ...)</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : {</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">          34 :     int count;</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">          34 :     char buf[PRINTF_BUF_LENGTH];</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">          34 :     va_list args;</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">          34 :     va_start(args, fmt);</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">          34 :     count = vsnprintf(buf, sizeof(buf), fmt, args);</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">          34 :     if (count &lt; 0 || count &gt;= sizeof(buf))  { /* MSVC || C99 */</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC tlaBgUNC">           0 :         errwrite(mem, buf, sizeof(buf) - 1);</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         errwrite(mem, msg_truncated, sizeof(msg_truncated) - 1);</span></span>
+<span id="L109"><span class="lineNum">     109</span>              :     } else {</span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC tlaBgGNC">          34 :         errwrite(mem, buf, count);</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :     }</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">          34 :     va_end(args);</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">          34 :     return count;</span></span>
+<span id="L114"><span class="lineNum">     114</span>              : }</span>
+<span id="L115"><span class="lineNum">     115</span>              : </span>
+<span id="L116"><span class="lineNum">     116</span>              : /* ------ Debugging ------ */</span>
+<span id="L117"><span class="lineNum">     117</span>              : </span>
+<span id="L118"><span class="lineNum">     118</span>              : /* We define gs_debug even if DEBUG isn't defined, */</span>
+<span id="L119"><span class="lineNum">     119</span>              : /* so that we can compile individual modules with DEBUG set. */</span>
+<span id="L120"><span class="lineNum">     120</span>              : /* gs_debug is therefore shared between all instances in a multi-instance</span>
+<span id="L121"><span class="lineNum">     121</span>              :  * setup. This means that {en,dis}abling a debugging flag in one instance</span>
+<span id="L122"><span class="lineNum">     122</span>              :  * will affect all other instances. */</span>
+<span id="L123"><span class="lineNum">     123</span>              : char gs_debug[128];</span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span>              : /* Test whether a given debugging option is selected. */</span>
+<span id="L126"><span class="lineNum">     126</span>              : /* Some letters automatically imply others. */</span>
+<span id="L127"><span class="lineNum">     127</span>              : bool</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">  1689913483 : gs_debug_c(int c)</span></span>
+<span id="L129"><span class="lineNum">     129</span>              : {</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">  1689913483 :     bool ret = gs_debug[c];</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              :     /* Unroll the first one, to minimise the speed hit */</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">  1689913483 :     c = gs_debug_flag_implied_by[c];</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">  1689913483 :     if (c == 0)</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :         return ret;</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC tlaBgUNC">           0 :     do {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         ret |= gs_debug[c];</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :     } while ((c = gs_debug_flag_implied_by[c]) != 0);</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :     return ret;</span>
+<span id="L141"><span class="lineNum">     141</span>              : }</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : /* Define the formats for debugging printout. */</span>
+<span id="L144"><span class="lineNum">     144</span>              : const char *const dprintf_file_and_line_format = &quot;%10s(%4d): &quot;;</span>
+<span id="L145"><span class="lineNum">     145</span>              : const char *const dprintf_file_only_format = &quot;%10s(unkn): &quot;;</span>
+<span id="L146"><span class="lineNum">     146</span>              : </span>
+<span id="L147"><span class="lineNum">     147</span>              : /*</span>
+<span id="L148"><span class="lineNum">     148</span>              :  * Define the trace printout procedures.  We always include these, in case</span>
+<span id="L149"><span class="lineNum">     149</span>              :  * other modules were compiled with DEBUG set.  Note that they must use</span>
+<span id="L150"><span class="lineNum">     150</span>              :  * out/errprintf, not fprintf nor fput[cs], because of the way that</span>
+<span id="L151"><span class="lineNum">     151</span>              :  * stdout/stderr are implemented on DLL/shared library builds.</span>
+<span id="L152"><span class="lineNum">     152</span>              :  */</span>
+<span id="L153"><span class="lineNum">     153</span>              : static const char *</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : dprintf_file_tail(const char *file)</span></span>
+<span id="L155"><span class="lineNum">     155</span>              : {</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     const char *tail = file + strlen(file);</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     while (tail &gt; file &amp;&amp;</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :            (isalnum((unsigned char)tail[-1]) || tail[-1] == '.' || tail[-1] == '_')</span></span>
+<span id="L160"><span class="lineNum">     160</span>              :         )</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         --tail;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :     return tail;</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : void</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : dflush(void)</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = gp_get_debug_mem_ptr();</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     if (mem)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         errflush(mem);</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : #if __LINE__                    /* compiler provides it */</span>
+<span id="L172"><span class="lineNum">     172</span>              : void</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 : dprintf_file_and_line(const char *file, int line)</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : {</span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     if (gs_debug['/'])</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         dpf(dprintf_file_and_line_format,</span></span>
+<span id="L177"><span class="lineNum">     177</span>              :                 dprintf_file_tail(file), line);</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : void</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : lprintf_file_and_line(const char *file, int line)</span></span>
+<span id="L181"><span class="lineNum">     181</span>              : {</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :     epf(&quot;%s(%d): &quot;, file, line);</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : #else</span>
+<span id="L185"><span class="lineNum">     185</span>              : void</span>
+<span id="L186"><span class="lineNum">     186</span>              : dprintf_file_only(const char *file)</span>
+<span id="L187"><span class="lineNum">     187</span>              : {</span>
+<span id="L188"><span class="lineNum">     188</span>              :     if (gs_debug['/'])</span>
+<span id="L189"><span class="lineNum">     189</span>              :         dpf(dprintf_file_only_format, dprintf_file_tail(file));</span>
+<span id="L190"><span class="lineNum">     190</span>              : }</span>
+<span id="L191"><span class="lineNum">     191</span>              : void</span>
+<span id="L192"><span class="lineNum">     192</span>              : lprintf_file_only(gp_file * f, const char *file)</span>
+<span id="L193"><span class="lineNum">     193</span>              : {</span>
+<span id="L194"><span class="lineNum">     194</span>              :     epf(&quot;%s(?): &quot;, file);</span>
+<span id="L195"><span class="lineNum">     195</span>              : }</span>
+<span id="L196"><span class="lineNum">     196</span>              : #endif</span>
+<span id="L197"><span class="lineNum">     197</span>              : void</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 : eprintf_program_ident(const char *program_name,</span></span>
+<span id="L199"><span class="lineNum">     199</span>              :                       long revision_number)</span>
+<span id="L200"><span class="lineNum">     200</span>              : {</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     if (program_name) {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         epf((revision_number ? &quot;%s &quot; : &quot;%s&quot;), program_name);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         if (revision_number) {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         int major = (int)(revision_number / 1000);</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         int minor = (int)(revision_number - (major * 1000)) / 10;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         int patch = revision_number % 10;</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :             epf(&quot;%d.%02d.%d&quot;, major, minor, patch);</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :         }</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         epf(&quot;: &quot;);</span></span>
+<span id="L211"><span class="lineNum">     211</span>              :     }</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : #if __LINE__                    /* compiler provides it */</span>
+<span id="L214"><span class="lineNum">     214</span>              : void</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 : dmprintf_file_and_line(const gs_memory_t *mem,const char *file, int line)</span></span>
+<span id="L216"><span class="lineNum">     216</span>              : {</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :     if (gs_debug['/'])</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         dpfm(mem, dprintf_file_and_line_format,</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :                 dprintf_file_tail(file), line);</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L221"><span class="lineNum">     221</span>              : #else</span>
+<span id="L222"><span class="lineNum">     222</span>              : void</span>
+<span id="L223"><span class="lineNum">     223</span>              : dmprintf_file_only(const gs_memory_t *mem,const char *file)</span>
+<span id="L224"><span class="lineNum">     224</span>              : {</span>
+<span id="L225"><span class="lineNum">     225</span>              :     if (gs_debug['/'])</span>
+<span id="L226"><span class="lineNum">     226</span>              :         dpfm(mem, dprintf_file_only_format, dprintf_file_tail(file));</span>
+<span id="L227"><span class="lineNum">     227</span>              : }</span>
+<span id="L228"><span class="lineNum">     228</span>              : #endif</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span>              : /* This calculation is also performed for pdfwrite to manufacture the Producer string</span>
+<span id="L231"><span class="lineNum">     231</span>              :  * in PDF output. The code is in ghostpdl/devices/vector/gdevpdfu.c pdf_store_default_Producer().</span>
+<span id="L232"><span class="lineNum">     232</span>              :  * Should we change this calculation both sets of code need to be updated.</span>
+<span id="L233"><span class="lineNum">     233</span>              :  */</span>
+<span id="L234"><span class="lineNum">     234</span>              : void</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 : printf_program_ident(const gs_memory_t *mem, const char *program_name, long revision_number)</span></span>
+<span id="L236"><span class="lineNum">     236</span>              : {</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     if (program_name)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         outprintf(mem, (revision_number ? &quot;%s &quot; : &quot;%s&quot;), program_name);</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     if (revision_number) {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         int major = (int)(revision_number / 1000);</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         int minor = (int)(revision_number - (major * 1000)) / 10;</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         int patch = revision_number % 10;</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         outprintf(mem, &quot;%d.%02d.%d&quot;, major, minor, patch);</span></span>
+<span id="L245"><span class="lineNum">     245</span>              :     }</span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L247"><span class="lineNum">     247</span>              : void</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">           4 : emprintf_program_ident(const gs_memory_t *mem,</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :                        const char *program_name,</span>
+<span id="L250"><span class="lineNum">     250</span>              :                        long revision_number)</span>
+<span id="L251"><span class="lineNum">     251</span>              : {</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           4 :     if (program_name) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           4 :         epfm(mem, (revision_number ? &quot;%s &quot; : &quot;%s&quot;), program_name);</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           4 :         if (revision_number) {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           4 :         int major = (int)(revision_number / 1000);</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           4 :         int minor = (int)(revision_number - (major * 1000)) / 10;</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           4 :         int patch = revision_number % 10;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : </span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           4 :             epfm(mem, &quot;%d.%02d.%d&quot;, major, minor, patch);</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :         }</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           4 :         epfm(mem, &quot;: &quot;);</span></span>
+<span id="L262"><span class="lineNum">     262</span>              :     }</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           4 : }</span></span>
+<span id="L264"><span class="lineNum">     264</span>              : #if __LINE__                    /* compiler provides it */</span>
+<span id="L265"><span class="lineNum">     265</span>              : void</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC tlaBgUNC">           0 : mlprintf_file_and_line(const gs_memory_t *mem, const char *file, int line)</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : {</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     epfm(mem, &quot;%s(%d): &quot;, file, line);</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L270"><span class="lineNum">     270</span>              : #else</span>
+<span id="L271"><span class="lineNum">     271</span>              : void</span>
+<span id="L272"><span class="lineNum">     272</span>              : mlprintf_file_only(const gs_memory_t *mem, gp_file * f, const char *file)</span>
+<span id="L273"><span class="lineNum">     273</span>              : {</span>
+<span id="L274"><span class="lineNum">     274</span>              :     epfm(mem, &quot;%s(?): &quot;, file);</span>
+<span id="L275"><span class="lineNum">     275</span>              : }</span>
+<span id="L276"><span class="lineNum">     276</span>              : #endif</span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span>              : /* Log an error return.  We always include this, in case other */</span>
+<span id="L279"><span class="lineNum">     279</span>              : /* modules were compiled with DEBUG set. */</span>
+<span id="L280"><span class="lineNum">     280</span>              : #undef gs_log_error             /* in case DEBUG isn't set */</span>
+<span id="L281"><span class="lineNum">     281</span>              : int</span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC tlaBgGNC">           4 : gs_log_error(int err, const char *file, int line)</span></span>
+<span id="L283"><span class="lineNum">     283</span>              : {</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           4 :     if (gs_log_errors) {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 :         if (file == NULL)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :             dprintf1(&quot;Returning error %d.\n&quot;, err);</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :         else</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :             dprintf3(&quot;%s(%d): Returning error %d.\n&quot;,</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :                      (const char *)file, line, err);</span>
+<span id="L290"><span class="lineNum">     290</span>              :     }</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC tlaBgGNC">           4 :     return err;</span></span>
+<span id="L292"><span class="lineNum">     292</span>              : }</span>
+<span id="L293"><span class="lineNum">     293</span>              : </span>
+<span id="L294"><span class="lineNum">     294</span>              : /* Check for interrupts before a return. */</span>
+<span id="L295"><span class="lineNum">     295</span>              : int</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC tlaBgUNC">           0 : gs_return_check_interrupt(const gs_memory_t *mem, int code)</span></span>
+<span id="L297"><span class="lineNum">     297</span>              : {</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :         return code;</span>
+<span id="L300"><span class="lineNum">     300</span>              :     {</span>
+<span id="L301"><span class="lineNum">     301</span>              :         int icode = gp_check_interrupts(mem);</span>
+<span id="L302"><span class="lineNum">     302</span>              : </span>
+<span id="L303"><span class="lineNum">     303</span>              :         return (icode == 0 ? code :</span>
+<span id="L304"><span class="lineNum">     304</span>              :                 gs_note_error((icode &gt; 0 ? gs_error_interrupt : icode)));</span>
+<span id="L305"><span class="lineNum">     305</span>              :     }</span>
+<span id="L306"><span class="lineNum">     306</span>              : }</span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 : int gs_throw_imp(const char *func, const char *file, int line, int op, int code, const char *fmt, ...)</span></span>
+<span id="L309"><span class="lineNum">     309</span>              : {</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :     char msg[1024];</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     va_list ap;</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     int count;</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = gp_get_debug_mem_ptr();</span></span>
+<span id="L314"><span class="lineNum">     314</span>              : </span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     if (mem == NULL)</span></span>
+<span id="L316"><span class="lineNum">     316</span>              :         return code;</span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :     va_start(ap, fmt);</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :     count = vsnprintf(msg, sizeof(msg), fmt, ap);</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :     msg[sizeof(msg) - 1] = 0;</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :     va_end(ap);</span></span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :     if (!gs_debug_c('#')) {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         ; /* NB: gs_log_errors</span></span>
+<span id="L325"><span class="lineNum">     325</span>              :            * we could disable these printfs, and probably will when,</span>
+<span id="L326"><span class="lineNum">     326</span>              :            * the code becomes more stable:</span>
+<span id="L327"><span class="lineNum">     327</span>              :            * return code;</span>
+<span id="L328"><span class="lineNum">     328</span>              :            */</span>
+<span id="L329"><span class="lineNum">     329</span>              :     }</span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span>              :     /* throw */</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     if (op == 0)</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         errprintf(mem, &quot;+ %s:%d: %s(): %s\n&quot;, file, line, func, msg);</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : </span>
+<span id="L335"><span class="lineNum">     335</span>              :     /* rethrow */</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :     if (op == 1)</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         errprintf(mem, &quot;| %s:%d: %s(): %s\n&quot;, file, line, func, msg);</span></span>
+<span id="L338"><span class="lineNum">     338</span>              : </span>
+<span id="L339"><span class="lineNum">     339</span>              :     /* catch */</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :     if (op == 2)</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         errprintf(mem, &quot;- %s:%d: %s(): %s\n&quot;, file, line, func, msg);</span></span>
+<span id="L342"><span class="lineNum">     342</span>              : </span>
+<span id="L343"><span class="lineNum">     343</span>              :     /* warn */</span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :     if (op == 3)</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         errprintf(mem, &quot;  %s:%d: %s(): %s\n&quot;, file, line, func, msg);</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :     if (count &lt; 0 || count &gt;= sizeof(msg))  { /* MSVC || C99 */</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         errwrite(mem, msg_truncated, sizeof(msg_truncated) - 1);</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :     }</span>
+<span id="L350"><span class="lineNum">     350</span>              :     return code;</span>
+<span id="L351"><span class="lineNum">     351</span>              : }</span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 : const char *gs_errstr(int code)</span></span>
+<span id="L354"><span class="lineNum">     354</span>              : {</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :     switch (code) {</span></span>
+<span id="L356"><span class="lineNum">     356</span>              :     default:</span>
+<span id="L357"><span class="lineNum">     357</span>              :     case gs_error_unknownerror: return &quot;unknownerror&quot;;</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :     case gs_error_interrupt: return &quot;interrupt&quot;;</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :     case gs_error_invalidaccess: return &quot;invalidaccess&quot;;</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :     case gs_error_invalidfileaccess: return &quot;invalidfileaccess&quot;;</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :     case gs_error_invalidfont: return &quot;invalidfont&quot;;</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :     case gs_error_ioerror: return &quot;ioerror&quot;;</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :     case gs_error_limitcheck: return &quot;limitcheck&quot;;</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :     case gs_error_nocurrentpoint: return &quot;nocurrentpoint&quot;;</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :     case gs_error_rangecheck: return &quot;rangecheck&quot;;</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :     case gs_error_typecheck: return &quot;typecheck&quot;;</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :     case gs_error_undefined: return &quot;undefined&quot;;</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :     case gs_error_undefinedfilename: return &quot;undefinedfilename&quot;;</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :     case gs_error_undefinedresult: return &quot;undefinedresult&quot;;</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :     case gs_error_VMerror: return &quot;vmerror&quot;;</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :     case gs_error_unregistered: return &quot;unregistered&quot;;</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :     case gs_error_hit_detected: return &quot;hit_detected&quot;;</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :     case gs_error_Fatal: return &quot;Fatal&quot;;</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :     }</span>
+<span id="L375"><span class="lineNum">     375</span>              : }</span>
+<span id="L376"><span class="lineNum">     376</span>              : </span>
+<span id="L377"><span class="lineNum">     377</span>              : /* ------ Substitutes for missing C library functions ------ */</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              : #ifdef MEMORY__NEED_MEMMOVE     /* see memory_.h */</span>
+<span id="L380"><span class="lineNum">     380</span>              : /* Copy bytes like memcpy, guaranteed to handle overlap correctly. */</span>
+<span id="L381"><span class="lineNum">     381</span>              : /* ANSI C defines the returned value as being the src argument, */</span>
+<span id="L382"><span class="lineNum">     382</span>              : /* but with the const restriction removed! */</span>
+<span id="L383"><span class="lineNum">     383</span>              : void *</span>
+<span id="L384"><span class="lineNum">     384</span>              : gs_memmove(void *dest, const void *src, size_t len)</span>
+<span id="L385"><span class="lineNum">     385</span>              : {</span>
+<span id="L386"><span class="lineNum">     386</span>              :     if (!len)</span>
+<span id="L387"><span class="lineNum">     387</span>              :         return (void *)src;</span>
+<span id="L388"><span class="lineNum">     388</span>              : #define bdest ((byte *)dest)</span>
+<span id="L389"><span class="lineNum">     389</span>              : #define bsrc ((const byte *)src)</span>
+<span id="L390"><span class="lineNum">     390</span>              :     /* We use len-1 for comparisons because adding len */</span>
+<span id="L391"><span class="lineNum">     391</span>              :     /* might produce an offset overflow on segmented systems. */</span>
+<span id="L392"><span class="lineNum">     392</span>              :     if (PTR_LE(bdest, bsrc)) {</span>
+<span id="L393"><span class="lineNum">     393</span>              :         register byte *end = bdest + (len - 1);</span>
+<span id="L394"><span class="lineNum">     394</span>              : </span>
+<span id="L395"><span class="lineNum">     395</span>              :         if (PTR_LE(bsrc, end)) {</span>
+<span id="L396"><span class="lineNum">     396</span>              :             /* Source overlaps destination from above. */</span>
+<span id="L397"><span class="lineNum">     397</span>              :             register const byte *from = bsrc;</span>
+<span id="L398"><span class="lineNum">     398</span>              :             register byte *to = bdest;</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              :             for (;;) {</span>
+<span id="L401"><span class="lineNum">     401</span>              :                 *to = *from;</span>
+<span id="L402"><span class="lineNum">     402</span>              :                 if (to &gt;= end)  /* faster than = */</span>
+<span id="L403"><span class="lineNum">     403</span>              :                     return (void *)src;</span>
+<span id="L404"><span class="lineNum">     404</span>              :                 to++;</span>
+<span id="L405"><span class="lineNum">     405</span>              :                 from++;</span>
+<span id="L406"><span class="lineNum">     406</span>              :             }</span>
+<span id="L407"><span class="lineNum">     407</span>              :         }</span>
+<span id="L408"><span class="lineNum">     408</span>              :     } else {</span>
+<span id="L409"><span class="lineNum">     409</span>              :         register const byte *from = bsrc + (len - 1);</span>
+<span id="L410"><span class="lineNum">     410</span>              : </span>
+<span id="L411"><span class="lineNum">     411</span>              :         if (PTR_LE(bdest, from)) {</span>
+<span id="L412"><span class="lineNum">     412</span>              :             /* Source overlaps destination from below. */</span>
+<span id="L413"><span class="lineNum">     413</span>              :             register const byte *end = bsrc;</span>
+<span id="L414"><span class="lineNum">     414</span>              :             register byte *to = bdest + (len - 1);</span>
+<span id="L415"><span class="lineNum">     415</span>              : </span>
+<span id="L416"><span class="lineNum">     416</span>              :             for (;;) {</span>
+<span id="L417"><span class="lineNum">     417</span>              :                 *to = *from;</span>
+<span id="L418"><span class="lineNum">     418</span>              :                 if (from &lt;= end)        /* faster than = */</span>
+<span id="L419"><span class="lineNum">     419</span>              :                     return (void *)src;</span>
+<span id="L420"><span class="lineNum">     420</span>              :                 to--;</span>
+<span id="L421"><span class="lineNum">     421</span>              :                 from--;</span>
+<span id="L422"><span class="lineNum">     422</span>              :             }</span>
+<span id="L423"><span class="lineNum">     423</span>              :         }</span>
+<span id="L424"><span class="lineNum">     424</span>              :     }</span>
+<span id="L425"><span class="lineNum">     425</span>              : #undef bdest</span>
+<span id="L426"><span class="lineNum">     426</span>              : #undef bsrc</span>
+<span id="L427"><span class="lineNum">     427</span>              :     /* No overlap, it's safe to use memcpy. */</span>
+<span id="L428"><span class="lineNum">     428</span>              :     memcpy(dest, src, len);</span>
+<span id="L429"><span class="lineNum">     429</span>              :     return (void *)src;</span>
+<span id="L430"><span class="lineNum">     430</span>              : }</span>
+<span id="L431"><span class="lineNum">     431</span>              : #endif</span>
+<span id="L432"><span class="lineNum">     432</span>              : </span>
+<span id="L433"><span class="lineNum">     433</span>              : #ifdef MEMORY__NEED_MEMCPY      /* see memory_.h */</span>
+<span id="L434"><span class="lineNum">     434</span>              : void *</span>
+<span id="L435"><span class="lineNum">     435</span>              : gs_memcpy(void *dest, const void *src, size_t len)</span>
+<span id="L436"><span class="lineNum">     436</span>              : {</span>
+<span id="L437"><span class="lineNum">     437</span>              :     if (len &gt; 0) {</span>
+<span id="L438"><span class="lineNum">     438</span>              : #define bdest ((byte *)dest)</span>
+<span id="L439"><span class="lineNum">     439</span>              : #define bsrc ((const byte *)src)</span>
+<span id="L440"><span class="lineNum">     440</span>              :         /* We can optimize this much better later on. */</span>
+<span id="L441"><span class="lineNum">     441</span>              :         register byte *end = bdest + (len - 1);</span>
+<span id="L442"><span class="lineNum">     442</span>              :         register const byte *from = bsrc;</span>
+<span id="L443"><span class="lineNum">     443</span>              :         register byte *to = bdest;</span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span>              :         for (;;) {</span>
+<span id="L446"><span class="lineNum">     446</span>              :             *to = *from;</span>
+<span id="L447"><span class="lineNum">     447</span>              :             if (to &gt;= end)      /* faster than = */</span>
+<span id="L448"><span class="lineNum">     448</span>              :                 break;</span>
+<span id="L449"><span class="lineNum">     449</span>              :             to++;</span>
+<span id="L450"><span class="lineNum">     450</span>              :             from++;</span>
+<span id="L451"><span class="lineNum">     451</span>              :         }</span>
+<span id="L452"><span class="lineNum">     452</span>              :     }</span>
+<span id="L453"><span class="lineNum">     453</span>              : #undef bdest</span>
+<span id="L454"><span class="lineNum">     454</span>              : #undef bsrc</span>
+<span id="L455"><span class="lineNum">     455</span>              :     return (void *)src;</span>
+<span id="L456"><span class="lineNum">     456</span>              : }</span>
+<span id="L457"><span class="lineNum">     457</span>              : #endif</span>
+<span id="L458"><span class="lineNum">     458</span>              : </span>
+<span id="L459"><span class="lineNum">     459</span>              : #ifdef MEMORY__NEED_MEMCHR      /* see memory_.h */</span>
+<span id="L460"><span class="lineNum">     460</span>              : /* ch should obviously be char rather than int, */</span>
+<span id="L461"><span class="lineNum">     461</span>              : /* but the ANSI standard declaration uses int. */</span>
+<span id="L462"><span class="lineNum">     462</span>              : void *</span>
+<span id="L463"><span class="lineNum">     463</span>              : gs_memchr(const void *ptr, int ch, size_t len)</span>
+<span id="L464"><span class="lineNum">     464</span>              : {</span>
+<span id="L465"><span class="lineNum">     465</span>              :     if (len &gt; 0) {</span>
+<span id="L466"><span class="lineNum">     466</span>              :         register const char *p = ptr;</span>
+<span id="L467"><span class="lineNum">     467</span>              :         register uint count = len;</span>
+<span id="L468"><span class="lineNum">     468</span>              : </span>
+<span id="L469"><span class="lineNum">     469</span>              :         do {</span>
+<span id="L470"><span class="lineNum">     470</span>              :             if (*p == (char)ch)</span>
+<span id="L471"><span class="lineNum">     471</span>              :                 return (void *)p;</span>
+<span id="L472"><span class="lineNum">     472</span>              :             p++;</span>
+<span id="L473"><span class="lineNum">     473</span>              :         } while (--count);</span>
+<span id="L474"><span class="lineNum">     474</span>              :     }</span>
+<span id="L475"><span class="lineNum">     475</span>              :     return 0;</span>
+<span id="L476"><span class="lineNum">     476</span>              : }</span>
+<span id="L477"><span class="lineNum">     477</span>              : #endif</span>
+<span id="L478"><span class="lineNum">     478</span>              : </span>
+<span id="L479"><span class="lineNum">     479</span>              : #ifdef MEMORY__NEED_MEMSET      /* see memory_.h */</span>
+<span id="L480"><span class="lineNum">     480</span>              : /* ch should obviously be char rather than int, */</span>
+<span id="L481"><span class="lineNum">     481</span>              : /* but the ANSI standard declaration uses int. */</span>
+<span id="L482"><span class="lineNum">     482</span>              : void *</span>
+<span id="L483"><span class="lineNum">     483</span>              : gs_memset(void *dest, register int ch, size_t len)</span>
+<span id="L484"><span class="lineNum">     484</span>              : {</span>
+<span id="L485"><span class="lineNum">     485</span>              :     /*</span>
+<span id="L486"><span class="lineNum">     486</span>              :      * This procedure is used a lot to fill large regions of images,</span>
+<span id="L487"><span class="lineNum">     487</span>              :      * so we take some trouble to optimize it.</span>
+<span id="L488"><span class="lineNum">     488</span>              :      */</span>
+<span id="L489"><span class="lineNum">     489</span>              :     register char *p = dest;</span>
+<span id="L490"><span class="lineNum">     490</span>              :     register size_t count = len;</span>
+<span id="L491"><span class="lineNum">     491</span>              : </span>
+<span id="L492"><span class="lineNum">     492</span>              :     ch &amp;= 255;</span>
+<span id="L493"><span class="lineNum">     493</span>              :     if (len &gt;= sizeof(long) * 3) {</span>
+<span id="L494"><span class="lineNum">     494</span>              :         long wd = (ch &lt;&lt; 24) | (ch &lt;&lt; 16) | (ch &lt;&lt; 8) | ch;</span>
+<span id="L495"><span class="lineNum">     495</span>              : </span>
+<span id="L496"><span class="lineNum">     496</span>              :         while (ALIGNMENT_MOD(p, sizeof(long)))</span>
+<span id="L497"><span class="lineNum">     497</span>              :             *p++ = (char)ch, --count;</span>
+<span id="L498"><span class="lineNum">     498</span>              :         for (; count &gt;= sizeof(long) * 4;</span>
+<span id="L499"><span class="lineNum">     499</span>              :              p += sizeof(long) * 4, count -= sizeof(long) * 4</span>
+<span id="L500"><span class="lineNum">     500</span>              :              )</span>
+<span id="L501"><span class="lineNum">     501</span>              :             ((long *)p)[3] = ((long *)p)[2] = ((long *)p)[1] =</span>
+<span id="L502"><span class="lineNum">     502</span>              :                 ((long *)p)[0] = wd;</span>
+<span id="L503"><span class="lineNum">     503</span>              :         switch (count &gt;&gt; ARCH_LOG2_SIZEOF_LONG) {</span>
+<span id="L504"><span class="lineNum">     504</span>              :         case 3:</span>
+<span id="L505"><span class="lineNum">     505</span>              :             *((long *)p) = wd; p += sizeof(long);</span>
+<span id="L506"><span class="lineNum">     506</span>              :         case 2:</span>
+<span id="L507"><span class="lineNum">     507</span>              :             *((long *)p) = wd; p += sizeof(long);</span>
+<span id="L508"><span class="lineNum">     508</span>              :         case 1:</span>
+<span id="L509"><span class="lineNum">     509</span>              :             *((long *)p) = wd; p += sizeof(long);</span>
+<span id="L510"><span class="lineNum">     510</span>              :             count &amp;= sizeof(long) - 1;</span>
+<span id="L511"><span class="lineNum">     511</span>              :         case 0:</span>
+<span id="L512"><span class="lineNum">     512</span>              :         default:                /* can't happen */</span>
+<span id="L513"><span class="lineNum">     513</span>              :             DO_NOTHING;</span>
+<span id="L514"><span class="lineNum">     514</span>              :         }</span>
+<span id="L515"><span class="lineNum">     515</span>              :     }</span>
+<span id="L516"><span class="lineNum">     516</span>              :     /* Do any leftover bytes. */</span>
+<span id="L517"><span class="lineNum">     517</span>              :     for (; count &gt; 0; --count)</span>
+<span id="L518"><span class="lineNum">     518</span>              :         *p++ = (char)ch;</span>
+<span id="L519"><span class="lineNum">     519</span>              :     return dest;</span>
+<span id="L520"><span class="lineNum">     520</span>              : }</span>
+<span id="L521"><span class="lineNum">     521</span>              : #endif</span>
+<span id="L522"><span class="lineNum">     522</span>              : </span>
+<span id="L523"><span class="lineNum">     523</span>              : #ifdef malloc__need_realloc     /* see malloc_.h */</span>
+<span id="L524"><span class="lineNum">     524</span>              : /* Some systems have non-working implementations of realloc. */</span>
+<span id="L525"><span class="lineNum">     525</span>              : void *</span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC tlaBgGNC">       28903 : gs_realloc(void *old_ptr, size_t old_size, size_t new_size)</span></span>
+<span id="L527"><span class="lineNum">     527</span>              : {</span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">       28903 :     void *new_ptr;</span></span>
+<span id="L529"><span class="lineNum">     529</span>              : </span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">       28903 :     if (new_size) {</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">       28903 :         new_ptr = malloc(new_size);</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">       28903 :         if (new_ptr == NULL)</span></span>
+<span id="L533"><span class="lineNum">     533</span>              :             return NULL;</span>
+<span id="L534"><span class="lineNum">     534</span>              :     } else</span>
+<span id="L535"><span class="lineNum">     535</span>              :         new_ptr = NULL;</span>
+<span id="L536"><span class="lineNum">     536</span>              :     /* We have to pass in the old size, since we have no way to */</span>
+<span id="L537"><span class="lineNum">     537</span>              :     /* determine it otherwise. */</span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">       28903 :     if (old_ptr != NULL) {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">       28903 :         if (new_ptr != NULL)</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">       28903 :             memcpy(new_ptr, old_ptr, min(old_size, new_size));</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">       28903 :         free(old_ptr);</span></span>
+<span id="L542"><span class="lineNum">     542</span>              :     }</span>
+<span id="L543"><span class="lineNum">     543</span>              :     return new_ptr;</span>
+<span id="L544"><span class="lineNum">     544</span>              : }</span>
+<span id="L545"><span class="lineNum">     545</span>              : #endif</span>
+<span id="L546"><span class="lineNum">     546</span>              : </span>
+<span id="L547"><span class="lineNum">     547</span>              : /* ------ Debugging support ------ */</span>
+<span id="L548"><span class="lineNum">     548</span>              : </span>
+<span id="L549"><span class="lineNum">     549</span>              : #ifdef DEBUG</span>
+<span id="L550"><span class="lineNum">     550</span>              : /* Print a string in hexdump format. */</span>
+<span id="L551"><span class="lineNum">     551</span>              : void</span>
+<span id="L552"><span class="lineNum">     552</span>              : debug_print_string_hex_nomem(const byte * chrs, uint len)</span>
+<span id="L553"><span class="lineNum">     553</span>              : {</span>
+<span id="L554"><span class="lineNum">     554</span>              :     uint i;</span>
+<span id="L555"><span class="lineNum">     555</span>              : </span>
+<span id="L556"><span class="lineNum">     556</span>              :     for (i = 0; i &lt; len; i++)</span>
+<span id="L557"><span class="lineNum">     557</span>              :         dprintf1(&quot;%02x&quot;, chrs[i]);</span>
+<span id="L558"><span class="lineNum">     558</span>              :     dflush();</span>
+<span id="L559"><span class="lineNum">     559</span>              : }</span>
+<span id="L560"><span class="lineNum">     560</span>              : #endif</span>
+<span id="L561"><span class="lineNum">     561</span>              : </span>
+<span id="L562"><span class="lineNum">     562</span>              : /* Dump a region of memory. */</span>
+<span id="L563"><span class="lineNum">     563</span>              : void</span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC tlaBgUNC">           0 : debug_dump_bytes(const gs_memory_t *mem, const byte * from, const byte * to, const char *msg)</span></span>
+<span id="L565"><span class="lineNum">     565</span>              : {</span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :     const byte *p = from;</span></span>
+<span id="L567"><span class="lineNum">     567</span>              : </span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :     if (from &lt; to &amp;&amp; msg)</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :         dmprintf1(mem, &quot;%s:\n&quot;, msg);</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :     while (p != to) {</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :         const byte *q = min(p + 16, to);</span></span>
+<span id="L572"><span class="lineNum">     572</span>              : </span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         dmprintf1(mem, PRI_INTPTR, (intptr_t)p);</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :         while (p != q)</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :             dmprintf1(mem, &quot; %02x&quot;, *p++);</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :         dmputc(mem, '\n');</span></span>
+<span id="L577"><span class="lineNum">     577</span>              :     }</span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L579"><span class="lineNum">     579</span>              : </span>
+<span id="L580"><span class="lineNum">     580</span>              : /* Dump a bitmap. */</span>
+<span id="L581"><span class="lineNum">     581</span>              : void</span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 : debug_dump_bitmap(const gs_memory_t *mem, const byte * bits, uint raster, uint height, const char *msg)</span></span>
+<span id="L583"><span class="lineNum">     583</span>              : {</span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :     uint y;</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :     const byte *data = bits;</span></span>
+<span id="L586"><span class="lineNum">     586</span>              : </span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :     for (y = 0; y &lt; height; ++y, data += raster)</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :         debug_dump_bytes(mem, data, data + raster, (y == 0 ? msg : NULL));</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L590"><span class="lineNum">     590</span>              : </span>
+<span id="L591"><span class="lineNum">     591</span>              : /* Print a string. */</span>
+<span id="L592"><span class="lineNum">     592</span>              : void</span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 : debug_print_string(const gs_memory_t *mem, const byte * chrs, uint len)</span></span>
+<span id="L594"><span class="lineNum">     594</span>              : {</span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :     uint i;</span></span>
+<span id="L596"><span class="lineNum">     596</span>              : </span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; len; i++)</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :         dmputc(mem, chrs[i]);</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :     dmflush(mem);</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L601"><span class="lineNum">     601</span>              : </span>
+<span id="L602"><span class="lineNum">     602</span>              : /* Print a string in hexdump format. */</span>
+<span id="L603"><span class="lineNum">     603</span>              : void</span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 : debug_print_string_hex(const gs_memory_t *mem, const byte * chrs, uint len)</span></span>
+<span id="L605"><span class="lineNum">     605</span>              : {</span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :     uint i;</span></span>
+<span id="L607"><span class="lineNum">     607</span>              : </span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; len; i++)</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :         dmprintf1(mem, &quot;%02x&quot;, chrs[i]);</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :     dmflush(mem);</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L612"><span class="lineNum">     612</span>              : </span>
+<span id="L613"><span class="lineNum">     613</span>              : /*</span>
+<span id="L614"><span class="lineNum">     614</span>              :  * The following code prints a hex stack backtrace on Linux/Intel systems.</span>
+<span id="L615"><span class="lineNum">     615</span>              :  * It is here to be patched into places where we need to print such a trace</span>
+<span id="L616"><span class="lineNum">     616</span>              :  * because of gdb's inability to put breakpoints in dynamically created</span>
+<span id="L617"><span class="lineNum">     617</span>              :  * threads.</span>
+<span id="L618"><span class="lineNum">     618</span>              :  *</span>
+<span id="L619"><span class="lineNum">     619</span>              :  * first_arg is the first argument of the procedure into which this code</span>
+<span id="L620"><span class="lineNum">     620</span>              :  * is patched.</span>
+<span id="L621"><span class="lineNum">     621</span>              :  */</span>
+<span id="L622"><span class="lineNum">     622</span>              : #ifdef DEBUG</span>
+<span id="L623"><span class="lineNum">     623</span>              : #define BACKTRACE(first_arg)\</span>
+<span id="L624"><span class="lineNum">     624</span>              :   BEGIN\</span>
+<span id="L625"><span class="lineNum">     625</span>              :     ulong *fp_ = (ulong *)&amp;first_arg - 2;\</span>
+<span id="L626"><span class="lineNum">     626</span>              :     for (; fp_ &amp;&amp; (fp_[1] &amp; 0xff000000) == 0x08000000; fp_ = (ulong *)*fp_)\</span>
+<span id="L627"><span class="lineNum">     627</span>              :         dprintf2(&quot;  fp=&quot;PRI_INTPTR&quot; ip=0x%lx\n&quot;, (intptr_t)fp_, fp_[1]);\</span>
+<span id="L628"><span class="lineNum">     628</span>              :   END</span>
+<span id="L629"><span class="lineNum">     629</span>              : #endif</span>
+<span id="L630"><span class="lineNum">     630</span>              : </span>
+<span id="L631"><span class="lineNum">     631</span>              : /* ------ Arithmetic ------ */</span>
+<span id="L632"><span class="lineNum">     632</span>              : </span>
+<span id="L633"><span class="lineNum">     633</span>              : /* Compute M modulo N.  Requires N &gt; 0; guarantees 0 &lt;= imod(M,N) &lt; N, */</span>
+<span id="L634"><span class="lineNum">     634</span>              : /* regardless of the whims of the % operator for negative operands. */</span>
+<span id="L635"><span class="lineNum">     635</span>              : int</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC tlaBgGNC">       25924 : imod(int m, int n)</span></span>
+<span id="L637"><span class="lineNum">     637</span>              : {</span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">       25924 :     if (n &lt;= 0)</span></span>
+<span id="L639"><span class="lineNum">     639</span>              :         return 0;               /* sanity check */</span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">       25924 :     if (m &gt;= 0)</span></span>
+<span id="L641"><span class="lineNum">     641</span> <span class="tlaGNC">        4876 :         return m % n;</span></span>
+<span id="L642"><span class="lineNum">     642</span>              :     {</span>
+<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">       21048 :         int r = -m % n;</span></span>
+<span id="L644"><span class="lineNum">     644</span>              : </span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">       21048 :         return (r == 0 ? 0 : n - r);</span></span>
+<span id="L646"><span class="lineNum">     646</span>              :     }</span>
+<span id="L647"><span class="lineNum">     647</span>              : }</span>
+<span id="L648"><span class="lineNum">     648</span>              : </span>
+<span id="L649"><span class="lineNum">     649</span>              : /* Compute the GCD of two integers. */</span>
+<span id="L650"><span class="lineNum">     650</span>              : int</span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">      146976 : igcd(int x, int y)</span></span>
+<span id="L652"><span class="lineNum">     652</span>              : {</span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">      146976 :     int c = x, d = y;</span></span>
+<span id="L654"><span class="lineNum">     654</span>              : </span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">      146976 :     if (c &lt; 0)</span></span>
+<span id="L656"><span class="lineNum">     656</span>              :         c = -c;</span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">      146976 :     if (d &lt; 0)</span></span>
+<span id="L658"><span class="lineNum">     658</span>              :         d = -d;</span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">      210684 :     while (c != 0 &amp;&amp; d != 0)</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">       63708 :         if (c &gt; d)</span></span>
+<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">       39184 :             c %= d;</span></span>
+<span id="L662"><span class="lineNum">     662</span>              :         else</span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">       24524 :             d %= c;</span></span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">      146976 :     return d + c;               /* at most one is non-zero */</span></span>
+<span id="L665"><span class="lineNum">     665</span>              : }</span>
+<span id="L666"><span class="lineNum">     666</span>              : </span>
+<span id="L667"><span class="lineNum">     667</span>              : /* Compute X such that A*X = B mod M.  See gxarith.h for details. */</span>
+<span id="L668"><span class="lineNum">     668</span>              : int</span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaUNC tlaBgUNC">           0 : idivmod(int a, int b, int m)</span></span>
+<span id="L670"><span class="lineNum">     670</span>              : {</span>
+<span id="L671"><span class="lineNum">     671</span>              :     /*</span>
+<span id="L672"><span class="lineNum">     672</span>              :      * Use the approach indicated in Knuth vol. 2, section 4.5.2, Algorithm</span>
+<span id="L673"><span class="lineNum">     673</span>              :      * X (p. 302) and exercise 15 (p. 315, solution p. 523).</span>
+<span id="L674"><span class="lineNum">     674</span>              :      */</span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC">           0 :     int u1 = 0, u3 = m;</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :     int v1 = 1, v3 = a;</span></span>
+<span id="L677"><span class="lineNum">     677</span>              :     /*</span>
+<span id="L678"><span class="lineNum">     678</span>              :      * The following loop will terminate with a * u1 = gcd(a, m) mod m.</span>
+<span id="L679"><span class="lineNum">     679</span>              :      * Then x = u1 * b / gcd(a, m) mod m.  Since we require that</span>
+<span id="L680"><span class="lineNum">     680</span>              :      * gcd(a, m) | gcd(a, b), it follows that gcd(a, m) | b, so the</span>
+<span id="L681"><span class="lineNum">     681</span>              :      * division is exact.</span>
+<span id="L682"><span class="lineNum">     682</span>              :      */</span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :     while (v3) {</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :         int q = u3 / v3, t;</span></span>
+<span id="L685"><span class="lineNum">     685</span>              : </span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :         t = u1 - v1 * q, u1 = v1, v1 = t;</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaUNC">           0 :         t = u3 - v3 * q, u3 = v3, v3 = t;</span></span>
+<span id="L688"><span class="lineNum">     688</span>              :     }</span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaUNC">           0 :     return imod(u1 * b / igcd(a, m), m);</span></span>
+<span id="L690"><span class="lineNum">     690</span>              : }</span>
+<span id="L691"><span class="lineNum">     691</span>              : </span>
+<span id="L692"><span class="lineNum">     692</span>              : /* Compute floor(log2(N)).  Requires N &gt; 0. */</span>
+<span id="L693"><span class="lineNum">     693</span>              : int</span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC tlaBgGNC">       38564 : ilog2(int n)</span></span>
+<span id="L695"><span class="lineNum">     695</span>              : {</span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">       38564 :     int m = n, l = 0;</span></span>
+<span id="L697"><span class="lineNum">     697</span>              : </span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">      115308 :     while (m &gt;= 16)</span></span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">       76744 :         m &gt;&gt;= 4, l += 4;</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">       38564 :     return</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">       38564 :         (m &lt;= 1 ? l :</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">         192 :          &quot;\000\000\001\001\002\002\002\002\003\003\003\003\003\003\003\003&quot;[m] + l);</span></span>
+<span id="L703"><span class="lineNum">     703</span>              : }</span>
+<span id="L704"><span class="lineNum">     704</span>              : </span>
+<span id="L705"><span class="lineNum">     705</span>              : /*</span>
+<span id="L706"><span class="lineNum">     706</span>              :  * Compute A * B / C when 0 &lt;= B &lt; C and A * B exceeds (or might exceed)</span>
+<span id="L707"><span class="lineNum">     707</span>              :  * the capacity of a long.</span>
+<span id="L708"><span class="lineNum">     708</span>              :  * Note that this procedure takes the floor, rather than truncating</span>
+<span id="L709"><span class="lineNum">     709</span>              :  * towards zero, if A &lt; 0.  This ensures that 0 &lt;= R &lt; C.</span>
+<span id="L710"><span class="lineNum">     710</span>              :  */</span>
+<span id="L711"><span class="lineNum">     711</span>              : </span>
+<span id="L712"><span class="lineNum">     712</span>              : #define num_bits (sizeof(fixed) * 8)</span>
+<span id="L713"><span class="lineNum">     713</span>              : #define half_bits (num_bits / 2)</span>
+<span id="L714"><span class="lineNum">     714</span>              : #define half_mask ((1L &lt;&lt; half_bits) - 1)</span>
+<span id="L715"><span class="lineNum">     715</span>              : </span>
+<span id="L716"><span class="lineNum">     716</span>              : /*</span>
+<span id="L717"><span class="lineNum">     717</span>              :  * If doubles aren't wide enough, we lose too much precision by using double</span>
+<span id="L718"><span class="lineNum">     718</span>              :  * arithmetic: we have to use the slower, accurate fixed-point algorithm.</span>
+<span id="L719"><span class="lineNum">     719</span>              :  * See the simpler implementation below for more information.</span>
+<span id="L720"><span class="lineNum">     720</span>              :  */</span>
+<span id="L721"><span class="lineNum">     721</span>              : #define MAX_OTHER_FACTOR_BITS\</span>
+<span id="L722"><span class="lineNum">     722</span>              :   (ARCH_DOUBLE_MANTISSA_BITS - ARCH_SIZEOF_FIXED * 8)</span>
+<span id="L723"><span class="lineNum">     723</span>              : #define ROUND_BITS\</span>
+<span id="L724"><span class="lineNum">     724</span>              :   (ARCH_SIZEOF_FIXED * 8 * 2 - ARCH_DOUBLE_MANTISSA_BITS)</span>
+<span id="L725"><span class="lineNum">     725</span>              : </span>
+<span id="L726"><span class="lineNum">     726</span>              : #if ROUND_BITS &gt;= MAX_OTHER_FACTOR_BITS - 1</span>
+<span id="L727"><span class="lineNum">     727</span>              : </span>
+<span id="L728"><span class="lineNum">     728</span>              : #ifdef DEBUG</span>
+<span id="L729"><span class="lineNum">     729</span>              : struct {</span>
+<span id="L730"><span class="lineNum">     730</span>              :     long mnanb, mnab, manb, mab, mnc, mdq, mde, mds, mqh, mql;</span>
+<span id="L731"><span class="lineNum">     731</span>              : } fmq_stat;</span>
+<span id="L732"><span class="lineNum">     732</span>              : #  define mincr(x) ++fmq_stat.x</span>
+<span id="L733"><span class="lineNum">     733</span>              : #else</span>
+<span id="L734"><span class="lineNum">     734</span>              : #  define mincr(x) DO_NOTHING</span>
+<span id="L735"><span class="lineNum">     735</span>              : #endif</span>
+<span id="L736"><span class="lineNum">     736</span>              : fixed</span>
+<span id="L737"><span class="lineNum">     737</span>              : fixed_mult_quo(fixed signed_A, fixed B, fixed C)</span>
+<span id="L738"><span class="lineNum">     738</span>              : {</span>
+<span id="L739"><span class="lineNum">     739</span>              :     /* First compute A * B in double-fixed precision. */</span>
+<span id="L740"><span class="lineNum">     740</span>              :     ulong A = (signed_A &lt; 0 ? -signed_A : signed_A);</span>
+<span id="L741"><span class="lineNum">     741</span>              :     long msw;</span>
+<span id="L742"><span class="lineNum">     742</span>              :     ulong lsw;</span>
+<span id="L743"><span class="lineNum">     743</span>              :     ulong p1;</span>
+<span id="L744"><span class="lineNum">     744</span>              : </span>
+<span id="L745"><span class="lineNum">     745</span>              :     if (B &lt;= half_mask) {</span>
+<span id="L746"><span class="lineNum">     746</span>              :         if (A &lt;= half_mask) {</span>
+<span id="L747"><span class="lineNum">     747</span>              :             ulong P = A * B;</span>
+<span id="L748"><span class="lineNum">     748</span>              :             fixed Q = P / (ulong)C;</span>
+<span id="L749"><span class="lineNum">     749</span>              : </span>
+<span id="L750"><span class="lineNum">     750</span>              :             mincr(mnanb);</span>
+<span id="L751"><span class="lineNum">     751</span>              :             /* If A &lt; 0 and the division isn't exact, take the floor. */</span>
+<span id="L752"><span class="lineNum">     752</span>              :             return (signed_A &gt;= 0 ? Q : Q * C == P ? -Q : ~Q /* -Q - 1 */);</span>
+<span id="L753"><span class="lineNum">     753</span>              :         }</span>
+<span id="L754"><span class="lineNum">     754</span>              :         /*</span>
+<span id="L755"><span class="lineNum">     755</span>              :          * We might still have C &lt;= half_mask, which we can</span>
+<span id="L756"><span class="lineNum">     756</span>              :          * handle with a simpler algorithm.</span>
+<span id="L757"><span class="lineNum">     757</span>              :          */</span>
+<span id="L758"><span class="lineNum">     758</span>              :         lsw = (A &amp; half_mask) * B;</span>
+<span id="L759"><span class="lineNum">     759</span>              :         p1 = (A &gt;&gt; half_bits) * B;</span>
+<span id="L760"><span class="lineNum">     760</span>              :         if (C &lt;= half_mask) {</span>
+<span id="L761"><span class="lineNum">     761</span>              :             fixed q0 = (p1 += lsw &gt;&gt; half_bits) / C;</span>
+<span id="L762"><span class="lineNum">     762</span>              :             ulong rem = ((p1 - C * q0) &lt;&lt; half_bits) + (lsw &amp; half_mask);</span>
+<span id="L763"><span class="lineNum">     763</span>              :             ulong q1 = rem / (ulong)C;</span>
+<span id="L764"><span class="lineNum">     764</span>              :             fixed Q = (q0 &lt;&lt; half_bits) + q1;</span>
+<span id="L765"><span class="lineNum">     765</span>              : </span>
+<span id="L766"><span class="lineNum">     766</span>              :             mincr(mnc);</span>
+<span id="L767"><span class="lineNum">     767</span>              :             /* If A &lt; 0 and the division isn't exact, take the floor. */</span>
+<span id="L768"><span class="lineNum">     768</span>              :             return (signed_A &gt;= 0 ? Q : q1 * C == rem ? -Q : ~Q);</span>
+<span id="L769"><span class="lineNum">     769</span>              :         }</span>
+<span id="L770"><span class="lineNum">     770</span>              :         msw = p1 &gt;&gt; half_bits;</span>
+<span id="L771"><span class="lineNum">     771</span>              :         mincr(manb);</span>
+<span id="L772"><span class="lineNum">     772</span>              :     } else if (A &lt;= half_mask) {</span>
+<span id="L773"><span class="lineNum">     773</span>              :         p1 = A * (B &gt;&gt; half_bits);</span>
+<span id="L774"><span class="lineNum">     774</span>              :         msw = p1 &gt;&gt; half_bits;</span>
+<span id="L775"><span class="lineNum">     775</span>              :         lsw = A * (B &amp; half_mask);</span>
+<span id="L776"><span class="lineNum">     776</span>              :         mincr(mnab);</span>
+<span id="L777"><span class="lineNum">     777</span>              :     } else {                    /* We have to compute all 4 products.  :-( */</span>
+<span id="L778"><span class="lineNum">     778</span>              :         ulong lo_A = A &amp; half_mask;</span>
+<span id="L779"><span class="lineNum">     779</span>              :         ulong hi_A = A &gt;&gt; half_bits;</span>
+<span id="L780"><span class="lineNum">     780</span>              :         ulong lo_B = B &amp; half_mask;</span>
+<span id="L781"><span class="lineNum">     781</span>              :         ulong hi_B = B &gt;&gt; half_bits;</span>
+<span id="L782"><span class="lineNum">     782</span>              :         ulong p1x = hi_A * lo_B;</span>
+<span id="L783"><span class="lineNum">     783</span>              : </span>
+<span id="L784"><span class="lineNum">     784</span>              :         msw = hi_A * hi_B;</span>
+<span id="L785"><span class="lineNum">     785</span>              :         lsw = lo_A * lo_B;</span>
+<span id="L786"><span class="lineNum">     786</span>              :         p1 = lo_A * hi_B;</span>
+<span id="L787"><span class="lineNum">     787</span>              :         if (p1 &gt; max_ulong - p1x)</span>
+<span id="L788"><span class="lineNum">     788</span>              :             msw += 1L &lt;&lt; half_bits;</span>
+<span id="L789"><span class="lineNum">     789</span>              :         p1 += p1x;</span>
+<span id="L790"><span class="lineNum">     790</span>              :         msw += p1 &gt;&gt; half_bits;</span>
+<span id="L791"><span class="lineNum">     791</span>              :         mincr(mab);</span>
+<span id="L792"><span class="lineNum">     792</span>              :     }</span>
+<span id="L793"><span class="lineNum">     793</span>              :     /* Finish up by adding the low half of p1 to the high half of lsw. */</span>
+<span id="L794"><span class="lineNum">     794</span>              : #if max_fixed &lt; max_long</span>
+<span id="L795"><span class="lineNum">     795</span>              :     p1 &amp;= half_mask;</span>
+<span id="L796"><span class="lineNum">     796</span>              : #endif</span>
+<span id="L797"><span class="lineNum">     797</span>              :     p1 &lt;&lt;= half_bits;</span>
+<span id="L798"><span class="lineNum">     798</span>              :     if (p1 &gt; max_ulong - lsw)</span>
+<span id="L799"><span class="lineNum">     799</span>              :         msw++;</span>
+<span id="L800"><span class="lineNum">     800</span>              :     lsw += p1;</span>
+<span id="L801"><span class="lineNum">     801</span>              :     /*</span>
+<span id="L802"><span class="lineNum">     802</span>              :      * Now divide the double-length product by C.  Note that we know msw</span>
+<span id="L803"><span class="lineNum">     803</span>              :      * &lt; C (otherwise the quotient would overflow).  Start by shifting</span>
+<span id="L804"><span class="lineNum">     804</span>              :      * (msw,lsw) and C left until C &gt;= 1 &lt;&lt; (num_bits - 1).</span>
+<span id="L805"><span class="lineNum">     805</span>              :      */</span>
+<span id="L806"><span class="lineNum">     806</span>              :     {</span>
+<span id="L807"><span class="lineNum">     807</span>              :         ulong denom = C;</span>
+<span id="L808"><span class="lineNum">     808</span>              :         int shift = 0;</span>
+<span id="L809"><span class="lineNum">     809</span>              : </span>
+<span id="L810"><span class="lineNum">     810</span>              : #define bits_4th (num_bits / 4)</span>
+<span id="L811"><span class="lineNum">     811</span>              :         if (denom &lt; 1L &lt;&lt; (num_bits - bits_4th)) {</span>
+<span id="L812"><span class="lineNum">     812</span>              :             mincr(mdq);</span>
+<span id="L813"><span class="lineNum">     813</span>              :             denom &lt;&lt;= bits_4th, shift += bits_4th;</span>
+<span id="L814"><span class="lineNum">     814</span>              :         }</span>
+<span id="L815"><span class="lineNum">     815</span>              : #undef bits_4th</span>
+<span id="L816"><span class="lineNum">     816</span>              : #define bits_8th (num_bits / 8)</span>
+<span id="L817"><span class="lineNum">     817</span>              :         if (denom &lt; 1L &lt;&lt; (num_bits - bits_8th)) {</span>
+<span id="L818"><span class="lineNum">     818</span>              :             mincr(mde);</span>
+<span id="L819"><span class="lineNum">     819</span>              :             denom &lt;&lt;= bits_8th, shift += bits_8th;</span>
+<span id="L820"><span class="lineNum">     820</span>              :         }</span>
+<span id="L821"><span class="lineNum">     821</span>              : #undef bits_8th</span>
+<span id="L822"><span class="lineNum">     822</span>              :         while (!(denom &amp; (-1L &lt;&lt; (num_bits - 1)))) {</span>
+<span id="L823"><span class="lineNum">     823</span>              :             mincr(mds);</span>
+<span id="L824"><span class="lineNum">     824</span>              :             denom &lt;&lt;= 1, ++shift;</span>
+<span id="L825"><span class="lineNum">     825</span>              :         }</span>
+<span id="L826"><span class="lineNum">     826</span>              :         msw = (msw &lt;&lt; shift) + (lsw &gt;&gt; (num_bits - shift));</span>
+<span id="L827"><span class="lineNum">     827</span>              :         lsw &lt;&lt;= shift;</span>
+<span id="L828"><span class="lineNum">     828</span>              : #if max_fixed &lt; max_long</span>
+<span id="L829"><span class="lineNum">     829</span>              :         lsw &amp;= (1L &lt;&lt; (sizeof(fixed) * 8)) - 1;</span>
+<span id="L830"><span class="lineNum">     830</span>              : #endif</span>
+<span id="L831"><span class="lineNum">     831</span>              :         /* Compute a trial upper-half quotient. */</span>
+<span id="L832"><span class="lineNum">     832</span>              :         {</span>
+<span id="L833"><span class="lineNum">     833</span>              :             ulong hi_D = denom &gt;&gt; half_bits;</span>
+<span id="L834"><span class="lineNum">     834</span>              :             ulong lo_D = denom &amp; half_mask;</span>
+<span id="L835"><span class="lineNum">     835</span>              :             ulong hi_Q = (ulong) msw / hi_D;</span>
+<span id="L836"><span class="lineNum">     836</span>              : </span>
+<span id="L837"><span class="lineNum">     837</span>              :             /* hi_Q might be too high by 1 or 2, but it isn't too low. */</span>
+<span id="L838"><span class="lineNum">     838</span>              :             ulong p0 = hi_Q * hi_D;</span>
+<span id="L839"><span class="lineNum">     839</span>              :             ulong p1 = hi_Q * lo_D;</span>
+<span id="L840"><span class="lineNum">     840</span>              :             ulong hi_P;</span>
+<span id="L841"><span class="lineNum">     841</span>              : </span>
+<span id="L842"><span class="lineNum">     842</span>              :             while ((hi_P = p0 + (p1 &gt;&gt; half_bits)) &gt; msw ||</span>
+<span id="L843"><span class="lineNum">     843</span>              :                    (hi_P == msw &amp;&amp; ((p1 &amp; half_mask) &lt;&lt; half_bits) &gt; lsw)</span>
+<span id="L844"><span class="lineNum">     844</span>              :                 ) {             /* hi_Q was too high by 1. */</span>
+<span id="L845"><span class="lineNum">     845</span>              :                 --hi_Q;</span>
+<span id="L846"><span class="lineNum">     846</span>              :                 p0 -= hi_D;</span>
+<span id="L847"><span class="lineNum">     847</span>              :                 p1 -= lo_D;</span>
+<span id="L848"><span class="lineNum">     848</span>              :                 mincr(mqh);</span>
+<span id="L849"><span class="lineNum">     849</span>              :             }</span>
+<span id="L850"><span class="lineNum">     850</span>              :             p1 = (p1 &amp; half_mask) &lt;&lt; half_bits;</span>
+<span id="L851"><span class="lineNum">     851</span>              :             if (p1 &gt; lsw)</span>
+<span id="L852"><span class="lineNum">     852</span>              :                 msw--;</span>
+<span id="L853"><span class="lineNum">     853</span>              :             lsw -= p1;</span>
+<span id="L854"><span class="lineNum">     854</span>              :             msw -= hi_P;</span>
+<span id="L855"><span class="lineNum">     855</span>              :             /* Now repeat to get the lower-half quotient. */</span>
+<span id="L856"><span class="lineNum">     856</span>              :             msw = (msw &lt;&lt; half_bits) + (lsw &gt;&gt; half_bits);</span>
+<span id="L857"><span class="lineNum">     857</span>              : #if max_fixed &lt; max_long</span>
+<span id="L858"><span class="lineNum">     858</span>              :             lsw &amp;= half_mask;</span>
+<span id="L859"><span class="lineNum">     859</span>              : #endif</span>
+<span id="L860"><span class="lineNum">     860</span>              :             lsw &lt;&lt;= half_bits;</span>
+<span id="L861"><span class="lineNum">     861</span>              :             {</span>
+<span id="L862"><span class="lineNum">     862</span>              :                 ulong lo_Q = (ulong) msw / hi_D;</span>
+<span id="L863"><span class="lineNum">     863</span>              :                 long Q;</span>
+<span id="L864"><span class="lineNum">     864</span>              : </span>
+<span id="L865"><span class="lineNum">     865</span>              :                 p1 = lo_Q * lo_D;</span>
+<span id="L866"><span class="lineNum">     866</span>              :                 p0 = lo_Q * hi_D;</span>
+<span id="L867"><span class="lineNum">     867</span>              :                 while ((hi_P = p0 + (p1 &gt;&gt; half_bits)) &gt; msw ||</span>
+<span id="L868"><span class="lineNum">     868</span>              :                        (hi_P == msw &amp;&amp; ((p1 &amp; half_mask) &lt;&lt; half_bits) &gt; lsw)</span>
+<span id="L869"><span class="lineNum">     869</span>              :                     ) {         /* lo_Q was too high by 1. */</span>
+<span id="L870"><span class="lineNum">     870</span>              :                     --lo_Q;</span>
+<span id="L871"><span class="lineNum">     871</span>              :                     p0 -= hi_D;</span>
+<span id="L872"><span class="lineNum">     872</span>              :                     p1 -= lo_D;</span>
+<span id="L873"><span class="lineNum">     873</span>              :                     mincr(mql);</span>
+<span id="L874"><span class="lineNum">     874</span>              :                 }</span>
+<span id="L875"><span class="lineNum">     875</span>              :                 Q = (hi_Q &lt;&lt; half_bits) + lo_Q;</span>
+<span id="L876"><span class="lineNum">     876</span>              :                 return (signed_A &gt;= 0 ? Q : p0 | p1 ? ~Q /* -Q - 1 */ : -Q);</span>
+<span id="L877"><span class="lineNum">     877</span>              :             }</span>
+<span id="L878"><span class="lineNum">     878</span>              :         }</span>
+<span id="L879"><span class="lineNum">     879</span>              :     }</span>
+<span id="L880"><span class="lineNum">     880</span>              : }</span>
+<span id="L881"><span class="lineNum">     881</span>              : </span>
+<span id="L882"><span class="lineNum">     882</span>              : #else                           /* use doubles */</span>
+<span id="L883"><span class="lineNum">     883</span>              : </span>
+<span id="L884"><span class="lineNum">     884</span>              : /*</span>
+<span id="L885"><span class="lineNum">     885</span>              :  * Compute A * B / C as above using doubles.  If floating point is</span>
+<span id="L886"><span class="lineNum">     886</span>              :  * reasonably fast, this is much faster than the fixed-point algorithm.</span>
+<span id="L887"><span class="lineNum">     887</span>              :  */</span>
+<span id="L888"><span class="lineNum">     888</span>              : fixed</span>
+<span id="L889"><span class="lineNum">     889</span> <span class="tlaGNC">        2752 : fixed_mult_quo(fixed signed_A, fixed B, fixed C)</span></span>
+<span id="L890"><span class="lineNum">     890</span>              : {</span>
+<span id="L891"><span class="lineNum">     891</span>              :     /*</span>
+<span id="L892"><span class="lineNum">     892</span>              :      * Check whether A * B will fit in the mantissa of a double.</span>
+<span id="L893"><span class="lineNum">     893</span>              :      */</span>
+<span id="L894"><span class="lineNum">     894</span>              : #define MAX_OTHER_FACTOR (1L &lt;&lt; MAX_OTHER_FACTOR_BITS)</span>
+<span id="L895"><span class="lineNum">     895</span> <span class="tlaGNC">        2752 :     if (B &lt; MAX_OTHER_FACTOR || any_abs(signed_A) &lt; MAX_OTHER_FACTOR) {</span></span>
+<span id="L896"><span class="lineNum">     896</span>              : #undef MAX_OTHER_FACTOR</span>
+<span id="L897"><span class="lineNum">     897</span>              :         /*</span>
+<span id="L898"><span class="lineNum">     898</span>              :          * The product fits, so a straightforward double computation</span>
+<span id="L899"><span class="lineNum">     899</span>              :          * will be exact.</span>
+<span id="L900"><span class="lineNum">     900</span>              :          */</span>
+<span id="L901"><span class="lineNum">     901</span> <span class="tlaGNC">        2752 :         return (fixed)floor((double)signed_A * B / C);</span></span>
+<span id="L902"><span class="lineNum">     902</span>              :     } else {</span>
+<span id="L903"><span class="lineNum">     903</span>              :         /*</span>
+<span id="L904"><span class="lineNum">     904</span>              :          * The product won't fit.  However, the approximate product will</span>
+<span id="L905"><span class="lineNum">     905</span>              :          * only be off by at most +/- 1/2 * (1 &lt;&lt; ROUND_BITS) because of</span>
+<span id="L906"><span class="lineNum">     906</span>              :          * rounding.  If we add 1 &lt;&lt; ROUND_BITS to the value of the product</span>
+<span id="L907"><span class="lineNum">     907</span>              :          * (i.e., 1 in the least significant bit of the mantissa), the</span>
+<span id="L908"><span class="lineNum">     908</span>              :          * result is always greater than the correct product by between 1/2</span>
+<span id="L909"><span class="lineNum">     909</span>              :          * and 3/2 * (1 &lt;&lt; ROUND_BITS).  We know this is less than C:</span>
+<span id="L910"><span class="lineNum">     910</span>              :          * because of the 'if' just above, we know that B &gt;=</span>
+<span id="L911"><span class="lineNum">     911</span>              :          * MAX_OTHER_FACTOR; since B &lt;= C, we know C &gt;= MAX_OTHER_FACTOR;</span>
+<span id="L912"><span class="lineNum">     912</span>              :          * and because of the #if that chose between the two</span>
+<span id="L913"><span class="lineNum">     913</span>              :          * implementations, we know that C &gt;= 2 * (1 &lt;&lt; ROUND_BITS).  Hence,</span>
+<span id="L914"><span class="lineNum">     914</span>              :          * the quotient after dividing by C will be at most 1 too large.</span>
+<span id="L915"><span class="lineNum">     915</span>              :          */</span>
+<span id="L916"><span class="lineNum">     916</span> <span class="tlaUNC tlaBgUNC">           0 :         fixed q =</span></span>
+<span id="L917"><span class="lineNum">     917</span> <span class="tlaUNC">           0 :             (fixed)floor(((double)signed_A * B + (1L &lt;&lt; ROUND_BITS)) / C);</span></span>
+<span id="L918"><span class="lineNum">     918</span>              : </span>
+<span id="L919"><span class="lineNum">     919</span>              :         /*</span>
+<span id="L920"><span class="lineNum">     920</span>              :          * Compute the remainder R.  If the quotient was correct,</span>
+<span id="L921"><span class="lineNum">     921</span>              :          * 0 &lt;= R &lt; C.  If the quotient was too high, -C &lt;= R &lt; 0.</span>
+<span id="L922"><span class="lineNum">     922</span>              :          */</span>
+<span id="L923"><span class="lineNum">     923</span> <span class="tlaUNC">           0 :         if (signed_A * B - q * C &lt; 0)</span></span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaUNC">           0 :             --q;</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaUNC">           0 :         return q;</span></span>
+<span id="L926"><span class="lineNum">     926</span>              :     }</span>
+<span id="L927"><span class="lineNum">     927</span>              : }</span>
+<span id="L928"><span class="lineNum">     928</span>              : </span>
+<span id="L929"><span class="lineNum">     929</span>              : #endif</span>
+<span id="L930"><span class="lineNum">     930</span>              : </span>
+<span id="L931"><span class="lineNum">     931</span>              : #undef MAX_OTHER_FACTOR_BITS</span>
+<span id="L932"><span class="lineNum">     932</span>              : #undef ROUND_BITS</span>
+<span id="L933"><span class="lineNum">     933</span>              : </span>
+<span id="L934"><span class="lineNum">     934</span>              : #undef num_bits</span>
+<span id="L935"><span class="lineNum">     935</span>              : #undef half_bits</span>
+<span id="L936"><span class="lineNum">     936</span>              : #undef half_mask</span>
+<span id="L937"><span class="lineNum">     937</span>              : </span>
+<span id="L938"><span class="lineNum">     938</span>              : /* Trace calls on sqrt when debugging. */</span>
+<span id="L939"><span class="lineNum">     939</span>              : double</span>
+<span id="L940"><span class="lineNum">     940</span> <span class="tlaUNC">           0 : gs_sqrt(double x, const char *file, int line)</span></span>
+<span id="L941"><span class="lineNum">     941</span>              : {</span>
+<span id="L942"><span class="lineNum">     942</span>              : #ifdef DEBUG</span>
+<span id="L943"><span class="lineNum">     943</span>              :     if (gs_debug_c('~')) {</span>
+<span id="L944"><span class="lineNum">     944</span>              :         dprintf3(&quot;[~]sqrt(%g) at %s:%d\n&quot;, x, (const char *)file, line);</span>
+<span id="L945"><span class="lineNum">     945</span>              :         dflush();</span>
+<span id="L946"><span class="lineNum">     946</span>              :     }</span>
+<span id="L947"><span class="lineNum">     947</span>              : #endif</span>
+<span id="L948"><span class="lineNum">     948</span> <span class="tlaUNC">           0 :     return orig_sqrt(x);</span></span>
+<span id="L949"><span class="lineNum">     949</span>              : }</span>
+<span id="L950"><span class="lineNum">     950</span>              : </span>
+<span id="L951"><span class="lineNum">     951</span>              : static const int isincos[5] =</span>
+<span id="L952"><span class="lineNum">     952</span>              : {0, 1, 0, -1, 0};</span>
+<span id="L953"><span class="lineNum">     953</span>              : </span>
+<span id="L954"><span class="lineNum">     954</span>              : /* GCC with -ffast-math compiles ang/90. as ang*(1/90.), losing precission.</span>
+<span id="L955"><span class="lineNum">     955</span>              :  * This doesn't happen when the numeral is replaced with a non-const variable.</span>
+<span id="L956"><span class="lineNum">     956</span>              :  * So we define the variable to work around the GCC problem.</span>
+<span id="L957"><span class="lineNum">     957</span>              :  */</span>
+<span id="L958"><span class="lineNum">     958</span>              : double const_90_degrees = 90.;</span>
+<span id="L959"><span class="lineNum">     959</span>              : </span>
+<span id="L960"><span class="lineNum">     960</span>              : double</span>
+<span id="L961"><span class="lineNum">     961</span> <span class="tlaGNC tlaBgGNC">      520950 : gs_sin_degrees(double ang)</span></span>
+<span id="L962"><span class="lineNum">     962</span>              : {</span>
+<span id="L963"><span class="lineNum">     963</span> <span class="tlaGNC">      520950 :     double quot = ang / const_90_degrees;</span></span>
+<span id="L964"><span class="lineNum">     964</span>              : </span>
+<span id="L965"><span class="lineNum">     965</span> <span class="tlaGNC">      520950 :     if (floor(quot) == quot) {</span></span>
+<span id="L966"><span class="lineNum">     966</span>              :         /*</span>
+<span id="L967"><span class="lineNum">     967</span>              :          * We need 4.0, rather than 4, here because of non-ANSI compilers.</span>
+<span id="L968"><span class="lineNum">     968</span>              :          * The &amp; 3 is because quot might be negative.</span>
+<span id="L969"><span class="lineNum">     969</span>              :          */</span>
+<span id="L970"><span class="lineNum">     970</span> <span class="tlaGNC">      333576 :         return isincos[(int)fmod(quot, 4.0) &amp; 3];</span></span>
+<span id="L971"><span class="lineNum">     971</span>              :     }</span>
+<span id="L972"><span class="lineNum">     972</span> <span class="tlaGNC">      187374 :     return sin(ang * (M_PI / 180));</span></span>
+<span id="L973"><span class="lineNum">     973</span>              : }</span>
+<span id="L974"><span class="lineNum">     974</span>              : </span>
+<span id="L975"><span class="lineNum">     975</span>              : double</span>
+<span id="L976"><span class="lineNum">     976</span> <span class="tlaGNC">        8542 : gs_cos_degrees(double ang)</span></span>
+<span id="L977"><span class="lineNum">     977</span>              : {</span>
+<span id="L978"><span class="lineNum">     978</span> <span class="tlaGNC">        8542 :     double quot = ang / const_90_degrees;</span></span>
+<span id="L979"><span class="lineNum">     979</span>              : </span>
+<span id="L980"><span class="lineNum">     980</span> <span class="tlaGNC">        8542 :     if (floor(quot) == quot) {</span></span>
+<span id="L981"><span class="lineNum">     981</span>              :         /* See above re the following line. */</span>
+<span id="L982"><span class="lineNum">     982</span> <span class="tlaGNC">         804 :         return isincos[((int)fmod(quot, 4.0) &amp; 3) + 1];</span></span>
+<span id="L983"><span class="lineNum">     983</span>              :     }</span>
+<span id="L984"><span class="lineNum">     984</span> <span class="tlaGNC">        7738 :     return cos(ang * (M_PI / 180));</span></span>
+<span id="L985"><span class="lineNum">     985</span>              : }</span>
+<span id="L986"><span class="lineNum">     986</span>              : </span>
+<span id="L987"><span class="lineNum">     987</span>              : void</span>
+<span id="L988"><span class="lineNum">     988</span> <span class="tlaGNC">      204661 : gs_sincos_degrees(double ang, gs_sincos_t * psincos)</span></span>
+<span id="L989"><span class="lineNum">     989</span>              : {</span>
+<span id="L990"><span class="lineNum">     990</span> <span class="tlaGNC">      204661 :     double quot = ang / const_90_degrees;</span></span>
+<span id="L991"><span class="lineNum">     991</span>              : </span>
+<span id="L992"><span class="lineNum">     992</span> <span class="tlaGNC">      204661 :     if (floor(quot) == quot) {</span></span>
+<span id="L993"><span class="lineNum">     993</span>              :         /* See above re the following line. */</span>
+<span id="L994"><span class="lineNum">     994</span> <span class="tlaGNC">       57895 :         int quads = (int)fmod(quot, 4.0) &amp; 3;</span></span>
+<span id="L995"><span class="lineNum">     995</span>              : </span>
+<span id="L996"><span class="lineNum">     996</span> <span class="tlaGNC">       57895 :         psincos-&gt;sin = isincos[quads];</span></span>
+<span id="L997"><span class="lineNum">     997</span> <span class="tlaGNC">       57895 :         psincos-&gt;cos = isincos[quads + 1];</span></span>
+<span id="L998"><span class="lineNum">     998</span> <span class="tlaGNC">       57895 :         psincos-&gt;orthogonal = true;</span></span>
+<span id="L999"><span class="lineNum">     999</span>              :     } else {</span>
+<span id="L1000"><span class="lineNum">    1000</span> <span class="tlaGNC">      146766 :         double arad = ang * (M_PI / 180);</span></span>
+<span id="L1001"><span class="lineNum">    1001</span>              : </span>
+<span id="L1002"><span class="lineNum">    1002</span> <span class="tlaGNC">      146766 :         psincos-&gt;sin = sin(arad);</span></span>
+<span id="L1003"><span class="lineNum">    1003</span> <span class="tlaGNC">      146766 :         psincos-&gt;cos = cos(arad);</span></span>
+<span id="L1004"><span class="lineNum">    1004</span> <span class="tlaGNC">      146766 :         psincos-&gt;orthogonal = false;</span></span>
+<span id="L1005"><span class="lineNum">    1005</span>              :     }</span>
+<span id="L1006"><span class="lineNum">    1006</span> <span class="tlaGNC">      204661 : }</span></span>
+<span id="L1007"><span class="lineNum">    1007</span>              : </span>
+<span id="L1008"><span class="lineNum">    1008</span>              : /*</span>
+<span id="L1009"><span class="lineNum">    1009</span>              :  * Define an atan2 function that returns an angle in degrees and uses</span>
+<span id="L1010"><span class="lineNum">    1010</span>              :  * the PostScript quadrant rules.  Note that it may return</span>
+<span id="L1011"><span class="lineNum">    1011</span>              :  * gs_error_undefinedresult.</span>
+<span id="L1012"><span class="lineNum">    1012</span>              :  */</span>
+<span id="L1013"><span class="lineNum">    1013</span>              : int</span>
+<span id="L1014"><span class="lineNum">    1014</span> <span class="tlaGNC">      100070 : gs_atan2_degrees(double y, double x, double *pangle)</span></span>
+<span id="L1015"><span class="lineNum">    1015</span>              : {</span>
+<span id="L1016"><span class="lineNum">    1016</span> <span class="tlaGNC">      100070 :     if (y == 0) {       /* on X-axis, special case */</span></span>
+<span id="L1017"><span class="lineNum">    1017</span> <span class="tlaGNC">       66366 :         if (x == 0)</span></span>
+<span id="L1018"><span class="lineNum">    1018</span> <span class="tlaGNC">           4 :             return_error(gs_error_undefinedresult);</span></span>
+<span id="L1019"><span class="lineNum">    1019</span> <span class="tlaGNC">      131912 :         *pangle = (x &lt; 0 ? 180 : 0);</span></span>
+<span id="L1020"><span class="lineNum">    1020</span>              :     } else {</span>
+<span id="L1021"><span class="lineNum">    1021</span> <span class="tlaGNC">       33704 :         double result = atan2(y, x) * radians_to_degrees;</span></span>
+<span id="L1022"><span class="lineNum">    1022</span>              : </span>
+<span id="L1023"><span class="lineNum">    1023</span> <span class="tlaGNC">       33704 :         if (result &lt; 0)</span></span>
+<span id="L1024"><span class="lineNum">    1024</span> <span class="tlaGNC">       33688 :             result += 360;</span></span>
+<span id="L1025"><span class="lineNum">    1025</span> <span class="tlaGNC">       33704 :         *pangle = result;</span></span>
+<span id="L1026"><span class="lineNum">    1026</span>              :     }</span>
+<span id="L1027"><span class="lineNum">    1027</span>              :     return 0;</span>
+<span id="L1028"><span class="lineNum">    1028</span>              : }</span>
+<span id="L1029"><span class="lineNum">    1029</span>              : </span>
+<span id="L1030"><span class="lineNum">    1030</span>              : /*</span>
+<span id="L1031"><span class="lineNum">    1031</span>              :  * Define a function for finding intersection of small bars.</span>
+<span id="L1032"><span class="lineNum">    1032</span>              :  * Coordinates must be so small that their cubes fit into 60 bits.</span>
+<span id="L1033"><span class="lineNum">    1033</span>              :  * This function doesn't check intersections at end of bars,</span>
+<span id="L1034"><span class="lineNum">    1034</span>              :  * so  the caller must care of them on necessity.</span>
+<span id="L1035"><span class="lineNum">    1035</span>              :  * Returns : *ry is the Y-coordinate of the intersection</span>
+<span id="L1036"><span class="lineNum">    1036</span>              :  * truncated to 'fixed'; *ey is 1 iff the precise Y coordinate of</span>
+<span id="L1037"><span class="lineNum">    1037</span>              :  * the intersection is greater than *ry (used by the shading algorithm).</span>
+<span id="L1038"><span class="lineNum">    1038</span>              :  */</span>
+<span id="L1039"><span class="lineNum">    1039</span>              : bool</span>
+<span id="L1040"><span class="lineNum">    1040</span> <span class="tlaUNC tlaBgUNC">           0 : gx_intersect_small_bars(fixed q0x, fixed q0y, fixed q1x, fixed q1y, fixed q2x, fixed q2y,</span></span>
+<span id="L1041"><span class="lineNum">    1041</span>              :                         fixed q3x, fixed q3y, fixed *ry, fixed *ey)</span>
+<span id="L1042"><span class="lineNum">    1042</span>              : {</span>
+<span id="L1043"><span class="lineNum">    1043</span> <span class="tlaUNC">           0 :     fixed dx1 = q1x - q0x, dy1 = q1y - q0y;</span></span>
+<span id="L1044"><span class="lineNum">    1044</span> <span class="tlaUNC">           0 :     fixed dx2 = q2x - q0x, dy2 = q2y - q0y;</span></span>
+<span id="L1045"><span class="lineNum">    1045</span> <span class="tlaUNC">           0 :     fixed dx3 = q3x - q0x, dy3 = q3y - q0y;</span></span>
+<span id="L1046"><span class="lineNum">    1046</span>              : </span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaUNC">           0 :     int64_t vp2a, vp2b, vp3a, vp3b;</span></span>
+<span id="L1048"><span class="lineNum">    1048</span> <span class="tlaUNC">           0 :     int s2, s3;</span></span>
+<span id="L1049"><span class="lineNum">    1049</span>              : </span>
+<span id="L1050"><span class="lineNum">    1050</span> <span class="tlaUNC">           0 :     if (dx1 == 0 &amp;&amp; dy1 == 0)</span></span>
+<span id="L1051"><span class="lineNum">    1051</span>              :         return false; /* Zero length bars are out of interest. */</span>
+<span id="L1052"><span class="lineNum">    1052</span> <span class="tlaUNC">           0 :     if (dx2 == 0 &amp;&amp; dy2 == 0)</span></span>
+<span id="L1053"><span class="lineNum">    1053</span>              :         return false; /* Contacting ends are out of interest. */</span>
+<span id="L1054"><span class="lineNum">    1054</span> <span class="tlaUNC">           0 :     if (dx3 == 0 &amp;&amp; dy3 == 0)</span></span>
+<span id="L1055"><span class="lineNum">    1055</span>              :         return false; /* Contacting ends are out of interest. */</span>
+<span id="L1056"><span class="lineNum">    1056</span> <span class="tlaUNC">           0 :     if (dx2 == dx1 &amp;&amp; dy2 == dy1)</span></span>
+<span id="L1057"><span class="lineNum">    1057</span>              :         return false; /* Contacting ends are out of interest. */</span>
+<span id="L1058"><span class="lineNum">    1058</span> <span class="tlaUNC">           0 :     if (dx3 == dx1 &amp;&amp; dy3 == dy1)</span></span>
+<span id="L1059"><span class="lineNum">    1059</span>              :         return false; /* Contacting ends are out of interest. */</span>
+<span id="L1060"><span class="lineNum">    1060</span> <span class="tlaUNC">           0 :     if (dx2 == dx3 &amp;&amp; dy2 == dy3)</span></span>
+<span id="L1061"><span class="lineNum">    1061</span>              :         return false; /* Zero length bars are out of interest. */</span>
+<span id="L1062"><span class="lineNum">    1062</span> <span class="tlaUNC">           0 :     vp2a = (int64_t)dx1 * dy2;</span></span>
+<span id="L1063"><span class="lineNum">    1063</span> <span class="tlaUNC">           0 :     vp2b = (int64_t)dy1 * dx2;</span></span>
+<span id="L1064"><span class="lineNum">    1064</span>              :     /* vp2 = vp2a - vp2b; It can overflow int64_t, but we only need the sign. */</span>
+<span id="L1065"><span class="lineNum">    1065</span> <span class="tlaUNC">           0 :     if (vp2a &gt; vp2b)</span></span>
+<span id="L1066"><span class="lineNum">    1066</span>              :         s2 = 1;</span>
+<span id="L1067"><span class="lineNum">    1067</span> <span class="tlaUNC">           0 :     else if (vp2a &lt; vp2b)</span></span>
+<span id="L1068"><span class="lineNum">    1068</span>              :         s2 = -1;</span>
+<span id="L1069"><span class="lineNum">    1069</span>              :     else</span>
+<span id="L1070"><span class="lineNum">    1070</span> <span class="tlaUNC">           0 :         s2 = 0;</span></span>
+<span id="L1071"><span class="lineNum">    1071</span> <span class="tlaUNC">           0 :     vp3a = (int64_t)dx1 * dy3;</span></span>
+<span id="L1072"><span class="lineNum">    1072</span> <span class="tlaUNC">           0 :     vp3b = (int64_t)dy1 * dx3;</span></span>
+<span id="L1073"><span class="lineNum">    1073</span>              :     /* vp3 = vp3a - vp3b; It can overflow int64_t, but we only need the sign. */</span>
+<span id="L1074"><span class="lineNum">    1074</span> <span class="tlaUNC">           0 :     if (vp3a &gt; vp3b)</span></span>
+<span id="L1075"><span class="lineNum">    1075</span>              :         s3 = 1;</span>
+<span id="L1076"><span class="lineNum">    1076</span> <span class="tlaUNC">           0 :     else if (vp3a &lt; vp3b)</span></span>
+<span id="L1077"><span class="lineNum">    1077</span>              :         s3 = -1;</span>
+<span id="L1078"><span class="lineNum">    1078</span>              :     else</span>
+<span id="L1079"><span class="lineNum">    1079</span> <span class="tlaUNC">           0 :         s3 = 0;</span></span>
+<span id="L1080"><span class="lineNum">    1080</span> <span class="tlaUNC">           0 :     if (s2 == 0) {</span></span>
+<span id="L1081"><span class="lineNum">    1081</span> <span class="tlaUNC">           0 :         if (s3 == 0)</span></span>
+<span id="L1082"><span class="lineNum">    1082</span>              :             return false; /* Collinear bars - out of interest. */</span>
+<span id="L1083"><span class="lineNum">    1083</span> <span class="tlaUNC">           0 :         if (0 &lt;= dx2 &amp;&amp; dx2 &lt;= dx1 &amp;&amp; 0 &lt;= dy2 &amp;&amp; dy2 &lt;= dy1) {</span></span>
+<span id="L1084"><span class="lineNum">    1084</span>              :             /* The start of the bar 2 is in the bar 1. */</span>
+<span id="L1085"><span class="lineNum">    1085</span> <span class="tlaUNC">           0 :             *ry = q2y;</span></span>
+<span id="L1086"><span class="lineNum">    1086</span> <span class="tlaUNC">           0 :             *ey = 0;</span></span>
+<span id="L1087"><span class="lineNum">    1087</span> <span class="tlaUNC">           0 :             return true;</span></span>
+<span id="L1088"><span class="lineNum">    1088</span>              :         }</span>
+<span id="L1089"><span class="lineNum">    1089</span> <span class="tlaUNC">           0 :     } else if (s3 == 0) {</span></span>
+<span id="L1090"><span class="lineNum">    1090</span> <span class="tlaUNC">           0 :         if (0 &lt;= dx3 &amp;&amp; dx3 &lt;= dx1 &amp;&amp; 0 &lt;= dy3 &amp;&amp; dy3 &lt;= dy1) {</span></span>
+<span id="L1091"><span class="lineNum">    1091</span>              :             /* The end of the bar 2 is in the bar 1. */</span>
+<span id="L1092"><span class="lineNum">    1092</span> <span class="tlaUNC">           0 :             *ry = q3y;</span></span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaUNC">           0 :             *ey = 0;</span></span>
+<span id="L1094"><span class="lineNum">    1094</span> <span class="tlaUNC">           0 :             return true;</span></span>
+<span id="L1095"><span class="lineNum">    1095</span>              :         }</span>
+<span id="L1096"><span class="lineNum">    1096</span> <span class="tlaUNC">           0 :     } else if (s2 * s3 &lt; 0) {</span></span>
+<span id="L1097"><span class="lineNum">    1097</span>              :         /* The intersection definitely exists, so the determinant isn't zero.  */</span>
+<span id="L1098"><span class="lineNum">    1098</span> <span class="tlaUNC">           0 :         fixed d23x = dx3 - dx2, d23y = dy3 - dy2;</span></span>
+<span id="L1099"><span class="lineNum">    1099</span> <span class="tlaUNC">           0 :         int64_t det = (int64_t)dx1 * d23y - (int64_t)dy1 * d23x;</span></span>
+<span id="L1100"><span class="lineNum">    1100</span> <span class="tlaUNC">           0 :         int64_t mul = (int64_t)dx2 * d23y - (int64_t)dy2 * d23x;</span></span>
+<span id="L1101"><span class="lineNum">    1101</span>              :         {</span>
+<span id="L1102"><span class="lineNum">    1102</span>              :             /* Assuming small bars : cubes of coordinates must fit into int64_t.</span>
+<span id="L1103"><span class="lineNum">    1103</span>              :                curve_samples must provide that.  */</span>
+<span id="L1104"><span class="lineNum">    1104</span> <span class="tlaUNC">           0 :             int64_t num = dy1 * mul, iiy;</span></span>
+<span id="L1105"><span class="lineNum">    1105</span> <span class="tlaUNC">           0 :             fixed iy;</span></span>
+<span id="L1106"><span class="lineNum">    1106</span> <span class="tlaUNC">           0 :             fixed pry, pey;</span></span>
+<span id="L1107"><span class="lineNum">    1107</span>              : </span>
+<span id="L1108"><span class="lineNum">    1108</span>              :             {   /* Likely when called form wedge_trap_decompose or constant_color_quadrangle,</span>
+<span id="L1109"><span class="lineNum">    1109</span>              :                    we always have det &gt; 0 &amp;&amp; num &gt;= 0, but we check here for a safety reason. */</span>
+<span id="L1110"><span class="lineNum">    1110</span> <span class="tlaUNC">           0 :                 if (det &lt; 0)</span></span>
+<span id="L1111"><span class="lineNum">    1111</span> <span class="tlaUNC">           0 :                     num = -num, det = -det;</span></span>
+<span id="L1112"><span class="lineNum">    1112</span> <span class="tlaUNC">           0 :                 iiy = (num &gt;= 0 ? num / det : (num - det + 1) / det);</span></span>
+<span id="L1113"><span class="lineNum">    1113</span> <span class="tlaUNC">           0 :                 iy = (fixed)iiy;</span></span>
+<span id="L1114"><span class="lineNum">    1114</span> <span class="tlaUNC">           0 :                 if (iy != iiy) {</span></span>
+<span id="L1115"><span class="lineNum">    1115</span>              :                     /* If it is inside the bars, it must fit into fixed. */</span>
+<span id="L1116"><span class="lineNum">    1116</span>              :                     return false;</span>
+<span id="L1117"><span class="lineNum">    1117</span>              :                 }</span>
+<span id="L1118"><span class="lineNum">    1118</span>              :             }</span>
+<span id="L1119"><span class="lineNum">    1119</span> <span class="tlaUNC">           0 :             if (dy1 &gt; 0) {</span></span>
+<span id="L1120"><span class="lineNum">    1120</span> <span class="tlaUNC">           0 :                 if (iy &lt; 0 || iy &gt;= dy1)</span></span>
+<span id="L1121"><span class="lineNum">    1121</span>              :                     return false; /* Outside the bar 1. */</span>
+<span id="L1122"><span class="lineNum">    1122</span>              :             } else {</span>
+<span id="L1123"><span class="lineNum">    1123</span> <span class="tlaUNC">           0 :                 if (iy &gt; 0 || iy &lt;= dy1)</span></span>
+<span id="L1124"><span class="lineNum">    1124</span>              :                     return false; /* Outside the bar 1. */</span>
+<span id="L1125"><span class="lineNum">    1125</span>              :             }</span>
+<span id="L1126"><span class="lineNum">    1126</span> <span class="tlaUNC">           0 :             if (dy2 &lt; dy3) {</span></span>
+<span id="L1127"><span class="lineNum">    1127</span> <span class="tlaUNC">           0 :                 if (iy &lt;= dy2 || iy &gt;= dy3)</span></span>
+<span id="L1128"><span class="lineNum">    1128</span>              :                     return false; /* Outside the bar 2. */</span>
+<span id="L1129"><span class="lineNum">    1129</span>              :             } else {</span>
+<span id="L1130"><span class="lineNum">    1130</span> <span class="tlaUNC">           0 :                 if (iy &gt;= dy2 || iy &lt;= dy3)</span></span>
+<span id="L1131"><span class="lineNum">    1131</span>              :                     return false; /* Outside the bar 2. */</span>
+<span id="L1132"><span class="lineNum">    1132</span>              :             }</span>
+<span id="L1133"><span class="lineNum">    1133</span> <span class="tlaUNC">           0 :             pry = q0y + (fixed)iy;</span></span>
+<span id="L1134"><span class="lineNum">    1134</span> <span class="tlaUNC">           0 :             pey = (iy * det &lt; num ? 1 : 0);</span></span>
+<span id="L1135"><span class="lineNum">    1135</span> <span class="tlaUNC">           0 :             *ry = pry;</span></span>
+<span id="L1136"><span class="lineNum">    1136</span> <span class="tlaUNC">           0 :             *ey = pey;</span></span>
+<span id="L1137"><span class="lineNum">    1137</span>              :         }</span>
+<span id="L1138"><span class="lineNum">    1138</span> <span class="tlaUNC">           0 :         return true;</span></span>
+<span id="L1139"><span class="lineNum">    1139</span>              :     }</span>
+<span id="L1140"><span class="lineNum">    1140</span>              :     return false;</span>
+<span id="L1141"><span class="lineNum">    1141</span>              : }</span>
+<span id="L1142"><span class="lineNum">    1142</span>              : </span>
+<span id="L1143"><span class="lineNum">    1143</span>              : /* gs_debug_flags handling code */</span>
+<span id="L1144"><span class="lineNum">    1144</span>              : </span>
+<span id="L1145"><span class="lineNum">    1145</span>              : const gs_debug_flag_details gs_debug_flags[] =</span>
+<span id="L1146"><span class="lineNum">    1146</span>              : {</span>
+<span id="L1147"><span class="lineNum">    1147</span>              : #define FLAG(a,b,c,d) {1, # a ,d}</span>
+<span id="L1148"><span class="lineNum">    1148</span>              : #define UNUSED(a) { 0, &quot;&quot;, &quot;&quot; },</span>
+<span id="L1149"><span class="lineNum">    1149</span>              : #include &quot;gdbflags.h&quot;</span>
+<span id="L1150"><span class="lineNum">    1150</span>              : #undef FLAG</span>
+<span id="L1151"><span class="lineNum">    1151</span>              : #undef UNUSED</span>
+<span id="L1152"><span class="lineNum">    1152</span>              : };</span>
+<span id="L1153"><span class="lineNum">    1153</span>              : </span>
+<span id="L1154"><span class="lineNum">    1154</span>              : const byte gs_debug_flag_implied_by[] =</span>
+<span id="L1155"><span class="lineNum">    1155</span>              : {</span>
+<span id="L1156"><span class="lineNum">    1156</span>              : #define FLAG(a,b,c,d) c</span>
+<span id="L1157"><span class="lineNum">    1157</span>              : #define UNUSED(a) 0,</span>
+<span id="L1158"><span class="lineNum">    1158</span>              : #include &quot;gdbflags.h&quot;</span>
+<span id="L1159"><span class="lineNum">    1159</span>              : #undef FLAG</span>
+<span id="L1160"><span class="lineNum">    1160</span>              : #undef UNUSED</span>
+<span id="L1161"><span class="lineNum">    1161</span>              : };</span>
+<span id="L1162"><span class="lineNum">    1162</span>              : </span>
+<span id="L1163"><span class="lineNum">    1163</span> <span class="tlaUNC">           0 : int gs_debug_flags_parse(gs_memory_t *heap, const char *arg)</span></span>
+<span id="L1164"><span class="lineNum">    1164</span>              : {</span>
+<span id="L1165"><span class="lineNum">    1165</span>              : #ifdef DEBUG</span>
+<span id="L1166"><span class="lineNum">    1166</span>              :     const char *p;</span>
+<span id="L1167"><span class="lineNum">    1167</span>              :     int i, j;</span>
+<span id="L1168"><span class="lineNum">    1168</span>              :     int result = 0;</span>
+<span id="L1169"><span class="lineNum">    1169</span>              : </span>
+<span id="L1170"><span class="lineNum">    1170</span>              :     while (*arg != 0) {</span>
+<span id="L1171"><span class="lineNum">    1171</span>              :         /* Skip over any commas */</span>
+<span id="L1172"><span class="lineNum">    1172</span>              :         byte value = 0xff;</span>
+<span id="L1173"><span class="lineNum">    1173</span>              :         while (*arg == ',')</span>
+<span id="L1174"><span class="lineNum">    1174</span>              :             arg++;</span>
+<span id="L1175"><span class="lineNum">    1175</span>              :         if (*arg == '-') {</span>
+<span id="L1176"><span class="lineNum">    1176</span>              :             value = 0;</span>
+<span id="L1177"><span class="lineNum">    1177</span>              :             arg++;</span>
+<span id="L1178"><span class="lineNum">    1178</span>              :         }</span>
+<span id="L1179"><span class="lineNum">    1179</span>              :         if (*arg == ',') {</span>
+<span id="L1180"><span class="lineNum">    1180</span>              :             arg++;</span>
+<span id="L1181"><span class="lineNum">    1181</span>              :             continue;</span>
+<span id="L1182"><span class="lineNum">    1182</span>              :         }</span>
+<span id="L1183"><span class="lineNum">    1183</span>              :         if (*arg == 0)</span>
+<span id="L1184"><span class="lineNum">    1184</span>              :             return result;</span>
+<span id="L1185"><span class="lineNum">    1185</span>              :         for (i=0; i &lt; gs_debug_flags_max; i++) {</span>
+<span id="L1186"><span class="lineNum">    1186</span>              :             char c, d;</span>
+<span id="L1187"><span class="lineNum">    1187</span>              :             if (!gs_debug_flags[i].used)</span>
+<span id="L1188"><span class="lineNum">    1188</span>              :                 continue;</span>
+<span id="L1189"><span class="lineNum">    1189</span>              :             p = arg;</span>
+<span id="L1190"><span class="lineNum">    1190</span>              :             for (j=0; j &lt; sizeof(gs_debug_flags[i].short_desc); j++) {</span>
+<span id="L1191"><span class="lineNum">    1191</span>              :                 d = gs_debug_flags[i].short_desc[j];</span>
+<span id="L1192"><span class="lineNum">    1192</span>              :                 c = *p++;</span>
+<span id="L1193"><span class="lineNum">    1193</span>              :                 if (d == '_') d = '-';</span>
+<span id="L1194"><span class="lineNum">    1194</span>              :                 if (c == ',')</span>
+<span id="L1195"><span class="lineNum">    1195</span>              :                     c = 0;</span>
+<span id="L1196"><span class="lineNum">    1196</span>              :                 if ((c != d) || (c == 0))</span>
+<span id="L1197"><span class="lineNum">    1197</span>              :                     break;</span>
+<span id="L1198"><span class="lineNum">    1198</span>              :             }</span>
+<span id="L1199"><span class="lineNum">    1199</span>              :             if ((c == 0) &amp;&amp; (d == 0))</span>
+<span id="L1200"><span class="lineNum">    1200</span>              :                 break;</span>
+<span id="L1201"><span class="lineNum">    1201</span>              :         }</span>
+<span id="L1202"><span class="lineNum">    1202</span>              :         if (i &lt; gs_debug_flags_max)</span>
+<span id="L1203"><span class="lineNum">    1203</span>              :             gs_debug[i] = value;</span>
+<span id="L1204"><span class="lineNum">    1204</span>              :         else {</span>
+<span id="L1205"><span class="lineNum">    1205</span>              :             outprintf(heap, &quot;Unknown debug flag: &quot;);</span>
+<span id="L1206"><span class="lineNum">    1206</span>              :             p = arg;</span>
+<span id="L1207"><span class="lineNum">    1207</span>              :             do {</span>
+<span id="L1208"><span class="lineNum">    1208</span>              :                 char c = *p++;</span>
+<span id="L1209"><span class="lineNum">    1209</span>              :                 if ((c == 0) || (c == ','))</span>
+<span id="L1210"><span class="lineNum">    1210</span>              :                     break;</span>
+<span id="L1211"><span class="lineNum">    1211</span>              :                 outprintf(heap, &quot;%c&quot;, c);</span>
+<span id="L1212"><span class="lineNum">    1212</span>              :             } while (1);</span>
+<span id="L1213"><span class="lineNum">    1213</span>              :             outprintf(heap, &quot;\n&quot;);</span>
+<span id="L1214"><span class="lineNum">    1214</span>              :             result = gs_error_Fatal;</span>
+<span id="L1215"><span class="lineNum">    1215</span>              :         }</span>
+<span id="L1216"><span class="lineNum">    1216</span>              :         arg = p-1;</span>
+<span id="L1217"><span class="lineNum">    1217</span>              :     }</span>
+<span id="L1218"><span class="lineNum">    1218</span>              :     return result;</span>
+<span id="L1219"><span class="lineNum">    1219</span>              : #else</span>
+<span id="L1220"><span class="lineNum">    1220</span> <span class="tlaUNC">           0 :     outprintf(heap, &quot;Warning: debug flags ignored in release builds\n&quot;);</span></span>
+<span id="L1221"><span class="lineNum">    1221</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L1222"><span class="lineNum">    1222</span>              : #endif</span>
+<span id="L1223"><span class="lineNum">    1223</span>              : }</span>
+<span id="L1224"><span class="lineNum">    1224</span>              : </span>
+<span id="L1225"><span class="lineNum">    1225</span>              : void</span>
+<span id="L1226"><span class="lineNum">    1226</span> <span class="tlaUNC">           0 : gs_debug_flags_list(gs_memory_t *heap)</span></span>
+<span id="L1227"><span class="lineNum">    1227</span>              : {</span>
+<span id="L1228"><span class="lineNum">    1228</span>              : #ifdef DEBUG</span>
+<span id="L1229"><span class="lineNum">    1229</span>              :     int i, j;</span>
+<span id="L1230"><span class="lineNum">    1230</span>              : </span>
+<span id="L1231"><span class="lineNum">    1231</span>              :     outprintf(heap, &quot;Debugging flags are as follows:\n\n-Z  --debug=            Description\n&quot;);</span>
+<span id="L1232"><span class="lineNum">    1232</span>              :     for (i=0; i &lt; gs_debug_flags_max; i++) {</span>
+<span id="L1233"><span class="lineNum">    1233</span>              :         if (!gs_debug_flags[i].used)</span>
+<span id="L1234"><span class="lineNum">    1234</span>              :             continue;</span>
+<span id="L1235"><span class="lineNum">    1235</span>              :         outprintf(heap, &quot; %c  &quot;, (i &lt; 32 || i &gt; 126 ? ' ' : i));</span>
+<span id="L1236"><span class="lineNum">    1236</span>              :         for (j=0; j &lt; sizeof(gs_debug_flags[i].short_desc); j++) {</span>
+<span id="L1237"><span class="lineNum">    1237</span>              :             char c = gs_debug_flags[i].short_desc[j];</span>
+<span id="L1238"><span class="lineNum">    1238</span>              :             if (c == 0)</span>
+<span id="L1239"><span class="lineNum">    1239</span>              :                 break;</span>
+<span id="L1240"><span class="lineNum">    1240</span>              :             if (c == '_')</span>
+<span id="L1241"><span class="lineNum">    1241</span>              :                 c = '-';</span>
+<span id="L1242"><span class="lineNum">    1242</span>              :             outprintf(heap, &quot;%c&quot;, c);</span>
+<span id="L1243"><span class="lineNum">    1243</span>              :         }</span>
+<span id="L1244"><span class="lineNum">    1244</span>              :         for (; j &lt; sizeof(gs_debug_flags[i].short_desc); j++) {</span>
+<span id="L1245"><span class="lineNum">    1245</span>              :             outprintf(heap, &quot; &quot;);</span>
+<span id="L1246"><span class="lineNum">    1246</span>              :         }</span>
+<span id="L1247"><span class="lineNum">    1247</span>              :         outprintf(heap, &quot;%s\n&quot;, gs_debug_flags[i].long_desc);</span>
+<span id="L1248"><span class="lineNum">    1248</span>              :     }</span>
+<span id="L1249"><span class="lineNum">    1249</span>              :     outprintf(heap,</span>
+<span id="L1250"><span class="lineNum">    1250</span>              :               &quot;\nDebugging may be enabled by using -Zx (where x is one of the 1 character\n&quot;</span>
+<span id="L1251"><span class="lineNum">    1251</span>              :               &quot;codes given above), or by using --debug=xxxxx. Multiple flags may be specified\n&quot;</span>
+<span id="L1252"><span class="lineNum">    1252</span>              :               &quot;at once, using -Zxyz or --debug=xxxxx,yyyyy,zzzzz. -Z=-x or --debug=-xxxxx\n&quot;</span>
+<span id="L1253"><span class="lineNum">    1253</span>              :               &quot;disables a flag once set.\n&quot;);</span>
+<span id="L1254"><span class="lineNum">    1254</span>              : #else</span>
+<span id="L1255"><span class="lineNum">    1255</span> <span class="tlaUNC">           0 :     outprintf(heap, &quot;No debug flags supported in release builds\n&quot;);</span></span>
+<span id="L1256"><span class="lineNum">    1256</span>              : #endif</span>
+<span id="L1257"><span class="lineNum">    1257</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L1258"><span class="lineNum">    1258</span>              : </span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

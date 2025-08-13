@@ -1,0 +1,1256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxclutil.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxclutil.c<span style="font-size: 80%;"> (source / <a href="gxclutil.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">336</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2024 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Command list writing utilities. */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;string_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gx.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gp.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gpcheck.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxdevice.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxdevmem.h&quot;         /* must precede gxcldev.h */</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gxcldev.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gxclpath.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gsparams.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;valgrind.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &lt;limits.h&gt;</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : /* ---------------- Statistics ---------------- */</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : #ifdef DEBUG</span>
+<span id="L37"><span class="lineNum">      37</span>              : const char *const cmd_op_names[16] =</span>
+<span id="L38"><span class="lineNum">      38</span>              : {cmd_op_name_strings};</span>
+<span id="L39"><span class="lineNum">      39</span>              : static const char *const cmd_misc_op_names[16] =</span>
+<span id="L40"><span class="lineNum">      40</span>              : {cmd_misc_op_name_strings};</span>
+<span id="L41"><span class="lineNum">      41</span>              : static const char *const cmd_misc2_op_names[16] =</span>
+<span id="L42"><span class="lineNum">      42</span>              : {cmd_misc2_op_name_strings};</span>
+<span id="L43"><span class="lineNum">      43</span>              : static const char *const cmd_segment_op_names[16] =</span>
+<span id="L44"><span class="lineNum">      44</span>              : {cmd_segment_op_name_strings};</span>
+<span id="L45"><span class="lineNum">      45</span>              : static const char *const cmd_path_op_names[16] =</span>
+<span id="L46"><span class="lineNum">      46</span>              : {cmd_path_op_name_strings};</span>
+<span id="L47"><span class="lineNum">      47</span>              : const char *const *const cmd_sub_op_names[16] =</span>
+<span id="L48"><span class="lineNum">      48</span>              : {cmd_misc_op_names, 0, 0, 0, 0, 0, 0, 0,</span>
+<span id="L49"><span class="lineNum">      49</span>              :  0, 0, 0, 0,</span>
+<span id="L50"><span class="lineNum">      50</span>              :  0, cmd_misc2_op_names, cmd_segment_op_names, cmd_path_op_names</span>
+<span id="L51"><span class="lineNum">      51</span>              : };</span>
+<span id="L52"><span class="lineNum">      52</span>              : const char *cmd_extend_op_names[256] =</span>
+<span id="L53"><span class="lineNum">      53</span>              : {cmd_extend_op_name_strings};</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : #ifdef COLLECT_STATS_CLIST</span>
+<span id="L56"><span class="lineNum">      56</span>              : struct stats_cmd_s {</span>
+<span id="L57"><span class="lineNum">      57</span>              :     ulong op_counts[512];</span>
+<span id="L58"><span class="lineNum">      58</span>              :     ulong op_sizes[512];</span>
+<span id="L59"><span class="lineNum">      59</span>              :     ulong tile_reset, tile_found, tile_added;</span>
+<span id="L60"><span class="lineNum">      60</span>              :     ulong same_band, other_band;</span>
+<span id="L61"><span class="lineNum">      61</span>              : } stats_cmd;</span>
+<span id="L62"><span class="lineNum">      62</span>              : extern ulong stats_cmd_diffs[5];        /* in gxclpath.c */</span>
+<span id="L63"><span class="lineNum">      63</span>              : int</span>
+<span id="L64"><span class="lineNum">      64</span>              : cmd_count_op(int op, uint size,const gs_memory_t *mem)</span>
+<span id="L65"><span class="lineNum">      65</span>              : {</span>
+<span id="L66"><span class="lineNum">      66</span>              :     stats_cmd.op_counts[op]++;</span>
+<span id="L67"><span class="lineNum">      67</span>              :     stats_cmd.op_sizes[op] += size;</span>
+<span id="L68"><span class="lineNum">      68</span>              :     if (gs_debug_c('L')) {</span>
+<span id="L69"><span class="lineNum">      69</span>              :         const char *const *sub = cmd_sub_op_names[op &gt;&gt; 4];</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              :         if (sub)</span>
+<span id="L72"><span class="lineNum">      72</span>              :             dmlprintf2(mem, &quot;, %s(%u)\n&quot;, sub[op &amp; 0xf], size);</span>
+<span id="L73"><span class="lineNum">      73</span>              :         else</span>
+<span id="L74"><span class="lineNum">      74</span>              :             dmlprintf3(mem, &quot;, %s %d(%u)\n&quot;, cmd_op_names[op &gt;&gt; 4], op &amp; 0xf,</span>
+<span id="L75"><span class="lineNum">      75</span>              :                       size);</span>
+<span id="L76"><span class="lineNum">      76</span>              :         dmflush(mem);</span>
+<span id="L77"><span class="lineNum">      77</span>              :     }</span>
+<span id="L78"><span class="lineNum">      78</span>              :     return op;</span>
+<span id="L79"><span class="lineNum">      79</span>              : }</span>
+<span id="L80"><span class="lineNum">      80</span>              : int</span>
+<span id="L81"><span class="lineNum">      81</span>              : cmd_count_extended_op(int op, uint size,const gs_memory_t *mem)</span>
+<span id="L82"><span class="lineNum">      82</span>              : {</span>
+<span id="L83"><span class="lineNum">      83</span>              :     stats_cmd.op_counts[cmd_opv_extend]++;</span>
+<span id="L84"><span class="lineNum">      84</span>              :     stats_cmd.op_sizes[cmd_opv_extend] += size;</span>
+<span id="L85"><span class="lineNum">      85</span>              :     stats_cmd.op_counts[256+op]++;</span>
+<span id="L86"><span class="lineNum">      86</span>              :     stats_cmd.op_sizes[256+op] += size;</span>
+<span id="L87"><span class="lineNum">      87</span>              :     if (gs_debug_c('L')) {</span>
+<span id="L88"><span class="lineNum">      88</span>              :         const char *ext = cmd_extend_op_names[op];</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              :         if (ext)</span>
+<span id="L91"><span class="lineNum">      91</span>              :             dmlprintf2(mem, &quot;, %s(%u)\n&quot;, ext, size);</span>
+<span id="L92"><span class="lineNum">      92</span>              :         else</span>
+<span id="L93"><span class="lineNum">      93</span>              :             dmlprintf2(mem, &quot;, ?0x%02x?(%u)\n&quot;, op,</span>
+<span id="L94"><span class="lineNum">      94</span>              :                       size);</span>
+<span id="L95"><span class="lineNum">      95</span>              :         dmflush(mem);</span>
+<span id="L96"><span class="lineNum">      96</span>              :     }</span>
+<span id="L97"><span class="lineNum">      97</span>              :     return op;</span>
+<span id="L98"><span class="lineNum">      98</span>              : }</span>
+<span id="L99"><span class="lineNum">      99</span>              : void</span>
+<span id="L100"><span class="lineNum">     100</span>              : cmd_uncount_op(int op, uint size)</span>
+<span id="L101"><span class="lineNum">     101</span>              : {</span>
+<span id="L102"><span class="lineNum">     102</span>              :     stats_cmd.op_counts[op]--;</span>
+<span id="L103"><span class="lineNum">     103</span>              :     stats_cmd.op_sizes[op] -= size;</span>
+<span id="L104"><span class="lineNum">     104</span>              : }</span>
+<span id="L105"><span class="lineNum">     105</span>              : #endif</span>
+<span id="L106"><span class="lineNum">     106</span>              : #endif</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : /* Print statistics. */</span>
+<span id="L109"><span class="lineNum">     109</span>              : #ifdef COLLECT_STATS_CLIST</span>
+<span id="L110"><span class="lineNum">     110</span>              : void</span>
+<span id="L111"><span class="lineNum">     111</span>              : cmd_print_stats(const gs_memory_t *mem)</span>
+<span id="L112"><span class="lineNum">     112</span>              : {</span>
+<span id="L113"><span class="lineNum">     113</span>              :     int ci, cj;</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              :     dmlprintf3(mem, &quot;[l]counts: reset = %lu, found = %lu, added = %lu\n&quot;,</span>
+<span id="L116"><span class="lineNum">     116</span>              :               stats_cmd.tile_reset, stats_cmd.tile_found,</span>
+<span id="L117"><span class="lineNum">     117</span>              :               stats_cmd.tile_added);</span>
+<span id="L118"><span class="lineNum">     118</span>              :     dmlprintf5(mem, &quot;     diff 2.5 = %lu, 3 = %lu, 4 = %lu, 2 = %lu, &gt;4 = %lu\n&quot;,</span>
+<span id="L119"><span class="lineNum">     119</span>              :               stats_cmd_diffs[0], stats_cmd_diffs[1], stats_cmd_diffs[2],</span>
+<span id="L120"><span class="lineNum">     120</span>              :               stats_cmd_diffs[3], stats_cmd_diffs[4]);</span>
+<span id="L121"><span class="lineNum">     121</span>              :     dmlprintf2(mem, &quot;     same_band = %lu, other_band = %lu\n&quot;,</span>
+<span id="L122"><span class="lineNum">     122</span>              :               stats_cmd.same_band, stats_cmd.other_band);</span>
+<span id="L123"><span class="lineNum">     123</span>              :     for (ci = 0; ci &lt; 0x100; ci += 0x10) {</span>
+<span id="L124"><span class="lineNum">     124</span>              :         const char *const *sub = cmd_sub_op_names[ci &gt;&gt; 4];</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span>              :         if (sub != 0) {</span>
+<span id="L127"><span class="lineNum">     127</span>              :             dmlprintf1(mem, &quot;[l]  %s =&quot;, cmd_op_names[ci &gt;&gt; 4]);</span>
+<span id="L128"><span class="lineNum">     128</span>              :             for (cj = ci; cj &lt; ci + 0x10; cj += 2)</span>
+<span id="L129"><span class="lineNum">     129</span>              :                 dmprintf6(mem, &quot;\n\t%s = %lu(%lu), %s = %lu(%lu)&quot;,</span>
+<span id="L130"><span class="lineNum">     130</span>              :                          sub[cj - ci],</span>
+<span id="L131"><span class="lineNum">     131</span>              :                          stats_cmd.op_counts[cj], stats_cmd.op_sizes[cj],</span>
+<span id="L132"><span class="lineNum">     132</span>              :                          sub[cj - ci + 1],</span>
+<span id="L133"><span class="lineNum">     133</span>              :                    stats_cmd.op_counts[cj + 1], stats_cmd.op_sizes[cj + 1]);</span>
+<span id="L134"><span class="lineNum">     134</span>              :         } else {</span>
+<span id="L135"><span class="lineNum">     135</span>              :             ulong tcounts = 0, tsizes = 0;</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              :             for (cj = ci; cj &lt; ci + 0x10; cj++)</span>
+<span id="L138"><span class="lineNum">     138</span>              :                 tcounts += stats_cmd.op_counts[cj],</span>
+<span id="L139"><span class="lineNum">     139</span>              :                     tsizes += stats_cmd.op_sizes[cj];</span>
+<span id="L140"><span class="lineNum">     140</span>              :             dmlprintf3(mem, &quot;[l]  %s (%lu,%lu) =\n\t&quot;,</span>
+<span id="L141"><span class="lineNum">     141</span>              :                       cmd_op_names[ci &gt;&gt; 4], tcounts, tsizes);</span>
+<span id="L142"><span class="lineNum">     142</span>              :             for (cj = ci; cj &lt; ci + 0x10; cj++)</span>
+<span id="L143"><span class="lineNum">     143</span>              :                 if (stats_cmd.op_counts[cj] == 0)</span>
+<span id="L144"><span class="lineNum">     144</span>              :                     dmputs(mem, &quot; -&quot;);</span>
+<span id="L145"><span class="lineNum">     145</span>              :                 else</span>
+<span id="L146"><span class="lineNum">     146</span>              :                     dmprintf2(mem, &quot; %lu(%lu)&quot;, stats_cmd.op_counts[cj],</span>
+<span id="L147"><span class="lineNum">     147</span>              :                              stats_cmd.op_sizes[cj]);</span>
+<span id="L148"><span class="lineNum">     148</span>              :         }</span>
+<span id="L149"><span class="lineNum">     149</span>              :         dmputs(mem, &quot;\n&quot;);</span>
+<span id="L150"><span class="lineNum">     150</span>              :     }</span>
+<span id="L151"><span class="lineNum">     151</span>              :     for (ci = 0x100; ci &lt; 0x200; ci ++) {</span>
+<span id="L152"><span class="lineNum">     152</span>              :         const char *ext = cmd_extend_op_names[ci-0x100];</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              :         if (ext != NULL) {</span>
+<span id="L155"><span class="lineNum">     155</span>              :             dmprintf3(mem, &quot;[l] %s (%lu,%lu)\n&quot;,</span>
+<span id="L156"><span class="lineNum">     156</span>              :                          ext,</span>
+<span id="L157"><span class="lineNum">     157</span>              :                          stats_cmd.op_counts[ci], stats_cmd.op_sizes[ci]);</span>
+<span id="L158"><span class="lineNum">     158</span>              :         } else if (stats_cmd.op_counts[ci] || stats_cmd.op_sizes[ci]) {</span>
+<span id="L159"><span class="lineNum">     159</span>              :             dmprintf3(mem, &quot;[l] ?0x%02x? (%lu,%lu)\n&quot;,</span>
+<span id="L160"><span class="lineNum">     160</span>              :                       ci-0x100,</span>
+<span id="L161"><span class="lineNum">     161</span>              :                       stats_cmd.op_counts[ci], stats_cmd.op_sizes[ci]);</span>
+<span id="L162"><span class="lineNum">     162</span>              :         }</span>
+<span id="L163"><span class="lineNum">     163</span>              :         dmputs(mem, &quot;\n&quot;);</span>
+<span id="L164"><span class="lineNum">     164</span>              :     }</span>
+<span id="L165"><span class="lineNum">     165</span>              : }</span>
+<span id="L166"><span class="lineNum">     166</span>              : #endif /* DEBUG */</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : /* ---------------- Writing utilities ---------------- */</span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span>              : /* Update the 'trans_bbox' in the states for bands affected by the given rectangle */</span>
+<span id="L171"><span class="lineNum">     171</span>              : /* The caller has determined the the PDF 1.4 transparency will actuall be needed   */</span>
+<span id="L172"><span class="lineNum">     172</span>              : /* for the given rectangle (conservatively). This will allow some bands that only  */</span>
+<span id="L173"><span class="lineNum">     173</span>              : /* paint to the page level with full opacity to skip the pdf14 compositor during   */</span>
+<span id="L174"><span class="lineNum">     174</span>              : /* rendering/reading and thus run faster and with less memory for those bands.     */</span>
+<span id="L175"><span class="lineNum">     175</span>              : void</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 : clist_update_trans_bbox(gx_device_clist_writer *cldev, gs_int_rect *bbox)</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : {</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :     int p_y, q_y;</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     int band, first_band, last_band;</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     first_band = max(0, bbox-&gt;p.y / cldev-&gt;page_info.band_params.BandHeight);</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :     p_y = bbox-&gt;p.y - (first_band * cldev-&gt;page_info.band_params.BandHeight);</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     last_band = min((cldev-&gt;nbands - 1), bbox-&gt;q.y / cldev-&gt;page_info.band_params.BandHeight);</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     for (band=first_band; band &lt;= last_band; band++) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         if (cldev-&gt;states[band].color_usage.trans_bbox.p.y &gt; p_y)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :             cldev-&gt;states[band].color_usage.trans_bbox.p.y = p_y;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         if (cldev-&gt;states[band].color_usage.trans_bbox.p.x &gt; bbox-&gt;p.x)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :             cldev-&gt;states[band].color_usage.trans_bbox.p.x = bbox-&gt;p.x;</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         p_y = 0;        /* will be top of next band */</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         q_y = (band == last_band) ? bbox-&gt;q.y - (last_band * cldev-&gt;page_info.band_params.BandHeight) :</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                                       cldev-&gt;page_info.band_params.BandHeight - 1;</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         if (cldev-&gt;states[band].color_usage.trans_bbox.q.y &lt; q_y)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :             cldev-&gt;states[band].color_usage.trans_bbox.q.y = q_y;</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         if (cldev-&gt;states[band].color_usage.trans_bbox.q.x &lt; bbox-&gt;q.x)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :             cldev-&gt;states[band].color_usage.trans_bbox.q.x = bbox-&gt;q.x;</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :     }</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span>              : /* Write the commands for one band or band range. */</span>
+<span id="L201"><span class="lineNum">     201</span>              : static int      /* ret 0 all ok, -ve error code, or +1 ok w/low-mem warning */</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 : cmd_write_band(gx_device_clist_writer * cldev, int band_min, int band_max,</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :                cmd_list * pcl, byte cmd_end)</span>
+<span id="L204"><span class="lineNum">     204</span>              : {</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     const cmd_prefix *cp = pcl-&gt;head;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     int code_b = 0;</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     int code_c = 0;</span></span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     if (cp != 0 || cmd_end != cmd_opv_end_run) {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         clist_file_ptr cfile = cldev-&gt;page_info.cfile;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         clist_file_ptr bfile = cldev-&gt;page_info.bfile;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         cmd_block cb;</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         byte end;</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         if (cfile == 0 || bfile == 0)</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :             return_error(gs_error_ioerror);</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         cb.band_min = band_min;</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         cb.band_max = band_max;</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         cb.pos = cldev-&gt;page_info.io_procs-&gt;ftell(cfile);</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         if_debug3m('l', cldev-&gt;memory, &quot;[l]writing for bands (%d,%d) at %&quot;PRId64&quot;\n&quot;,</span></span>
+<span id="L221"><span class="lineNum">     221</span>              :                   band_min, band_max, cb.pos);</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         cldev-&gt;page_info.io_procs-&gt;fwrite_chars(&amp;cb, sizeof(cb), bfile);</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         if (cp != 0) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :             pcl-&gt;tail-&gt;next = 0;  /* terminate the list */</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :             for (; cp != 0; cp = cp-&gt;next) {</span></span>
+<span id="L226"><span class="lineNum">     226</span>              : #ifdef DEBUG</span>
+<span id="L227"><span class="lineNum">     227</span>              :                 if ((const byte *)cp &lt; cldev-&gt;cbuf ||</span>
+<span id="L228"><span class="lineNum">     228</span>              :                     (const byte *)cp &gt;= cldev-&gt;cend ||</span>
+<span id="L229"><span class="lineNum">     229</span>              :                     cp-&gt;size &gt; cldev-&gt;cend - (const byte *)cp</span>
+<span id="L230"><span class="lineNum">     230</span>              :                     ) {</span>
+<span id="L231"><span class="lineNum">     231</span>              :                     mlprintf1(cldev-&gt;memory, &quot;cmd_write_band error at &quot;PRI_INTPTR&quot;\n&quot;, (intptr_t) cp);</span>
+<span id="L232"><span class="lineNum">     232</span>              :                     return_error(gs_error_Fatal);</span>
+<span id="L233"><span class="lineNum">     233</span>              :                 }</span>
+<span id="L234"><span class="lineNum">     234</span>              : #endif</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 if_debug2m('L', cldev-&gt;memory, &quot;[L] cmd id=%ld at %&quot;PRId64&quot;\n&quot;,</span></span>
+<span id="L236"><span class="lineNum">     236</span>              :                            cp-&gt;id, cldev-&gt;page_info.io_procs-&gt;ftell(cfile));</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 cldev-&gt;page_info.io_procs-&gt;fwrite_chars(cp + 1, cp-&gt;size, cfile);</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :             }</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :             pcl-&gt;head = pcl-&gt;tail = 0;</span></span>
+<span id="L240"><span class="lineNum">     240</span>              :         }</span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         if_debug0m('L', cldev-&gt;memory, &quot;[L] adding terminator\n&quot;);</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         end  = cmd_count_op(cmd_end, 1, cldev-&gt;memory);</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         cldev-&gt;page_info.io_procs-&gt;fwrite_chars(&amp;end, 1, cfile);</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         process_interrupts(cldev-&gt;memory);</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         code_b = cldev-&gt;page_info.io_procs-&gt;ferror_code(bfile);</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         code_c = cldev-&gt;page_info.io_procs-&gt;ferror_code(cfile);</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if (code_b &lt; 0)</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :             return_error(code_b);</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         if (code_c &lt; 0)</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :             return_error(code_c);</span>
+<span id="L251"><span class="lineNum">     251</span>              :     }</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     return code_b | code_c;</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : }</span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span>              : /* Write out a pseudo-band block of data, using the specific pseudo_band_offset */</span>
+<span id="L256"><span class="lineNum">     256</span>              : int</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 : cmd_write_pseudo_band(gx_device_clist_writer * cldev, unsigned char *pbuf, int data_size, int pseudo_band_offset)</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : {</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              :     /* Data is written out maxband + pseudo_band_offset */</span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :     int band = cldev-&gt;band_range_max + pseudo_band_offset;</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :     clist_file_ptr cfile = cldev-&gt;page_info.cfile;</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :     clist_file_ptr bfile = cldev-&gt;page_info.bfile;</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :     cmd_block cb;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     int code_b, code_c;</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     if (cfile == 0 || bfile == 0)</span></span>
+<span id="L269"><span class="lineNum">     269</span>              :         return_error(gs_error_ioerror);</span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              :     /* Set up the command block information that</span>
+<span id="L272"><span class="lineNum">     272</span>              :        is stored in the bfile. */</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :     cb.band_min = band;</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :     cb.band_max = band;</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :     cb.pos = cldev-&gt;page_info.io_procs-&gt;ftell(cfile);</span></span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :     if_debug2m('l', cldev-&gt;memory, &quot;[l]writing pseudo band %d cb pos %&quot;PRId64&quot;\n&quot;,</span></span>
+<span id="L279"><span class="lineNum">     279</span>              :                   band, cb.pos);</span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :     cldev-&gt;page_info.io_procs-&gt;fwrite_chars(&amp;cb, sizeof(cb), bfile);</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span>              :     /* Now store the information in the cfile */</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :     if_debug2m('l', cldev-&gt;memory, &quot;[l]writing %d bytes into cfile at %&quot;PRId64&quot;\n&quot;,</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :             data_size, cldev-&gt;page_info.io_procs-&gt;ftell(cfile));</span>
+<span id="L286"><span class="lineNum">     286</span>              : </span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :     cldev-&gt;page_info.io_procs-&gt;fwrite_chars(pbuf, data_size, cfile);</span></span>
+<span id="L288"><span class="lineNum">     288</span>              : </span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :     process_interrupts(cldev-&gt;memory);</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :     code_b = cldev-&gt;page_info.io_procs-&gt;ferror_code(bfile);</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :     code_c = cldev-&gt;page_info.io_procs-&gt;ferror_code(cfile);</span></span>
+<span id="L292"><span class="lineNum">     292</span>              : </span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :     if (code_b &lt; 0)</span></span>
+<span id="L294"><span class="lineNum">     294</span>              :         return_error(code_b);</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :     if (code_c &lt; 0)</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :         return_error(code_c);</span>
+<span id="L297"><span class="lineNum">     297</span>              : </span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :     return code_b | code_c;</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : /* Write out the buffered commands, and reset the buffer. */</span>
+<span id="L302"><span class="lineNum">     302</span>              : int     /* ret 0 all-ok, -ve error code, or +1 ok w/low-mem warning */</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 : cmd_write_buffer(gx_device_clist_writer * cldev, byte cmd_end)</span></span>
+<span id="L304"><span class="lineNum">     304</span>              : {</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :     int nbands = cldev-&gt;nbands;</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :     gx_clist_state *pcls;</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     int band;</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     int code = cmd_write_band(cldev, cldev-&gt;band_range_min,</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                               cldev-&gt;band_range_max,</span>
+<span id="L310"><span class="lineNum">     310</span>              :                               cldev-&gt;band_range_list,</span>
+<span id="L311"><span class="lineNum">     311</span>              :                               cmd_opv_end_run);</span>
+<span id="L312"><span class="lineNum">     312</span>              : </span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :     int warning = code;</span></span>
+<span id="L314"><span class="lineNum">     314</span>              : </span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     for (band = 0, pcls = cldev-&gt;states;</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :          code &gt;= 0 &amp;&amp; band &lt; nbands; band++, pcls++</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :          ) {</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         code = cmd_write_band(cldev, band, band, &amp;pcls-&gt;list, cmd_end);</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         warning |= code;</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :     }</span>
+<span id="L321"><span class="lineNum">     321</span>              :     /* If an error occurred, finish cleaning up the pointers. */</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :     for (; band &lt; nbands; band++, pcls++)</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         pcls-&gt;list.head = pcls-&gt;list.tail = 0;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :     cldev-&gt;cnext = cldev-&gt;cbuf;</span></span>
+<span id="L325"><span class="lineNum">     325</span>              : #ifdef HAVE_VALGRIND</span>
+<span id="L326"><span class="lineNum">     326</span>              :     VALGRIND_MAKE_MEM_UNDEFINED(cldev-&gt;cbuf, cldev-&gt;cend - cldev-&gt;cbuf);</span>
+<span id="L327"><span class="lineNum">     327</span>              : #endif</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     cldev-&gt;ccl = 0;</span></span>
+<span id="L329"><span class="lineNum">     329</span>              : #ifdef COLLECT_STATS_CLIST</span>
+<span id="L330"><span class="lineNum">     330</span>              :     if (gs_debug_c('l'))</span>
+<span id="L331"><span class="lineNum">     331</span>              :         cmd_print_stats(cldev-&gt;memory);</span>
+<span id="L332"><span class="lineNum">     332</span>              : #endif</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :     return_check_interrupt(cldev-&gt;memory, code != 0 ? code : warning);</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : }</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span>              : /*</span>
+<span id="L337"><span class="lineNum">     337</span>              :  * Add a command to the appropriate band list, and allocate space for its</span>
+<span id="L338"><span class="lineNum">     338</span>              :  * data.  Return the pointer to the data area.  If an error or (low-memory</span>
+<span id="L339"><span class="lineNum">     339</span>              :  * warning) occurs, set cldev-&gt;error_code and return 0.</span>
+<span id="L340"><span class="lineNum">     340</span>              :  */</span>
+<span id="L341"><span class="lineNum">     341</span>              : #define cmd_headroom (sizeof(cmd_prefix) + ARCH_ALIGN_PTR_MOD)</span>
+<span id="L342"><span class="lineNum">     342</span>              : byte *</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 : cmd_put_list_op(gx_device_clist_writer * cldev, cmd_list * pcl, uint size)</span></span>
+<span id="L344"><span class="lineNum">     344</span>              : {</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :     byte *dp = cldev-&gt;cnext;</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :     CMD_CHECK_LAST_OP_BLOCK_DEFINED(cldev);</span></span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :     if (size + cmd_headroom &gt; cldev-&gt;cend - dp) {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         cldev-&gt;error_code = cmd_write_buffer(cldev, cmd_opv_end_run);</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :         /* error_code can come back as +ve as a warning that memory</span>
+<span id="L352"><span class="lineNum">     352</span>              :          * is getting tight. Don't fail on that. */</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         if (cldev-&gt;error_code &lt; 0 ||</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :             (size + cmd_headroom &gt; cldev-&gt;cend - cldev-&gt;cnext)) {</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :             if (cldev-&gt;error_code == 0)</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 cldev-&gt;error_code = gs_error_VMerror;</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :             return 0;</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :         }</span>
+<span id="L359"><span class="lineNum">     359</span>              :         else</span>
+<span id="L360"><span class="lineNum">     360</span>              :             return cmd_put_list_op(cldev, pcl, size);</span>
+<span id="L361"><span class="lineNum">     361</span>              :     }</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :     if (cldev-&gt;ccl == pcl) { /* We're adding another command for the same band. */</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :         /* Tack it onto the end of the previous one. */</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         cmd_count_add1(stats_cmd.same_band);</span></span>
+<span id="L365"><span class="lineNum">     365</span>              : #ifdef DEBUG</span>
+<span id="L366"><span class="lineNum">     366</span>              :         if (pcl-&gt;tail-&gt;size &gt; dp - (byte *) (pcl-&gt;tail + 1)) {</span>
+<span id="L367"><span class="lineNum">     367</span>              :             lprintf1(&quot;cmd_put_list_op error at &quot;PRI_INTPTR&quot;\n&quot;, (intptr_t)pcl-&gt;tail);</span>
+<span id="L368"><span class="lineNum">     368</span>              :         }</span>
+<span id="L369"><span class="lineNum">     369</span>              : #endif</span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         if_debug2m('L', cldev-&gt;memory, &quot;[L] id:%ld+%ld&quot;,</span></span>
+<span id="L371"><span class="lineNum">     371</span>              :                    pcl-&gt;tail-&gt;id, (long)pcl-&gt;tail-&gt;size);</span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         pcl-&gt;tail-&gt;size += size;</span></span>
+<span id="L373"><span class="lineNum">     373</span>              :     } else {</span>
+<span id="L374"><span class="lineNum">     374</span>              :         /* Skip to an appropriate alignment boundary. */</span>
+<span id="L375"><span class="lineNum">     375</span>              :         /* (We assume the command buffer itself is aligned.) */</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         cmd_prefix *cp = (cmd_prefix *)</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :             (dp + ((cldev-&gt;cbuf - dp) &amp; (ARCH_ALIGN_PTR_MOD - 1)));</span></span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         cp-&gt;id = cldev-&gt;ins_count++;</span></span>
+<span id="L380"><span class="lineNum">     380</span>              : #ifdef DEBUG</span>
+<span id="L381"><span class="lineNum">     381</span>              :         if (gs_debug_c('L'))</span>
+<span id="L382"><span class="lineNum">     382</span>              :         {</span>
+<span id="L383"><span class="lineNum">     383</span>              :             if (pcl == cldev-&gt;band_range_list)</span>
+<span id="L384"><span class="lineNum">     384</span>              :                 dmlprintf2(cldev-&gt;memory, &quot;[L]Change to bands=(%d-&gt;%d)&quot;, cldev-&gt;band_range_min, cldev-&gt;band_range_max);</span>
+<span id="L385"><span class="lineNum">     385</span>              :             else</span>
+<span id="L386"><span class="lineNum">     386</span>              :                 dmlprintf1(cldev-&gt;memory, &quot;[L]Change to band=%d&quot;,</span>
+<span id="L387"><span class="lineNum">     387</span>              :                            (int)(((intptr_t)pcl-(intptr_t)&amp;cldev-&gt;states-&gt;list)/sizeof(*cldev-&gt;states)));</span>
+<span id="L388"><span class="lineNum">     388</span>              : </span>
+<span id="L389"><span class="lineNum">     389</span>              :             dmlprintf2(cldev-&gt;memory, &quot;, align=%d\n[L] id:%ld+0&quot;,</span>
+<span id="L390"><span class="lineNum">     390</span>              :                        (int)((char *)cp-(char *)dp), cp-&gt;id);</span>
+<span id="L391"><span class="lineNum">     391</span>              :         }</span>
+<span id="L392"><span class="lineNum">     392</span>              : #endif</span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :         cmd_count_add1(stats_cmd.other_band);</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         dp = (byte *) (cp + 1);</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         if (pcl-&gt;tail != 0) {</span></span>
+<span id="L397"><span class="lineNum">     397</span>              : #ifdef DEBUG</span>
+<span id="L398"><span class="lineNum">     398</span>              :             if (pcl-&gt;tail &lt; pcl-&gt;head ||</span>
+<span id="L399"><span class="lineNum">     399</span>              :                 pcl-&gt;tail-&gt;size &gt; dp - (byte *) (pcl-&gt;tail + 1)</span>
+<span id="L400"><span class="lineNum">     400</span>              :                 ) {</span>
+<span id="L401"><span class="lineNum">     401</span>              :                 lprintf1(&quot;cmd_put_list_op error at &quot;PRI_INTPTR&quot;\n&quot;,</span>
+<span id="L402"><span class="lineNum">     402</span>              :                          (intptr_t)pcl-&gt;tail);</span>
+<span id="L403"><span class="lineNum">     403</span>              :             }</span>
+<span id="L404"><span class="lineNum">     404</span>              : #endif</span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :             pcl-&gt;tail-&gt;next = cp;</span></span>
+<span id="L406"><span class="lineNum">     406</span>              :         } else</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :             pcl-&gt;head = cp;</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         pcl-&gt;tail = cp;</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         cldev-&gt;ccl = pcl;</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         cp-&gt;size = size;</span></span>
+<span id="L411"><span class="lineNum">     411</span>              :     }</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :     cldev-&gt;cnext = dp + size;</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :     return dp;</span></span>
+<span id="L414"><span class="lineNum">     414</span>              : }</span>
+<span id="L415"><span class="lineNum">     415</span>              : </span>
+<span id="L416"><span class="lineNum">     416</span>              : byte *</span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 : cmd_put_list_extended_op(gx_device_clist_writer *cldev, cmd_list *pcl, int op, uint size)</span></span>
+<span id="L418"><span class="lineNum">     418</span>              : {</span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :     byte *dp = cmd_put_list_op(cldev, pcl, size);</span></span>
+<span id="L420"><span class="lineNum">     420</span>              : </span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :     if (dp) {</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         dp[1] = op;</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : </span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :         if (gs_debug_c('L')) {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :             clist_debug_op(cldev-&gt;memory, dp);</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :             dmlprintf1(cldev-&gt;memory, &quot;[%u]\n&quot;, size);</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :         }</span>
+<span id="L428"><span class="lineNum">     428</span>              :     }</span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :     return dp;</span></span>
+<span id="L431"><span class="lineNum">     431</span>              : }</span>
+<span id="L432"><span class="lineNum">     432</span>              : </span>
+<span id="L433"><span class="lineNum">     433</span>              : /* Request a space in the buffer.</span>
+<span id="L434"><span class="lineNum">     434</span>              :    Writes out the buffer if necessary.</span>
+<span id="L435"><span class="lineNum">     435</span>              :    Returns the size of available space. */</span>
+<span id="L436"><span class="lineNum">     436</span>              : int</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 : cmd_get_buffer_space(gx_device_clist_writer * cldev, gx_clist_state * pcls, uint size)</span></span>
+<span id="L438"><span class="lineNum">     438</span>              : {</span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :     size_t z;</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :     CMD_CHECK_LAST_OP_BLOCK_DEFINED(cldev);</span></span>
+<span id="L441"><span class="lineNum">     441</span>              : </span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :     if (size + cmd_headroom &gt; cldev-&gt;cend - cldev-&gt;cnext) {</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :         /* error_code can come back as +ve as a warning that memory</span>
+<span id="L444"><span class="lineNum">     444</span>              :          * is getting tight. Don't fail on that. */</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         cldev-&gt;error_code = cmd_write_buffer(cldev, cmd_opv_end_run);</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :         if (cldev-&gt;error_code &lt; 0) {</span></span>
+<span id="L447"><span class="lineNum">     447</span>              :             return cldev-&gt;error_code;</span>
+<span id="L448"><span class="lineNum">     448</span>              :         }</span>
+<span id="L449"><span class="lineNum">     449</span>              :     }</span>
+<span id="L450"><span class="lineNum">     450</span>              :     /* Calculate the available size as a size_t. If this won't fit in</span>
+<span id="L451"><span class="lineNum">     451</span>              :      * an int, clip the value. This is a bit crap, but it should be</span>
+<span id="L452"><span class="lineNum">     452</span>              :      * safe at least until we can change the clist to use size_t's</span>
+<span id="L453"><span class="lineNum">     453</span>              :      * where appropriate. */</span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :     z = cldev-&gt;cend - cldev-&gt;cnext - cmd_headroom;</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :     if (z &gt; INT_MAX)</span></span>
+<span id="L456"><span class="lineNum">     456</span>              :         z = INT_MAX;</span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :     return z;</span></span>
+<span id="L458"><span class="lineNum">     458</span>              : }</span>
+<span id="L459"><span class="lineNum">     459</span>              : </span>
+<span id="L460"><span class="lineNum">     460</span>              : #ifdef DEBUG</span>
+<span id="L461"><span class="lineNum">     461</span>              : byte *</span>
+<span id="L462"><span class="lineNum">     462</span>              : cmd_put_op(gx_device_clist_writer * cldev, gx_clist_state * pcls, uint size)</span>
+<span id="L463"><span class="lineNum">     463</span>              : {</span>
+<span id="L464"><span class="lineNum">     464</span>              :     return cmd_put_list_op(cldev, &amp;pcls-&gt;list, size);</span>
+<span id="L465"><span class="lineNum">     465</span>              : }</span>
+<span id="L466"><span class="lineNum">     466</span>              : #endif</span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span>              : /* Add a command for a range of bands. */</span>
+<span id="L469"><span class="lineNum">     469</span>              : byte *</span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 : cmd_put_range_op(gx_device_clist_writer * cldev, int band_min, int band_max,</span></span>
+<span id="L471"><span class="lineNum">     471</span>              :                  uint size)</span>
+<span id="L472"><span class="lineNum">     472</span>              : {</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :     CMD_CHECK_LAST_OP_BLOCK_DEFINED(cldev);</span></span>
+<span id="L474"><span class="lineNum">     474</span>              : </span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :     if (cldev-&gt;ccl != 0 &amp;&amp;</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :         (cldev-&gt;ccl != cldev-&gt;band_range_list ||</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :          band_min != cldev-&gt;band_range_min ||</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :          band_max != cldev-&gt;band_range_max)</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :         ) {</span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         cldev-&gt;error_code = cmd_write_buffer(cldev, cmd_opv_end_run);</span></span>
+<span id="L481"><span class="lineNum">     481</span>              :         /* error_code can come back as +ve as a warning that memory</span>
+<span id="L482"><span class="lineNum">     482</span>              :          * is getting tight. Don't fail on that. */</span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :         if (cldev-&gt;error_code &lt; 0) {</span></span>
+<span id="L484"><span class="lineNum">     484</span>              :             return NULL;</span>
+<span id="L485"><span class="lineNum">     485</span>              :         }</span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :         cldev-&gt;band_range_min = band_min;</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :         cldev-&gt;band_range_max = band_max;</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :         if_debug2m('L', cldev-&gt;memory, &quot;[L]Band range(%d,%d)\n&quot;,</span></span>
+<span id="L489"><span class="lineNum">     489</span>              :                    band_min, band_max);</span>
+<span id="L490"><span class="lineNum">     490</span>              :     }</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :     return cmd_put_list_op(cldev, cldev-&gt;band_range_list, size);</span></span>
+<span id="L492"><span class="lineNum">     492</span>              : }</span>
+<span id="L493"><span class="lineNum">     493</span>              : </span>
+<span id="L494"><span class="lineNum">     494</span>              : /* Write a variable-size positive integer. */</span>
+<span id="L495"><span class="lineNum">     495</span>              : int</span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 : cmd_size_w(register uint w)</span></span>
+<span id="L497"><span class="lineNum">     497</span>              : {</span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :     register int size = 1;</span></span>
+<span id="L499"><span class="lineNum">     499</span>              : </span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :     while (w &gt; 0x7f)</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         w &gt;&gt;= 7, size++;</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :     return size;</span></span>
+<span id="L503"><span class="lineNum">     503</span>              : }</span>
+<span id="L504"><span class="lineNum">     504</span>              : byte *</span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 : cmd_put_w(register uint w, register byte * dp)</span></span>
+<span id="L506"><span class="lineNum">     506</span>              : {</span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :     while (w &gt; 0x7f)</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         *dp++ = w | 0x80, w &gt;&gt;= 7;</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :     *dp = w;</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :     return dp + 1;</span></span>
+<span id="L511"><span class="lineNum">     511</span>              : }</span>
+<span id="L512"><span class="lineNum">     512</span>              : /* Write a variable-size positive fractional. */</span>
+<span id="L513"><span class="lineNum">     513</span>              : int</span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 : cmd_size_frac31(register frac31 w)</span></span>
+<span id="L515"><span class="lineNum">     515</span>              : {</span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :     register int size = 1;</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :     register uint32_t v = w;</span></span>
+<span id="L518"><span class="lineNum">     518</span>              : </span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :     while (v &amp; 0x01FFFFFF)</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :         v &lt;&lt;= 7, size++;</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :     return size;</span></span>
+<span id="L522"><span class="lineNum">     522</span>              : }</span>
+<span id="L523"><span class="lineNum">     523</span>              : byte *</span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 : cmd_put_frac31(register frac31 w, register byte * dp)</span></span>
+<span id="L525"><span class="lineNum">     525</span>              : {</span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :     register uint32_t v = w;</span></span>
+<span id="L527"><span class="lineNum">     527</span>              : </span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :     while (v &amp; 0x01FFFFFF)</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         *dp++ = (v &gt;&gt; 24) | 1, v &lt;&lt;= 7;</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :     *dp = (v &gt;&gt; 24);</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :     return dp + 1;</span></span>
+<span id="L532"><span class="lineNum">     532</span>              : }</span>
+<span id="L533"><span class="lineNum">     533</span>              : </span>
+<span id="L534"><span class="lineNum">     534</span>              : /*</span>
+<span id="L535"><span class="lineNum">     535</span>              :  * This next two arrays are used for the 'delta' mode of placing a color</span>
+<span id="L536"><span class="lineNum">     536</span>              :  * in the clist.  These arrays are indexed by the number of bytes in the</span>
+<span id="L537"><span class="lineNum">     537</span>              :  * color value (the depth).</span>
+<span id="L538"><span class="lineNum">     538</span>              :  *</span>
+<span id="L539"><span class="lineNum">     539</span>              :  * Delta values are calculated by subtracting the old value for the color</span>
+<span id="L540"><span class="lineNum">     540</span>              :  * from the desired new value.  Then each byte of the differenece is</span>
+<span id="L541"><span class="lineNum">     541</span>              :  * examined.  For most bytes, if the difference fits into 4 bits (signed)</span>
+<span id="L542"><span class="lineNum">     542</span>              :  * then those bits are packed into the clist along with an opcode.  If</span>
+<span id="L543"><span class="lineNum">     543</span>              :  * the size of the color (the depth) is an odd number of bytes then instead</span>
+<span id="L544"><span class="lineNum">     544</span>              :  * of four bits per byte, extra bits are used for the upper three bytes</span>
+<span id="L545"><span class="lineNum">     545</span>              :  * of the color.  In this case, five bits are used for the first byte,</span>
+<span id="L546"><span class="lineNum">     546</span>              :  * six bits for the second byte, and five bits for third byte.  This</span>
+<span id="L547"><span class="lineNum">     547</span>              :  * maximizes the chance that the 'delta' mode can be used for placing</span>
+<span id="L548"><span class="lineNum">     548</span>              :  * colors in the clist.</span>
+<span id="L549"><span class="lineNum">     549</span>              :  */</span>
+<span id="L550"><span class="lineNum">     550</span>              : /*</span>
+<span id="L551"><span class="lineNum">     551</span>              :  * Depending upon the compiler and user choices, the size of a gx_color_index</span>
+<span id="L552"><span class="lineNum">     552</span>              :  * may be 4 to 8 bytes.  We will define table entries for up to 8 bytes.</span>
+<span id="L553"><span class="lineNum">     553</span>              :  * This macro is being used to prevent compiler warnings if gx_color_index is</span>
+<span id="L554"><span class="lineNum">     554</span>              :  * only 4 bytes.</span>
+<span id="L555"><span class="lineNum">     555</span>              :  */</span>
+<span id="L556"><span class="lineNum">     556</span>              : #define tab_entry(x) ((x) &amp; (~((gx_color_index) 0)))</span>
+<span id="L557"><span class="lineNum">     557</span>              : </span>
+<span id="L558"><span class="lineNum">     558</span>              : const gx_color_index cmd_delta_offsets[] = {</span>
+<span id="L559"><span class="lineNum">     559</span>              :         tab_entry(0),</span>
+<span id="L560"><span class="lineNum">     560</span>              :         tab_entry(0),</span>
+<span id="L561"><span class="lineNum">     561</span>              :         tab_entry(0x0808),</span>
+<span id="L562"><span class="lineNum">     562</span>              :         tab_entry(0x102010),</span>
+<span id="L563"><span class="lineNum">     563</span>              :         tab_entry(0x08080808)</span>
+<span id="L564"><span class="lineNum">     564</span>              : #if ARCH_SIZEOF_GX_COLOR_INDEX &gt; 4</span>
+<span id="L565"><span class="lineNum">     565</span>              :         ,</span>
+<span id="L566"><span class="lineNum">     566</span>              :         tab_entry(0x1020100808),</span>
+<span id="L567"><span class="lineNum">     567</span>              :         tab_entry(0x080808080808),</span>
+<span id="L568"><span class="lineNum">     568</span>              :         tab_entry(0x10201008080808),</span>
+<span id="L569"><span class="lineNum">     569</span>              :         tab_entry(0x0808080808080808)</span>
+<span id="L570"><span class="lineNum">     570</span>              : #endif</span>
+<span id="L571"><span class="lineNum">     571</span>              :         };</span>
+<span id="L572"><span class="lineNum">     572</span>              : </span>
+<span id="L573"><span class="lineNum">     573</span>              : static const gx_color_index cmd_delta_masks[] = {</span>
+<span id="L574"><span class="lineNum">     574</span>              :         tab_entry(0),</span>
+<span id="L575"><span class="lineNum">     575</span>              :         tab_entry(0),</span>
+<span id="L576"><span class="lineNum">     576</span>              :         tab_entry(0x0f0f),</span>
+<span id="L577"><span class="lineNum">     577</span>              :         tab_entry(0x1f3f1f),</span>
+<span id="L578"><span class="lineNum">     578</span>              :         tab_entry(0x0f0f0f0f)</span>
+<span id="L579"><span class="lineNum">     579</span>              : #if ARCH_SIZEOF_GX_COLOR_INDEX &gt; 4</span>
+<span id="L580"><span class="lineNum">     580</span>              :         ,</span>
+<span id="L581"><span class="lineNum">     581</span>              :         tab_entry(0x1f3f1f0f0f),</span>
+<span id="L582"><span class="lineNum">     582</span>              :         tab_entry(0x0f0f0f0f0f0f),</span>
+<span id="L583"><span class="lineNum">     583</span>              :         tab_entry(0x1f3f1f0f0f0f0f),</span>
+<span id="L584"><span class="lineNum">     584</span>              :         tab_entry(0x0f0f0f0f0f0f0f0f)</span>
+<span id="L585"><span class="lineNum">     585</span>              : #endif</span>
+<span id="L586"><span class="lineNum">     586</span>              :         };</span>
+<span id="L587"><span class="lineNum">     587</span>              : </span>
+<span id="L588"><span class="lineNum">     588</span>              : #undef tab_entry</span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span>              : /*</span>
+<span id="L591"><span class="lineNum">     591</span>              :  * There are currently only four different color &quot;types&quot; that can be placed</span>
+<span id="L592"><span class="lineNum">     592</span>              :  * into the clist.  These are called &quot;color0&quot;, &quot;color1&quot;, and &quot;tile_color0&quot;,</span>
+<span id="L593"><span class="lineNum">     593</span>              :  * and &quot;tile_color1&quot;.  There are separate command codes for color0 versus</span>
+<span id="L594"><span class="lineNum">     594</span>              :  * color1, both for the full value and delta commands - see cmd_put_color.</span>
+<span id="L595"><span class="lineNum">     595</span>              :  * Tile colors are preceded by a cmd_opv_set_tile_color command.</span>
+<span id="L596"><span class="lineNum">     596</span>              :  */</span>
+<span id="L597"><span class="lineNum">     597</span>              : const clist_select_color_t</span>
+<span id="L598"><span class="lineNum">     598</span>              :     clist_select_color0 = {cmd_op_set_color0, cmd_opv_delta_color0, 0},</span>
+<span id="L599"><span class="lineNum">     599</span>              :     clist_select_color1 = {cmd_op_set_color1, cmd_opv_delta_color1, 0},</span>
+<span id="L600"><span class="lineNum">     600</span>              :     clist_select_tile_color0 = {cmd_op_set_color0, cmd_opv_delta_color0, 1},</span>
+<span id="L601"><span class="lineNum">     601</span>              :     clist_select_tile_color1 = {cmd_op_set_color1, cmd_opv_delta_color1, 1};</span>
+<span id="L602"><span class="lineNum">     602</span>              : </span>
+<span id="L603"><span class="lineNum">     603</span>              : /*</span>
+<span id="L604"><span class="lineNum">     604</span>              :  * This routine is used to place a color into the clist.  Colors, in the</span>
+<span id="L605"><span class="lineNum">     605</span>              :  * clist, can be specified either as by a full value or by a &quot;delta&quot; value.</span>
+<span id="L606"><span class="lineNum">     606</span>              :  *</span>
+<span id="L607"><span class="lineNum">     607</span>              :  * See the comments before cmd_delta_offsets[] for a description of the</span>
+<span id="L608"><span class="lineNum">     608</span>              :  * 'delta' mode.  The delta mode may allow for a smaller command in the clist.</span>
+<span id="L609"><span class="lineNum">     609</span>              :  *</span>
+<span id="L610"><span class="lineNum">     610</span>              :  * For the full value mode, values are sent as a cmd code plus n bytes of</span>
+<span id="L611"><span class="lineNum">     611</span>              :  * data.  To minimize the number of bytes, a count is made of any low order</span>
+<span id="L612"><span class="lineNum">     612</span>              :  * bytes which are zero.  This count is packed into the low order 4 bits</span>
+<span id="L613"><span class="lineNum">     613</span>              :  * of the cmd code.  The data for these bytes are not sent.</span>
+<span id="L614"><span class="lineNum">     614</span>              :  *</span>
+<span id="L615"><span class="lineNum">     615</span>              :  * The gx_no_color_index value is treated as a special case.  This is done</span>
+<span id="L616"><span class="lineNum">     616</span>              :  * because it is both a commonly sent value and because it may require</span>
+<span id="L617"><span class="lineNum">     617</span>              :  * more bytes then the other color values.</span>
+<span id="L618"><span class="lineNum">     618</span>              :  *</span>
+<span id="L619"><span class="lineNum">     619</span>              :  * Parameters:</span>
+<span id="L620"><span class="lineNum">     620</span>              :  *   cldev - Pointer to clist device</span>
+<span id="L621"><span class="lineNum">     621</span>              :  *   pcls - Pointer to clist state</span>
+<span id="L622"><span class="lineNum">     622</span>              :  *   select - Descriptor record for type of color being sent.  See comments</span>
+<span id="L623"><span class="lineNum">     623</span>              :  *       by clist_select_color_t.</span>
+<span id="L624"><span class="lineNum">     624</span>              :  *   color - The new color value.</span>
+<span id="L625"><span class="lineNum">     625</span>              :  *   pcolor - Pointer to previous color value.  (If the color value is the</span>
+<span id="L626"><span class="lineNum">     626</span>              :  *       same as the previous value then nothing is placed into the clist.)</span>
+<span id="L627"><span class="lineNum">     627</span>              :  *</span>
+<span id="L628"><span class="lineNum">     628</span>              :  * Returns:</span>
+<span id="L629"><span class="lineNum">     629</span>              :  *   Error code</span>
+<span id="L630"><span class="lineNum">     630</span>              :  *   clist and pcls and cldev may be updated.</span>
+<span id="L631"><span class="lineNum">     631</span>              :  */</span>
+<span id="L632"><span class="lineNum">     632</span>              : int</span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaUNC">           0 : cmd_put_color(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L634"><span class="lineNum">     634</span>              :               const clist_select_color_t * select,</span>
+<span id="L635"><span class="lineNum">     635</span>              :               gx_color_index color, gx_color_index * pcolor)</span>
+<span id="L636"><span class="lineNum">     636</span>              : {</span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaUNC">           0 :     byte * dp;          /* This is manipulated by the set_cmd_put_op macro */</span></span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaUNC">           0 :     gx_color_index diff = color - *pcolor;</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaUNC">           0 :     byte op, op_delta;</span></span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L641"><span class="lineNum">     641</span>              : </span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaUNC">           0 :     if (diff == 0)</span></span>
+<span id="L643"><span class="lineNum">     643</span>              :         return 0;</span>
+<span id="L644"><span class="lineNum">     644</span>              : </span>
+<span id="L645"><span class="lineNum">     645</span>              :     /* If this is a tile color then send tile color type */</span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaUNC">           0 :     if (select-&gt;tile_color) {</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaUNC">           0 :         code = set_cmd_put_op(&amp;dp, cldev, pcls, cmd_opv_set_tile_color, 1);</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L649"><span class="lineNum">     649</span>              :             return code;</span>
+<span id="L650"><span class="lineNum">     650</span>              :     }</span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaUNC">           0 :     op = select-&gt;set_op;</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaUNC">           0 :     op_delta = select-&gt;delta_op;</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaUNC">           0 :     if (color == gx_no_color_index) {</span></span>
+<span id="L654"><span class="lineNum">     654</span>              :         /*</span>
+<span id="L655"><span class="lineNum">     655</span>              :          * We must handle this specially, because it may take more</span>
+<span id="L656"><span class="lineNum">     656</span>              :          * bytes than the color depth.</span>
+<span id="L657"><span class="lineNum">     657</span>              :          */</span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaUNC">           0 :         code = set_cmd_put_op(&amp;dp, cldev, pcls, op + cmd_no_color_index, 1);</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L660"><span class="lineNum">     660</span>              :             return code;</span>
+<span id="L661"><span class="lineNum">     661</span>              :     } else {</span>
+<span id="L662"><span class="lineNum">     662</span>              :         /* Check if the &quot;delta&quot; mode command can be used. */</span>
+<span id="L663"><span class="lineNum">     663</span>              :         /* clist_color_info may be different than target device due to</span>
+<span id="L664"><span class="lineNum">     664</span>              :          * transparency group during clist writing phase */</span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaUNC">           0 :         int depth = (cldev-&gt;clist_color_info.depth &lt;= sizeof(gx_color_index)*8 ?</span></span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaUNC">           0 :                      cldev-&gt;clist_color_info.depth : sizeof(gx_color_index)*8);</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaUNC">           0 :         int num_bytes = (depth + 7) &gt;&gt; 3;</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaUNC">           0 :         int delta_bytes = (num_bytes + 1) / 2;</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaUNC">           0 :         gx_color_index delta_offset = cmd_delta_offsets[num_bytes];</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaUNC">           0 :         gx_color_index delta_mask = cmd_delta_masks[num_bytes];</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaUNC">           0 :         gx_color_index delta = (diff + delta_offset) &amp; delta_mask;</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :         bool use_delta = (color == (*pcolor + delta - delta_offset));</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :         int bytes_dropped = 0;</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaUNC">           0 :         gx_color_index data = color;</span></span>
+<span id="L675"><span class="lineNum">     675</span>              : </span>
+<span id="L676"><span class="lineNum">     676</span>              :         /*</span>
+<span id="L677"><span class="lineNum">     677</span>              :          * If we use the full value mode, we do not send low order bytes</span>
+<span id="L678"><span class="lineNum">     678</span>              :          * which are zero. Determine how many low order bytes are zero.</span>
+<span id="L679"><span class="lineNum">     679</span>              :          */</span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaUNC">           0 :         if (color == 0) {</span></span>
+<span id="L681"><span class="lineNum">     681</span>              :             bytes_dropped = num_bytes;</span>
+<span id="L682"><span class="lineNum">     682</span>              :         }</span>
+<span id="L683"><span class="lineNum">     683</span>              :         else  {</span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :             while ((data &amp; 0xff) == 0) {</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :                 bytes_dropped++;</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :                 data &gt;&gt;= 8;</span></span>
+<span id="L687"><span class="lineNum">     687</span>              :             }</span>
+<span id="L688"><span class="lineNum">     688</span>              :         }</span>
+<span id="L689"><span class="lineNum">     689</span>              :         /* Now send one of the two command forms */</span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaUNC">           0 :         if (use_delta &amp;&amp; delta_bytes &lt; (num_bytes - bytes_dropped)) {</span></span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :             code = set_cmd_put_op(&amp;dp, cldev, pcls,</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 :                                         op_delta, delta_bytes + 1);</span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L694"><span class="lineNum">     694</span>              :                 return code;</span>
+<span id="L695"><span class="lineNum">     695</span>              :             /*</span>
+<span id="L696"><span class="lineNum">     696</span>              :              * If we have an odd number of bytes then use extra bits for</span>
+<span id="L697"><span class="lineNum">     697</span>              :              * the high order three bytes of the color.</span>
+<span id="L698"><span class="lineNum">     698</span>              :              */</span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaUNC">           0 :             if ((num_bytes &gt;= 3) &amp;&amp; (num_bytes &amp; 1)) {</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaUNC">           0 :                 data = delta &gt;&gt; ((num_bytes - 3) * 8);</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC">           0 :                 dp[delta_bytes--] = (byte)(((data &gt;&gt; 13) &amp; 0xf8) + ((data &gt;&gt; 11) &amp; 0x07));</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaUNC">           0 :                 dp[delta_bytes--] = (byte)(((data &gt;&gt; 3) &amp; 0xe0) + (data &amp; 0x1f));</span></span>
+<span id="L703"><span class="lineNum">     703</span>              :             }</span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :             for(; delta_bytes&gt;0; delta_bytes--) {</span></span>
+<span id="L705"><span class="lineNum">     705</span> <span class="tlaUNC">           0 :                 dp[delta_bytes] = (byte)((delta &gt;&gt; 4) + delta);</span></span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaUNC">           0 :                 delta &gt;&gt;= 16;</span></span>
+<span id="L707"><span class="lineNum">     707</span>              :             }</span>
+<span id="L708"><span class="lineNum">     708</span>              :         }</span>
+<span id="L709"><span class="lineNum">     709</span>              :         else {</span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :             num_bytes -= bytes_dropped;</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :             code = set_cmd_put_op(&amp;dp, cldev, pcls,</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 :                                 (byte)(op + bytes_dropped), num_bytes + 1);</span></span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L714"><span class="lineNum">     714</span>              :                 return code;</span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :             for(; num_bytes&gt;0; num_bytes--) {</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :                 dp[num_bytes] = (byte)data;</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :                 data &gt;&gt;= 8;</span></span>
+<span id="L718"><span class="lineNum">     718</span>              :             }</span>
+<span id="L719"><span class="lineNum">     719</span>              :         }</span>
+<span id="L720"><span class="lineNum">     720</span>              :     }</span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :     *pcolor = color;</span></span>
+<span id="L722"><span class="lineNum">     722</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L723"><span class="lineNum">     723</span>              : }</span>
+<span id="L724"><span class="lineNum">     724</span>              : </span>
+<span id="L725"><span class="lineNum">     725</span>              : /* Put out a command to set the tile colors. */</span>
+<span id="L726"><span class="lineNum">     726</span>              : int</span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 : cmd_set_tile_colors(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L728"><span class="lineNum">     728</span>              :                     gx_color_index color0, gx_color_index color1)</span>
+<span id="L729"><span class="lineNum">     729</span>              : {</span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L731"><span class="lineNum">     731</span>              : </span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :     if (color0 != pcls-&gt;tile_colors[0]) {</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :         code = cmd_put_color(cldev, pcls,</span></span>
+<span id="L734"><span class="lineNum">     734</span>              :                              &amp;clist_select_tile_color0,</span>
+<span id="L735"><span class="lineNum">     735</span>              :                              color0, &amp;pcls-&gt;tile_colors[0]);</span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :         if (code != 0)</span></span>
+<span id="L737"><span class="lineNum">     737</span>              :             return code;</span>
+<span id="L738"><span class="lineNum">     738</span>              :     }</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :     if (color1 != pcls-&gt;tile_colors[1])</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :         code = cmd_put_color(cldev, pcls,</span></span>
+<span id="L741"><span class="lineNum">     741</span>              :                              &amp;clist_select_tile_color1,</span>
+<span id="L742"><span class="lineNum">     742</span>              :                              color1, &amp;pcls-&gt;tile_colors[1]);</span>
+<span id="L743"><span class="lineNum">     743</span>              :     return code;</span>
+<span id="L744"><span class="lineNum">     744</span>              : }</span>
+<span id="L745"><span class="lineNum">     745</span>              : </span>
+<span id="L746"><span class="lineNum">     746</span>              : /* Put out a command to set the tile phase. */</span>
+<span id="L747"><span class="lineNum">     747</span>              : int</span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 : cmd_set_tile_phase_generic(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L749"><span class="lineNum">     749</span>              :                    int px, int py, bool all_bands)</span>
+<span id="L750"><span class="lineNum">     750</span>              : {</span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :     int pcsize;</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L754"><span class="lineNum">     754</span>              : </span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :     pcsize = 1 + cmd_size2w(px, py);</span></span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaUNC">           0 :     if (all_bands)</span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaUNC">           0 :         code = set_cmd_put_all_op(&amp;dp, cldev, (byte)cmd_opv_set_tile_phase, pcsize);</span></span>
+<span id="L758"><span class="lineNum">     758</span>              :     else</span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :         code = set_cmd_put_op(&amp;dp, cldev, pcls, (byte)cmd_opv_set_tile_phase, pcsize);</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L761"><span class="lineNum">     761</span>              :         return code;</span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :     ++dp;</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaUNC">           0 :     pcls-&gt;tile_phase.x = px;</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 :     pcls-&gt;tile_phase.y = py;</span></span>
+<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 :     cmd_putxy(pcls-&gt;tile_phase, &amp;dp);</span></span>
+<span id="L766"><span class="lineNum">     766</span>              :     return 0;</span>
+<span id="L767"><span class="lineNum">     767</span>              : }</span>
+<span id="L768"><span class="lineNum">     768</span>              : </span>
+<span id="L769"><span class="lineNum">     769</span>              : int</span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 : cmd_set_tile_phase(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L771"><span class="lineNum">     771</span>              :                    int px, int py)</span>
+<span id="L772"><span class="lineNum">     772</span>              : {</span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :     return cmd_set_tile_phase_generic(cldev, pcls, px, py, false);</span></span>
+<span id="L774"><span class="lineNum">     774</span>              : }</span>
+<span id="L775"><span class="lineNum">     775</span>              : </span>
+<span id="L776"><span class="lineNum">     776</span>              : int</span>
+<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 : cmd_set_screen_phase_generic(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L778"><span class="lineNum">     778</span>              :                              int px, int py, gs_color_select_t color_select,</span>
+<span id="L779"><span class="lineNum">     779</span>              :                              bool all_bands)</span>
+<span id="L780"><span class="lineNum">     780</span>              : {</span>
+<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :     int pcsize;</span></span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L783"><span class="lineNum">     783</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L784"><span class="lineNum">     784</span>              : </span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaUNC">           0 :     pcsize = 1 + cmd_size2w(px, py);</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :     if (all_bands)</span></span>
+<span id="L787"><span class="lineNum">     787</span> <span class="tlaUNC">           0 :         code = set_cmd_put_all_op(&amp;dp, cldev, (byte)cmd_opv_set_screen_phaseT + color_select, pcsize);</span></span>
+<span id="L788"><span class="lineNum">     788</span>              :     else</span>
+<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :         code = set_cmd_put_op(&amp;dp, cldev, pcls, (byte)cmd_opv_set_screen_phaseT + color_select, pcsize);</span></span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L791"><span class="lineNum">     791</span>              :         return code;</span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :     ++dp;</span></span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaUNC">           0 :     pcls-&gt;screen_phase[color_select].x = px;</span></span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :     pcls-&gt;screen_phase[color_select].y = py;</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :     cmd_putxy(pcls-&gt;screen_phase[color_select], &amp;dp);</span></span>
+<span id="L796"><span class="lineNum">     796</span>              :     return 0;</span>
+<span id="L797"><span class="lineNum">     797</span>              : }</span>
+<span id="L798"><span class="lineNum">     798</span>              : </span>
+<span id="L799"><span class="lineNum">     799</span>              : int</span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 : cmd_set_screen_phase(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L801"><span class="lineNum">     801</span>              :                      int px, int py, gs_color_select_t color_select)</span>
+<span id="L802"><span class="lineNum">     802</span>              : {</span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 :     return cmd_set_screen_phase_generic(cldev, pcls, px, py, color_select, false);</span></span>
+<span id="L804"><span class="lineNum">     804</span>              : }</span>
+<span id="L805"><span class="lineNum">     805</span>              : </span>
+<span id="L806"><span class="lineNum">     806</span>              : /* Write a command to enable or disable the logical operation. */</span>
+<span id="L807"><span class="lineNum">     807</span>              : int</span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 : cmd_put_enable_lop(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L809"><span class="lineNum">     809</span>              :                    int enable)</span>
+<span id="L810"><span class="lineNum">     810</span>              : {</span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :     int code = set_cmd_put_op(&amp;dp, cldev, pcls,</span></span>
+<span id="L813"><span class="lineNum">     813</span>              :                               (byte)(enable ? cmd_opv_enable_lop :</span>
+<span id="L814"><span class="lineNum">     814</span>              :                                      cmd_opv_disable_lop),</span>
+<span id="L815"><span class="lineNum">     815</span>              :                               1);</span>
+<span id="L816"><span class="lineNum">     816</span>              : </span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L818"><span class="lineNum">     818</span>              :         return code;</span>
+<span id="L819"><span class="lineNum">     819</span> <span class="tlaUNC">           0 :     pcls-&gt;lop_enabled = enable;</span></span>
+<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L821"><span class="lineNum">     821</span>              : }</span>
+<span id="L822"><span class="lineNum">     822</span>              : </span>
+<span id="L823"><span class="lineNum">     823</span>              : /* Write a command to enable or disable clipping. */</span>
+<span id="L824"><span class="lineNum">     824</span>              : /* This routine is only called if the path extensions are included. */</span>
+<span id="L825"><span class="lineNum">     825</span>              : int</span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC">           0 : cmd_put_enable_clip(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L827"><span class="lineNum">     827</span>              :                     int enable)</span>
+<span id="L828"><span class="lineNum">     828</span>              : {</span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :     int code = set_cmd_put_op(&amp;dp, cldev, pcls,</span></span>
+<span id="L831"><span class="lineNum">     831</span>              :                               (byte)(enable ? cmd_opv_enable_clip :</span>
+<span id="L832"><span class="lineNum">     832</span>              :                                      cmd_opv_disable_clip),</span>
+<span id="L833"><span class="lineNum">     833</span>              :                               1);</span>
+<span id="L834"><span class="lineNum">     834</span>              : </span>
+<span id="L835"><span class="lineNum">     835</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L836"><span class="lineNum">     836</span>              :         return code;</span>
+<span id="L837"><span class="lineNum">     837</span> <span class="tlaUNC">           0 :     pcls-&gt;clip_enabled = enable;</span></span>
+<span id="L838"><span class="lineNum">     838</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L839"><span class="lineNum">     839</span>              : }</span>
+<span id="L840"><span class="lineNum">     840</span>              : </span>
+<span id="L841"><span class="lineNum">     841</span>              : /* Write a command to set the logical operation. */</span>
+<span id="L842"><span class="lineNum">     842</span>              : int</span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 : cmd_set_lop(gx_device_clist_writer * cldev, gx_clist_state * pcls,</span></span>
+<span id="L844"><span class="lineNum">     844</span>              :             gs_logical_operation_t lop)</span>
+<span id="L845"><span class="lineNum">     845</span>              : {</span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :     uint lop_msb = lop &gt;&gt; 6;</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaUNC">           0 :     int code = set_cmd_put_op(&amp;dp, cldev, pcls,</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :                               cmd_opv_set_misc, 2 + cmd_size_w(lop_msb));</span></span>
+<span id="L850"><span class="lineNum">     850</span>              : </span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L852"><span class="lineNum">     852</span>              :         return code;</span>
+<span id="L853"><span class="lineNum">     853</span> <span class="tlaUNC">           0 :     dp[1] = cmd_set_misc_lop + (lop &amp; 0x3f);</span></span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaUNC">           0 :     cmd_put_w(lop_msb, dp + 2);</span></span>
+<span id="L855"><span class="lineNum">     855</span> <span class="tlaUNC">           0 :     pcls-&gt;lop = lop;</span></span>
+<span id="L856"><span class="lineNum">     856</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L857"><span class="lineNum">     857</span>              : }</span>
+<span id="L858"><span class="lineNum">     858</span>              : </span>
+<span id="L859"><span class="lineNum">     859</span>              : /* Disable (if default) or enable the logical operation, setting it if */</span>
+<span id="L860"><span class="lineNum">     860</span>              : /* needed. */</span>
+<span id="L861"><span class="lineNum">     861</span>              : int</span>
+<span id="L862"><span class="lineNum">     862</span> <span class="tlaUNC">           0 : cmd_update_lop(gx_device_clist_writer *cldev, gx_clist_state *pcls,</span></span>
+<span id="L863"><span class="lineNum">     863</span>              :                gs_logical_operation_t lop)</span>
+<span id="L864"><span class="lineNum">     864</span>              : {</span>
+<span id="L865"><span class="lineNum">     865</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L866"><span class="lineNum">     866</span>              : </span>
+<span id="L867"><span class="lineNum">     867</span> <span class="tlaUNC">           0 :     if (lop == lop_default)</span></span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC">           0 :         return cmd_disable_lop(cldev, pcls);</span></span>
+<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :     code = cmd_set_lop(cldev, pcls, lop);</span></span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L871"><span class="lineNum">     871</span>              :         return code;</span>
+<span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :     return cmd_enable_lop(cldev, pcls);</span></span>
+<span id="L873"><span class="lineNum">     873</span>              : }</span>
+<span id="L874"><span class="lineNum">     874</span>              : </span>
+<span id="L875"><span class="lineNum">     875</span>              : /* Write a parameter list */</span>
+<span id="L876"><span class="lineNum">     876</span>              : int     /* ret 0 all ok, -ve error */</span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaUNC">           0 : cmd_put_params(gx_device_clist_writer *cldev,</span></span>
+<span id="L878"><span class="lineNum">     878</span>              :                gs_param_list *param_list) /* NB open for READ */</span>
+<span id="L879"><span class="lineNum">     879</span>              : {</span>
+<span id="L880"><span class="lineNum">     880</span> <span class="tlaUNC">           0 :     byte *dp;</span></span>
+<span id="L881"><span class="lineNum">     881</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L882"><span class="lineNum">     882</span> <span class="tlaUNC">           0 :     byte local_buf[512];        /* arbitrary */</span></span>
+<span id="L883"><span class="lineNum">     883</span> <span class="tlaUNC">           0 :     int param_length;</span></span>
+<span id="L884"><span class="lineNum">     884</span>              : </span>
+<span id="L885"><span class="lineNum">     885</span>              :     /* Get serialized list's length + try to get it into local var if it fits. */</span>
+<span id="L886"><span class="lineNum">     886</span> <span class="tlaUNC">           0 :     param_length = code =</span></span>
+<span id="L887"><span class="lineNum">     887</span> <span class="tlaUNC">           0 :         gs_param_list_serialize(param_list, local_buf, sizeof(local_buf));</span></span>
+<span id="L888"><span class="lineNum">     888</span> <span class="tlaUNC">           0 :     if (param_length &gt; 0) {</span></span>
+<span id="L889"><span class="lineNum">     889</span>              :         /* Get cmd buffer space for serialized */</span>
+<span id="L890"><span class="lineNum">     890</span> <span class="tlaUNC">           0 :         code = set_cmd_put_all_extended_op(&amp;dp, cldev, cmd_opv_ext_put_params,</span></span>
+<span id="L891"><span class="lineNum">     891</span>              :                                   2 + sizeof(unsigned) + param_length);</span>
+<span id="L892"><span class="lineNum">     892</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L893"><span class="lineNum">     893</span>              :             return code;</span>
+<span id="L894"><span class="lineNum">     894</span>              : </span>
+<span id="L895"><span class="lineNum">     895</span>              :         /* write param list to cmd list: needs to all fit in cmd buffer */</span>
+<span id="L896"><span class="lineNum">     896</span> <span class="tlaUNC">           0 :         if_debug1m('l', cldev-&gt;memory, &quot;[l]put_params, length=%d\n&quot;, param_length);</span></span>
+<span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :         dp += 2;</span></span>
+<span id="L898"><span class="lineNum">     898</span> <span class="tlaUNC">           0 :         memcpy(dp, &amp;param_length, sizeof(unsigned));</span></span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :         dp += sizeof(unsigned);</span></span>
+<span id="L900"><span class="lineNum">     900</span> <span class="tlaUNC">           0 :         if (param_length &gt; sizeof(local_buf)) {</span></span>
+<span id="L901"><span class="lineNum">     901</span> <span class="tlaUNC">           0 :             int old_param_length = param_length;</span></span>
+<span id="L902"><span class="lineNum">     902</span>              : </span>
+<span id="L903"><span class="lineNum">     903</span> <span class="tlaUNC">           0 :             param_length = code =</span></span>
+<span id="L904"><span class="lineNum">     904</span> <span class="tlaUNC">           0 :                 gs_param_list_serialize(param_list, dp, old_param_length);</span></span>
+<span id="L905"><span class="lineNum">     905</span> <span class="tlaUNC">           0 :             if (param_length &gt;= 0)</span></span>
+<span id="L906"><span class="lineNum">     906</span> <span class="tlaUNC">           0 :                 code = (old_param_length != param_length ?</span></span>
+<span id="L907"><span class="lineNum">     907</span> <span class="tlaUNC">           0 :                         gs_note_error(gs_error_unknownerror) : 0);</span></span>
+<span id="L908"><span class="lineNum">     908</span>              :             if (code &lt; 0) {</span>
+<span id="L909"><span class="lineNum">     909</span>              :                 /* error serializing: back out by writing a 0-length parm list */</span>
+<span id="L910"><span class="lineNum">     910</span> <span class="tlaUNC">           0 :                 memset(dp - sizeof(unsigned), 0, sizeof(unsigned));</span></span>
+<span id="L911"><span class="lineNum">     911</span> <span class="tlaUNC">           0 :                 cmd_shorten_list_op(cldev, cldev-&gt;band_range_list,</span></span>
+<span id="L912"><span class="lineNum">     912</span>              :                                     old_param_length);</span>
+<span id="L913"><span class="lineNum">     913</span>              :             }</span>
+<span id="L914"><span class="lineNum">     914</span>              :         } else</span>
+<span id="L915"><span class="lineNum">     915</span> <span class="tlaUNC">           0 :             memcpy(dp, local_buf, param_length);            /* did this when computing length */</span></span>
+<span id="L916"><span class="lineNum">     916</span>              :     }</span>
+<span id="L917"><span class="lineNum">     917</span>              :     return code;</span>
+<span id="L918"><span class="lineNum">     918</span>              : }</span>
+<span id="L919"><span class="lineNum">     919</span>              : </span>
+<span id="L920"><span class="lineNum">     920</span>              : /* Initialize CCITTFax filters. */</span>
+<span id="L921"><span class="lineNum">     921</span>              : static void</span>
+<span id="L922"><span class="lineNum">     922</span> <span class="tlaUNC">           0 : clist_cf_init(stream_CF_state *ss, int width)</span></span>
+<span id="L923"><span class="lineNum">     923</span>              : {</span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaUNC">           0 :     ss-&gt;K = -1;</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaUNC">           0 :     ss-&gt;Columns = width;</span></span>
+<span id="L926"><span class="lineNum">     926</span>              : #if 0 /* Disabled due to a crash with ppmraw -r216 c327.bin :</span>
+<span id="L927"><span class="lineNum">     927</span>              :          the decoding filter overruns in 1 byte.</span>
+<span id="L928"><span class="lineNum">     928</span>              :        */</span>
+<span id="L929"><span class="lineNum">     929</span>              :     ss-&gt;EndOfBlock = false;</span>
+<span id="L930"><span class="lineNum">     930</span>              : #else</span>
+<span id="L931"><span class="lineNum">     931</span> <span class="tlaUNC">           0 :     ss-&gt;EndOfBlock = true;</span></span>
+<span id="L932"><span class="lineNum">     932</span>              : #endif</span>
+<span id="L933"><span class="lineNum">     933</span> <span class="tlaUNC">           0 :     ss-&gt;BlackIs1 = true;</span></span>
+<span id="L934"><span class="lineNum">     934</span> <span class="tlaUNC">           0 :     ss-&gt;DecodedByteAlign = align_bitmap_mod;</span></span>
+<span id="L935"><span class="lineNum">     935</span>              : }</span>
+<span id="L936"><span class="lineNum">     936</span>              : void</span>
+<span id="L937"><span class="lineNum">     937</span> <span class="tlaUNC">           0 : clist_cfe_init(stream_CFE_state *ss, int width, gs_memory_t *mem)</span></span>
+<span id="L938"><span class="lineNum">     938</span>              : {</span>
+<span id="L939"><span class="lineNum">     939</span> <span class="tlaUNC">           0 :     s_init_state((stream_state *)ss, &amp;s_CFE_template, mem);</span></span>
+<span id="L940"><span class="lineNum">     940</span> <span class="tlaUNC">           0 :     s_CFE_set_defaults_inline(ss);</span></span>
+<span id="L941"><span class="lineNum">     941</span> <span class="tlaUNC">           0 :     clist_cf_init((stream_CF_state *)ss, width);</span></span>
+<span id="L942"><span class="lineNum">     942</span> <span class="tlaUNC">           0 :     s_CFE_template.init((stream_state *)(ss));</span></span>
+<span id="L943"><span class="lineNum">     943</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L944"><span class="lineNum">     944</span>              : void</span>
+<span id="L945"><span class="lineNum">     945</span> <span class="tlaUNC">           0 : clist_cfd_init(stream_CFD_state *ss, int width, int height, gs_memory_t *mem)</span></span>
+<span id="L946"><span class="lineNum">     946</span>              : {</span>
+<span id="L947"><span class="lineNum">     947</span> <span class="tlaUNC">           0 :     s_init_state((stream_state *)ss, &amp;s_CFD_template, mem);</span></span>
+<span id="L948"><span class="lineNum">     948</span> <span class="tlaUNC">           0 :     s_CFD_template.set_defaults((stream_state *)ss);</span></span>
+<span id="L949"><span class="lineNum">     949</span> <span class="tlaUNC">           0 :     clist_cf_init((stream_CF_state *)ss, width);</span></span>
+<span id="L950"><span class="lineNum">     950</span> <span class="tlaUNC">           0 :     ss-&gt;Rows = height;</span></span>
+<span id="L951"><span class="lineNum">     951</span> <span class="tlaUNC">           0 :     s_CFD_template.init((stream_state *)(ss));</span></span>
+<span id="L952"><span class="lineNum">     952</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L953"><span class="lineNum">     953</span>              : </span>
+<span id="L954"><span class="lineNum">     954</span>              : /* Initialize RunLength filters. */</span>
+<span id="L955"><span class="lineNum">     955</span>              : void</span>
+<span id="L956"><span class="lineNum">     956</span> <span class="tlaUNC">           0 : clist_rle_init(stream_RLE_state *ss)</span></span>
+<span id="L957"><span class="lineNum">     957</span>              : {</span>
+<span id="L958"><span class="lineNum">     958</span> <span class="tlaUNC">           0 :     s_init_state((stream_state *)ss, &amp;s_RLE_template, (gs_memory_t *)0);</span></span>
+<span id="L959"><span class="lineNum">     959</span> <span class="tlaUNC">           0 :     ss-&gt;templat-&gt;set_defaults((stream_state *)ss);</span></span>
+<span id="L960"><span class="lineNum">     960</span> <span class="tlaUNC">           0 :     ss-&gt;templat-&gt;init((stream_state *)ss);</span></span>
+<span id="L961"><span class="lineNum">     961</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L962"><span class="lineNum">     962</span>              : void</span>
+<span id="L963"><span class="lineNum">     963</span> <span class="tlaUNC">           0 : clist_rld_init(stream_RLD_state *ss)</span></span>
+<span id="L964"><span class="lineNum">     964</span>              : {</span>
+<span id="L965"><span class="lineNum">     965</span> <span class="tlaUNC">           0 :     s_init_state((stream_state *)ss, &amp;s_RLD_template, (gs_memory_t *)0);</span></span>
+<span id="L966"><span class="lineNum">     966</span> <span class="tlaUNC">           0 :     ss-&gt;templat-&gt;set_defaults((stream_state *)ss);</span></span>
+<span id="L967"><span class="lineNum">     967</span> <span class="tlaUNC">           0 :     ss-&gt;templat-&gt;init((stream_state *)ss);</span></span>
+<span id="L968"><span class="lineNum">     968</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L969"><span class="lineNum">     969</span>              : </span>
+<span id="L970"><span class="lineNum">     970</span>              : /* Read a transformation matrix. */</span>
+<span id="L971"><span class="lineNum">     971</span>              : const byte *</span>
+<span id="L972"><span class="lineNum">     972</span> <span class="tlaUNC">           0 : cmd_read_matrix(gs_matrix * pmat, const byte * cbp)</span></span>
+<span id="L973"><span class="lineNum">     973</span>              : {</span>
+<span id="L974"><span class="lineNum">     974</span> <span class="tlaUNC">           0 :     stream s;</span></span>
+<span id="L975"><span class="lineNum">     975</span>              : </span>
+<span id="L976"><span class="lineNum">     976</span> <span class="tlaUNC">           0 :     s_init(&amp;s, NULL);</span></span>
+<span id="L977"><span class="lineNum">     977</span> <span class="tlaUNC">           0 :     sread_string(&amp;s, cbp, 1 + sizeof(*pmat));</span></span>
+<span id="L978"><span class="lineNum">     978</span> <span class="tlaUNC">           0 :     sget_matrix(&amp;s, pmat);</span></span>
+<span id="L979"><span class="lineNum">     979</span> <span class="tlaUNC">           0 :     return cbp + stell(&amp;s);</span></span>
+<span id="L980"><span class="lineNum">     980</span>              : }</span>
+<span id="L981"><span class="lineNum">     981</span>              : </span>
+<span id="L982"><span class="lineNum">     982</span>              : /*</span>
+<span id="L983"><span class="lineNum">     983</span>              : Some notes on understanding the output of -ZL.</span>
+<span id="L984"><span class="lineNum">     984</span>              : </span>
+<span id="L985"><span class="lineNum">     985</span>              : The examples here are given from:</span>
+<span id="L986"><span class="lineNum">     986</span>              :   gs -o out.png -r96 -sDEVICE=png16m -dBandHeight=20 -dMaxBitmap=1000 -ZL examples/tiger.eps</span>
+<span id="L987"><span class="lineNum">     987</span>              : </span>
+<span id="L988"><span class="lineNum">     988</span>              : Not every line in that output is explained here!</span>
+<span id="L989"><span class="lineNum">     989</span>              : </span>
+<span id="L990"><span class="lineNum">     990</span>              : When writing a command list, we gather up a list of 'commands' into the</span>
+<span id="L991"><span class="lineNum">     991</span>              : clist (cfile). We then have a series of indexes that says which of these</span>
+<span id="L992"><span class="lineNum">     992</span>              : commands is needed for each band (bfile).</span>
+<span id="L993"><span class="lineNum">     993</span>              : </span>
+<span id="L994"><span class="lineNum">     994</span>              : So, while writing, we can be writing for 1 band, or for a range of bands</span>
+<span id="L995"><span class="lineNum">     995</span>              : at any given time. Commands that follow one another for the same band</span>
+<span id="L996"><span class="lineNum">     996</span>              : (or range of bands) will be crammed together into a single command block.</span>
+<span id="L997"><span class="lineNum">     997</span>              : These command blocks are each given an id for debugging purposes. When</span>
+<span id="L998"><span class="lineNum">     998</span>              : the set of bands for which we are writing changes, the id changes.</span>
+<span id="L999"><span class="lineNum">     999</span>              : </span>
+<span id="L1000"><span class="lineNum">    1000</span>              : Somewhere towards the top of the output (i.e. within a</span>
+<span id="L1001"><span class="lineNum">    1001</span>              : hundred lines or so) you should see:</span>
+<span id="L1002"><span class="lineNum">    1002</span>              : </span>
+<span id="L1003"><span class="lineNum">    1003</span>              :   [L]Resetting: Band range(0,56)</span>
+<span id="L1004"><span class="lineNum">    1004</span>              : </span>
+<span id="L1005"><span class="lineNum">    1005</span>              : So, we are writing some commands that will apply to bands 0 to 56.</span>
+<span id="L1006"><span class="lineNum">    1006</span>              : </span>
+<span id="L1007"><span class="lineNum">    1007</span>              :   [L] id:0+0, put_fill_dcolor(13)</span>
+<span id="L1008"><span class="lineNum">    1008</span>              :   [L] id:0+13, fill_rect 0(5)</span>
+<span id="L1009"><span class="lineNum">    1009</span>              : </span>
+<span id="L1010"><span class="lineNum">    1010</span>              : So, for id 0, at 0 bytes offset, we first have a put_fill_dcolor command</span>
+<span id="L1011"><span class="lineNum">    1011</span>              : that takes 13 bytes. Then, still in id 0, at 13 bytes offset, we have</span>
+<span id="L1012"><span class="lineNum">    1012</span>              : a fill_rect that takes 5 bytes.</span>
+<span id="L1013"><span class="lineNum">    1013</span>              : </span>
+<span id="L1014"><span class="lineNum">    1014</span>              : Then we change the band:</span>
+<span id="L1015"><span class="lineNum">    1015</span>              : </span>
+<span id="L1016"><span class="lineNum">    1016</span>              :   [L]Change to band=0, align=6</span>
+<span id="L1017"><span class="lineNum">    1017</span>              : </span>
+<span id="L1018"><span class="lineNum">    1018</span>              : When we change the band, we change to a new command block, and the id</span>
+<span id="L1019"><span class="lineNum">    1019</span>              : changes - so you'll see the subsequent entries listed with id 1.</span>
+<span id="L1020"><span class="lineNum">    1020</span>              : Subsequent command blocks are aligned, so you'll see some alignment</span>
+<span id="L1021"><span class="lineNum">    1021</span>              : (padding) bytes used - here 6 bytes.</span>
+<span id="L1022"><span class="lineNum">    1022</span>              : </span>
+<span id="L1023"><span class="lineNum">    1023</span>              :   [L] id:1+0, set_misc2(6)</span>
+<span id="L1024"><span class="lineNum">    1024</span>              :   [L] id:1+6, begin_clip(1)</span>
+<span id="L1025"><span class="lineNum">    1025</span>              :   [L] id:1+7, fill_rect 0(7)</span>
+<span id="L1026"><span class="lineNum">    1026</span>              : </span>
+<span id="L1027"><span class="lineNum">    1027</span>              : Here we see various commands, each for id 1, at the expected offsets</span>
+<span id="L1028"><span class="lineNum">    1028</span>              : given their respective sizes. Then we get some debugging from elsewhere</span>
+<span id="L1029"><span class="lineNum">    1029</span>              : in the clist system.</span>
+<span id="L1030"><span class="lineNum">    1030</span>              : </span>
+<span id="L1031"><span class="lineNum">    1031</span>              : [L]  r6:0,793,0,1123</span>
+<span id="L1032"><span class="lineNum">    1032</span>              : </span>
+<span id="L1033"><span class="lineNum">    1033</span>              : This indicates details about the fill_rect (in particular the way</span>
+<span id="L1034"><span class="lineNum">    1034</span>              : the fill_rect is encoded, and the parameters it uses). Such lines can</span>
+<span id="L1035"><span class="lineNum">    1035</span>              : be differentiated fairly easily from the command block writing code</span>
+<span id="L1036"><span class="lineNum">    1036</span>              : as they do not start with 'id:'.</span>
+<span id="L1037"><span class="lineNum">    1037</span>              : </span>
+<span id="L1038"><span class="lineNum">    1038</span>              : We continue with more commands:</span>
+<span id="L1039"><span class="lineNum">    1039</span>              : </span>
+<span id="L1040"><span class="lineNum">    1040</span>              :   [L] id:1+14, end_clip(1)</span>
+<span id="L1041"><span class="lineNum">    1041</span>              :   [L] id:1+15, put_fill_dcolor(13)</span>
+<span id="L1042"><span class="lineNum">    1042</span>              :   [L]  rmoveto:0: 0 0</span>
+<span id="L1043"><span class="lineNum">    1043</span>              :   [L] id:1+28, rmoveto(5)</span>
+<span id="L1044"><span class="lineNum">    1044</span>              :   [L]  rlineto:0: 0 1123</span>
+<span id="L1045"><span class="lineNum">    1045</span>              :   [L] id:1+33, vlineto(4)</span>
+<span id="L1046"><span class="lineNum">    1046</span>              :   [L]  rlineto:0: 793 0</span>
+<span id="L1047"><span class="lineNum">    1047</span>              :   [L] id:1+37, hlineto(3)</span>
+<span id="L1048"><span class="lineNum">    1048</span>              :   [L]  rlineto:0: 0 -1123</span>
+<span id="L1049"><span class="lineNum">    1049</span>              :   [L] id:1+40, vlineto(4)</span>
+<span id="L1050"><span class="lineNum">    1050</span>              :   [L]  closepath:0:</span>
+<span id="L1051"><span class="lineNum">    1051</span>              :   [L] id:1+44, closepath(1)</span>
+<span id="L1052"><span class="lineNum">    1052</span>              :   [L] id:1+45, fill(1)</span>
+<span id="L1053"><span class="lineNum">    1053</span>              : </span>
+<span id="L1054"><span class="lineNum">    1054</span>              : Here we note a couple of things. The clist command encoding system</span>
+<span id="L1055"><span class="lineNum">    1055</span>              : works by first reserving the required number of bytes for a command,</span>
+<span id="L1056"><span class="lineNum">    1056</span>              : then filling in those bytes. Because lots of parameters vary in length</span>
+<span id="L1057"><span class="lineNum">    1057</span>              : according to their particular value, we often have to do a lot of the</span>
+<span id="L1058"><span class="lineNum">    1058</span>              : encoding work twice; once to count how many bytes we need to reserve</span>
+<span id="L1059"><span class="lineNum">    1059</span>              : and then once to fill in the block.</span>
+<span id="L1060"><span class="lineNum">    1060</span>              : </span>
+<span id="L1061"><span class="lineNum">    1061</span>              : The command buffer debug lines (i.e. the ones starting 'id:') are output</span>
+<span id="L1062"><span class="lineNum">    1062</span>              : at the point the buffer is reserved. Other debug lines for the same</span>
+<span id="L1063"><span class="lineNum">    1063</span>              : command can happen either before or after these lines. So the 'r6' line</span>
+<span id="L1064"><span class="lineNum">    1064</span>              : happened after the command reservation that it corresponded to, whereas</span>
+<span id="L1065"><span class="lineNum">    1065</span>              : the 'rmoveto' (and others) above happen before the command reservation.</span>
+<span id="L1066"><span class="lineNum">    1066</span>              : This can be confusing.</span>
+<span id="L1067"><span class="lineNum">    1067</span>              : </span>
+<span id="L1068"><span class="lineNum">    1068</span>              : Another confusing thing is that the commands can appear to change. The</span>
+<span id="L1069"><span class="lineNum">    1069</span>              : non-command block debug above mentions 4 rlineto's, but these all</span>
+<span id="L1070"><span class="lineNum">    1070</span>              : appear in the command list as vlineto or hlineto. This is because</span>
+<span id="L1071"><span class="lineNum">    1071</span>              : the command block queueing attempts to be smart and to simplify the</span>
+<span id="L1072"><span class="lineNum">    1072</span>              : sequence of commands. This can mean pulling a command into a previous</span>
+<span id="L1073"><span class="lineNum">    1073</span>              : one, or (as in this case) realising that a simpler encoding can be</span>
+<span id="L1074"><span class="lineNum">    1074</span>              : used.</span>
+<span id="L1075"><span class="lineNum">    1075</span>              : </span>
+<span id="L1076"><span class="lineNum">    1076</span>              : And we continue...</span>
+<span id="L1077"><span class="lineNum">    1077</span>              : </span>
+<span id="L1078"><span class="lineNum">    1078</span>              :   [L]Change to band=1, align=2</span>
+<span id="L1079"><span class="lineNum">    1079</span>              :   [L] id:2+0, set_misc2(6)</span>
+<span id="L1080"><span class="lineNum">    1080</span>              :   [L] id:2+6, begin_clip(1)</span>
+<span id="L1081"><span class="lineNum">    1081</span>              : </span>
+<span id="L1082"><span class="lineNum">    1082</span>              : After a while, we move to an output phase where things are actually</span>
+<span id="L1083"><span class="lineNum">    1083</span>              : written to the file. These come in groups like:</span>
+<span id="L1084"><span class="lineNum">    1084</span>              : </span>
+<span id="L1085"><span class="lineNum">    1085</span>              :   [l]writing for bands (0,56) at 0</span>
+<span id="L1086"><span class="lineNum">    1086</span>              :   [L] cmd id=0 at 0</span>
+<span id="L1087"><span class="lineNum">    1087</span>              :   [L] adding terminator, end_run(1)</span>
+<span id="L1088"><span class="lineNum">    1088</span>              : </span>
+<span id="L1089"><span class="lineNum">    1089</span>              : So this is writing out a note that bands 0 to 56 should execute the following</span>
+<span id="L1090"><span class="lineNum">    1090</span>              : id's. We then write out the id's in question (id 0, goes into cfile at offset 0).</span>
+<span id="L1091"><span class="lineNum">    1091</span>              : This is then terminated by a single byte 'end_run' marker.</span>
+<span id="L1092"><span class="lineNum">    1092</span>              : </span>
+<span id="L1093"><span class="lineNum">    1093</span>              : This repeats, with the file offsets increasing as we go. Some cases have more</span>
+<span id="L1094"><span class="lineNum">    1094</span>              : than one id, for instance:</span>
+<span id="L1095"><span class="lineNum">    1095</span>              : </span>
+<span id="L1096"><span class="lineNum">    1096</span>              :   [l]writing for bands (7,7) at 640</span>
+<span id="L1097"><span class="lineNum">    1097</span>              :   [L] cmd id=8 at 640</span>
+<span id="L1098"><span class="lineNum">    1098</span>              :   [L] cmd id=194 at 685</span>
+<span id="L1099"><span class="lineNum">    1099</span>              :   [L] cmd id=215 at 785</span>
+<span id="L1100"><span class="lineNum">    1100</span>              :   [L] cmd id=712 at 928</span>
+<span id="L1101"><span class="lineNum">    1101</span>              :   [L] cmd id=720 at 969</span>
+<span id="L1102"><span class="lineNum">    1102</span>              :   [L] cmd id=726 at 986</span>
+<span id="L1103"><span class="lineNum">    1103</span>              :   [L] cmd id=732 at 1016</span>
+<span id="L1104"><span class="lineNum">    1104</span>              :   [L] cmd id=809 at 1046</span>
+<span id="L1105"><span class="lineNum">    1105</span>              :   [L] cmd id=817 at 1185</span>
+<span id="L1106"><span class="lineNum">    1106</span>              :   [L] cmd id=822 at 1258</span>
+<span id="L1107"><span class="lineNum">    1107</span>              :   [L] adding terminator, end_page(1)</span>
+<span id="L1108"><span class="lineNum">    1108</span>              : </span>
+<span id="L1109"><span class="lineNum">    1109</span>              : So, by matching up the id's in this section, together with their offsets,</span>
+<span id="L1110"><span class="lineNum">    1110</span>              : we can find out what command was written there.</span>
+<span id="L1111"><span class="lineNum">    1111</span>              : </span>
+<span id="L1112"><span class="lineNum">    1112</span>              : For instance, suppose we hit a problem when reading the cfile at offset 1029.</span>
+<span id="L1113"><span class="lineNum">    1113</span>              : We can look to see that this is id=732 + 13 bytes. We can look back in the</span>
+<span id="L1114"><span class="lineNum">    1114</span>              : output to where id:732 was being output, and we see:</span>
+<span id="L1115"><span class="lineNum">    1115</span>              : </span>
+<span id="L1116"><span class="lineNum">    1116</span>              :   [L] id:732+13, rmoveto(5)</span>
+<span id="L1117"><span class="lineNum">    1117</span>              : </span>
+<span id="L1118"><span class="lineNum">    1118</span>              : Most clist bugs tend to involve the reader and writer disagreeing on how</span>
+<span id="L1119"><span class="lineNum">    1119</span>              : many bytes a given command should be and getting out of step. By looking at</span>
+<span id="L1120"><span class="lineNum">    1120</span>              : where the writer puts stuff, and the reader is trying to read stuff, we can</span>
+<span id="L1121"><span class="lineNum">    1121</span>              : hopefully spot this.</span>
+<span id="L1122"><span class="lineNum">    1122</span>              : </span>
+<span id="L1123"><span class="lineNum">    1123</span>              : The writing phase ends with:</span>
+<span id="L1124"><span class="lineNum">    1124</span>              : </span>
+<span id="L1125"><span class="lineNum">    1125</span>              :   [l]writing pseudo band 57 cb pos 92521</span>
+<span id="L1126"><span class="lineNum">    1126</span>              :   [l]writing 1824 bytes into cfile at 92521</span>
+<span id="L1127"><span class="lineNum">    1127</span>              :   [l]writing end for bands (-1,-1) at 94345</span>
+<span id="L1128"><span class="lineNum">    1128</span>              : </span>
+<span id="L1129"><span class="lineNum">    1129</span>              : FIXME: Explain the pseudo band.</span>
+<span id="L1130"><span class="lineNum">    1130</span>              : </span>
+<span id="L1131"><span class="lineNum">    1131</span>              : The next section of the logging shows the reader reading. For each band</span>
+<span id="L1132"><span class="lineNum">    1132</span>              : in turn, we'll see a section where we announce what band we are</span>
+<span id="L1133"><span class="lineNum">    1133</span>              : rendering:</span>
+<span id="L1134"><span class="lineNum">    1134</span>              : </span>
+<span id="L1135"><span class="lineNum">    1135</span>              :   [l]rendering bands (0,0)</span>
+<span id="L1136"><span class="lineNum">    1136</span>              : </span>
+<span id="L1137"><span class="lineNum">    1137</span>              : Then we will read through the different band records that were output</span>
+<span id="L1138"><span class="lineNum">    1138</span>              : above.</span>
+<span id="L1139"><span class="lineNum">    1139</span>              : </span>
+<span id="L1140"><span class="lineNum">    1140</span>              :   [l]reading for bands (0,0) at bfile 0, cfile 0, length 0</span>
+<span id="L1141"><span class="lineNum">    1141</span>              :   [l]reading for bands (0,56) at bfile 16, cfile 0, length 19</span>
+<span id="L1142"><span class="lineNum">    1142</span>              :   [l]reading for bands (0,0) at bfile 32, cfile 19, length 47</span>
+<span id="L1143"><span class="lineNum">    1143</span>              : </span>
+<span id="L1144"><span class="lineNum">    1144</span>              : If we look back, we can see that the first of these corresponded to an</span>
+<span id="L1145"><span class="lineNum">    1145</span>              : empty record. The second of these corresponded to the write of</span>
+<span id="L1146"><span class="lineNum">    1146</span>              : &quot;cmd id=0 at 0&quot;, and the third corresponds to the write of</span>
+<span id="L1147"><span class="lineNum">    1147</span>              : &quot;cmd id=1 at 19&quot;.</span>
+<span id="L1148"><span class="lineNum">    1148</span>              : </span>
+<span id="L1149"><span class="lineNum">    1149</span>              : When these records have been read in, we actually execute the data. Each</span>
+<span id="L1150"><span class="lineNum">    1150</span>              : line gives the offset from which the command was read (which allows us</span>
+<span id="L1151"><span class="lineNum">    1151</span>              : to track it back to what it *should* be in the case of a mismatch),</span>
+<span id="L1152"><span class="lineNum">    1152</span>              : and is followed by the command name, and a selection of its parameters:</span>
+<span id="L1153"><span class="lineNum">    1153</span>              : </span>
+<span id="L1154"><span class="lineNum">    1154</span>              :   [L] 0: put_fill_dcolor cmd_opv_ext_put_drawing_color</span>
+<span id="L1155"><span class="lineNum">    1155</span>              :   [L] 13: fill_rect 0 x=0 y=0 w=0 h=0</span>
+<span id="L1156"><span class="lineNum">    1156</span>              :   [L] 18: end_run</span>
+<span id="L1157"><span class="lineNum">    1157</span>              :   [L] 19: set_misc2</span>
+<span id="L1158"><span class="lineNum">    1158</span>              :   [L]      CJ=-1 AC=1 SA=1</span>
+<span id="L1159"><span class="lineNum">    1159</span>              :   [L]      BM=0 TK=1 OPM=0 OP=0 op=0 RI=1</span>
+<span id="L1160"><span class="lineNum">    1160</span>              :   [L] 25: begin_clip</span>
+<span id="L1161"><span class="lineNum">    1161</span>              :   [L] 26: fill_rect 0 x=0 y=0 w=793 h=1123</span>
+<span id="L1162"><span class="lineNum">    1162</span>              :   [L] 33: end_clip</span>
+<span id="L1163"><span class="lineNum">    1163</span>              :   [L] 34: put_fill_dcolor cmd_opv_ext_put_drawing_color</span>
+<span id="L1164"><span class="lineNum">    1164</span>              :   [L] 47: rmoveto (0,0) 0 0</span>
+<span id="L1165"><span class="lineNum">    1165</span>              :   [L] 52: vlineto 1123</span>
+<span id="L1166"><span class="lineNum">    1166</span>              :   [L] 56: hlineto 793</span>
+<span id="L1167"><span class="lineNum">    1167</span>              :   [L] 59: vlineto -1123</span>
+<span id="L1168"><span class="lineNum">    1168</span>              :   [L] 63: closepath</span>
+<span id="L1169"><span class="lineNum">    1169</span>              :   [L] 64: fill</span>
+<span id="L1170"><span class="lineNum">    1170</span>              :   [L] 65: end_page</span>
+<span id="L1171"><span class="lineNum">    1171</span>              : </span>
+<span id="L1172"><span class="lineNum">    1172</span>              : Then we repeat gathering the data for the next band:</span>
+<span id="L1173"><span class="lineNum">    1173</span>              : </span>
+<span id="L1174"><span class="lineNum">    1174</span>              :   [l]rendering bands (1,1)</span>
+<span id="L1175"><span class="lineNum">    1175</span>              :   [l]reading for bands (0,56) at bfile 16, cfile 0, length 19</span>
+<span id="L1176"><span class="lineNum">    1176</span>              :   [l]reading for bands (1,1) at bfile 48, cfile 66, length 46</span>
+<span id="L1177"><span class="lineNum">    1177</span>              : </span>
+<span id="L1178"><span class="lineNum">    1178</span>              : and so on.</span>
+<span id="L1179"><span class="lineNum">    1179</span>              : </span>
+<span id="L1180"><span class="lineNum">    1180</span>              : */</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

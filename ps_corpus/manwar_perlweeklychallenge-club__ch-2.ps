@@ -2,6 +2,16 @@
 
 % begin included library code
 % see https://codeberg.org/Firedrake/postscript-libraries/
+/dget {
+    3 1 roll
+    2 copy
+    known {
+        get exch pop
+    } {
+        pop pop
+    } ifelse
+} bind def
+
 /test {
     /test.count test.count 1 add def
     {
@@ -13,9 +23,65 @@
     } ifelse
 } bind def
 
-/apush.right { % [a b] c -> [a b c]
-    exch
-    [ exch aload length 2 add -1 roll ]
+/values { % dict -> array of dict values
+    [ exch
+      {
+          exch pop
+      } forall
+    ]
+} bind def
+
+/reduce { % array proc -> value
+    2 dict begin
+    /p exch def
+    /a exch def
+    a 0 get
+    1 1 a length 1 sub {
+        a exch get
+        p
+    } for
+    end
+} bind def
+
+/filter { % array proc(bool) -> array
+    1 dict begin
+    /p exch def
+    [ exch
+      {
+          dup p not
+          {
+              pop
+          } if
+      } forall
+    ]
+    end
+} bind def
+
+/keys { % dict -> array of dict keys
+    [ exch
+      {
+          pop
+      } forall
+    ]
+} bind def
+
+/s2a {
+    [ exch { } forall ]
+} bind def
+
+/a2s {
+    2 dict begin
+    /i exch def
+    i length dup string /o exch def
+    1 sub 0 exch 1 exch {
+        dup i 3 -1 roll get o 3 1 roll put
+    } for
+    o
+    end
+} bind def
+
+/listmax {
+    { max } reduce
 } bind def
 
 /test.end {
@@ -32,181 +98,71 @@
     } if
 } bind def
 
-/apop.left { % [a b c] -> [b c] a
-    dup 0 get exch
-    [ exch aload length -1 roll pop ] exch
-} bind def
-
 /test.start {
     print (:) print
     /test.pass 0 def
     /test.count 0 def
 } bind def
 
-/keys { % dict -> array of dict keys
-    [ exch
-      {
-          pop
-      } forall
-    ]
-} bind def
-
-
-/set.difference {
-    4 dict begin
-    /s 0 dict def
-    /b exch def
-    /a exch def
-    a keys {
-        /k exch def
-        b k known not {
-            s k true put
-        } if
-    } forall
-    s
-    end
-} bind def
-
-/deepeq {
-    2 dict begin
-    /a exch def
-    /b exch def
-    a type b type eq {
-        a type /dicttype eq {
-            a length b length eq {
-                <<
-                    a {
-                        pop
-                        true
-                    } forall
-                    b {
-                        pop
-                        true
-                    } forall
-                >>
-                true exch
-                {
-                    pop
-                    dup a exch known {
-                        dup b exch known {
-                            dup a exch get exch b exch get deepeq not {
-                                pop false
-                            } if
-                        } {
-                            false
-                        } ifelse
-                    } {
-                        false
-                    } ifelse
-                } forall
-            } {
-                false
-            } ifelse
-        } {
-            a type dup /arraytype eq exch /stringtype eq or {
-                a length b length eq {
-                    true
-                    0 1 a length 1 sub {
-                        dup a exch get exch b exch get deepeq not {
-                            pop false
-                            exit
-                        } if
-                    } for
-                } {
-                    false
-                } ifelse
-            } {
-                a b eq
-            } ifelse
-        } ifelse
-    } {
-        false
-    } ifelse
-    end
-} bind def
-
 
 % end included library code
 
-/encode {
-    aload pop
-    exch 1000000 mul add
+/isalpha {
+    dup
+    dup 65 ge exch 90 le and exch
+    dup 97 ge exch 122 le and or
 } bind def
 
-/decode {
-    dup 1000000 idiv
-    exch
-    1000000 mod
-    2 array astore
-} bind def
-
-/contiguousblock {
+/splitalpha {
     0 dict begin
-    /a exch def
-    /y a length def
-    /x a 0 get length def
-    /starts 0 dict def
-    0 1 x 1 sub {
-        /cx exch def
-        0 1 y 1 sub {
-            cx exch
-            2 array astore
-            encode
-            starts exch true put
-        } for
-    } for
-    /maxblock 0 def
-    {
-        starts length 0 le {
-            exit
-        } if
-        /start starts keys 0 get def
-        /cstart start decode def
-        /queue [ start ] def
-        /visited << start true >> def
-        {
-            queue length 0 le {
-                exit
-            } if
-            queue apop.left /here exch def /queue exch def
-            /chere here decode def
-            [
-                [ -1 0 ]
-                [ 1 0 ]
-                [ 0 -1 ]
-                [ 0 1 ]
-            ] {
-                /delta exch def
-                delta 0 get 0 ge chere 0 get 0 gt or
-                delta 0 get 0 le chere 0 get x 1 sub lt or and
-                delta 1 get 0 ge chere 1 get 0 gt or and
-                delta 1 get 0 le chere 1 get y 1 sub lt or and {
-                    /cthere [
-                        chere 0 get delta 0 get add
-                        chere 1 get delta 1 get add
-                    ] def
-                    /there cthere encode def
-                    visited there known not
-                    a cthere 1 get get cthere 0 get get
-                    a cstart 1 get get cstart 0 get get deepeq and {
-                        visited there true put
-                        /queue queue there apush.right def
-                    } if
+    s2a /s exch def
+    /state false def
+    [
+        /x -1 def
+        0 1 s length 1 sub {
+            /i exch def
+            s i get isalpha {
+                state not {
+                    /x i def
                 } if
-            } forall
-        } loop
-        /sz visited keys length def
-        sz maxblock gt {
-            /maxblock sz def
+                /state true def
+            } {
+                state {
+                    [ x i ]
+                } if
+                /state false def
+            } ifelse
+        } for
+        state {
+            [ x i ]
         } if
-        /starts starts visited set.difference def
-    } loop
-    maxblock
+    ]
+    [ exch {
+          aload pop
+          1 index exch sub neg
+          s 3 1 roll
+          getinterval a2s
+      } forall
+    ]
     end
 } bind def
 
-(contiguousblock) test.start
-[[(x) (x) (x) (x) (o)] [(x) (o) (o) (o) (o)] [(x) (o) (o) (o) (o)] [(x) (x) (x) (o) (o)]] contiguousblock 11 eq test
-[[(x) (x) (x) (x) (x)] [(x) (o) (o) (o) (o)] [(x) (x) (x) (x) (o)] [(x) (o) (o) (o) (o)]] contiguousblock 11 eq test
-[[(x) (x) (x) (o) (o)] [(o) (o) (o) (x) (x)] [(o) (x) (x) (o) (o)] [(o) (o) (o) (x) (x)]] contiguousblock 7 eq test
+/mostfrequentword {
+    0 dict begin
+    exch
+    /words 0 dict def
+    splitalpha {
+        /c exch def
+        words c 0 dget 1 add words exch c exch put
+    } forall
+    words exch undef
+    /m words values listmax def
+    /k words keys { words exch get m eq } filter def
+    k 0 get
+    end
+} bind def
+
+(mostfrequentword) test.start
+(Joe hit a ball, the hit ball flew far after it was hit.) (hit) mostfrequentword (ball) eq test
+(Perl and Raku belong to the same family. Perl is the most popular language in the weekly challenge.) (the) mostfrequentword (Perl) eq test
 test.end

@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zfdcte.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zfdcte.c<span style="font-size: 80%;"> (source / <a href="zfdcte.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* DCTEncode filter creation */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;stdio_.h&quot;           /* for jpeglib.h */</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;jpeglib_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;oper.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsmemory.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;ialloc.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;idict.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;idparam.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;strimpl.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;sdct.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;sjpeg.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;ifilter.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;iparam.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : /* Import the parameter processing procedure from sdeparam.c */</span>
+<span id="L34"><span class="lineNum">      34</span>              : stream_state_proc_put_params(s_DCTE_put_params, stream_DCT_state);</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : /* &lt;target&gt; &lt;dict&gt; DCTEncode/filter &lt;file&gt; */</span>
+<span id="L37"><span class="lineNum">      37</span>              : static int</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 : zDCTE(i_ctx_t *i_ctx_p)</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = gs_memory_stable(imemory);</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :     stream_DCT_state state;</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :     dict_param_list list;</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :     jpeg_compress_data *jcdp;</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :     const ref *dop;</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     uint dspace;</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :     /* First allocate space for IJG parameters. */</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     jcdp = gs_alloc_struct_immovable(mem, jpeg_compress_data,</span></span>
+<span id="L52"><span class="lineNum">      52</span>              :       &amp;st_jpeg_compress_data, &quot;zDCTE&quot;);</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     if (jcdp == 0)</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :     state.memory = mem;</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     if (s_DCTE_template.set_defaults)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         (*s_DCTE_template.set_defaults) ((stream_state *) &amp; state);</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     state.data.compress = jcdp;</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     jcdp-&gt;memory = state.jpeg_memory = mem;  /* set now for allocation */</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     state.report_error = filter_report_error;   /* in case create fails */</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     if ((code = gs_jpeg_create_compress(&amp;state)) &lt; 0)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         goto fail;              /* correct to do jpeg_destroy here */</span></span>
+<span id="L63"><span class="lineNum">      63</span>              :     /* Read parameters from dictionary */</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :     if (r_has_type(op, t_dictionary))</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         dop = op, dspace = r_space(op);</span></span>
+<span id="L66"><span class="lineNum">      66</span>              :     else</span>
+<span id="L67"><span class="lineNum">      67</span>              :         dop = 0, dspace = 0;</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     if ((code = dict_param_list_read(&amp;list, dop, NULL, false, iimemory)) &lt; 0)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         goto fail;</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :     if ((code = s_DCTE_put_params((gs_param_list *) &amp; list, &amp;state)) &lt; 0)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         goto rel;</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :     /* Create the filter. */</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     jcdp-&gt;templat = s_DCTE_template;</span></span>
+<span id="L74"><span class="lineNum">      74</span>              :     /* Make sure we get at least a full scan line of input. */</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     state.scan_line_size = jcdp-&gt;cinfo.input_components *</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         jcdp-&gt;cinfo.image_width;</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     state.icc_profile = NULL;</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     jcdp-&gt;templat.min_in_size =</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         max(s_DCTE_template.min_in_size, state.scan_line_size);</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :     /* Make sure we can write the user markers in a single go. */</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     jcdp-&gt;templat.min_out_size =</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         max(s_DCTE_template.min_out_size, state.Markers.size);</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     code = filter_write(i_ctx_p, 0, &amp;jcdp-&gt;templat,</span></span>
+<span id="L84"><span class="lineNum">      84</span>              :                         (stream_state *) &amp; state, dspace);</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :     if (code &gt;= 0)           /* Success! */</span></span>
+<span id="L86"><span class="lineNum">      86</span>              :         return code;</span>
+<span id="L87"><span class="lineNum">      87</span>              :     /* We assume that if filter_write fails, the stream has not been</span>
+<span id="L88"><span class="lineNum">      88</span>              :      * registered for closing, so s_DCTE_release will never be called.</span>
+<span id="L89"><span class="lineNum">      89</span>              :      * Therefore we free the allocated memory before failing.</span>
+<span id="L90"><span class="lineNum">      90</span>              :      */</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 : rel:</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     iparam_list_release(&amp;list);</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 : fail:</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     gs_jpeg_destroy(&amp;state);</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :     gs_free_object(mem, jcdp, &quot;zDCTE fail&quot;);</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : }</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : /* ------ Initialization procedure ------ */</span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span>              : const op_def zfdcte_op_defs[] =</span>
+<span id="L102"><span class="lineNum">     102</span>              : {</span>
+<span id="L103"><span class="lineNum">     103</span>              :     op_def_begin_filter(),</span>
+<span id="L104"><span class="lineNum">     104</span>              :     {&quot;2DCTEncode&quot;, zDCTE},</span>
+<span id="L105"><span class="lineNum">     105</span>              :     op_def_end(0)</span>
+<span id="L106"><span class="lineNum">     106</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

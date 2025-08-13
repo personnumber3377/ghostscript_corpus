@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsclipsr.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsclipsr.c<span style="font-size: 80%;"> (source / <a href="gsclipsr.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">62.2&nbsp;%</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">23</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* clipsave/cliprestore */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;gx.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gsclipsr.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gxclipsr.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gxfixed.h&quot;          /* for gxpath.h */</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxpath.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gzstate.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : /* Structure descriptors */</span>
+<span id="L28"><span class="lineNum">      28</span>              : private_st_clip_stack();</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : /*</span>
+<span id="L31"><span class="lineNum">      31</span>              :  * When we free a clip stack entry and the associated clip path.</span>
+<span id="L32"><span class="lineNum">      32</span>              :  */</span>
+<span id="L33"><span class="lineNum">      33</span>              : static void</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">          22 : rc_free_clip_stack(gs_memory_t * mem, void *vstack, client_name_t cname)</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : {</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          22 :     gx_clip_stack_t *stack = (gx_clip_stack_t *)vstack;</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">          22 :     if (stack-&gt;rc.ref_count &lt;= 1 ) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">          22 :         gx_clip_path *pcpath = stack-&gt;clip_path;</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">          22 :         gs_free_object(stack-&gt;rc.memory, stack, cname);</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">          22 :         gx_cpath_free(pcpath, &quot;rc_free_clip_stack&quot;);</span></span>
+<span id="L43"><span class="lineNum">      43</span>              :     }</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">          22 : }</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : /* clipsave */</span>
+<span id="L47"><span class="lineNum">      47</span>              : int</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">       75606 : gs_clipsave(gs_gstate *pgs)</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">       75606 :     gs_memory_t *mem = pgs-&gt;memory;</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       75606 :     gx_clip_path *copy =</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       75606 :         gx_cpath_alloc_shared(pgs-&gt;clip_path, mem, &quot;gs_clipsave(clip_path)&quot;);</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">       75606 :     gx_clip_stack_t *stack =</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">       75606 :         gs_alloc_struct(mem, gx_clip_stack_t, &amp;st_clip_stack,</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :                         &quot;gs_clipsave(stack)&quot;);</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       75606 :     if (copy == 0 || stack == 0) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :         gs_free_object(mem, stack, &quot;gs_clipsave(stack)&quot;);</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         gs_free_object(mem, copy, &quot;gs_clipsave(clip_path)&quot;);</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return_error(gs_error_VMerror);</span></span>
+<span id="L61"><span class="lineNum">      61</span>              :     }</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">       75606 :     rc_init_free(stack, mem, 1, rc_free_clip_stack);</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">       75606 :     stack-&gt;clip_path = copy;</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       75606 :     stack-&gt;next = pgs-&gt;clip_stack;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       75606 :     pgs-&gt;clip_stack = stack;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       75606 :     return 0;</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : }</span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : /* cliprestore */</span>
+<span id="L70"><span class="lineNum">      70</span>              : int</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       50972 : gs_cliprestore(gs_gstate *pgs)</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : {</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">       50972 :     gx_clip_stack_t *stack = pgs-&gt;clip_stack;</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">       50972 :     if (stack) {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :         gx_clip_stack_t *next = stack-&gt;next;</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         gx_clip_path *pcpath = stack-&gt;clip_path;</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         int code;</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         if (stack-&gt;rc.ref_count == 1) {</span></span>
+<span id="L81"><span class="lineNum">      81</span>              :             /* Use assign_free rather than assign_preserve. */</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :             gs_free_object(stack-&gt;rc.memory, stack, &quot;cliprestore&quot;);</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :             code = gx_cpath_assign_free(pgs-&gt;clip_path, pcpath);</span></span>
+<span id="L84"><span class="lineNum">      84</span>              :         } else {</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :             code = gx_cpath_assign_preserve(pgs-&gt;clip_path, pcpath);</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L87"><span class="lineNum">      87</span>              :                 return code;</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :             --(stack-&gt;rc.ref_count);</span></span>
+<span id="L89"><span class="lineNum">      89</span>              :         }</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         pgs-&gt;clip_stack = next;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L92"><span class="lineNum">      92</span>              :     } else {</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC tlaBgGNC">       50972 :         return gx_cpath_assign_preserve(pgs-&gt;clip_path, pgs-&gt;saved-&gt;clip_path);</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :     }</span>
+<span id="L95"><span class="lineNum">      95</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

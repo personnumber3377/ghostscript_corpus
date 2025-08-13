@@ -1,0 +1,547 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zpcolor.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zpcolor.c<span style="font-size: 80%;"> (source / <a href="zpcolor.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">2.2&nbsp;%</td>
+            <td class="headerCovTableEntry">230</td>
+            <td class="headerCovTableEntry">5</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">12.5&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">1</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Pattern color */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;oper.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gscolor.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gsmatrix.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gscoord.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxcspace.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxfixed.h&quot;          /* for gxcolor2.h */</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxcolor2.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gxdcolor.h&quot;         /* for gxpcolor.h */</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gxdevice.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gxdevmem.h&quot;         /* for gxpcolor.h */</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gxpcolor.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gxpath.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;estack.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;ialloc.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;icremap.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;istruct.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;idict.h&quot;</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;idparam.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;igstate.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;ipcolor.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;store.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : #include &quot;gzstate.h&quot;</span>
+<span id="L42"><span class="lineNum">      42</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L43"><span class="lineNum">      43</span>              : #include &quot;gdevp14.h&quot;</span>
+<span id="L44"><span class="lineNum">      44</span>              : #include &quot;gxdevsop.h&quot;</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : /* Imported from gspcolor.c */</span>
+<span id="L47"><span class="lineNum">      47</span>              : extern const gs_color_space_type gs_color_space_type_Pattern;</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : /* Forward references */</span>
+<span id="L50"><span class="lineNum">      50</span>              : static int zPaintProc(const gs_client_color *, gs_gstate *);</span>
+<span id="L51"><span class="lineNum">      51</span>              : static int pattern_paint_prepare(i_ctx_t *);</span>
+<span id="L52"><span class="lineNum">      52</span>              : static int pattern_paint_finish(i_ctx_t *);</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : /* GC descriptors */</span>
+<span id="L55"><span class="lineNum">      55</span>              : private_st_int_pattern();</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /* Initialize the Pattern cache. */</span>
+<span id="L58"><span class="lineNum">      58</span>              : static int</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">        9593 : zpcolor_init(i_ctx_t *i_ctx_p)</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : {</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">        9593 :     gx_pattern_cache *pc = gx_pattern_alloc_cache(imemory_system,</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :                                                   gx_pat_cache_default_tiles(),</span>
+<span id="L63"><span class="lineNum">      63</span>              :                                                   gx_pat_cache_default_bits());</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">        9593 :     if (pc == NULL)</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">        9593 :     gstate_set_pattern_cache(igs, pc);</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">        9593 :     return 0;</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : /* Create an interpreter pattern structure. */</span>
+<span id="L71"><span class="lineNum">      71</span>              : int</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC tlaBgUNC">           0 : int_pattern_alloc(int_pattern **ppdata, const ref *op, gs_memory_t *mem)</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : {</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     int_pattern *pdata =</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         gs_alloc_struct(mem, int_pattern, &amp;st_int_pattern, &quot;int_pattern&quot;);</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     if (pdata == 0)</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     pdata-&gt;dict = *op;</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     *ppdata = pdata;</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : /* &lt;pattern&gt; &lt;matrix&gt; .buildpattern1 &lt;pattern&gt; &lt;instance&gt; */</span>
+<span id="L85"><span class="lineNum">      85</span>              : static int</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 : zbuildpattern1(i_ctx_t *i_ctx_p)</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : {</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     os_ptr op1 = op - 1;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     gs_matrix mat;</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     float BBox[4];</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :     gs_client_pattern templat;</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     int_pattern *pdata;</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :     gs_client_color cc_instance;</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :     ref *pPaintProc;</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :     code = read_matrix(imemory, op, &amp;mat);</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L101"><span class="lineNum">     101</span>              :         return code;</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :     check_type(*op1, t_dictionary);</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :     check_dict_read(*op1);</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :     gs_pattern1_init(&amp;templat);</span></span>
+<span id="L105"><span class="lineNum">     105</span>              : </span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :     code = dict_uid_param(op1, &amp;templat.uid, 1, imemory, i_ctx_p);</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :         return code;</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     if (code != 1)</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :     code = dict_int_param(op1, &quot;PaintType&quot;, 1, 2, 0, &amp;templat.PaintType);</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :         return code;</span>
+<span id="L115"><span class="lineNum">     115</span>              : </span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :     code = dict_int_param(op1, &quot;TilingType&quot;, 1, 3, 0, &amp;templat.TilingType);</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :         return code;</span>
+<span id="L119"><span class="lineNum">     119</span>              : </span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :     code = dict_bool_param(op1, &quot;.pattern_uses_transparency&quot;, 0, &amp;templat.uses_transparency);</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :         return code;</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :     code = dict_floats_param(imemory, op1, &quot;BBox&quot;, 4, BBox, NULL);</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :         return code;</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :     if (code == 0)</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :        return_error(gs_error_undefined);</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :     code = dict_float_param(op1, &quot;XStep&quot;, 0.0, &amp;templat.XStep);</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L132"><span class="lineNum">     132</span>              :         return code;</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :     if (code == 1)</span></span>
+<span id="L134"><span class="lineNum">     134</span>              :        return_error(gs_error_undefined);</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     code = dict_float_param(op1, &quot;YStep&quot;, 0.0, &amp;templat.YStep);</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L138"><span class="lineNum">     138</span>              :         return code;</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :     if (code == 1)</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :        return_error(gs_error_undefined);</span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     code = dict_find_string(op1, &quot;PaintProc&quot;, &amp;pPaintProc);</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L144"><span class="lineNum">     144</span>              :         return code;</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     if (code == 0)</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :        return_error(gs_error_undefined);</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :     check_proc(*pPaintProc);</span></span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     if (mat.xx * mat.yy == mat.xy * mat.yx)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :         return_error(gs_error_undefinedresult);</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     if (BBox[0] &gt;= BBox[2] ||  BBox[1] &gt;= BBox[3])</span></span>
+<span id="L153"><span class="lineNum">     153</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     templat.BBox.p.x = BBox[0];</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     templat.BBox.p.y = BBox[1];</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :     templat.BBox.q.x = BBox[2];</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     templat.BBox.q.y = BBox[3];</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     templat.PaintProc = zPaintProc;</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     code = int_pattern_alloc(&amp;pdata, op1, imemory);</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         return code;</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :     code = gs_makepattern(&amp;cc_instance, &amp;templat, &amp;mat, igs, imemory);</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :     if (code &lt; 0) {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         ifree_object(pdata, &quot;int_pattern&quot;);</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L167"><span class="lineNum">     167</span>              :     }</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     cc_instance.pattern-&gt;client_data = pdata;</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :     make_istruct(op, a_readonly, cc_instance.pattern);</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : }</span>
+<span id="L172"><span class="lineNum">     172</span>              : </span>
+<span id="L173"><span class="lineNum">     173</span>              : /* ------ Initialization procedure ------ */</span>
+<span id="L174"><span class="lineNum">     174</span>              : </span>
+<span id="L175"><span class="lineNum">     175</span>              : const op_def zpcolor_l2_op_defs[] =</span>
+<span id="L176"><span class="lineNum">     176</span>              : {</span>
+<span id="L177"><span class="lineNum">     177</span>              :     op_def_begin_level2(),</span>
+<span id="L178"><span class="lineNum">     178</span>              :     {&quot;2.buildpattern1&quot;, zbuildpattern1},</span>
+<span id="L179"><span class="lineNum">     179</span>              :     {&quot;0%pattern_paint_prepare&quot;, pattern_paint_prepare},</span>
+<span id="L180"><span class="lineNum">     180</span>              :     {&quot;0%pattern_paint_finish&quot;, pattern_paint_finish},</span>
+<span id="L181"><span class="lineNum">     181</span>              :     op_def_end(zpcolor_init)</span>
+<span id="L182"><span class="lineNum">     182</span>              : };</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : /* ------ Internal procedures ------ */</span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span>              : /* Render the pattern by calling the PaintProc. */</span>
+<span id="L187"><span class="lineNum">     187</span>              : static int pattern_paint_cleanup(i_ctx_t *);</span>
+<span id="L188"><span class="lineNum">     188</span>              : static int pattern_paint_cleanup_core(i_ctx_t *, bool);</span>
+<span id="L189"><span class="lineNum">     189</span>              : static int</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : zPaintProc(const gs_client_color * pcc, gs_gstate * pgs)</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : {</span>
+<span id="L192"><span class="lineNum">     192</span>              :     /* Just schedule a call on the real PaintProc. */</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :     r_ptr(&amp;gs_int_gstate(pgs)-&gt;remap_color_info,</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :           int_remap_color_info_t)-&gt;proc =</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :         pattern_paint_prepare;</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     return_error(gs_error_Remap_Color);</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : }</span>
+<span id="L198"><span class="lineNum">     198</span>              : /* Prepare to run the PaintProc. */</span>
+<span id="L199"><span class="lineNum">     199</span>              : static int</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 : pattern_paint_prepare(i_ctx_t *i_ctx_p)</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : {</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     gs_gstate *pgs = igs;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     gs_pattern1_instance_t *pinst =</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         (gs_pattern1_instance_t *)gs_currentcolor(pgs)-&gt;pattern;</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     ref *pdict = &amp;((int_pattern *) pinst-&gt;client_data)-&gt;dict;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     gx_device_forward *pdev = NULL;</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     gx_device *cdev = gs_currentdevice_inline(igs), *new_dev = NULL;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     ref *ppp;</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     bool internal_accum = true;</span></span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     check_estack(8);</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :     if (pgs-&gt;have_pattern_streams) {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         code = dev_proc(cdev, dev_spec_op)(cdev, gxdso_pattern_can_accum,</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                                 pinst, pinst-&gt;id);</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :             return code;</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         internal_accum = (code == 0);</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :     }</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :     if (internal_accum) {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         gs_memory_t *storage_memory = gstate_pattern_cache(pgs)-&gt;memory;</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : </span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         pdev = gx_pattern_accum_alloc(imemory, storage_memory, pinst, &quot;pattern_paint_prepare&quot;);</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         if (pdev == 0)</span></span>
+<span id="L225"><span class="lineNum">     225</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         code = (*dev_proc(pdev, open_device)) ((gx_device *) pdev);</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :             ifree_object(pdev, &quot;pattern_paint_prepare&quot;);</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L230"><span class="lineNum">     230</span>              :         }</span>
+<span id="L231"><span class="lineNum">     231</span>              :     } else {</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         code = gx_pattern_cache_add_dummy_entry(igs, pinst, cdev-&gt;color_info.depth);</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L234"><span class="lineNum">     234</span>              :             return code;</span>
+<span id="L235"><span class="lineNum">     235</span>              :     }</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     code = gs_gsave(pgs);</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :         return code;</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     code = gs_setgstate(pgs, pinst-&gt;saved);</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :     if (code &lt; 0) {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         gs_grestore(pgs);</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L243"><span class="lineNum">     243</span>              :     }</span>
+<span id="L244"><span class="lineNum">     244</span>              :     /* gx_set_device_only(pgs, (gx_device *) pdev); */</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     if (internal_accum) {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         gs_setdevice_no_init(pgs, (gx_device *)pdev);</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if (pinst-&gt;templat.uses_transparency) {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :             if_debug0m('v', imemory, &quot;   pushing the pdf14 compositor device into this graphics state\n&quot;);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :             if ((code = gs_push_pdf14trans_device(pgs, true, true, 0, 0)) &lt; 0)  /* spot color count found from pdf14 target */</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :                 return code;</span>
+<span id="L251"><span class="lineNum">     251</span>              :         } else { /* not transparent */</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :             if (pinst-&gt;templat.PaintType == 1 &amp;&amp; !(pinst-&gt;is_clist)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 &amp;&amp; dev_proc(pinst-&gt;saved-&gt;device, dev_spec_op)(pinst-&gt;saved-&gt;device, gxdso_pattern_can_accum, NULL, 0) == 0)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 if ((code = gx_erase_colored_pattern(pgs)) &lt; 0)</span></span>
+<span id="L255"><span class="lineNum">     255</span>              :                     return code;</span>
+<span id="L256"><span class="lineNum">     256</span>              :         }</span>
+<span id="L257"><span class="lineNum">     257</span>              :     } else {</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         gs_matrix m;</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         gs_rect bbox;</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         gs_fixed_rect clip_box;</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         dev_proc(pgs-&gt;device, get_initial_matrix)(pgs-&gt;device, &amp;m);</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         gs_setmatrix(igs, &amp;m);</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         code = gs_bbox_transform(&amp;pinst-&gt;templat.BBox, &amp;ctm_only(pgs), &amp;bbox);</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :             gs_grestore(pgs);</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L268"><span class="lineNum">     268</span>              :         }</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         clip_box.p.x = float2fixed(bbox.p.x);</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         clip_box.p.y = float2fixed(bbox.p.y);</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         clip_box.q.x = float2fixed(bbox.q.x);</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         clip_box.q.y = float2fixed(bbox.q.y);</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         code = gx_clip_to_rectangle(igs, &amp;clip_box);</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :             gs_grestore(pgs);</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :         }</span>
+<span id="L278"><span class="lineNum">     278</span>              : </span>
+<span id="L279"><span class="lineNum">     279</span>              :         {</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :             pattern_accum_param_s param;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :             param.pinst = (void *)pinst;</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :             param.interpreter_memory = imemory;</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :             param.graphics_state = (void *)pgs;</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :             param.pinst_id = pinst-&gt;id;</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :             code = (*dev_proc(pgs-&gt;device, dev_spec_op))((gx_device *)pgs-&gt;device,</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :                 gxdso_pattern_start_accum, &amp;param, sizeof(pattern_accum_param_s));</span>
+<span id="L288"><span class="lineNum">     288</span>              :         }</span>
+<span id="L289"><span class="lineNum">     289</span>              :         /* Previously the code here and in pattern_pain_cleanup() assumed that if the current</span>
+<span id="L290"><span class="lineNum">     290</span>              :          * device could handle patterns it would do so itself, thus if we get to the cleanup</span>
+<span id="L291"><span class="lineNum">     291</span>              :          * and the device stored on the exec stack (pdev) was NULL, we assumed that we could</span>
+<span id="L292"><span class="lineNum">     292</span>              :          * simly tell the current device to finish the pattern. However, if the device handles</span>
+<span id="L293"><span class="lineNum">     293</span>              :          * patterns by installing a new device, then that won't work. So here, after the</span>
+<span id="L294"><span class="lineNum">     294</span>              :          * device has processed the pattern, we find the 'current' device. If the device</span>
+<span id="L295"><span class="lineNum">     295</span>              :          * handles patterns itself then there is effectively no change, that device will be</span>
+<span id="L296"><span class="lineNum">     296</span>              :          * informed by pattern_pain_cleanup() that the pattern has finished. However, if</span>
+<span id="L297"><span class="lineNum">     297</span>              :          * the device has changed, then we assume here that the new current device is the</span>
+<span id="L298"><span class="lineNum">     298</span>              :          * one that handles the pattern, and threfore the onw to inform when the pattern</span>
+<span id="L299"><span class="lineNum">     299</span>              :          * terminates. We store the pattern o the exec stack, exactly like the pattern</span>
+<span id="L300"><span class="lineNum">     300</span>              :          * instance etc.</span>
+<span id="L301"><span class="lineNum">     301</span>              :          */</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         new_dev = gs_currentdevice_inline(igs);</span></span>
+<span id="L303"><span class="lineNum">     303</span>              : </span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :             gs_grestore(pgs);</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :         }</span>
+<span id="L308"><span class="lineNum">     308</span>              :     }</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :     push_mark_estack(es_other, pattern_paint_cleanup);</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     make_istruct(esp, 0, new_dev); /* see comment in pattern_paint_cleanup() */</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :     make_istruct(esp, 0, pinst); /* see comment in pattern_paint_cleanup() */</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     make_istruct(esp, 0, pdev);</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :     make_int(esp, imemory_save_level(iimemory));</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :     make_int(esp, imemory_space(iimemory));</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :     /* Save operator stack depth in case PaintProc leaves junk on ostack. */</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :     make_int(esp, ref_stack_count(&amp;o_stack));</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :     push_op_estack(pattern_paint_finish);</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :     dict_find_string(pdict, &quot;PaintProc&quot;, &amp;ppp);           /* can't fail */</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :     *++esp = *ppp;</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :     *++esp = *pdict;            /* (push on ostack) */</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :     return o_push_estack;</span></span>
+<span id="L328"><span class="lineNum">     328</span>              : }</span>
+<span id="L329"><span class="lineNum">     329</span>              : /* Save the rendered pattern. */</span>
+<span id="L330"><span class="lineNum">     330</span>              : static int</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 : pattern_paint_finish(i_ctx_t *i_ctx_p)</span></span>
+<span id="L332"><span class="lineNum">     332</span>              : {</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :     int o_stack_adjust = ref_stack_count(&amp;o_stack) - esp-&gt;value.intval;</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :     gx_device_forward *pdev = r_ptr(esp - 3, gx_device_forward);</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :     gs_pattern1_instance_t *pinst =</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         (gs_pattern1_instance_t *)gs_currentcolor(igs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :     gx_device_pattern_accum const *padev = (const gx_device_pattern_accum *) pdev;</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :     gs_pattern1_instance_t *pinst2 = r_ptr(esp - 4, gs_pattern1_instance_t);</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :     int orig_save_level = (esp - 2)-&gt;value.intval;</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :     uint vmspace = (uint)(esp - 1)-&gt;value.intval;</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : </span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :     if (vmspace !=  imemory_space(iimemory) || orig_save_level != imemory_save_level(iimemory_local)) {</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         return_error(gs_error_undefinedresult);</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :     }</span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :     if (pdev != NULL) {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :         gx_color_tile *ctile;</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         int code;</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         gs_gstate *pgs = igs;</span></span>
+<span id="L350"><span class="lineNum">     350</span>              :         /* If the PaintProc does one or more gsaves, then fails to do an equal numer of</span>
+<span id="L351"><span class="lineNum">     351</span>              :          * grestores, we can get here with the graphics state stack not how we expect.</span>
+<span id="L352"><span class="lineNum">     352</span>              :          * Hence we stored a reference to the pattern instance on the exec stack, and that</span>
+<span id="L353"><span class="lineNum">     353</span>              :          * allows us to roll back the graphics states until we have the one we expect,</span>
+<span id="L354"><span class="lineNum">     354</span>              :          * and pattern instance we expect</span>
+<span id="L355"><span class="lineNum">     355</span>              :          */</span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         if (pinst != pinst2) {</span></span>
+<span id="L357"><span class="lineNum">     357</span>              :             int i;</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :             for (i = 0; pgs-&gt;saved &amp;&amp; pinst != pinst2; i++, pgs = pgs-&gt;saved) {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 pinst = (gs_pattern1_instance_t *)gs_currentcolor(pgs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :             }</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :             for (;i &gt; 1; i--) {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 gs_grestore(igs);</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :             }</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :             pinst = (gs_pattern1_instance_t *)gs_currentcolor(igs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L365"><span class="lineNum">     365</span>              :             /* If pinst is NULL after all of that then we are not going to recover */</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :             if (pinst == NULL) {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 esp -= 5;</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 return_error(gs_error_unknownerror);</span></span>
+<span id="L369"><span class="lineNum">     369</span>              :             }</span>
+<span id="L370"><span class="lineNum">     370</span>              :         }</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         pgs = igs;</span></span>
+<span id="L372"><span class="lineNum">     372</span>              : </span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         if (pinst-&gt;templat.uses_transparency) {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :             if (pinst-&gt;is_clist) {</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :                 /* Send the compositor command to close the PDF14 device */</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                 code = gs_pop_pdf14trans_device(pgs, true);</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 if (code &lt; 0) {</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                     esp -= 5;</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                     return code;</span></span>
+<span id="L380"><span class="lineNum">     380</span>              :                 }</span>
+<span id="L381"><span class="lineNum">     381</span>              :             } else {</span>
+<span id="L382"><span class="lineNum">     382</span>              :                 /* Not a clist, get PDF14 buffer information */</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 code = pdf14_get_buffer_information(pgs-&gt;device,</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                                                     padev-&gt;transbuff, pgs-&gt;memory,</span></span>
+<span id="L385"><span class="lineNum">     385</span>              :                                                     true);</span>
+<span id="L386"><span class="lineNum">     386</span>              :                 /* PDF14 device (and buffer) is destroyed when pattern cache</span>
+<span id="L387"><span class="lineNum">     387</span>              :                    entry is removed */</span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 if (code &lt; 0) {</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                     esp -= 5;</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                     return code;</span></span>
+<span id="L391"><span class="lineNum">     391</span>              :                 }</span>
+<span id="L392"><span class="lineNum">     392</span>              :             }</span>
+<span id="L393"><span class="lineNum">     393</span>              :         }</span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :         code = gx_pattern_cache_add_entry(igs, pdev, &amp;ctile);</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L396"><span class="lineNum">     396</span>              :             return code;</span>
+<span id="L397"><span class="lineNum">     397</span>              :     }</span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :     if (o_stack_adjust &gt; 0) {</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : #if 0</span>
+<span id="L400"><span class="lineNum">     400</span>              :         dmlprintf1(imemory, &quot;PaintProc left %d extra on operator stack!\n&quot;, o_stack_adjust);</span>
+<span id="L401"><span class="lineNum">     401</span>              : #endif</span>
+<span id="L402"><span class="lineNum">     402</span>              :         /* Take care here: if anything is added after this that may access the op stack,</span>
+<span id="L403"><span class="lineNum">     403</span>              :            this needs to be ref_stack_pop() rather than pop().</span>
+<span id="L404"><span class="lineNum">     404</span>              :          */</span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :         pop(o_stack_adjust);</span></span>
+<span id="L406"><span class="lineNum">     406</span>              :     }</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :     esp -= 7;</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :     pattern_paint_cleanup_core(i_ctx_p, 0);</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :     return o_pop_estack;</span></span>
+<span id="L410"><span class="lineNum">     410</span>              : }</span>
+<span id="L411"><span class="lineNum">     411</span>              : /* Clean up after rendering a pattern.  Note that iff the rendering */</span>
+<span id="L412"><span class="lineNum">     412</span>              : /* succeeded, closing the accumulator won't free the bits. */</span>
+<span id="L413"><span class="lineNum">     413</span>              : static int</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 : pattern_paint_cleanup(i_ctx_t *i_ctx_p)</span></span>
+<span id="L415"><span class="lineNum">     415</span>              : {</span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :     return pattern_paint_cleanup_core(i_ctx_p, 1);</span></span>
+<span id="L417"><span class="lineNum">     417</span>              : }</span>
+<span id="L418"><span class="lineNum">     418</span>              : </span>
+<span id="L419"><span class="lineNum">     419</span>              : static int</span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 : pattern_paint_cleanup_core(i_ctx_t *i_ctx_p, bool is_error)</span></span>
+<span id="L421"><span class="lineNum">     421</span>              : {</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :     gx_device_pattern_accum *const pdev =</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         r_ptr(esp + 4, gx_device_pattern_accum);</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :         gs_pattern1_instance_t *pinst = (gs_pattern1_instance_t *)gs_currentcolor(igs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :     gs_pattern1_instance_t *pinst2 = r_ptr(esp + 3, gs_pattern1_instance_t);</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :     int code, i, ecode=0;</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :     int orig_save_level = (esp + 5)-&gt;value.intval;</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :     uint vmspace = (uint)(esp + 6)-&gt;value.intval;</span></span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :     if (vmspace !=  imemory_space(iimemory) || orig_save_level != imemory_save_level(iimemory_local)) {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :         return_error(gs_error_undefinedresult);</span></span>
+<span id="L432"><span class="lineNum">     432</span>              :     }</span>
+<span id="L433"><span class="lineNum">     433</span>              :     /* If the PaintProc does one or more gsaves, then encounters an error, we can get</span>
+<span id="L434"><span class="lineNum">     434</span>              :      * here with the graphics state stack not how we expect.</span>
+<span id="L435"><span class="lineNum">     435</span>              :      * Hence we stored a reference to the pattern instance on the exec stack, and that</span>
+<span id="L436"><span class="lineNum">     436</span>              :      * allows us to roll back the graphics states until we have the one we expect,</span>
+<span id="L437"><span class="lineNum">     437</span>              :      * and pattern instance we expect</span>
+<span id="L438"><span class="lineNum">     438</span>              :      */</span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :     if (pinst != pinst2) {</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         gs_gstate *pgs = igs;</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         for (i = 0; pgs-&gt;saved &amp;&amp; pinst != pinst2; i++, pgs = pgs-&gt;saved) {</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :             pinst = (gs_pattern1_instance_t *)gs_currentcolor(pgs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :         }</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         for (;i &gt; 1; i--) {</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :             gs_grestore(igs);</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :         }</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         pinst = (gs_pattern1_instance_t *)gs_currentcolor(igs-&gt;saved)-&gt;pattern;</span></span>
+<span id="L448"><span class="lineNum">     448</span>              :     }</span>
+<span id="L449"><span class="lineNum">     449</span>              : </span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :     if (pdev != NULL) {</span></span>
+<span id="L451"><span class="lineNum">     451</span>              :         /* grestore will free the device, so close it first. */</span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         (*dev_proc(pdev, close_device)) ((gx_device *) pdev);</span></span>
+<span id="L453"><span class="lineNum">     453</span>              :     }</span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :     if (pdev == NULL) {</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :         gx_device *cdev = r_ptr(esp + 2, gx_device);</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         pattern_accum_param_s param;</span></span>
+<span id="L457"><span class="lineNum">     457</span>              : </span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         param.pinst = (void *)pinst;</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :         param.graphics_state = (void *)igs;</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         param.pinst_id = pinst-&gt;id;</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :         ecode = dev_proc(cdev, dev_spec_op)(cdev,</span></span>
+<span id="L463"><span class="lineNum">     463</span>              :                         gxdso_pattern_finish_accum, &amp;param, sizeof(pattern_accum_param_s));</span>
+<span id="L464"><span class="lineNum">     464</span>              :     }</span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :     code = gs_grestore(igs);</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :     gx_unset_dev_color(igs);    /* dev_color may need updating if GC ran */</span></span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :     if (ecode &lt; 0)</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :         return ecode;</span></span>
+<span id="L470"><span class="lineNum">     470</span>              :     return code;</span>
+<span id="L471"><span class="lineNum">     471</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

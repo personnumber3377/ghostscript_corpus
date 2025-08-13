@@ -1,0 +1,654 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxclfile.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxclfile.c<span style="font-size: 80%;"> (source / <a href="gxclfile.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">1.6&nbsp;%</td>
+            <td class="headerCovTableEntry">244</td>
+            <td class="headerCovTableEntry">4</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">5.0&nbsp;%</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">1</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* File-based command list implementation */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;assert_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;stdio_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;string_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;unistd_.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsmemory.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gp.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxclio.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;valgrind.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : /* This is an implementation of the command list I/O interface */</span>
+<span id="L31"><span class="lineNum">      31</span>              : /* that uses the file system for storage. */</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : /* clist cache code so that wrapped files don't incur a performance penalty */</span>
+<span id="L34"><span class="lineNum">      34</span>              : #define CL_CACHE_NSLOTS (3)</span>
+<span id="L35"><span class="lineNum">      35</span>              : #define CL_CACHE_SLOT_SIZE_LOG2 (15)</span>
+<span id="L36"><span class="lineNum">      36</span>              : #define CL_CACHE_SLOT_EMPTY (-1)</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : static clist_io_procs_t clist_io_procs_file;</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : typedef struct</span>
+<span id="L41"><span class="lineNum">      41</span>              : {</span>
+<span id="L42"><span class="lineNum">      42</span>              :     int64_t blocknum;</span>
+<span id="L43"><span class="lineNum">      43</span>              :     byte *base;</span>
+<span id="L44"><span class="lineNum">      44</span>              : } CL_CACHE_SLOT;</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : typedef struct</span>
+<span id="L47"><span class="lineNum">      47</span>              : {</span>
+<span id="L48"><span class="lineNum">      48</span>              :     int block_size;             /* full block size, MUST BE power of 2 */</span>
+<span id="L49"><span class="lineNum">      49</span>              :     int nslots;</span>
+<span id="L50"><span class="lineNum">      50</span>              :     int64_t filesize;</span>
+<span id="L51"><span class="lineNum">      51</span>              :     gs_memory_t *memory;        /* save our allocator */</span>
+<span id="L52"><span class="lineNum">      52</span>              :     CL_CACHE_SLOT *slots;       /* array of slots */</span>
+<span id="L53"><span class="lineNum">      53</span>              :     byte *base;                 /* save base of slot data area */</span>
+<span id="L54"><span class="lineNum">      54</span>              : } CL_CACHE;</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : /* Forward references */</span>
+<span id="L57"><span class="lineNum">      57</span>              : CL_CACHE *cl_cache_alloc(gs_memory_t *mem);</span>
+<span id="L58"><span class="lineNum">      58</span>              : void cl_cache_destroy(CL_CACHE *cache);</span>
+<span id="L59"><span class="lineNum">      59</span>              : CL_CACHE *cl_cache_read_init(CL_CACHE *cache, int nslots, int64_t block_size, int64_t filesize);</span>
+<span id="L60"><span class="lineNum">      60</span>              : int cl_cache_read(byte *data, int len, int64_t pos, CL_CACHE *cache);</span>
+<span id="L61"><span class="lineNum">      61</span>              : CL_CACHE_SLOT * cl_cache_get_empty_slot(CL_CACHE *cache, int64_t pos);</span>
+<span id="L62"><span class="lineNum">      62</span>              : void cl_cache_load_slot(CL_CACHE *cache, CL_CACHE_SLOT *slot, int64_t pos, byte *data, int len);</span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              : #define CL_CACHE_NEEDS_INIT(cache) (cache != NULL &amp;&amp; cache-&gt;filesize == 0)</span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : CL_CACHE *</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 : cl_cache_alloc(gs_memory_t *mem)</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : {</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     CL_CACHE *cache;</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              :     /* allocate and initialilze the cache to filesize = 0 to signal read_init needed */</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :     cache = (CL_CACHE *)gs_alloc_bytes(mem, sizeof(CL_CACHE), &quot;alloc CL_CACHE&quot;);</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     if (cache != NULL) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         cache-&gt;filesize = 0;</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         cache-&gt;nslots = 0;</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         cache-&gt;block_size = 0;</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         cache-&gt;slots = NULL;</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         cache-&gt;base = NULL;</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         cache-&gt;memory = mem;</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :     }</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     return cache;</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : void</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 : cl_cache_destroy(CL_CACHE *cache)</span></span>
+<span id="L86"><span class="lineNum">      86</span>              : {</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     if (cache == NULL)</span></span>
+<span id="L88"><span class="lineNum">      88</span>              :         return;</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     if (cache-&gt;slots != NULL) {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         gs_free_object(cache-&gt;memory, cache-&gt;base, &quot;CL_CACHE SLOT data&quot;);</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         gs_free_object(cache-&gt;memory, cache-&gt;slots, &quot;CL_CACHE slots array&quot;);</span></span>
+<span id="L93"><span class="lineNum">      93</span>              :     }</span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     gs_free_object(cache-&gt;memory, cache, &quot;CL_CACHE for IFILE&quot;);</span></span>
+<span id="L95"><span class="lineNum">      95</span>              : }</span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span>              : /* Set the cache up for reading. The filesize is used for EOF */</span>
+<span id="L98"><span class="lineNum">      98</span>              : CL_CACHE *</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 : cl_cache_read_init(CL_CACHE *cache, int nslots, int64_t block_size, int64_t filesize)</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : {</span>
+<span id="L101"><span class="lineNum">     101</span>              :     /* NB: if fail, and cache is still NULL, proceed without cache, reading will cope */</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :     if (cache == NULL || cache-&gt;filesize != 0)</span></span>
+<span id="L103"><span class="lineNum">     103</span>              :         return cache;           /* once we've done the init, filesize will be set */</span>
+<span id="L104"><span class="lineNum">     104</span>              : </span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :     if ((filesize+block_size)/block_size &lt; nslots)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         nslots = (filesize + block_size)/block_size;    /* limit at blocks needed for entire file */</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :     cache-&gt;slots = (CL_CACHE_SLOT *)gs_alloc_bytes(cache-&gt;memory, (size_t)nslots * sizeof(CL_CACHE_SLOT),</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :                                                        &quot;CL_CACHE slots array&quot;);</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     if (cache-&gt;slots == NULL) {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         gs_free_object(cache-&gt;memory, cache, &quot;Free CL_CACHE for IFILE&quot;);</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :         cache = NULL;                   /* cache not possible */</span>
+<span id="L112"><span class="lineNum">     112</span>              :     } else {</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         cache-&gt;slots[0].base = (byte *)gs_alloc_bytes(cache-&gt;memory, (size_t)nslots * block_size,</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :                                                        &quot;CL_CACHE_SLOT data&quot;);</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         if (cache-&gt;slots[0].base == NULL) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :             gs_free_object(cache-&gt;memory, cache-&gt;slots, &quot;Free CL_CACHE for IFILE&quot;);</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :             gs_free_object(cache-&gt;memory, cache, &quot;Free CL_CACHE for IFILE&quot;);</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :             cache = NULL;                       /* cache not possible */</span>
+<span id="L119"><span class="lineNum">     119</span>              :         } else {</span>
+<span id="L120"><span class="lineNum">     120</span>              :             /* success, initialize the slots */</span>
+<span id="L121"><span class="lineNum">     121</span>              :             int i;</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :             for (i=0; i &lt; nslots; i++) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 cache-&gt;slots[i].blocknum = CL_CACHE_SLOT_EMPTY;</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 cache-&gt;slots[i].base = cache-&gt;slots[0].base + (i * block_size);</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :             }</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :             cache-&gt;base = cache-&gt;slots[0].base;         /* save for the 'destroy' (slots array moves around) */</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :             cache-&gt;nslots = nslots;</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :             cache-&gt;block_size = block_size;</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :             cache-&gt;filesize = filesize;</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :         }</span>
+<span id="L132"><span class="lineNum">     132</span>              :     }</span>
+<span id="L133"><span class="lineNum">     133</span>              :     return cache;       /* May be NULL. If so, no cache used */</span>
+<span id="L134"><span class="lineNum">     134</span>              : }</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              : /* Find the cache for the slot containing the 'pos'. */</span>
+<span id="L137"><span class="lineNum">     137</span>              : /* return the number of bytes read, up to 'len' bytes */</span>
+<span id="L138"><span class="lineNum">     138</span>              : /* returns 0 if 'pos' not in cache, -1 if pos at or past EOF. */</span>
+<span id="L139"><span class="lineNum">     139</span>              : int</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : cl_cache_read(byte *data, int len, int64_t pos, CL_CACHE *cache)</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     int nread = 0;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     int slot;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     int offset;</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     int64_t blocknum = pos / cache-&gt;block_size;</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : </span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     if (pos &gt;= cache-&gt;filesize)</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         return -1;</span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              :     /* find the slot */</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     for (slot = 0; slot &lt; cache-&gt;nslots; slot++) {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         if (blocknum == cache-&gt;slots[slot].blocknum)</span></span>
+<span id="L153"><span class="lineNum">     153</span>              :             break;</span>
+<span id="L154"><span class="lineNum">     154</span>              :     }</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     if (slot &gt;= cache-&gt;nslots)</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         return 0;               /* block not in cache */</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     if (slot != 0) {</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :         /* move the slot we found to the top, moving the rest down */</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         byte *base = cache-&gt;slots[slot].base;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         int i;</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         for (i = slot; i &gt; 0; i--) {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :             cache-&gt;slots[i].base = cache-&gt;slots[i-1].base;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :             cache-&gt;slots[i].blocknum = cache-&gt;slots[i-1].blocknum;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :         }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         cache-&gt;slots[0].blocknum = blocknum;</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         cache-&gt;slots[0].base = base;</span></span>
+<span id="L169"><span class="lineNum">     169</span>              :     }</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :     offset = pos - cache-&gt;slots[0].blocknum * cache-&gt;block_size;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :     nread = min(cache-&gt;block_size - offset, len);</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     if (nread + pos &gt; cache-&gt;filesize)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         nread = cache-&gt;filesize - pos;       /* limit for EOF */</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     memcpy(data, cache-&gt;slots[0].base + offset, nread);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     return nread;</span></span>
+<span id="L176"><span class="lineNum">     176</span>              : }</span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span>              : /* 'pos' not used yet */</span>
+<span id="L179"><span class="lineNum">     179</span>              : /* discard the LRU, move remaining slots down and return the first as new MRU */</span>
+<span id="L180"><span class="lineNum">     180</span>              : CL_CACHE_SLOT *</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : cl_cache_get_empty_slot(CL_CACHE *cache, int64_t pos)</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : {</span>
+<span id="L183"><span class="lineNum">     183</span>              :     /* the LRU is in the last slot, so re-use it */</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     CL_CACHE_SLOT *pslot = &amp;(cache-&gt;slots[0]);             /* slot used will always be first, possibly after moving */</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     int64_t slot0_blocknum = pslot-&gt;blocknum;</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :     if (slot0_blocknum == CL_CACHE_SLOT_EMPTY)</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :         return pslot;</span>
+<span id="L189"><span class="lineNum">     189</span>              : </span>
+<span id="L190"><span class="lineNum">     190</span>              :     /* if more than on slot in the cache, handle moving slots to bump the LRU (last) */</span>
+<span id="L191"><span class="lineNum">     191</span>              :     /* If the block at slot 0 hasn't been flushed at least once before, just use slot 0 */</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :     if (cache-&gt;nslots &gt; 1) {</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :         /* rotate the cache to re-use the last slot (LRU) and move it to the top, moving the rest down */</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         byte *last_slot_base = cache-&gt;slots[cache-&gt;nslots - 1].base;    /* save the base for the last slot */</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         int i;</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span>              :         /* move the rest down */</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         for (i=cache-&gt;nslots - 1; i &gt; 0; i--) {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :             cache-&gt;slots[i].blocknum = cache-&gt;slots[i-1].blocknum;</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :             cache-&gt;slots[i].base = cache-&gt;slots[i-1].base;</span></span>
+<span id="L201"><span class="lineNum">     201</span>              :         }</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         pslot-&gt;base = last_slot_base;</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :     }</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :     pslot-&gt;blocknum = CL_CACHE_SLOT_EMPTY;</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     return pslot;</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : }</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span>              : void</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 : cl_cache_load_slot(CL_CACHE *cache, CL_CACHE_SLOT *slot, int64_t pos, byte *data, int len)</span></span>
+<span id="L210"><span class="lineNum">     210</span>              : {</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     slot-&gt;blocknum = pos / cache-&gt;block_size;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     memmove(slot-&gt;base, data, len);</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              : /* Use our own FILE structure so that, on some platforms, we write and read</span>
+<span id="L216"><span class="lineNum">     216</span>              :  * tmp files via a single file descriptor. That allows cleaning of tmp files</span>
+<span id="L217"><span class="lineNum">     217</span>              :  * to be addressed via DELETE_ON_CLOSE under Windows, and immediate unlink</span>
+<span id="L218"><span class="lineNum">     218</span>              :  * after opening under Linux. When running in this mode, we keep our own</span>
+<span id="L219"><span class="lineNum">     219</span>              :  * record of position within the file for the sake of thread safety</span>
+<span id="L220"><span class="lineNum">     220</span>              :  */</span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span>              : #define ENC_FILE_STR (&quot;encoded_file_ptr_%p&quot;)</span>
+<span id="L223"><span class="lineNum">     223</span>              : #define ENC_FILE_STRX (&quot;encoded_file_ptr_0x%p&quot;)</span>
+<span id="L224"><span class="lineNum">     224</span>              : </span>
+<span id="L225"><span class="lineNum">     225</span>              : typedef struct</span>
+<span id="L226"><span class="lineNum">     226</span>              : {</span>
+<span id="L227"><span class="lineNum">     227</span>              :     gs_memory_t *mem;</span>
+<span id="L228"><span class="lineNum">     228</span>              :     gp_file *f;</span>
+<span id="L229"><span class="lineNum">     229</span>              :     int64_t pos;</span>
+<span id="L230"><span class="lineNum">     230</span>              :     int64_t filesize;           /* filesize maintained by clist_fwrite */</span>
+<span id="L231"><span class="lineNum">     231</span>              :     CL_CACHE *cache;</span>
+<span id="L232"><span class="lineNum">     232</span>              : } IFILE;</span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span>              : static void</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 : file_to_fake_path(clist_file_ptr file, char fname[gp_file_name_sizeof])</span></span>
+<span id="L236"><span class="lineNum">     236</span>              : {</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     gs_snprintf(fname, gp_file_name_sizeof, ENC_FILE_STR, file);</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span>              : static clist_file_ptr</span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 : fake_path_to_file(const char *fname)</span></span>
+<span id="L242"><span class="lineNum">     242</span>              : {</span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :     clist_file_ptr i1, i2;</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     int r1 = sscanf(fname, ENC_FILE_STR, &amp;i1);</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     int r2 = sscanf(fname, ENC_FILE_STRX, &amp;i2);</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :     return r2 == 1 ? i2 : (r1 == 1 ? i1 : NULL);</span></span>
+<span id="L248"><span class="lineNum">     248</span>              : }</span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 : static IFILE *wrap_file(gs_memory_t *mem, gp_file *f, const char *fmode)</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : {</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     IFILE *ifile;</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : </span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :     if (!f) return NULL;</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :     ifile = (IFILE *)gs_alloc_bytes(mem-&gt;non_gc_memory, sizeof(*ifile), &quot;Allocate wrapped IFILE&quot;);</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     if (!ifile) {</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         gp_fclose(f);</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L259"><span class="lineNum">     259</span>              :     }</span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :     ifile-&gt;mem = mem-&gt;non_gc_memory;</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :     ifile-&gt;f = f;</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :     ifile-&gt;pos = 0;</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :     ifile-&gt;filesize = 0;</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :     ifile-&gt;cache = cl_cache_alloc(ifile-&gt;mem);</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :     return ifile;</span></span>
+<span id="L266"><span class="lineNum">     266</span>              : }</span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 : static int clist_close_file(IFILE *ifile)</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : {</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :     int res = 0;</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :     if (ifile) {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         if (ifile-&gt;f != NULL)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :             res = gp_fclose(ifile-&gt;f);</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         if (ifile-&gt;cache != NULL)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :             cl_cache_destroy(ifile-&gt;cache);</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         gs_free_object(ifile-&gt;mem, ifile, &quot;Free wrapped IFILE&quot;);</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :     }</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :     return res;</span></span>
+<span id="L279"><span class="lineNum">     279</span>              : }</span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span>              : /* ------ Open/close/unlink ------ */</span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span>              : static int</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 : clist_fopen(char fname[gp_file_name_sizeof], const char *fmode,</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :             clist_file_ptr * pcf, gs_memory_t * mem, gs_memory_t *data_mem,</span>
+<span id="L286"><span class="lineNum">     286</span>              :             bool ok_to_compress)</span>
+<span id="L287"><span class="lineNum">     287</span>              : {</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :     if (*fname == 0) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         if (fmode[0] == 'r')</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :             return_error(gs_error_invalidfileaccess);</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         if (gp_can_share_fdesc()) {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :             *pcf = (clist_file_ptr)wrap_file(mem, gp_open_scratch_file_rm(mem,</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :                                                        gp_scratch_file_name_prefix,</span>
+<span id="L294"><span class="lineNum">     294</span>              :                                                        fname, fmode), fmode);</span>
+<span id="L295"><span class="lineNum">     295</span>              :             /* If the platform supports FILE duplication then we overwrite the</span>
+<span id="L296"><span class="lineNum">     296</span>              :              * file name with an encoded form of the FILE pointer */</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :             if (*pcf != NULL)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                 file_to_fake_path(*pcf, fname);</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :         } else {</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :             *pcf = (clist_file_ptr)wrap_file(mem, gp_open_scratch_file(mem,</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :                                                        gp_scratch_file_name_prefix,</span>
+<span id="L302"><span class="lineNum">     302</span>              :                                                        fname, fmode), fmode);</span>
+<span id="L303"><span class="lineNum">     303</span>              :         }</span>
+<span id="L304"><span class="lineNum">     304</span>              :     } else {</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         clist_file_ptr ocf = fake_path_to_file(fname);</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         if (ocf) {</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :             /*  A special (fake) fname is passed in. If so, clone the FILE handle */</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :             *pcf = wrap_file(mem, gp_fdup(((IFILE *)ocf)-&gt;f, fmode), fmode);</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :             /* when cloning, copy other parts not done by wrap_file */</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :             if (*pcf)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                 ((IFILE *)(*pcf))-&gt;filesize = ((IFILE *)ocf)-&gt;filesize;</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :         } else {</span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :             *pcf = wrap_file(mem, gp_fopen(mem, fname, fmode), fmode);</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :         }</span>
+<span id="L315"><span class="lineNum">     315</span>              :     }</span>
+<span id="L316"><span class="lineNum">     316</span>              : </span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :     if (*pcf == NULL) {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         emprintf1(mem, &quot;Could not open the scratch file %s.\n&quot;, fname);</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         return_error(gs_error_invalidfileaccess);</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :     }</span>
+<span id="L321"><span class="lineNum">     321</span>              : </span>
+<span id="L322"><span class="lineNum">     322</span>              :     return 0;</span>
+<span id="L323"><span class="lineNum">     323</span>              : }</span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span>              : static int</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 : clist_unlink(const char *fname)</span></span>
+<span id="L327"><span class="lineNum">     327</span>              : {</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     clist_file_ptr ocf = fake_path_to_file(fname);</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :     if (ocf) {</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :         /* fname is an encoded file pointer. The file will either have been</span>
+<span id="L331"><span class="lineNum">     331</span>              :          * created with the delete-on-close option, or already have been</span>
+<span id="L332"><span class="lineNum">     332</span>              :          * unlinked. We need only close the FILE */</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         return clist_close_file((IFILE *)ocf) != 0 ? gs_note_error(gs_error_ioerror) : 0;</span></span>
+<span id="L334"><span class="lineNum">     334</span>              :     } else {</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         return (unlink(fname) != 0 ? gs_note_error(gs_error_ioerror) : 0);</span></span>
+<span id="L336"><span class="lineNum">     336</span>              :     }</span>
+<span id="L337"><span class="lineNum">     337</span>              : }</span>
+<span id="L338"><span class="lineNum">     338</span>              : </span>
+<span id="L339"><span class="lineNum">     339</span>              : static int</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 : clist_fclose(clist_file_ptr cf, const char *fname, bool delete)</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : {</span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :     clist_file_ptr ocf = fake_path_to_file(fname);</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :     if (ocf == cf) {</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :         /* fname is an encoded file pointer, and cf is the FILE used to create it.</span>
+<span id="L345"><span class="lineNum">     345</span>              :          * We shouldn't close it unless we have been asked to delete it, in which</span>
+<span id="L346"><span class="lineNum">     346</span>              :          * case closing it will delete it */</span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :         return delete ? (clist_close_file((IFILE *)ocf) ? gs_note_error(gs_error_ioerror) : 0) : 0;</span></span>
+<span id="L348"><span class="lineNum">     348</span>              :     } else {</span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         return (clist_close_file((IFILE *) cf) != 0 ? gs_note_error(gs_error_ioerror) :</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 delete ? clist_unlink(fname) :</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :                 0);</span>
+<span id="L352"><span class="lineNum">     352</span>              :     }</span>
+<span id="L353"><span class="lineNum">     353</span>              : }</span>
+<span id="L354"><span class="lineNum">     354</span>              : </span>
+<span id="L355"><span class="lineNum">     355</span>              : /* ------ Writing ------ */</span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              : static int</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 : clist_fwrite_chars(const void *data, uint len, clist_file_ptr cf)</span></span>
+<span id="L359"><span class="lineNum">     359</span>              : {</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :     int res = 0;</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :     IFILE *icf = (IFILE *)cf;</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : </span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :     if (gp_can_share_fdesc()) {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         res = gp_fpwrite((char *)data, len, ((IFILE *)cf)-&gt;pos, ((IFILE *)cf)-&gt;f);</span></span>
+<span id="L365"><span class="lineNum">     365</span>              :     } else {</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         res = gp_fwrite(data, 1, len, ((IFILE *)cf)-&gt;f);</span></span>
+<span id="L367"><span class="lineNum">     367</span>              :     }</span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :     if (res &gt;= 0)</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :         icf-&gt;pos += len;</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :     icf-&gt;filesize = icf-&gt;pos;     /* write truncates file */</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :     if (!CL_CACHE_NEEDS_INIT(icf-&gt;cache)) {</span></span>
+<span id="L372"><span class="lineNum">     372</span>              :         /* writing invalidates the read cache */</span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         cl_cache_destroy(icf-&gt;cache);</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         icf-&gt;cache = NULL;</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :     }</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :     return res;</span></span>
+<span id="L377"><span class="lineNum">     377</span>              : }</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              : /* ------ Reading ------ */</span>
+<span id="L380"><span class="lineNum">     380</span>              : </span>
+<span id="L381"><span class="lineNum">     381</span>              : static int</span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 : clist_fread_chars(void *data, uint len, clist_file_ptr cf)</span></span>
+<span id="L383"><span class="lineNum">     383</span>              : {</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :     int nread = 0;</span></span>
+<span id="L385"><span class="lineNum">     385</span>              : </span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :     if (gp_can_share_fdesc()) {</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         IFILE *icf = (IFILE *)cf;</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         byte *dp = data;</span></span>
+<span id="L389"><span class="lineNum">     389</span>              : </span>
+<span id="L390"><span class="lineNum">     390</span>              :         /* if we have a cache, check if it needs init, and do it */</span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         if (CL_CACHE_NEEDS_INIT(icf-&gt;cache)) {</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :             icf-&gt;cache = cl_cache_read_init(icf-&gt;cache, CL_CACHE_NSLOTS, 1&lt;&lt;CL_CACHE_SLOT_SIZE_LOG2, icf-&gt;filesize);</span></span>
+<span id="L393"><span class="lineNum">     393</span>              :         }</span>
+<span id="L394"><span class="lineNum">     394</span>              :         /* cl_cache_read_init may have failed, and set cache to NULL, check before using it */</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         if (icf-&gt;cache != NULL) {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :             do {</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 int n;</span></span>
+<span id="L398"><span class="lineNum">     398</span>              : </span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 if ((n = cl_cache_read(dp, len-nread, icf-&gt;pos+nread, icf-&gt;cache)) &lt; 0)</span></span>
+<span id="L400"><span class="lineNum">     400</span>              :                     break;</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                 if (n == 0) {</span></span>
+<span id="L402"><span class="lineNum">     402</span>              :                     /* pos was not in cache, get a slot and load it, then loop */</span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                     CL_CACHE_SLOT *slot = cl_cache_get_empty_slot(icf-&gt;cache, icf-&gt;pos+nread);  /* cannot fail */</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                     int64_t block_pos = (icf-&gt;pos+nread) &amp; ~(icf-&gt;cache-&gt;block_size - 1);</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                     int fill_len = gp_fpread((char *)(slot-&gt;base), icf-&gt;cache-&gt;block_size, block_pos, icf-&gt;f);</span></span>
+<span id="L406"><span class="lineNum">     406</span>              : </span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                     cl_cache_load_slot(icf-&gt;cache, slot, block_pos, slot-&gt;base, fill_len);</span></span>
+<span id="L408"><span class="lineNum">     408</span>              :                 }</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 nread += n;</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 dp += n;</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :             } while (nread &lt; len);</span></span>
+<span id="L412"><span class="lineNum">     412</span>              :         } else {</span>
+<span id="L413"><span class="lineNum">     413</span>              :              /* no cache -- just do the read */</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :             nread = gp_fpread(data, len, icf-&gt;pos, icf-&gt;f);</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :         }</span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         if (nread &gt;= 0)</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :             icf-&gt;pos += nread;</span></span>
+<span id="L418"><span class="lineNum">     418</span>              :     } else {</span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         gp_file *f = ((IFILE *)cf)-&gt;f;</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         byte *str = data;</span></span>
+<span id="L421"><span class="lineNum">     421</span>              : </span>
+<span id="L422"><span class="lineNum">     422</span>              :         /* The typical implementation of fread */</span>
+<span id="L423"><span class="lineNum">     423</span>              :         /* is extremely inefficient for small counts, */</span>
+<span id="L424"><span class="lineNum">     424</span>              :         /* so we just use straight-line code instead. */</span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :         switch (len) {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :             default:</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                 return gp_fread(str, 1, len, f);</span></span>
+<span id="L428"><span class="lineNum">     428</span>              :             case 8:</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :             case 7:</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :             case 6:</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :             case 5:</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :             case 4:</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :             case 3:</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :             case 2:</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 *str++ = (byte) gp_fgetc(f);</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :             case 1:</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                 *str = (byte) gp_fgetc(f);</span></span>
+<span id="L444"><span class="lineNum">     444</span>              :         }</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         nread = len;</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :     }</span>
+<span id="L447"><span class="lineNum">     447</span>              :     return nread;</span>
+<span id="L448"><span class="lineNum">     448</span>              : }</span>
+<span id="L449"><span class="lineNum">     449</span>              : </span>
+<span id="L450"><span class="lineNum">     450</span>              : /* ------ Position/status ------ */</span>
+<span id="L451"><span class="lineNum">     451</span>              : </span>
+<span id="L452"><span class="lineNum">     452</span>              : static int</span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 : clist_set_memory_warning(clist_file_ptr cf, int bytes_left)</span></span>
+<span id="L454"><span class="lineNum">     454</span>              : {</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :     return 0;                   /* no-op */</span></span>
+<span id="L456"><span class="lineNum">     456</span>              : }</span>
+<span id="L457"><span class="lineNum">     457</span>              : </span>
+<span id="L458"><span class="lineNum">     458</span>              : static int</span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 : clist_ferror_code(clist_file_ptr cf)</span></span>
+<span id="L460"><span class="lineNum">     460</span>              : {</span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :     return (gp_ferror(((IFILE *)cf)-&gt;f) ? gs_error_ioerror : 0);</span></span>
+<span id="L462"><span class="lineNum">     462</span>              : }</span>
+<span id="L463"><span class="lineNum">     463</span>              : </span>
+<span id="L464"><span class="lineNum">     464</span>              : static int64_t</span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 : clist_ftell(clist_file_ptr cf)</span></span>
+<span id="L466"><span class="lineNum">     466</span>              : {</span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :     IFILE *ifile = (IFILE *)cf;</span></span>
+<span id="L468"><span class="lineNum">     468</span>              : </span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :     return gp_can_share_fdesc() ? ifile-&gt;pos : gp_ftell(ifile-&gt;f);</span></span>
+<span id="L470"><span class="lineNum">     470</span>              : }</span>
+<span id="L471"><span class="lineNum">     471</span>              : </span>
+<span id="L472"><span class="lineNum">     472</span>              : static int</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 : clist_rewind(clist_file_ptr cf, bool discard_data, const char *fname)</span></span>
+<span id="L474"><span class="lineNum">     474</span>              : {</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :     gp_file *f = ((IFILE *)cf)-&gt;f;</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :     IFILE *ocf = fake_path_to_file(fname);</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :     char fmode[4];</span></span>
+<span id="L478"><span class="lineNum">     478</span>              : </span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :     snprintf(fmode, sizeof(fmode), &quot;w+%s&quot;, gp_fmode_binary_suffix);</span></span>
+<span id="L480"><span class="lineNum">     480</span>              : </span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :     if (ocf) {</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :         if (discard_data) {</span></span>
+<span id="L483"><span class="lineNum">     483</span>              :             /* fname is an encoded ifile pointer. We can use an entirely</span>
+<span id="L484"><span class="lineNum">     484</span>              :              * new scratch file. */</span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :             char tfname[gp_file_name_sizeof] = {0};</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :             const gs_memory_t *mem = ocf-&gt;f-&gt;memory;</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :             gp_fclose(ocf-&gt;f);</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :             ocf-&gt;f = gp_open_scratch_file_rm(mem, gp_scratch_file_name_prefix, tfname, fmode);</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :             if (ocf-&gt;f == NULL)</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                 return_error(gs_error_ioerror);</span></span>
+<span id="L491"><span class="lineNum">     491</span>              :             /* if there was a cache, get rid of it an get a new (empty) one */</span>
+<span id="L492"><span class="lineNum">     492</span>              :             /* When we start reading, we will allocate a cache based on the filesize */</span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :             if (ocf-&gt;cache != NULL) {</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                 cl_cache_destroy(ocf-&gt;cache);</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                 ocf-&gt;cache = cl_cache_alloc(ocf-&gt;mem);</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 if (ocf-&gt;cache == NULL)</span></span>
+<span id="L497"><span class="lineNum">     497</span>              :                     return_error(gs_error_ioerror);</span>
+<span id="L498"><span class="lineNum">     498</span>              :             }</span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :             ((IFILE *)cf)-&gt;filesize = 0;</span></span>
+<span id="L500"><span class="lineNum">     500</span>              :         }</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         ((IFILE *)cf)-&gt;pos = 0;</span></span>
+<span id="L502"><span class="lineNum">     502</span>              :     } else {</span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :         if (discard_data) {</span></span>
+<span id="L504"><span class="lineNum">     504</span>              :             /*</span>
+<span id="L505"><span class="lineNum">     505</span>              :              * The ANSI C stdio specification provides no operation for</span>
+<span id="L506"><span class="lineNum">     506</span>              :              * truncating a file at a given position, or even just for</span>
+<span id="L507"><span class="lineNum">     507</span>              :              * deleting its contents; we have to use a bizarre workaround to</span>
+<span id="L508"><span class="lineNum">     508</span>              :              * get the same effect.</span>
+<span id="L509"><span class="lineNum">     509</span>              :              */</span>
+<span id="L510"><span class="lineNum">     510</span>              : </span>
+<span id="L511"><span class="lineNum">     511</span>              :             /* Opening with &quot;w&quot; mode deletes the contents when closing. */</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :             f = gp_freopen(fname, gp_fmode_wb, f);</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :             if (f == NULL) return_error(gs_error_ioerror);</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :             ((IFILE *)cf)-&gt;f = gp_freopen(fname, fmode, f);</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :             if (((IFILE *)cf)-&gt;f == NULL) return_error(gs_error_ioerror);</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :             ((IFILE *)cf)-&gt;pos = 0;</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :             ((IFILE *)cf)-&gt;filesize = 0;</span></span>
+<span id="L518"><span class="lineNum">     518</span>              :         } else {</span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :             gp_rewind(f);</span></span>
+<span id="L520"><span class="lineNum">     520</span>              :         }</span>
+<span id="L521"><span class="lineNum">     521</span>              :     }</span>
+<span id="L522"><span class="lineNum">     522</span>              :     return 0;</span>
+<span id="L523"><span class="lineNum">     523</span>              : }</span>
+<span id="L524"><span class="lineNum">     524</span>              : </span>
+<span id="L525"><span class="lineNum">     525</span>              : static int</span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 : clist_fseek(clist_file_ptr cf, int64_t offset, int mode, const char *ignore_fname)</span></span>
+<span id="L527"><span class="lineNum">     527</span>              : {</span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :     IFILE *ifile = (IFILE *)cf;</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :     int res = 0;</span></span>
+<span id="L530"><span class="lineNum">     530</span>              : </span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :     if (!gp_can_share_fdesc()) {</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :         res = gp_fseek(ifile-&gt;f, offset, mode);</span></span>
+<span id="L533"><span class="lineNum">     533</span>              :     }</span>
+<span id="L534"><span class="lineNum">     534</span>              :     /* NB: if gp_can_share_fdesc, we don't actually seek */</span>
+<span id="L535"><span class="lineNum">     535</span>              :     /* The following lgtm tag is required because on some platforms</span>
+<span id="L536"><span class="lineNum">     536</span>              :      * !gp_can_share_fdesc() is always true, so the value of res is</span>
+<span id="L537"><span class="lineNum">     537</span>              :      * known. On other platforms though, this is NOT true. */</span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :     if (res &gt;= 0) { /* lgtm [cpp/constant-comparison] */</span></span>
+<span id="L539"><span class="lineNum">     539</span>              :         /* Update the ifile-&gt;pos */</span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         switch (mode) {</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :             case SEEK_SET:</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                 ifile-&gt;pos = offset;</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :             case SEEK_CUR:</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 ifile-&gt;pos += offset;</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :             case SEEK_END:</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :                 ifile-&gt;pos = ifile-&gt;filesize;     /* filesize maintained in clist_fwrite */</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L550"><span class="lineNum">     550</span>              :         }</span>
+<span id="L551"><span class="lineNum">     551</span>              :     }</span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :     return res;</span></span>
+<span id="L553"><span class="lineNum">     553</span>              : }</span>
+<span id="L554"><span class="lineNum">     554</span>              : </span>
+<span id="L555"><span class="lineNum">     555</span>              : static clist_io_procs_t clist_io_procs_file = {</span>
+<span id="L556"><span class="lineNum">     556</span>              :     clist_fopen,</span>
+<span id="L557"><span class="lineNum">     557</span>              :     clist_fclose,</span>
+<span id="L558"><span class="lineNum">     558</span>              :     clist_unlink,</span>
+<span id="L559"><span class="lineNum">     559</span>              :     clist_fwrite_chars,</span>
+<span id="L560"><span class="lineNum">     560</span>              :     clist_fread_chars,</span>
+<span id="L561"><span class="lineNum">     561</span>              :     clist_set_memory_warning,</span>
+<span id="L562"><span class="lineNum">     562</span>              :     clist_ferror_code,</span>
+<span id="L563"><span class="lineNum">     563</span>              :     clist_ftell,</span>
+<span id="L564"><span class="lineNum">     564</span>              :     clist_rewind,</span>
+<span id="L565"><span class="lineNum">     565</span>              :     clist_fseek,</span>
+<span id="L566"><span class="lineNum">     566</span>              : };</span>
+<span id="L567"><span class="lineNum">     567</span>              : </span>
+<span id="L568"><span class="lineNum">     568</span>              : init_proc(gs_gxclfile_init);</span>
+<span id="L569"><span class="lineNum">     569</span>              : int</span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC tlaBgGNC">        9593 : gs_gxclfile_init(gs_memory_t *mem)</span></span>
+<span id="L571"><span class="lineNum">     571</span>              : {</span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">        9593 :     gs_lib_ctx_core_t *core = mem-&gt;gs_lib_ctx-&gt;core;</span></span>
+<span id="L573"><span class="lineNum">     573</span>              : #ifdef PACIFY_VALGRIND</span>
+<span id="L574"><span class="lineNum">     574</span>              :     VALGRIND_HG_DISABLE_CHECKING(&amp;core-&gt;clist_io_procs_file, sizeof(core-&gt;clist_io_procs_file));</span>
+<span id="L575"><span class="lineNum">     575</span>              : #endif</span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">        9593 :     core-&gt;clist_io_procs_file = &amp;clist_io_procs_file;</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">        9593 :     return 0;</span></span>
+<span id="L578"><span class="lineNum">     578</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

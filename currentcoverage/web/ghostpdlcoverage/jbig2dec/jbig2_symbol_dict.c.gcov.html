@@ -1,0 +1,1176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/jbig2dec/jbig2_symbol_dict.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/jbig2dec</a> - jbig2_symbol_dict.c<span style="font-size: 80%;"> (source / <a href="jbig2_symbol_dict.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">626</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /*</span>
+<span id="L17"><span class="lineNum">      17</span>              :     jbig2dec</span>
+<span id="L18"><span class="lineNum">      18</span>              : */</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : /* symbol dictionary segment decode and support */</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : #ifdef HAVE_CONFIG_H</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;config.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #endif</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;os_types.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &lt;stddef.h&gt;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &lt;string.h&gt;             /* memset() */</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : #if defined(OUTPUT_PBM) || defined(DUMP_SYMDICT)</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &lt;stdio.h&gt;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #endif</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;jbig2.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;jbig2_priv.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;jbig2_arith.h&quot;</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;jbig2_arith_int.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;jbig2_arith_iaid.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;jbig2_generic.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;jbig2_huffman.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : #include &quot;jbig2_image.h&quot;</span>
+<span id="L42"><span class="lineNum">      42</span>              : #include &quot;jbig2_mmr.h&quot;</span>
+<span id="L43"><span class="lineNum">      43</span>              : #include &quot;jbig2_refinement.h&quot;</span>
+<span id="L44"><span class="lineNum">      44</span>              : #include &quot;jbig2_segment.h&quot;</span>
+<span id="L45"><span class="lineNum">      45</span>              : #include &quot;jbig2_symbol_dict.h&quot;</span>
+<span id="L46"><span class="lineNum">      46</span>              : #include &quot;jbig2_text.h&quot;</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : /* Table 13 */</span>
+<span id="L49"><span class="lineNum">      49</span>              : typedef struct {</span>
+<span id="L50"><span class="lineNum">      50</span>              :     bool SDHUFF;</span>
+<span id="L51"><span class="lineNum">      51</span>              :     bool SDREFAGG;</span>
+<span id="L52"><span class="lineNum">      52</span>              :     uint32_t SDNUMINSYMS;</span>
+<span id="L53"><span class="lineNum">      53</span>              :     Jbig2SymbolDict *SDINSYMS;</span>
+<span id="L54"><span class="lineNum">      54</span>              :     uint32_t SDNUMNEWSYMS;</span>
+<span id="L55"><span class="lineNum">      55</span>              :     uint32_t SDNUMEXSYMS;</span>
+<span id="L56"><span class="lineNum">      56</span>              :     Jbig2HuffmanTable *SDHUFFDH;</span>
+<span id="L57"><span class="lineNum">      57</span>              :     Jbig2HuffmanTable *SDHUFFDW;</span>
+<span id="L58"><span class="lineNum">      58</span>              :     Jbig2HuffmanTable *SDHUFFBMSIZE;</span>
+<span id="L59"><span class="lineNum">      59</span>              :     Jbig2HuffmanTable *SDHUFFAGGINST;</span>
+<span id="L60"><span class="lineNum">      60</span>              :     int SDTEMPLATE;</span>
+<span id="L61"><span class="lineNum">      61</span>              :     int8_t sdat[8];</span>
+<span id="L62"><span class="lineNum">      62</span>              :     bool SDRTEMPLATE;</span>
+<span id="L63"><span class="lineNum">      63</span>              :     int8_t sdrat[4];</span>
+<span id="L64"><span class="lineNum">      64</span>              : } Jbig2SymbolDictParams;</span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : /* Utility routines */</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : #ifdef DUMP_SYMDICT</span>
+<span id="L69"><span class="lineNum">      69</span>              : void</span>
+<span id="L70"><span class="lineNum">      70</span>              : jbig2_dump_symbol_dict(Jbig2Ctx *ctx, Jbig2Segment *segment)</span>
+<span id="L71"><span class="lineNum">      71</span>              : {</span>
+<span id="L72"><span class="lineNum">      72</span>              :     Jbig2SymbolDict *dict = (Jbig2SymbolDict *) segment-&gt;result;</span>
+<span id="L73"><span class="lineNum">      73</span>              :     uint32_t index;</span>
+<span id="L74"><span class="lineNum">      74</span>              :     char filename[24];</span>
+<span id="L75"><span class="lineNum">      75</span>              :     int code;</span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span>              :     if (dict == NULL)</span>
+<span id="L78"><span class="lineNum">      78</span>              :         return;</span>
+<span id="L79"><span class="lineNum">      79</span>              :     jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment-&gt;number, &quot;dumping symbol dictionary as %d individual png files&quot;, dict-&gt;n_symbols);</span>
+<span id="L80"><span class="lineNum">      80</span>              :     for (index = 0; index &lt; dict-&gt;n_symbols; index++) {</span>
+<span id="L81"><span class="lineNum">      81</span>              :         snprintf(filename, sizeof(filename), &quot;symbol_%02d-%04d.png&quot;, segment-&gt;number, index);</span>
+<span id="L82"><span class="lineNum">      82</span>              :         jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;dumping symbol %d/%d as '%s'&quot;, index, dict-&gt;n_symbols, filename);</span>
+<span id="L83"><span class="lineNum">      83</span>              : #ifdef HAVE_LIBPNG</span>
+<span id="L84"><span class="lineNum">      84</span>              :         code = jbig2_image_write_png_file(dict-&gt;glyphs[index], filename);</span>
+<span id="L85"><span class="lineNum">      85</span>              : #else</span>
+<span id="L86"><span class="lineNum">      86</span>              :         code = jbig2_image_write_pbm_file(dict-&gt;glyphs[index], filename);</span>
+<span id="L87"><span class="lineNum">      87</span>              : #endif</span>
+<span id="L88"><span class="lineNum">      88</span>              :         if (code &lt; 0)</span>
+<span id="L89"><span class="lineNum">      89</span>              :             return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to dump symbol %d/%d as '%s'&quot;, index, dict-&gt;n_symbols, filename);</span>
+<span id="L90"><span class="lineNum">      90</span>              :     }</span>
+<span id="L91"><span class="lineNum">      91</span>              : }</span>
+<span id="L92"><span class="lineNum">      92</span>              : #endif /* DUMP_SYMDICT */</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : /* return a new empty symbol dict */</span>
+<span id="L95"><span class="lineNum">      95</span>              : Jbig2SymbolDict *</span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC tlaBgUNC">           0 : jbig2_sd_new(Jbig2Ctx *ctx, uint32_t n_symbols)</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : {</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict *new_dict = NULL;</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :     new_dict = jbig2_new(ctx, Jbig2SymbolDict, 1);</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :     if (new_dict != NULL) {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         new_dict-&gt;glyphs = jbig2_new(ctx, Jbig2Image *, n_symbols);</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :         new_dict-&gt;n_symbols = n_symbols;</span></span>
+<span id="L104"><span class="lineNum">     104</span>              :     } else {</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, &quot;failed to allocate new empty symbol dictionary&quot;);</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :     }</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     if (new_dict-&gt;glyphs != NULL) {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         memset(new_dict-&gt;glyphs, 0, n_symbols * sizeof(Jbig2Image *));</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :     } else if (new_dict-&gt;n_symbols &gt; 0) {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, &quot;failed to allocate glyphs for new empty symbol dictionary&quot;);</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, new_dict);</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :     }</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              :     return new_dict;</span>
+<span id="L118"><span class="lineNum">     118</span>              : }</span>
+<span id="L119"><span class="lineNum">     119</span>              : </span>
+<span id="L120"><span class="lineNum">     120</span>              : /* release the memory associated with a symbol dict */</span>
+<span id="L121"><span class="lineNum">     121</span>              : void</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : jbig2_sd_release(Jbig2Ctx *ctx, Jbig2SymbolDict *dict)</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : {</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :     uint32_t i;</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :     if (dict == NULL)</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :         return;</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :     if (dict-&gt;glyphs != NULL)</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; dict-&gt;n_symbols; i++)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :             jbig2_image_release(ctx, dict-&gt;glyphs[i]);</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :     jbig2_free(ctx-&gt;allocator, dict-&gt;glyphs);</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :     jbig2_free(ctx-&gt;allocator, dict);</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : /* get a particular glyph by index */</span>
+<span id="L136"><span class="lineNum">     136</span>              : Jbig2Image *</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : jbig2_sd_glyph(Jbig2SymbolDict *dict, unsigned int id)</span></span>
+<span id="L138"><span class="lineNum">     138</span>              : {</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :     if (dict == NULL)</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :         return NULL;</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :     return dict-&gt;glyphs[id];</span></span>
+<span id="L142"><span class="lineNum">     142</span>              : }</span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              : /* count the number of dictionary segments referred to by the given segment */</span>
+<span id="L145"><span class="lineNum">     145</span>              : uint32_t</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 : jbig2_sd_count_referred(Jbig2Ctx *ctx, Jbig2Segment *segment)</span></span>
+<span id="L147"><span class="lineNum">     147</span>              : {</span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :     int index;</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :     Jbig2Segment *rsegment;</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     uint32_t n_dicts = 0;</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : </span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     for (index = 0; index &lt; segment-&gt;referred_to_segment_count; index++) {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         rsegment = jbig2_find_segment(ctx, segment-&gt;referred_to_segments[index]);</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         if (rsegment &amp;&amp; ((rsegment-&gt;flags &amp; 63) == 0) &amp;&amp;</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :             rsegment-&gt;result &amp;&amp; (((Jbig2SymbolDict *) rsegment-&gt;result)-&gt;n_symbols &gt; 0) &amp;&amp; ((*((Jbig2SymbolDict *) rsegment-&gt;result)-&gt;glyphs) != NULL))</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :             n_dicts++;</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :     }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     return (n_dicts);</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : /* return an array of pointers to symbol dictionaries referred to by the given segment */</span>
+<span id="L163"><span class="lineNum">     163</span>              : Jbig2SymbolDict **</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 : jbig2_sd_list_referred(Jbig2Ctx *ctx, Jbig2Segment *segment)</span></span>
+<span id="L165"><span class="lineNum">     165</span>              : {</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     int index;</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     Jbig2Segment *rsegment;</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict **dicts;</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :     uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :     uint32_t dindex = 0;</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     dicts = jbig2_new(ctx, Jbig2SymbolDict *, n_dicts);</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     if (dicts == NULL) {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;failed to allocate referred list of symbol dictionaries&quot;);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :     }</span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :     for (index = 0; index &lt; segment-&gt;referred_to_segment_count; index++) {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         rsegment = jbig2_find_segment(ctx, segment-&gt;referred_to_segments[index]);</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         if (rsegment &amp;&amp; ((rsegment-&gt;flags &amp; 63) == 0) &amp;&amp; rsegment-&gt;result &amp;&amp;</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 (((Jbig2SymbolDict *) rsegment-&gt;result)-&gt;n_symbols &gt; 0) &amp;&amp; ((*((Jbig2SymbolDict *) rsegment-&gt;result)-&gt;glyphs) != NULL)) {</span></span>
+<span id="L182"><span class="lineNum">     182</span>              :             /* add this referred to symbol dictionary */</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :             dicts[dindex++] = (Jbig2SymbolDict *) rsegment-&gt;result;</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :         }</span>
+<span id="L185"><span class="lineNum">     185</span>              :     }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :     if (dindex != n_dicts) {</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :         /* should never happen */</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;counted %d symbol dictionaries but built a list with %d.&quot;, n_dicts, dindex);</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, dicts);</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :     }</span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span>              :     return (dicts);</span>
+<span id="L195"><span class="lineNum">     195</span>              : }</span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span>              : /* generate a new symbol dictionary by concatenating a list of</span>
+<span id="L198"><span class="lineNum">     198</span>              :    existing dictionaries */</span>
+<span id="L199"><span class="lineNum">     199</span>              : Jbig2SymbolDict *</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 : jbig2_sd_cat(Jbig2Ctx *ctx, uint32_t n_dicts, Jbig2SymbolDict **dicts)</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : {</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     uint32_t i, j, k, symbols;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict *new_dict = NULL;</span></span>
+<span id="L204"><span class="lineNum">     204</span>              : </span>
+<span id="L205"><span class="lineNum">     205</span>              :     /* count the imported symbols and allocate a new array */</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     symbols = 0;</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; n_dicts; i++)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         symbols += dicts[i]-&gt;n_symbols;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : </span>
+<span id="L210"><span class="lineNum">     210</span>              :     /* fill a new array with new references to glyph pointers */</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     new_dict = jbig2_sd_new(ctx, symbols);</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     if (new_dict != NULL) {</span></span>
+<span id="L213"><span class="lineNum">     213</span>              :         k = 0;</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; n_dicts; i++)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :             for (j = 0; j &lt; dicts[i]-&gt;n_symbols; j++)</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 new_dict-&gt;glyphs[k++] = jbig2_image_reference(ctx, dicts[i]-&gt;glyphs[j]);</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :     } else {</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, &quot;failed to allocate new symbol dictionary&quot;);</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :     }</span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     return new_dict;</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : /* Decoding routines */</span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span>              : /* 6.5 */</span>
+<span id="L227"><span class="lineNum">     227</span>              : static Jbig2SymbolDict *</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 : jbig2_decode_symbol_dict(Jbig2Ctx *ctx,</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :                          Jbig2Segment *segment,</span>
+<span id="L230"><span class="lineNum">     230</span>              :                          const Jbig2SymbolDictParams *params, const byte *data, size_t size, Jbig2ArithCx *GB_stats, Jbig2ArithCx *GR_stats)</span>
+<span id="L231"><span class="lineNum">     231</span>              : {</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict *SDNEWSYMS = NULL;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict *SDEXSYMS = NULL;</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     uint32_t HCHEIGHT;</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :     uint32_t NSYMSDECODED;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     uint32_t SYMWIDTH, TOTWIDTH;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     uint32_t HCFIRSTSYM;</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     uint32_t *SDNEWSYMWIDTHS = NULL;</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     uint8_t SBSYMCODELEN = 0;</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :     Jbig2WordStream *ws = NULL;</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :     Jbig2HuffmanState *hs = NULL;</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :     Jbig2ArithState *as = NULL;</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :     Jbig2ArithIntCtx *IADH = NULL;</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :     Jbig2ArithIntCtx *IADW = NULL;</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     Jbig2ArithIntCtx *IAEX = NULL;</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     Jbig2ArithIntCtx *IAAI = NULL;</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :     Jbig2SymbolDict **refagg_dicts = NULL;</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :     uint32_t i;</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :     Jbig2TextRegionParams tparams;</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :     Jbig2Image *image = NULL;</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     Jbig2Image *glyph = NULL;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :     uint32_t emptyruns = 0;</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :     memset(&amp;tparams, 0, sizeof(tparams));</span></span>
+<span id="L256"><span class="lineNum">     256</span>              : </span>
+<span id="L257"><span class="lineNum">     257</span>              :     /* 6.5.5 (3) */</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :     HCHEIGHT = 0;</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :     NSYMSDECODED = 0;</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :     ws = jbig2_word_stream_buf_new(ctx, data, size);</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :     if (ws == NULL) {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate word stream when decoding symbol dictionary&quot;);</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L265"><span class="lineNum">     265</span>              :     }</span>
+<span id="L266"><span class="lineNum">     266</span>              : </span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :     as = jbig2_arith_new(ctx, ws);</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     if (as == NULL) {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate arithmetic coding state when decoding symbol dictionary&quot;);</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         jbig2_word_stream_buf_free(ctx, ws);</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :     }</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :     for (SBSYMCODELEN = 0; ((uint64_t) 1 &lt;&lt; SBSYMCODELEN) &lt; ((uint64_t) params-&gt;SDNUMINSYMS + params-&gt;SDNUMNEWSYMS); SBSYMCODELEN++);</span></span>
+<span id="L275"><span class="lineNum">     275</span>              : </span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :     if (params-&gt;SDHUFF) {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;huffman coded symbol dictionary&quot;);</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         hs = jbig2_huffman_new(ctx, ws);</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         tparams.SBHUFFRDX = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_O);   /* Table B.15 */</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         tparams.SBHUFFRDY = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_O);   /* Table B.15 */</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         tparams.SBHUFFRSIZE = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_A); /* Table B.1 */</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         if (hs == NULL || tparams.SBHUFFRDX == NULL ||</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 tparams.SBHUFFRDY == NULL || tparams.SBHUFFRSIZE == NULL) {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate for symbol bitmap&quot;);</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L286"><span class="lineNum">     286</span>              :         }</span>
+<span id="L287"><span class="lineNum">     287</span>              :         /* 6.5.5 (2) */</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if (!params-&gt;SDREFAGG) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :             SDNEWSYMWIDTHS = jbig2_new(ctx, uint32_t, params-&gt;SDNUMNEWSYMS);</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :             if (SDNEWSYMWIDTHS == NULL) {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;failed to allocate symbol widths (%u)&quot;, params-&gt;SDNUMNEWSYMS);</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :             }</span>
+<span id="L294"><span class="lineNum">     294</span>              :         } else {</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :             tparams.SBHUFFFS = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_F);    /* Table B.6 */</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :             tparams.SBHUFFDS = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_H);    /* Table B.8 */</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :             tparams.SBHUFFDT = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_K);    /* Table B.11 */</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :             tparams.SBHUFFRDW = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_O);   /* Table B.15 */</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :             tparams.SBHUFFRDH = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_O);   /* Table B.15 */</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :             if (tparams.SBHUFFFS == NULL || tparams.SBHUFFDS == NULL ||</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                     tparams.SBHUFFDT == NULL || tparams.SBHUFFRDW == NULL ||</span></span>
+<span id="L302"><span class="lineNum">     302</span>              :                     tparams.SBHUFFRDH == NULL) {</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;out of memory creating text region huffman decoder entries&quot;);</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :             }</span>
+<span id="L306"><span class="lineNum">     306</span>              :         }</span>
+<span id="L307"><span class="lineNum">     307</span>              :     } else {</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         IADH = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         IADW = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         IAEX = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :         IAAI = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :         if (IADH == NULL || IADW == NULL || IAEX == NULL || IAAI == NULL) {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate symbol bitmap&quot;);</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :         }</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         tparams.IAID = jbig2_arith_iaid_ctx_new(ctx, SBSYMCODELEN);</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         tparams.IARDX = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         tparams.IARDY = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         if (tparams.IAID == NULL || tparams.IARDX == NULL ||</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :                 tparams.IARDY == NULL) {</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate text region arithmetic decoder contexts&quot;);</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :         }</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         if (params-&gt;SDREFAGG) {</span></span>
+<span id="L325"><span class="lineNum">     325</span>              :             /* Values from Table 17, section 6.5.8.2 (2) */</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :             tparams.IADT = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :             tparams.IAFS = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :             tparams.IADS = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :             tparams.IAIT = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :             /* Table 31 */</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :             tparams.IARI = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :             tparams.IARDW = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :             tparams.IARDH = jbig2_arith_int_ctx_new(ctx);</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :             if (tparams.IADT == NULL || tparams.IAFS == NULL ||</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                     tparams.IADS == NULL || tparams.IAIT == NULL ||</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                     tparams.IARI == NULL || tparams.IARDW == NULL ||</span></span>
+<span id="L337"><span class="lineNum">     337</span>              :                     tparams.IARDH == NULL) {</span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate text region arith decoder contexts&quot;);</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :             }</span>
+<span id="L341"><span class="lineNum">     341</span>              :         }</span>
+<span id="L342"><span class="lineNum">     342</span>              :     }</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :     tparams.SBHUFF = params-&gt;SDHUFF;</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :     tparams.SBREFINE = 1;</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :     tparams.SBSTRIPS = 1;</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :     tparams.SBDEFPIXEL = 0;</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :     tparams.SBCOMBOP = JBIG2_COMPOSE_OR;</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :     tparams.TRANSPOSED = 0;</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :     tparams.REFCORNER = JBIG2_CORNER_TOPLEFT;</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :     tparams.SBDSOFFSET = 0;</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :     tparams.SBRTEMPLATE = params-&gt;SDRTEMPLATE;</span></span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span>              :     /* 6.5.5 (1) */</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :     SDNEWSYMS = jbig2_sd_new(ctx, params-&gt;SDNUMNEWSYMS);</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :     if (SDNEWSYMS == NULL) {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate new symbols (%u)&quot;, params-&gt;SDNUMNEWSYMS);</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :     }</span>
+<span id="L359"><span class="lineNum">     359</span>              : </span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :     refagg_dicts = jbig2_new(ctx, Jbig2SymbolDict *, 2);</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :     if (refagg_dicts == NULL) {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;Out of memory allocating dictionary array&quot;);</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L364"><span class="lineNum">     364</span>              :     }</span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :     refagg_dicts[0] = jbig2_sd_new(ctx, params-&gt;SDNUMINSYMS);</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :     if (refagg_dicts[0] == NULL) {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :         code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;out of memory allocating symbol dictionary&quot;);</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L369"><span class="lineNum">     369</span>              :     }</span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; params-&gt;SDNUMINSYMS; i++) {</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         refagg_dicts[0]-&gt;glyphs[i] = jbig2_image_reference(ctx, params-&gt;SDINSYMS-&gt;glyphs[i]);</span></span>
+<span id="L372"><span class="lineNum">     372</span>              :     }</span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :     refagg_dicts[1] = SDNEWSYMS;</span></span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span>              :     /* 6.5.5 (4a) */</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :     while (NSYMSDECODED &lt; params-&gt;SDNUMNEWSYMS) {</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         int32_t HCDH, DW;</span></span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              :         /* 6.5.6 */</span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         if (params-&gt;SDHUFF) {</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :             HCDH = jbig2_huffman_get(hs, params-&gt;SDHUFFDH, &amp;code);</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :         } else {</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :             code = jbig2_arith_int_decode(ctx, IADH, as, &amp;HCDH);</span></span>
+<span id="L384"><span class="lineNum">     384</span>              :         }</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode height class delta&quot;);</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L388"><span class="lineNum">     388</span>              :         }</span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         if (code &gt; 0) {</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;OOB decoding height class delta&quot;);</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :         }</span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span>              :         /* 6.5.5 (4b) */</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         HCHEIGHT = HCHEIGHT + HCDH;</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         SYMWIDTH = 0;</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         TOTWIDTH = 0;</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         HCFIRSTSYM = NSYMSDECODED;</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         if ((int32_t) HCHEIGHT &lt; 0) {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :             code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;invalid HCHEIGHT value&quot;);</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L403"><span class="lineNum">     403</span>              :         }</span>
+<span id="L404"><span class="lineNum">     404</span>              : #ifdef JBIG2_DEBUG</span>
+<span id="L405"><span class="lineNum">     405</span>              :         jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;HCHEIGHT = %d&quot;, HCHEIGHT);</span>
+<span id="L406"><span class="lineNum">     406</span>              : #endif</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;decoding height class %d with %d syms decoded&quot;, HCHEIGHT, NSYMSDECODED);</span></span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         for (;;) {</span></span>
+<span id="L410"><span class="lineNum">     410</span>              :             /* 6.5.7 */</span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :             if (params-&gt;SDHUFF) {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 DW = jbig2_huffman_get(hs, params-&gt;SDHUFFDW, &amp;code);</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :             } else {</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                 code = jbig2_arith_int_decode(ctx, IADW, as, &amp;DW);</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :             }</span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L417"><span class="lineNum">     417</span>              :             {</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode DW&quot;);</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L420"><span class="lineNum">     420</span>              :             }</span>
+<span id="L421"><span class="lineNum">     421</span>              :             /* 6.5.5 (4c.i) */</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :             if (code &gt; 0) {</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;OOB when decoding DW signals end of height class %d&quot;, HCHEIGHT);</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :             }</span>
+<span id="L426"><span class="lineNum">     426</span>              : </span>
+<span id="L427"><span class="lineNum">     427</span>              :             /* check for broken symbol table */</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :             if (NSYMSDECODED &gt;= params-&gt;SDNUMNEWSYMS) {</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;no OOB signaling end of height class %d, continuing&quot;, HCHEIGHT);</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L431"><span class="lineNum">     431</span>              :             }</span>
+<span id="L432"><span class="lineNum">     432</span>              : </span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :             if (DW &lt; 0 &amp;&amp; SYMWIDTH &lt; (uint32_t) -DW) {</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                 code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;DW value (%d) would make SYMWIDTH (%u) negative at symbol %u&quot;, DW, SYMWIDTH, NSYMSDECODED + 1);</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L436"><span class="lineNum">     436</span>              :             }</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :             if (DW &gt; 0 &amp;&amp; (uint32_t) DW &gt; UINT32_MAX - SYMWIDTH) {</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                 code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;DW value (%d) would make SYMWIDTH (%u) too large at symbol %u&quot;, DW, SYMWIDTH, NSYMSDECODED + 1);</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L440"><span class="lineNum">     440</span>              :             }</span>
+<span id="L441"><span class="lineNum">     441</span>              : </span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :             SYMWIDTH = SYMWIDTH + DW;</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :             if (SYMWIDTH &gt; UINT32_MAX - TOTWIDTH) {</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                 code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;SYMWIDTH value (%u) would make TOTWIDTH (%u) too large at symbol %u&quot;, SYMWIDTH, TOTWIDTH, NSYMSDECODED + 1);</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :             }</span>
+<span id="L447"><span class="lineNum">     447</span>              : </span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :             TOTWIDTH = TOTWIDTH + SYMWIDTH;</span></span>
+<span id="L449"><span class="lineNum">     449</span>              : #ifdef JBIG2_DEBUG</span>
+<span id="L450"><span class="lineNum">     450</span>              :             jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;SYMWIDTH = %u TOTWIDTH = %u&quot;, SYMWIDTH, TOTWIDTH);</span>
+<span id="L451"><span class="lineNum">     451</span>              : #endif</span>
+<span id="L452"><span class="lineNum">     452</span>              :             /* 6.5.5 (4c.ii) */</span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :             if (!params-&gt;SDHUFF || params-&gt;SDREFAGG) {</span></span>
+<span id="L454"><span class="lineNum">     454</span>              : #ifdef JBIG2_DEBUG</span>
+<span id="L455"><span class="lineNum">     455</span>              :                 jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;SDHUFF = %d; SDREFAGG = %d&quot;, params-&gt;SDHUFF, params-&gt;SDREFAGG);</span>
+<span id="L456"><span class="lineNum">     456</span>              : #endif</span>
+<span id="L457"><span class="lineNum">     457</span>              :                 /* 6.5.8 */</span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :                 if (!params-&gt;SDREFAGG) {</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :                     Jbig2GenericRegionParams region_params;</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :                     int sdat_bytes;</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span>              :                     /* Table 16 */</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :                     region_params.MMR = 0;</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                     region_params.GBTEMPLATE = params-&gt;SDTEMPLATE;</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                     region_params.TPGDON = 0;</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                     region_params.USESKIP = 0;</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                     sdat_bytes = params-&gt;SDTEMPLATE == 0 ? 8 : 2;</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                     memcpy(region_params.gbat, params-&gt;sdat, sdat_bytes);</span></span>
+<span id="L469"><span class="lineNum">     469</span>              : </span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                     image = jbig2_image_new(ctx, SYMWIDTH, HCHEIGHT);</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                     if (image == NULL) {</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                         code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate image&quot;);</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                         goto cleanup;</span></span>
+<span id="L474"><span class="lineNum">     474</span>              :                     }</span>
+<span id="L475"><span class="lineNum">     475</span>              : </span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :                     code = jbig2_decode_generic_region(ctx, segment, &amp;region_params, as, image, GB_stats);</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :                     if (code &lt; 0) {</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :                         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode generic region&quot;);</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :                         goto cleanup;</span></span>
+<span id="L480"><span class="lineNum">     480</span>              :                     }</span>
+<span id="L481"><span class="lineNum">     481</span>              : </span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                     SDNEWSYMS-&gt;glyphs[NSYMSDECODED] = image;</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                     image = NULL;</span></span>
+<span id="L484"><span class="lineNum">     484</span>              :                 } else {</span>
+<span id="L485"><span class="lineNum">     485</span>              :                     /* 6.5.8.2 refinement/aggregate symbol */</span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                     uint32_t REFAGGNINST;</span></span>
+<span id="L487"><span class="lineNum">     487</span>              : </span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                     if (params-&gt;SDHUFF) {</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                         REFAGGNINST = jbig2_huffman_get(hs, params-&gt;SDHUFFAGGINST, &amp;code);</span></span>
+<span id="L490"><span class="lineNum">     490</span>              :                     } else {</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                         code = jbig2_arith_int_decode(ctx, IAAI, as, (int32_t *) &amp;REFAGGNINST);</span></span>
+<span id="L492"><span class="lineNum">     492</span>              :                     }</span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                     if (code &lt; 0) {</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                         code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode number of symbols in aggregate glyph&quot;);</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                         goto cleanup;</span></span>
+<span id="L496"><span class="lineNum">     496</span>              :                     }</span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :                     if (code &gt; 0) {</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                         code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;OOB in number of symbols in aggregate glyph&quot;);</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                         goto cleanup;</span></span>
+<span id="L500"><span class="lineNum">     500</span>              :                     }</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                     if ((int32_t) REFAGGNINST &lt;= 0) {</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :                         code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;invalid number of symbols in aggregate glyph&quot;);</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :                         goto cleanup;</span></span>
+<span id="L504"><span class="lineNum">     504</span>              :                     }</span>
+<span id="L505"><span class="lineNum">     505</span>              : </span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;aggregate symbol coding (%d instances)&quot;, REFAGGNINST);</span></span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :                     if (REFAGGNINST &gt; 1) {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                         tparams.SBNUMINSTANCES = REFAGGNINST;</span></span>
+<span id="L510"><span class="lineNum">     510</span>              : </span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                         image = jbig2_image_new(ctx, SYMWIDTH, HCHEIGHT);</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                         if (image == NULL) {</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate symbol image&quot;);</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L515"><span class="lineNum">     515</span>              :                         }</span>
+<span id="L516"><span class="lineNum">     516</span>              : </span>
+<span id="L517"><span class="lineNum">     517</span>              :                         /* multiple symbols are handled as a text region */</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                         code = jbig2_decode_text_region(ctx, segment, &amp;tparams, (const Jbig2SymbolDict * const *)refagg_dicts,</span></span>
+<span id="L519"><span class="lineNum">     519</span>              :                                                         2, image, data, size, GR_stats, as, ws);</span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                         if (code &lt; 0) {</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode text region&quot;);</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L523"><span class="lineNum">     523</span>              :                         }</span>
+<span id="L524"><span class="lineNum">     524</span>              : </span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                         SDNEWSYMS-&gt;glyphs[NSYMSDECODED] = image;</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                         image = NULL;</span></span>
+<span id="L527"><span class="lineNum">     527</span>              :                     } else {</span>
+<span id="L528"><span class="lineNum">     528</span>              :                         /* 6.5.8.2.2 */</span>
+<span id="L529"><span class="lineNum">     529</span>              :                         /* bool SBHUFF = params-&gt;SDHUFF; */</span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                         Jbig2RefinementRegionParams rparams;</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :                         uint32_t ID;</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :                         int32_t RDX, RDY;</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :                         int BMSIZE = 0;</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :                         uint32_t ninsyms = params-&gt;SDNUMINSYMS;</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :                         int code1 = 0;</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :                         int code2 = 0;</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :                         int code3 = 0;</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :                         int code4 = 0;</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                         int code5 = 0;</span></span>
+<span id="L540"><span class="lineNum">     540</span>              : </span>
+<span id="L541"><span class="lineNum">     541</span>              :                         /* 6.5.8.2.2 (2, 3, 4, 5) */</span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                         if (params-&gt;SDHUFF) {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                             ID = jbig2_huffman_get_bits(hs, SBSYMCODELEN, &amp;code1);</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                             RDX = jbig2_huffman_get(hs, tparams.SBHUFFRDX, &amp;code2);</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                             RDY = jbig2_huffman_get(hs, tparams.SBHUFFRDY, &amp;code3);</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                             BMSIZE = jbig2_huffman_get(hs, tparams.SBHUFFRSIZE, &amp;code4);</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                             code5 = jbig2_huffman_skip(hs);</span></span>
+<span id="L548"><span class="lineNum">     548</span>              :                         } else {</span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                             code1 = jbig2_arith_iaid_decode(ctx, tparams.IAID, as, (int32_t *) &amp;ID);</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :                             code2 = jbig2_arith_int_decode(ctx, tparams.IARDX, as, &amp;RDX);</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                             code3 = jbig2_arith_int_decode(ctx, tparams.IARDY, as, &amp;RDY);</span></span>
+<span id="L552"><span class="lineNum">     552</span>              :                         }</span>
+<span id="L553"><span class="lineNum">     553</span>              : </span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :                         if (code1 &lt; 0 || code2 &lt; 0 || code3 &lt; 0 || code4 &lt; 0 || code5 &lt; 0) {</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode data&quot;);</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L557"><span class="lineNum">     557</span>              :                         }</span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :                         if (code1 &gt; 0 || code2 &gt; 0 || code3 &gt; 0 || code4 &gt; 0 || code5 &gt; 0) {</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;OOB in single refinement/aggregate coded symbol data&quot;);</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L561"><span class="lineNum">     561</span>              :                         }</span>
+<span id="L562"><span class="lineNum">     562</span>              : </span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :                         if (ID &gt;= ninsyms + NSYMSDECODED) {</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;refinement references unknown symbol %d&quot;, ID);</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L566"><span class="lineNum">     566</span>              :                         }</span>
+<span id="L567"><span class="lineNum">     567</span>              : </span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                         jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number,</span></span>
+<span id="L569"><span class="lineNum">     569</span>              :                                     &quot;symbol is a refinement of ID %d with the refinement applied at (%d,%d)&quot;, ID, RDX, RDY);</span>
+<span id="L570"><span class="lineNum">     570</span>              : </span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                         image = jbig2_image_new(ctx, SYMWIDTH, HCHEIGHT);</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                         if (image == NULL) {</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate symbol image&quot;);</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L575"><span class="lineNum">     575</span>              :                         }</span>
+<span id="L576"><span class="lineNum">     576</span>              : </span>
+<span id="L577"><span class="lineNum">     577</span>              :                         /* Table 18 */</span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :                         rparams.GRTEMPLATE = params-&gt;SDRTEMPLATE;</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                         rparams.GRREFERENCE = (ID &lt; ninsyms) ? params-&gt;SDINSYMS-&gt;glyphs[ID] : SDNEWSYMS-&gt;glyphs[ID - ninsyms];</span></span>
+<span id="L580"><span class="lineNum">     580</span>              :                         /* SumatraPDF: fail on missing glyphs */</span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                         if (rparams.GRREFERENCE == NULL) {</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                             code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;missing glyph %d/%d&quot;, ID, ninsyms);</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L584"><span class="lineNum">     584</span>              :                         }</span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                         rparams.GRREFERENCEDX = RDX;</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                         rparams.GRREFERENCEDY = RDY;</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :                         rparams.TPGRON = 0;</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :                         memcpy(rparams.grat, params-&gt;sdrat, 4);</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 :                         code = jbig2_decode_refinement_region(ctx, segment, &amp;rparams, as, image, GR_stats);</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :                         if (code &lt; 0) {</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode refinement region&quot;);</span></span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaUNC">           0 :                             goto cleanup;</span></span>
+<span id="L593"><span class="lineNum">     593</span>              :                         }</span>
+<span id="L594"><span class="lineNum">     594</span>              : </span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :                         SDNEWSYMS-&gt;glyphs[NSYMSDECODED] = image;</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC">           0 :                         image = NULL;</span></span>
+<span id="L597"><span class="lineNum">     597</span>              : </span>
+<span id="L598"><span class="lineNum">     598</span>              :                         /* 6.5.8.2.2 (7) */</span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :                         if (params-&gt;SDHUFF) {</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :                             if (BMSIZE == 0)</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :                                 BMSIZE = (size_t) SDNEWSYMS-&gt;glyphs[NSYMSDECODED]-&gt;height *</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC">           0 :                                     SDNEWSYMS-&gt;glyphs[NSYMSDECODED]-&gt;stride;</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                             code = jbig2_huffman_advance(hs, BMSIZE);</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                             if (code &lt; 0) {</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to advance after huffman decoding in refinement region&quot;);</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :                                 goto cleanup;</span></span>
+<span id="L607"><span class="lineNum">     607</span>              :                             }</span>
+<span id="L608"><span class="lineNum">     608</span>              :                         }</span>
+<span id="L609"><span class="lineNum">     609</span>              :                     }</span>
+<span id="L610"><span class="lineNum">     610</span>              :                 }</span>
+<span id="L611"><span class="lineNum">     611</span>              : </span>
+<span id="L612"><span class="lineNum">     612</span>              : #ifdef OUTPUT_PBM</span>
+<span id="L613"><span class="lineNum">     613</span>              :                 {</span>
+<span id="L614"><span class="lineNum">     614</span>              :                     char name[64];</span>
+<span id="L615"><span class="lineNum">     615</span>              :                     FILE *out;</span>
+<span id="L616"><span class="lineNum">     616</span>              :                     int code;</span>
+<span id="L617"><span class="lineNum">     617</span>              : </span>
+<span id="L618"><span class="lineNum">     618</span>              :                     snprintf(name, 64, &quot;sd.%04d.%04d.pbm&quot;, segment-&gt;number, NSYMSDECODED);</span>
+<span id="L619"><span class="lineNum">     619</span>              :                     out = fopen(name, &quot;wb&quot;);</span>
+<span id="L620"><span class="lineNum">     620</span>              :                     code = jbig2_image_write_pbm(SDNEWSYMS-&gt;glyphs[NSYMSDECODED], out);</span>
+<span id="L621"><span class="lineNum">     621</span>              :                     fclose(out);</span>
+<span id="L622"><span class="lineNum">     622</span>              :                     if (code &lt; 0) {</span>
+<span id="L623"><span class="lineNum">     623</span>              :                         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to write glyph&quot;);</span>
+<span id="L624"><span class="lineNum">     624</span>              :                         goto cleanup;</span>
+<span id="L625"><span class="lineNum">     625</span>              :                     }</span>
+<span id="L626"><span class="lineNum">     626</span>              :                     jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;writing out glyph as '%s' ...&quot;, name);</span>
+<span id="L627"><span class="lineNum">     627</span>              :                 }</span>
+<span id="L628"><span class="lineNum">     628</span>              : #endif</span>
+<span id="L629"><span class="lineNum">     629</span>              : </span>
+<span id="L630"><span class="lineNum">     630</span>              :             }</span>
+<span id="L631"><span class="lineNum">     631</span>              : </span>
+<span id="L632"><span class="lineNum">     632</span>              :             /* 6.5.5 (4c.iii) */</span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaUNC">           0 :             if (params-&gt;SDHUFF &amp;&amp; !params-&gt;SDREFAGG) {</span></span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaUNC">           0 :                 SDNEWSYMWIDTHS[NSYMSDECODED] = SYMWIDTH;</span></span>
+<span id="L635"><span class="lineNum">     635</span>              :             }</span>
+<span id="L636"><span class="lineNum">     636</span>              : </span>
+<span id="L637"><span class="lineNum">     637</span>              :             /* 6.5.5 (4c.iv) */</span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaUNC">           0 :             NSYMSDECODED = NSYMSDECODED + 1;</span></span>
+<span id="L639"><span class="lineNum">     639</span>              : </span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number, &quot;decoded symbol %u of %u (%ux%u)&quot;, NSYMSDECODED, params-&gt;SDNUMNEWSYMS, SYMWIDTH, HCHEIGHT);</span></span>
+<span id="L641"><span class="lineNum">     641</span>              : </span>
+<span id="L642"><span class="lineNum">     642</span>              :         }                       /* end height class decode loop */</span>
+<span id="L643"><span class="lineNum">     643</span>              : </span>
+<span id="L644"><span class="lineNum">     644</span>              :         /* 6.5.5 (4d) */</span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaUNC">           0 :         if (params-&gt;SDHUFF &amp;&amp; !params-&gt;SDREFAGG) {</span></span>
+<span id="L646"><span class="lineNum">     646</span>              :             /* 6.5.9 */</span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaUNC">           0 :             size_t BMSIZE;</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaUNC">           0 :             uint32_t j;</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaUNC">           0 :             int x;</span></span>
+<span id="L650"><span class="lineNum">     650</span>              : </span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaUNC">           0 :             BMSIZE = jbig2_huffman_get(hs, params-&gt;SDHUFFBMSIZE, &amp;code);</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaUNC">           0 :             if (code &lt; 0) {</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;error decoding size of collective bitmap&quot;);</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L655"><span class="lineNum">     655</span>              :             }</span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaUNC">           0 :             if (code &gt; 0) {</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;OOB obtained when decoding size of collective bitmap&quot;);</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L659"><span class="lineNum">     659</span>              :             }</span>
+<span id="L660"><span class="lineNum">     660</span>              : </span>
+<span id="L661"><span class="lineNum">     661</span>              :             /* skip any bits before the next byte boundary */</span>
+<span id="L662"><span class="lineNum">     662</span> <span class="tlaUNC">           0 :             code = jbig2_huffman_skip(hs);</span></span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaUNC">           0 :             if (code &lt; 0) {</span></span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to skip to next byte when decoding collective bitmap&quot;);</span></span>
+<span id="L665"><span class="lineNum">     665</span>              :             }</span>
+<span id="L666"><span class="lineNum">     666</span>              : </span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaUNC">           0 :             image = jbig2_image_new(ctx, TOTWIDTH, HCHEIGHT);</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaUNC">           0 :             if (image == NULL) {</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate collective bitmap image&quot;);</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L671"><span class="lineNum">     671</span>              :             }</span>
+<span id="L672"><span class="lineNum">     672</span>              : </span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :             if (BMSIZE == 0) {</span></span>
+<span id="L674"><span class="lineNum">     674</span>              :                 /* if BMSIZE == 0 bitmap is uncompressed */</span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC">           0 :                 const byte *src = data + jbig2_huffman_offset(hs);</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :                 const int stride = (image-&gt;width &gt;&gt; 3) + ((image-&gt;width &amp; 7) ? 1 : 0);</span></span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaUNC">           0 :                 byte *dst = image-&gt;data;</span></span>
+<span id="L678"><span class="lineNum">     678</span>              : </span>
+<span id="L679"><span class="lineNum">     679</span>              :                 /* SumatraPDF: prevent read access violation */</span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaUNC">           0 :                 if (size &lt; jbig2_huffman_offset(hs) || (size - jbig2_huffman_offset(hs) &lt; (size_t) image-&gt;height * stride) || (size &lt; jbig2_huffman_offset(hs))) {</span></span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;not enough data for decoding uncompressed (%d/%li)&quot;, image-&gt;height * stride,</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC">           0 :                                 (long) (size - jbig2_huffman_offset(hs)));</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :                     goto cleanup;</span></span>
+<span id="L684"><span class="lineNum">     684</span>              :                 }</span>
+<span id="L685"><span class="lineNum">     685</span>              : </span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :                 BMSIZE = (size_t) image-&gt;height * stride;</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number,</span></span>
+<span id="L688"><span class="lineNum">     688</span>              :                             &quot;reading %dx%d uncompressed bitmap for %d symbols (%li bytes)&quot;, image-&gt;width, image-&gt;height, NSYMSDECODED - HCFIRSTSYM, (long) BMSIZE);</span>
+<span id="L689"><span class="lineNum">     689</span>              : </span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaUNC">           0 :                 for (j = 0; j &lt; image-&gt;height; j++) {</span></span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :                     memcpy(dst, src, stride);</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 :                     dst += image-&gt;stride;</span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :                     src += stride;</span></span>
+<span id="L694"><span class="lineNum">     694</span>              :                 }</span>
+<span id="L695"><span class="lineNum">     695</span>              :             } else {</span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaUNC">           0 :                 Jbig2GenericRegionParams rparams;</span></span>
+<span id="L697"><span class="lineNum">     697</span>              : </span>
+<span id="L698"><span class="lineNum">     698</span>              :                 /* SumatraPDF: prevent read access violation */</span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaUNC">           0 :                 if (size &lt; jbig2_huffman_offset(hs) || size &lt; BMSIZE || size - jbig2_huffman_offset(hs) &lt; BMSIZE) {</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;not enough data for decoding (%li/%li)&quot;, (long) BMSIZE, (long) (size - jbig2_huffman_offset(hs)));</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC">           0 :                     goto cleanup;</span></span>
+<span id="L702"><span class="lineNum">     702</span>              :                 }</span>
+<span id="L703"><span class="lineNum">     703</span>              : </span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment-&gt;number,</span></span>
+<span id="L705"><span class="lineNum">     705</span>              :                             &quot;reading %dx%d collective bitmap for %d symbols (%li bytes)&quot;, image-&gt;width, image-&gt;height, NSYMSDECODED - HCFIRSTSYM, (long) BMSIZE);</span>
+<span id="L706"><span class="lineNum">     706</span>              : </span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaUNC">           0 :                 rparams.MMR = 1;</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :                 code = jbig2_decode_generic_mmr(ctx, segment, &amp;rparams, data + jbig2_huffman_offset(hs), BMSIZE, image);</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaUNC">           0 :                 if (code) {</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode MMR-coded generic region&quot;);</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                     goto cleanup;</span></span>
+<span id="L712"><span class="lineNum">     712</span>              :                 }</span>
+<span id="L713"><span class="lineNum">     713</span>              :             }</span>
+<span id="L714"><span class="lineNum">     714</span>              : </span>
+<span id="L715"><span class="lineNum">     715</span>              :             /* advance past the data we've just read */</span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :             code = jbig2_huffman_advance(hs, BMSIZE);</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :             if (code &lt; 0) {</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to advance after huffman decoding MMR bitmap image&quot;);</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L720"><span class="lineNum">     720</span>              :             }</span>
+<span id="L721"><span class="lineNum">     721</span>              : </span>
+<span id="L722"><span class="lineNum">     722</span>              :             /* copy the collective bitmap into the symbol dictionary */</span>
+<span id="L723"><span class="lineNum">     723</span>              :             x = 0;</span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC">           0 :             for (j = HCFIRSTSYM; j &lt; NSYMSDECODED; j++) {</span></span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :                 glyph = jbig2_image_new(ctx, SDNEWSYMWIDTHS[j], HCHEIGHT);</span></span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 :                 if (glyph == NULL) {</span></span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to copy the collective bitmap into symbol dictionary&quot;);</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :                     goto cleanup;</span></span>
+<span id="L729"><span class="lineNum">     729</span>              :                 }</span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :                 code = jbig2_image_compose(ctx, glyph, image, -x, 0, JBIG2_COMPOSE_REPLACE);</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                 if (code) {</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :                     jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to compose image into glyph&quot;);</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :                     goto cleanup;</span></span>
+<span id="L734"><span class="lineNum">     734</span>              :                 }</span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :                 x += SDNEWSYMWIDTHS[j];</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :                 SDNEWSYMS-&gt;glyphs[j] = glyph;</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :                 glyph = NULL;</span></span>
+<span id="L738"><span class="lineNum">     738</span>              :             }</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :             jbig2_image_release(ctx, image);</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :             image = NULL;</span></span>
+<span id="L741"><span class="lineNum">     741</span>              :         }</span>
+<span id="L742"><span class="lineNum">     742</span>              : </span>
+<span id="L743"><span class="lineNum">     743</span>              :     }                           /* end of symbol decode loop */</span>
+<span id="L744"><span class="lineNum">     744</span>              : </span>
+<span id="L745"><span class="lineNum">     745</span>              :     /* 6.5.10 */</span>
+<span id="L746"><span class="lineNum">     746</span> <span class="tlaUNC">           0 :     SDEXSYMS = jbig2_sd_new(ctx, params-&gt;SDNUMEXSYMS);</span></span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaUNC">           0 :     if (SDEXSYMS == NULL) {</span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate symbols exported from symbols dictionary&quot;);</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L750"><span class="lineNum">     750</span>              :     } else {</span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :         uint32_t i = 0;</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :         uint32_t j = 0;</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :         uint32_t k;</span></span>
+<span id="L754"><span class="lineNum">     754</span> <span class="tlaUNC">           0 :         int exflag = 0;</span></span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :         uint32_t limit = params-&gt;SDNUMINSYMS + params-&gt;SDNUMNEWSYMS;</span></span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaUNC">           0 :         uint32_t EXRUNLENGTH;</span></span>
+<span id="L757"><span class="lineNum">     757</span>              : </span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :         while (i &lt; limit) {</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :             if (params-&gt;SDHUFF)</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :                 EXRUNLENGTH = jbig2_huffman_get(hs, tparams.SBHUFFRSIZE, &amp;code);</span></span>
+<span id="L761"><span class="lineNum">     761</span>              :             else</span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :                 code = jbig2_arith_int_decode(ctx, IAEX, as, (int32_t *) &amp;EXRUNLENGTH);</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaUNC">           0 :             if (code &lt; 0) {</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to decode runlength for exported symbols&quot;);</span></span>
+<span id="L765"><span class="lineNum">     765</span>              :                 /* skip to the cleanup code and return SDEXSYMS = NULL */</span>
+<span id="L766"><span class="lineNum">     766</span> <span class="tlaUNC">           0 :                 jbig2_sd_release(ctx, SDEXSYMS);</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 :                 SDEXSYMS = NULL;</span></span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L769"><span class="lineNum">     769</span>              :             }</span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :             if (code &gt; 0) {</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;OOB when decoding runlength for exported symbols&quot;);</span></span>
+<span id="L772"><span class="lineNum">     772</span>              :                 /* skip to the cleanup code and return SDEXSYMS = NULL */</span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :                 jbig2_sd_release(ctx, SDEXSYMS);</span></span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :                 SDEXSYMS = NULL;</span></span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L776"><span class="lineNum">     776</span>              :             }</span>
+<span id="L777"><span class="lineNum">     777</span>              : </span>
+<span id="L778"><span class="lineNum">     778</span>              :             /* prevent infinite list of empty runs, 1000 is just an arbitrary number */</span>
+<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :             if (EXRUNLENGTH &lt;= 0 &amp;&amp; ++emptyruns == 1000) {</span></span>
+<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;runlength too small in export symbol table (%u == 0 i = %u limit = %u)&quot;, EXRUNLENGTH, i, limit);</span></span>
+<span id="L781"><span class="lineNum">     781</span>              :                 /* skip to the cleanup code and return SDEXSYMS = NULL */</span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :                 jbig2_sd_release(ctx, SDEXSYMS);</span></span>
+<span id="L783"><span class="lineNum">     783</span> <span class="tlaUNC">           0 :                 SDEXSYMS = NULL;</span></span>
+<span id="L784"><span class="lineNum">     784</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaUNC">           0 :             } else if (EXRUNLENGTH &gt; 0) {</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :                 emptyruns = 0;</span></span>
+<span id="L787"><span class="lineNum">     787</span>              :             }</span>
+<span id="L788"><span class="lineNum">     788</span>              : </span>
+<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :             if (EXRUNLENGTH &gt; limit - i) {</span></span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;exporting more symbols than available (%u &gt; %u), capping&quot;, i + EXRUNLENGTH, limit);</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                 EXRUNLENGTH = limit - i;</span></span>
+<span id="L792"><span class="lineNum">     792</span>              :             }</span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaUNC">           0 :             if (exflag &amp;&amp; j + EXRUNLENGTH &gt; params-&gt;SDNUMEXSYMS) {</span></span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;exporting more symbols than may be exported (%u &gt; %u), capping&quot;, j + EXRUNLENGTH, params-&gt;SDNUMEXSYMS);</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :                 EXRUNLENGTH = params-&gt;SDNUMEXSYMS - j;</span></span>
+<span id="L796"><span class="lineNum">     796</span>              :             }</span>
+<span id="L797"><span class="lineNum">     797</span>              : </span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC">           0 :             for (k = 0; k &lt; EXRUNLENGTH; k++) {</span></span>
+<span id="L799"><span class="lineNum">     799</span> <span class="tlaUNC">           0 :                 if (exflag) {</span></span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :                     Jbig2Image *img;</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :                     if (i &lt; params-&gt;SDNUMINSYMS) {</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 :                         img = params-&gt;SDINSYMS-&gt;glyphs[i];</span></span>
+<span id="L803"><span class="lineNum">     803</span>              :                     } else {</span>
+<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :                         img = SDNEWSYMS-&gt;glyphs[i - params-&gt;SDNUMINSYMS];</span></span>
+<span id="L805"><span class="lineNum">     805</span>              :                     }</span>
+<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                     SDEXSYMS-&gt;glyphs[j++] = jbig2_image_reference(ctx, img);</span></span>
+<span id="L807"><span class="lineNum">     807</span>              :                 }</span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                 i++;</span></span>
+<span id="L809"><span class="lineNum">     809</span>              :             }</span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :             exflag = !exflag;</span></span>
+<span id="L811"><span class="lineNum">     811</span>              :         }</span>
+<span id="L812"><span class="lineNum">     812</span>              :     }</span>
+<span id="L813"><span class="lineNum">     813</span>              : </span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 : cleanup:</span></span>
+<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :     jbig2_image_release(ctx, glyph);</span></span>
+<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :     jbig2_image_release(ctx, image);</span></span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :     if (refagg_dicts != NULL) {</span></span>
+<span id="L818"><span class="lineNum">     818</span> <span class="tlaUNC">           0 :         if (refagg_dicts[0] != NULL)</span></span>
+<span id="L819"><span class="lineNum">     819</span> <span class="tlaUNC">           0 :             jbig2_sd_release(ctx, refagg_dicts[0]);</span></span>
+<span id="L820"><span class="lineNum">     820</span>              :         /* skip releasing refagg_dicts[1] as that is the same as SDNEWSYMS */</span>
+<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, refagg_dicts);</span></span>
+<span id="L822"><span class="lineNum">     822</span>              :     }</span>
+<span id="L823"><span class="lineNum">     823</span> <span class="tlaUNC">           0 :     jbig2_sd_release(ctx, SDNEWSYMS);</span></span>
+<span id="L824"><span class="lineNum">     824</span> <span class="tlaUNC">           0 :     if (params-&gt;SDHUFF) {</span></span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFRSIZE);</span></span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFRDY);</span></span>
+<span id="L827"><span class="lineNum">     827</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFRDX);</span></span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFRDH);</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFRDW);</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFDT);</span></span>
+<span id="L831"><span class="lineNum">     831</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFDS);</span></span>
+<span id="L832"><span class="lineNum">     832</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, tparams.SBHUFFFS);</span></span>
+<span id="L833"><span class="lineNum">     833</span> <span class="tlaUNC">           0 :         if (!params-&gt;SDREFAGG) {</span></span>
+<span id="L834"><span class="lineNum">     834</span> <span class="tlaUNC">           0 :             jbig2_free(ctx-&gt;allocator, SDNEWSYMWIDTHS);</span></span>
+<span id="L835"><span class="lineNum">     835</span>              :         }</span>
+<span id="L836"><span class="lineNum">     836</span> <span class="tlaUNC">           0 :         jbig2_huffman_free(ctx, hs);</span></span>
+<span id="L837"><span class="lineNum">     837</span>              :     } else {</span>
+<span id="L838"><span class="lineNum">     838</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IARDY);</span></span>
+<span id="L839"><span class="lineNum">     839</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IARDX);</span></span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IARDH);</span></span>
+<span id="L841"><span class="lineNum">     841</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IARDW);</span></span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IARI);</span></span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 :         jbig2_arith_iaid_ctx_free(ctx, tparams.IAID);</span></span>
+<span id="L844"><span class="lineNum">     844</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IAIT);</span></span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IADS);</span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IAFS);</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, tparams.IADT);</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, IAAI);</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, IAEX);</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, IADW);</span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :         jbig2_arith_int_ctx_free(ctx, IADH);</span></span>
+<span id="L852"><span class="lineNum">     852</span>              :     }</span>
+<span id="L853"><span class="lineNum">     853</span> <span class="tlaUNC">           0 :     jbig2_free(ctx-&gt;allocator, as);</span></span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaUNC">           0 :     jbig2_word_stream_buf_free(ctx, ws);</span></span>
+<span id="L855"><span class="lineNum">     855</span>              : </span>
+<span id="L856"><span class="lineNum">     856</span> <span class="tlaUNC">           0 :     return SDEXSYMS;</span></span>
+<span id="L857"><span class="lineNum">     857</span>              : }</span>
+<span id="L858"><span class="lineNum">     858</span>              : </span>
+<span id="L859"><span class="lineNum">     859</span>              : /* 7.4.2 */</span>
+<span id="L860"><span class="lineNum">     860</span>              : int</span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 : jbig2_symbol_dictionary(Jbig2Ctx *ctx, Jbig2Segment *segment, const byte *segment_data)</span></span>
+<span id="L862"><span class="lineNum">     862</span>              : {</span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :     Jbig2SymbolDictParams params;</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaUNC">           0 :     uint16_t flags;</span></span>
+<span id="L865"><span class="lineNum">     865</span> <span class="tlaUNC">           0 :     uint32_t sdat_bytes;</span></span>
+<span id="L866"><span class="lineNum">     866</span> <span class="tlaUNC">           0 :     uint32_t offset;</span></span>
+<span id="L867"><span class="lineNum">     867</span> <span class="tlaUNC">           0 :     Jbig2ArithCx *GB_stats = NULL;</span></span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC">           0 :     Jbig2ArithCx *GR_stats = NULL;</span></span>
+<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :     int table_index = 0;</span></span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :     const Jbig2HuffmanParams *huffman_params;</span></span>
+<span id="L871"><span class="lineNum">     871</span>              : </span>
+<span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :     params.SDHUFF = 0;</span></span>
+<span id="L873"><span class="lineNum">     873</span>              : </span>
+<span id="L874"><span class="lineNum">     874</span> <span class="tlaUNC">           0 :     if (segment-&gt;data_length &lt; 10)</span></span>
+<span id="L875"><span class="lineNum">     875</span> <span class="tlaUNC">           0 :         goto too_short;</span></span>
+<span id="L876"><span class="lineNum">     876</span>              : </span>
+<span id="L877"><span class="lineNum">     877</span>              :     /* 7.4.2.1.1 */</span>
+<span id="L878"><span class="lineNum">     878</span> <span class="tlaUNC">           0 :     flags = jbig2_get_uint16(segment_data);</span></span>
+<span id="L879"><span class="lineNum">     879</span>              : </span>
+<span id="L880"><span class="lineNum">     880</span>              :     /* zero params to ease cleanup later */</span>
+<span id="L881"><span class="lineNum">     881</span> <span class="tlaUNC">           0 :     memset(&amp;params, 0, sizeof(Jbig2SymbolDictParams));</span></span>
+<span id="L882"><span class="lineNum">     882</span>              : </span>
+<span id="L883"><span class="lineNum">     883</span> <span class="tlaUNC">           0 :     params.SDHUFF = flags &amp; 1;</span></span>
+<span id="L884"><span class="lineNum">     884</span> <span class="tlaUNC">           0 :     params.SDREFAGG = (flags &gt;&gt; 1) &amp; 1;</span></span>
+<span id="L885"><span class="lineNum">     885</span> <span class="tlaUNC">           0 :     params.SDTEMPLATE = (flags &gt;&gt; 10) &amp; 3;</span></span>
+<span id="L886"><span class="lineNum">     886</span> <span class="tlaUNC">           0 :     params.SDRTEMPLATE = (flags &gt;&gt; 12) &amp; 1;</span></span>
+<span id="L887"><span class="lineNum">     887</span>              : </span>
+<span id="L888"><span class="lineNum">     888</span> <span class="tlaUNC">           0 :     if (params.SDHUFF) {</span></span>
+<span id="L889"><span class="lineNum">     889</span> <span class="tlaUNC">           0 :         switch ((flags &amp; 0x000c) &gt;&gt; 2) {</span></span>
+<span id="L890"><span class="lineNum">     890</span> <span class="tlaUNC">           0 :         case 0:                /* Table B.4 */</span></span>
+<span id="L891"><span class="lineNum">     891</span> <span class="tlaUNC">           0 :             params.SDHUFFDH = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_D);</span></span>
+<span id="L892"><span class="lineNum">     892</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L893"><span class="lineNum">     893</span> <span class="tlaUNC">           0 :         case 1:                /* Table B.5 */</span></span>
+<span id="L894"><span class="lineNum">     894</span> <span class="tlaUNC">           0 :             params.SDHUFFDH = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_E);</span></span>
+<span id="L895"><span class="lineNum">     895</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L896"><span class="lineNum">     896</span> <span class="tlaUNC">           0 :         case 3:                /* Custom table from referred segment */</span></span>
+<span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :             huffman_params = jbig2_find_table(ctx, segment, table_index);</span></span>
+<span id="L898"><span class="lineNum">     898</span> <span class="tlaUNC">           0 :             if (huffman_params == NULL) {</span></span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;custom DH huffman table not found (%d)&quot;, table_index);</span></span>
+<span id="L900"><span class="lineNum">     900</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L901"><span class="lineNum">     901</span>              :             }</span>
+<span id="L902"><span class="lineNum">     902</span> <span class="tlaUNC">           0 :             params.SDHUFFDH = jbig2_build_huffman_table(ctx, huffman_params);</span></span>
+<span id="L903"><span class="lineNum">     903</span> <span class="tlaUNC">           0 :             ++table_index;</span></span>
+<span id="L904"><span class="lineNum">     904</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L905"><span class="lineNum">     905</span> <span class="tlaUNC">           0 :         case 2:</span></span>
+<span id="L906"><span class="lineNum">     906</span>              :         default:</span>
+<span id="L907"><span class="lineNum">     907</span> <span class="tlaUNC">           0 :             return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;symbol dictionary specified invalid huffman table&quot;);</span></span>
+<span id="L908"><span class="lineNum">     908</span>              :         }</span>
+<span id="L909"><span class="lineNum">     909</span> <span class="tlaUNC">           0 :         if (params.SDHUFFDH == NULL) {</span></span>
+<span id="L910"><span class="lineNum">     910</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate DH huffman table&quot;);</span></span>
+<span id="L911"><span class="lineNum">     911</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L912"><span class="lineNum">     912</span>              :         }</span>
+<span id="L913"><span class="lineNum">     913</span>              : </span>
+<span id="L914"><span class="lineNum">     914</span> <span class="tlaUNC">           0 :         switch ((flags &amp; 0x0030) &gt;&gt; 4) {</span></span>
+<span id="L915"><span class="lineNum">     915</span> <span class="tlaUNC">           0 :         case 0:                /* Table B.2 */</span></span>
+<span id="L916"><span class="lineNum">     916</span> <span class="tlaUNC">           0 :             params.SDHUFFDW = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_B);</span></span>
+<span id="L917"><span class="lineNum">     917</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L918"><span class="lineNum">     918</span> <span class="tlaUNC">           0 :         case 1:                /* Table B.3 */</span></span>
+<span id="L919"><span class="lineNum">     919</span> <span class="tlaUNC">           0 :             params.SDHUFFDW = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_C);</span></span>
+<span id="L920"><span class="lineNum">     920</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L921"><span class="lineNum">     921</span> <span class="tlaUNC">           0 :         case 3:                /* Custom table from referred segment */</span></span>
+<span id="L922"><span class="lineNum">     922</span> <span class="tlaUNC">           0 :             huffman_params = jbig2_find_table(ctx, segment, table_index);</span></span>
+<span id="L923"><span class="lineNum">     923</span> <span class="tlaUNC">           0 :             if (huffman_params == NULL) {</span></span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;custom DW huffman table not found (%d)&quot;, table_index);</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L926"><span class="lineNum">     926</span>              :             }</span>
+<span id="L927"><span class="lineNum">     927</span> <span class="tlaUNC">           0 :             params.SDHUFFDW = jbig2_build_huffman_table(ctx, huffman_params);</span></span>
+<span id="L928"><span class="lineNum">     928</span> <span class="tlaUNC">           0 :             ++table_index;</span></span>
+<span id="L929"><span class="lineNum">     929</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L930"><span class="lineNum">     930</span> <span class="tlaUNC">           0 :         case 2:</span></span>
+<span id="L931"><span class="lineNum">     931</span>              :         default:</span>
+<span id="L932"><span class="lineNum">     932</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;symbol dictionary specified invalid huffman table&quot;);</span></span>
+<span id="L933"><span class="lineNum">     933</span> <span class="tlaUNC">           0 :             goto cleanup;       /* Jump direct to cleanup to avoid 2 errors being given */</span></span>
+<span id="L934"><span class="lineNum">     934</span>              :         }</span>
+<span id="L935"><span class="lineNum">     935</span> <span class="tlaUNC">           0 :         if (params.SDHUFFDW == NULL) {</span></span>
+<span id="L936"><span class="lineNum">     936</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate DW huffman table&quot;);</span></span>
+<span id="L937"><span class="lineNum">     937</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L938"><span class="lineNum">     938</span>              :         }</span>
+<span id="L939"><span class="lineNum">     939</span>              : </span>
+<span id="L940"><span class="lineNum">     940</span> <span class="tlaUNC">           0 :         if (flags &amp; 0x0040) {</span></span>
+<span id="L941"><span class="lineNum">     941</span>              :             /* Custom table from referred segment */</span>
+<span id="L942"><span class="lineNum">     942</span> <span class="tlaUNC">           0 :             huffman_params = jbig2_find_table(ctx, segment, table_index);</span></span>
+<span id="L943"><span class="lineNum">     943</span> <span class="tlaUNC">           0 :             if (huffman_params == NULL) {</span></span>
+<span id="L944"><span class="lineNum">     944</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;custom BMSIZE huffman table not found (%d)&quot;, table_index);</span></span>
+<span id="L945"><span class="lineNum">     945</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L946"><span class="lineNum">     946</span>              :             }</span>
+<span id="L947"><span class="lineNum">     947</span> <span class="tlaUNC">           0 :             params.SDHUFFBMSIZE = jbig2_build_huffman_table(ctx, huffman_params);</span></span>
+<span id="L948"><span class="lineNum">     948</span> <span class="tlaUNC">           0 :             ++table_index;</span></span>
+<span id="L949"><span class="lineNum">     949</span>              :         } else {</span>
+<span id="L950"><span class="lineNum">     950</span>              :             /* Table B.1 */</span>
+<span id="L951"><span class="lineNum">     951</span> <span class="tlaUNC">           0 :             params.SDHUFFBMSIZE = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_A);</span></span>
+<span id="L952"><span class="lineNum">     952</span>              :         }</span>
+<span id="L953"><span class="lineNum">     953</span> <span class="tlaUNC">           0 :         if (params.SDHUFFBMSIZE == NULL) {</span></span>
+<span id="L954"><span class="lineNum">     954</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate BMSIZE huffman table&quot;);</span></span>
+<span id="L955"><span class="lineNum">     955</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L956"><span class="lineNum">     956</span>              :         }</span>
+<span id="L957"><span class="lineNum">     957</span>              : </span>
+<span id="L958"><span class="lineNum">     958</span> <span class="tlaUNC">           0 :         if (flags &amp; 0x0080) {</span></span>
+<span id="L959"><span class="lineNum">     959</span>              :             /* Custom table from referred segment */</span>
+<span id="L960"><span class="lineNum">     960</span> <span class="tlaUNC">           0 :             huffman_params = jbig2_find_table(ctx, segment, table_index);</span></span>
+<span id="L961"><span class="lineNum">     961</span> <span class="tlaUNC">           0 :             if (huffman_params == NULL) {</span></span>
+<span id="L962"><span class="lineNum">     962</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;custom REFAGG huffman table not found (%d)&quot;, table_index);</span></span>
+<span id="L963"><span class="lineNum">     963</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L964"><span class="lineNum">     964</span>              :             }</span>
+<span id="L965"><span class="lineNum">     965</span> <span class="tlaUNC">           0 :             params.SDHUFFAGGINST = jbig2_build_huffman_table(ctx, huffman_params);</span></span>
+<span id="L966"><span class="lineNum">     966</span> <span class="tlaUNC">           0 :             ++table_index;</span></span>
+<span id="L967"><span class="lineNum">     967</span>              :         } else {</span>
+<span id="L968"><span class="lineNum">     968</span>              :             /* Table B.1 */</span>
+<span id="L969"><span class="lineNum">     969</span> <span class="tlaUNC">           0 :             params.SDHUFFAGGINST = jbig2_build_huffman_table(ctx, &amp;jbig2_huffman_params_A);</span></span>
+<span id="L970"><span class="lineNum">     970</span>              :         }</span>
+<span id="L971"><span class="lineNum">     971</span> <span class="tlaUNC">           0 :         if (params.SDHUFFAGGINST == NULL) {</span></span>
+<span id="L972"><span class="lineNum">     972</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate REFAGG huffman table&quot;);</span></span>
+<span id="L973"><span class="lineNum">     973</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L974"><span class="lineNum">     974</span>              :         }</span>
+<span id="L975"><span class="lineNum">     975</span>              :     }</span>
+<span id="L976"><span class="lineNum">     976</span>              : </span>
+<span id="L977"><span class="lineNum">     977</span>              :     /* FIXME: there are quite a few of these conditions to check */</span>
+<span id="L978"><span class="lineNum">     978</span>              :     /* maybe #ifdef CONFORMANCE and a separate routine */</span>
+<span id="L979"><span class="lineNum">     979</span> <span class="tlaUNC">           0 :     if (!params.SDHUFF) {</span></span>
+<span id="L980"><span class="lineNum">     980</span> <span class="tlaUNC">           0 :         if (flags &amp; 0x000c) {</span></span>
+<span id="L981"><span class="lineNum">     981</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;SDHUFF is zero, but contrary to spec SDHUFFDH is not.&quot;);</span></span>
+<span id="L982"><span class="lineNum">     982</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L983"><span class="lineNum">     983</span>              :         }</span>
+<span id="L984"><span class="lineNum">     984</span> <span class="tlaUNC">           0 :         if (flags &amp; 0x0030) {</span></span>
+<span id="L985"><span class="lineNum">     985</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;SDHUFF is zero, but contrary to spec SDHUFFDW is not.&quot;);</span></span>
+<span id="L986"><span class="lineNum">     986</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L987"><span class="lineNum">     987</span>              :         }</span>
+<span id="L988"><span class="lineNum">     988</span>              :     }</span>
+<span id="L989"><span class="lineNum">     989</span>              : </span>
+<span id="L990"><span class="lineNum">     990</span>              :     /* 7.4.2.1.2 */</span>
+<span id="L991"><span class="lineNum">     991</span> <span class="tlaUNC">           0 :     sdat_bytes = params.SDHUFF ? 0 : params.SDTEMPLATE == 0 ? 8 : 2;</span></span>
+<span id="L992"><span class="lineNum">     992</span> <span class="tlaUNC">           0 :     memcpy(params.sdat, segment_data + 2, sdat_bytes);</span></span>
+<span id="L993"><span class="lineNum">     993</span> <span class="tlaUNC">           0 :     offset = 2 + sdat_bytes;</span></span>
+<span id="L994"><span class="lineNum">     994</span>              : </span>
+<span id="L995"><span class="lineNum">     995</span>              :     /* 7.4.2.1.3 */</span>
+<span id="L996"><span class="lineNum">     996</span> <span class="tlaUNC">           0 :     if (params.SDREFAGG &amp;&amp; !params.SDRTEMPLATE) {</span></span>
+<span id="L997"><span class="lineNum">     997</span> <span class="tlaUNC">           0 :         if (offset + 4 &gt; segment-&gt;data_length)</span></span>
+<span id="L998"><span class="lineNum">     998</span> <span class="tlaUNC">           0 :             goto too_short;</span></span>
+<span id="L999"><span class="lineNum">     999</span> <span class="tlaUNC">           0 :         memcpy(params.sdrat, segment_data + offset, 4);</span></span>
+<span id="L1000"><span class="lineNum">    1000</span> <span class="tlaUNC">           0 :         offset += 4;</span></span>
+<span id="L1001"><span class="lineNum">    1001</span>              :     }</span>
+<span id="L1002"><span class="lineNum">    1002</span>              : </span>
+<span id="L1003"><span class="lineNum">    1003</span> <span class="tlaUNC">           0 :     if (offset + 8 &gt; segment-&gt;data_length)</span></span>
+<span id="L1004"><span class="lineNum">    1004</span> <span class="tlaUNC">           0 :         goto too_short;</span></span>
+<span id="L1005"><span class="lineNum">    1005</span>              : </span>
+<span id="L1006"><span class="lineNum">    1006</span>              :     /* 7.4.2.1.4 */</span>
+<span id="L1007"><span class="lineNum">    1007</span> <span class="tlaUNC">           0 :     params.SDNUMEXSYMS = jbig2_get_uint32(segment_data + offset);</span></span>
+<span id="L1008"><span class="lineNum">    1008</span>              :     /* 7.4.2.1.5 */</span>
+<span id="L1009"><span class="lineNum">    1009</span> <span class="tlaUNC">           0 :     params.SDNUMNEWSYMS = jbig2_get_uint32(segment_data + offset + 4);</span></span>
+<span id="L1010"><span class="lineNum">    1010</span> <span class="tlaUNC">           0 :     offset += 8;</span></span>
+<span id="L1011"><span class="lineNum">    1011</span>              : </span>
+<span id="L1012"><span class="lineNum">    1012</span> <span class="tlaUNC">           0 :     jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment-&gt;number,</span></span>
+<span id="L1013"><span class="lineNum">    1013</span>              :                 &quot;symbol dictionary, flags=%04x, %u exported syms, %u new syms&quot;, flags, params.SDNUMEXSYMS, params.SDNUMNEWSYMS);</span>
+<span id="L1014"><span class="lineNum">    1014</span>              : </span>
+<span id="L1015"><span class="lineNum">    1015</span>              :     /* 7.4.2.2 (2) */</span>
+<span id="L1016"><span class="lineNum">    1016</span>              :     {</span>
+<span id="L1017"><span class="lineNum">    1017</span> <span class="tlaUNC">           0 :         uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);</span></span>
+<span id="L1018"><span class="lineNum">    1018</span> <span class="tlaUNC">           0 :         Jbig2SymbolDict **dicts = NULL;</span></span>
+<span id="L1019"><span class="lineNum">    1019</span>              : </span>
+<span id="L1020"><span class="lineNum">    1020</span> <span class="tlaUNC">           0 :         if (n_dicts &gt; 0) {</span></span>
+<span id="L1021"><span class="lineNum">    1021</span> <span class="tlaUNC">           0 :             dicts = jbig2_sd_list_referred(ctx, segment);</span></span>
+<span id="L1022"><span class="lineNum">    1022</span> <span class="tlaUNC">           0 :             if (dicts == NULL) {</span></span>
+<span id="L1023"><span class="lineNum">    1023</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate dicts in symbol dictionary&quot;);</span></span>
+<span id="L1024"><span class="lineNum">    1024</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L1025"><span class="lineNum">    1025</span>              :             }</span>
+<span id="L1026"><span class="lineNum">    1026</span> <span class="tlaUNC">           0 :             params.SDINSYMS = jbig2_sd_cat(ctx, n_dicts, dicts);</span></span>
+<span id="L1027"><span class="lineNum">    1027</span> <span class="tlaUNC">           0 :             if (params.SDINSYMS == NULL) {</span></span>
+<span id="L1028"><span class="lineNum">    1028</span> <span class="tlaUNC">           0 :                 jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;failed to allocate symbol array in symbol dictionary&quot;);</span></span>
+<span id="L1029"><span class="lineNum">    1029</span> <span class="tlaUNC">           0 :                 jbig2_free(ctx-&gt;allocator, dicts);</span></span>
+<span id="L1030"><span class="lineNum">    1030</span> <span class="tlaUNC">           0 :                 goto cleanup;</span></span>
+<span id="L1031"><span class="lineNum">    1031</span>              :             }</span>
+<span id="L1032"><span class="lineNum">    1032</span> <span class="tlaUNC">           0 :             jbig2_free(ctx-&gt;allocator, dicts);</span></span>
+<span id="L1033"><span class="lineNum">    1033</span>              :         }</span>
+<span id="L1034"><span class="lineNum">    1034</span> <span class="tlaUNC">           0 :         if (params.SDINSYMS != NULL) {</span></span>
+<span id="L1035"><span class="lineNum">    1035</span> <span class="tlaUNC">           0 :             params.SDNUMINSYMS = params.SDINSYMS-&gt;n_symbols;</span></span>
+<span id="L1036"><span class="lineNum">    1036</span>              :         }</span>
+<span id="L1037"><span class="lineNum">    1037</span>              :     }</span>
+<span id="L1038"><span class="lineNum">    1038</span>              : </span>
+<span id="L1039"><span class="lineNum">    1039</span>              :     /* 7.4.2.2 (3, 4) */</span>
+<span id="L1040"><span class="lineNum">    1040</span> <span class="tlaUNC">           0 :     if (flags &amp; 0x0100) {</span></span>
+<span id="L1041"><span class="lineNum">    1041</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;segment marks bitmap coding context as used (NYI)&quot;);</span></span>
+<span id="L1042"><span class="lineNum">    1042</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L1043"><span class="lineNum">    1043</span>              :     } else {</span>
+<span id="L1044"><span class="lineNum">    1044</span> <span class="tlaUNC">           0 :         int stats_size = params.SDTEMPLATE == 0 ? 65536 : params.SDTEMPLATE == 1 ? 8192 : 1024;</span></span>
+<span id="L1045"><span class="lineNum">    1045</span>              : </span>
+<span id="L1046"><span class="lineNum">    1046</span> <span class="tlaUNC">           0 :         GB_stats = jbig2_new(ctx, Jbig2ArithCx, stats_size);</span></span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaUNC">           0 :         if (GB_stats == NULL) {</span></span>
+<span id="L1048"><span class="lineNum">    1048</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;failed to allocate arithmetic decoder states for generic regions&quot;);</span></span>
+<span id="L1049"><span class="lineNum">    1049</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L1050"><span class="lineNum">    1050</span>              :         }</span>
+<span id="L1051"><span class="lineNum">    1051</span> <span class="tlaUNC">           0 :         memset(GB_stats, 0, sizeof (Jbig2ArithCx) * stats_size);</span></span>
+<span id="L1052"><span class="lineNum">    1052</span>              : </span>
+<span id="L1053"><span class="lineNum">    1053</span> <span class="tlaUNC">           0 :         stats_size = params.SDRTEMPLATE ? 1 &lt;&lt; 10 : 1 &lt;&lt; 13;</span></span>
+<span id="L1054"><span class="lineNum">    1054</span> <span class="tlaUNC">           0 :         GR_stats = jbig2_new(ctx, Jbig2ArithCx, stats_size);</span></span>
+<span id="L1055"><span class="lineNum">    1055</span> <span class="tlaUNC">           0 :         if (GR_stats == NULL) {</span></span>
+<span id="L1056"><span class="lineNum">    1056</span> <span class="tlaUNC">           0 :             jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;failed to allocate arithmetic decoder states for generic refinement regions&quot;);</span></span>
+<span id="L1057"><span class="lineNum">    1057</span> <span class="tlaUNC">           0 :             jbig2_free(ctx-&gt;allocator, GB_stats);</span></span>
+<span id="L1058"><span class="lineNum">    1058</span> <span class="tlaUNC">           0 :             goto cleanup;</span></span>
+<span id="L1059"><span class="lineNum">    1059</span>              :         }</span>
+<span id="L1060"><span class="lineNum">    1060</span> <span class="tlaUNC">           0 :         memset(GR_stats, 0, sizeof (Jbig2ArithCx) * stats_size);</span></span>
+<span id="L1061"><span class="lineNum">    1061</span>              :     }</span>
+<span id="L1062"><span class="lineNum">    1062</span>              : </span>
+<span id="L1063"><span class="lineNum">    1063</span> <span class="tlaUNC">           0 :     segment-&gt;result = (void *)jbig2_decode_symbol_dict(ctx, segment, &amp;params, segment_data + offset, segment-&gt;data_length - offset, GB_stats, GR_stats);</span></span>
+<span id="L1064"><span class="lineNum">    1064</span>              : #ifdef DUMP_SYMDICT</span>
+<span id="L1065"><span class="lineNum">    1065</span>              :     if (segment-&gt;result)</span>
+<span id="L1066"><span class="lineNum">    1066</span>              :         jbig2_dump_symbol_dict(ctx, segment);</span>
+<span id="L1067"><span class="lineNum">    1067</span>              : #endif</span>
+<span id="L1068"><span class="lineNum">    1068</span>              : </span>
+<span id="L1069"><span class="lineNum">    1069</span>              :     /* 7.4.2.2 (7) */</span>
+<span id="L1070"><span class="lineNum">    1070</span> <span class="tlaUNC">           0 :     if (flags &amp; 0x0200) {</span></span>
+<span id="L1071"><span class="lineNum">    1071</span>              :         /* todo: retain GB_stats, GR_stats */</span>
+<span id="L1072"><span class="lineNum">    1072</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, GR_stats);</span></span>
+<span id="L1073"><span class="lineNum">    1073</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, GB_stats);</span></span>
+<span id="L1074"><span class="lineNum">    1074</span> <span class="tlaUNC">           0 :         jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment-&gt;number, &quot;segment marks bitmap coding context as retained (NYI)&quot;);</span></span>
+<span id="L1075"><span class="lineNum">    1075</span> <span class="tlaUNC">           0 :         goto cleanup;</span></span>
+<span id="L1076"><span class="lineNum">    1076</span>              :     } else {</span>
+<span id="L1077"><span class="lineNum">    1077</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, GR_stats);</span></span>
+<span id="L1078"><span class="lineNum">    1078</span> <span class="tlaUNC">           0 :         jbig2_free(ctx-&gt;allocator, GB_stats);</span></span>
+<span id="L1079"><span class="lineNum">    1079</span>              :     }</span>
+<span id="L1080"><span class="lineNum">    1080</span>              : </span>
+<span id="L1081"><span class="lineNum">    1081</span> <span class="tlaUNC">           0 : cleanup:</span></span>
+<span id="L1082"><span class="lineNum">    1082</span> <span class="tlaUNC">           0 :     if (params.SDHUFF) {</span></span>
+<span id="L1083"><span class="lineNum">    1083</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFDH);</span></span>
+<span id="L1084"><span class="lineNum">    1084</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFDW);</span></span>
+<span id="L1085"><span class="lineNum">    1085</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFBMSIZE);</span></span>
+<span id="L1086"><span class="lineNum">    1086</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFAGGINST);</span></span>
+<span id="L1087"><span class="lineNum">    1087</span>              :     }</span>
+<span id="L1088"><span class="lineNum">    1088</span> <span class="tlaUNC">           0 :     jbig2_sd_release(ctx, params.SDINSYMS);</span></span>
+<span id="L1089"><span class="lineNum">    1089</span>              : </span>
+<span id="L1090"><span class="lineNum">    1090</span> <span class="tlaUNC">           0 :     return (segment-&gt;result != NULL) ? 0 : -1;</span></span>
+<span id="L1091"><span class="lineNum">    1091</span>              : </span>
+<span id="L1092"><span class="lineNum">    1092</span> <span class="tlaUNC">           0 : too_short:</span></span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaUNC">           0 :     if (params.SDHUFF) {</span></span>
+<span id="L1094"><span class="lineNum">    1094</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFDH);</span></span>
+<span id="L1095"><span class="lineNum">    1095</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFDW);</span></span>
+<span id="L1096"><span class="lineNum">    1096</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFBMSIZE);</span></span>
+<span id="L1097"><span class="lineNum">    1097</span> <span class="tlaUNC">           0 :         jbig2_release_huffman_table(ctx, params.SDHUFFAGGINST);</span></span>
+<span id="L1098"><span class="lineNum">    1098</span>              :     }</span>
+<span id="L1099"><span class="lineNum">    1099</span> <span class="tlaUNC">           0 :     return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment-&gt;number, &quot;segment too short&quot;);</span></span>
+<span id="L1100"><span class="lineNum">    1100</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

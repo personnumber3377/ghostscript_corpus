@@ -1,0 +1,1565 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/lcms2mt/src/cmsgamma.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/lcms2mt/src</a> - cmsgamma.c<span style="font-size: 80%;"> (source / <a href="cmsgamma.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">40.8&nbsp;%</td>
+            <td class="headerCovTableEntry">583</td>
+            <td class="headerCovTableEntry">238</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">51.4&nbsp;%</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">19</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : //---------------------------------------------------------------------------------</span>
+<span id="L2"><span class="lineNum">       2</span>              : //</span>
+<span id="L3"><span class="lineNum">       3</span>              : //  Little Color Management System</span>
+<span id="L4"><span class="lineNum">       4</span>              : //  Copyright (c) 1998-2020 Marti Maria Saguer</span>
+<span id="L5"><span class="lineNum">       5</span>              : //</span>
+<span id="L6"><span class="lineNum">       6</span>              : // Permission is hereby granted, free of charge, to any person obtaining</span>
+<span id="L7"><span class="lineNum">       7</span>              : // a copy of this software and associated documentation files (the &quot;Software&quot;),</span>
+<span id="L8"><span class="lineNum">       8</span>              : // to deal in the Software without restriction, including without limitation</span>
+<span id="L9"><span class="lineNum">       9</span>              : // the rights to use, copy, modify, merge, publish, distribute, sublicense,</span>
+<span id="L10"><span class="lineNum">      10</span>              : // and/or sell copies of the Software, and to permit persons to whom the Software</span>
+<span id="L11"><span class="lineNum">      11</span>              : // is furnished to do so, subject to the following conditions:</span>
+<span id="L12"><span class="lineNum">      12</span>              : //</span>
+<span id="L13"><span class="lineNum">      13</span>              : // The above copyright notice and this permission notice shall be included in</span>
+<span id="L14"><span class="lineNum">      14</span>              : // all copies or substantial portions of the Software.</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : // THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,</span>
+<span id="L17"><span class="lineNum">      17</span>              : // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO</span>
+<span id="L18"><span class="lineNum">      18</span>              : // THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND</span>
+<span id="L19"><span class="lineNum">      19</span>              : // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE</span>
+<span id="L20"><span class="lineNum">      20</span>              : // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION</span>
+<span id="L21"><span class="lineNum">      21</span>              : // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</span>
+<span id="L22"><span class="lineNum">      22</span>              : // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+<span id="L23"><span class="lineNum">      23</span>              : //</span>
+<span id="L24"><span class="lineNum">      24</span>              : //---------------------------------------------------------------------------------</span>
+<span id="L25"><span class="lineNum">      25</span>              : //</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;lcms2_internal.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // Tone curves are powerful constructs that can contain curves specified in diverse ways.</span>
+<span id="L29"><span class="lineNum">      29</span>              : // The curve is stored in segments, where each segment can be sampled or specified by parameters.</span>
+<span id="L30"><span class="lineNum">      30</span>              : // a 16.bit simplification of the *whole* curve is kept for optimization purposes. For float operation,</span>
+<span id="L31"><span class="lineNum">      31</span>              : // each segment is evaluated separately. Plug-ins may be used to define new parametric schemes,</span>
+<span id="L32"><span class="lineNum">      32</span>              : // each plug-in may define up to MAX_TYPES_IN_LCMS_PLUGIN functions types. For defining a function,</span>
+<span id="L33"><span class="lineNum">      33</span>              : // the plug-in should provide the type id, how many parameters each type has, and a pointer to</span>
+<span id="L34"><span class="lineNum">      34</span>              : // a procedure that evaluates the function. In the case of reverse evaluation, the evaluator will</span>
+<span id="L35"><span class="lineNum">      35</span>              : // be called with the type id as a negative value, and a sampled version of the reversed curve</span>
+<span id="L36"><span class="lineNum">      36</span>              : // will be built.</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // ----------------------------------------------------------------- Implementation</span>
+<span id="L39"><span class="lineNum">      39</span>              : // Maxim number of nodes</span>
+<span id="L40"><span class="lineNum">      40</span>              : #define MAX_NODES_IN_CURVE   4097</span>
+<span id="L41"><span class="lineNum">      41</span>              : #define MINUS_INF            (-1E22F)</span>
+<span id="L42"><span class="lineNum">      42</span>              : #define PLUS_INF             (+1E22F)</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // The list of supported parametric curves</span>
+<span id="L45"><span class="lineNum">      45</span>              : typedef struct _cmsParametricCurvesCollection_st {</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              :     cmsUInt32Number nFunctions;                                     // Number of supported functions in this chunk</span>
+<span id="L48"><span class="lineNum">      48</span>              :     cmsInt32Number  FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];        // The identification types</span>
+<span id="L49"><span class="lineNum">      49</span>              :     cmsUInt32Number ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];       // Number of parameters for each function</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              :     cmsParametricCurveEvaluator Evaluator;                          // The evaluator</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              :     struct _cmsParametricCurvesCollection_st* Next; // Next in list</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : } _cmsParametricCurvesCollection;</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : // This is the default (built-in) evaluator</span>
+<span id="L58"><span class="lineNum">      58</span>              : static cmsFloat64Number DefaultEvalParametricFn(cmsContext ContextID, cmsInt32Number Type, const cmsFloat64Number Params[], cmsFloat64Number R);</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // The built-in list</span>
+<span id="L61"><span class="lineNum">      61</span>              : static _cmsParametricCurvesCollection DefaultCurves = {</span>
+<span id="L62"><span class="lineNum">      62</span>              :     10,                                      // # of curve types</span>
+<span id="L63"><span class="lineNum">      63</span>              :     { 1, 2, 3, 4, 5, 6, 7, 8, 108, 109 },    // Parametric curve ID</span>
+<span id="L64"><span class="lineNum">      64</span>              :     { 1, 3, 4, 5, 7, 4, 5, 5,   1,   1 },    // Parameters by type</span>
+<span id="L65"><span class="lineNum">      65</span>              :     DefaultEvalParametricFn,                 // Evaluator</span>
+<span id="L66"><span class="lineNum">      66</span>              :     NULL                                     // Next in chain</span>
+<span id="L67"><span class="lineNum">      67</span>              : };</span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : // Duplicates the zone of memory used by the plug-in in the new context</span>
+<span id="L70"><span class="lineNum">      70</span>              : static</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 : void DupPluginCurvesList(struct _cmsContext_struct* ctx,</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :                                                const struct _cmsContext_struct* src)</span>
+<span id="L73"><span class="lineNum">      73</span>              : {</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :    _cmsCurvesPluginChunkType newHead = { NULL };</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :    _cmsParametricCurvesCollection*  entry;</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :    _cmsParametricCurvesCollection*  Anterior = NULL;</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :    _cmsCurvesPluginChunkType* head = (_cmsCurvesPluginChunkType*) src-&gt;chunks[CurvesPlugin];</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     _cmsAssert(head != NULL);</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              :     // Walk the list copying all nodes</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :    for (entry = head-&gt;ParametricCurves;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         entry != NULL;</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         entry = entry -&gt;Next) {</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :             _cmsParametricCurvesCollection *newEntry = ( _cmsParametricCurvesCollection *) _cmsSubAllocDup(ctx -&gt;MemPool, entry, sizeof(_cmsParametricCurvesCollection));</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :             if (newEntry == NULL)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 return;</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : </span>
+<span id="L91"><span class="lineNum">      91</span>              :             // We want to keep the linked list order, so this is a little bit tricky</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :             newEntry -&gt; Next = NULL;</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :             if (Anterior)</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 Anterior -&gt; Next = newEntry;</span></span>
+<span id="L95"><span class="lineNum">      95</span>              : </span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :             Anterior = newEntry;</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :             if (newHead.ParametricCurves == NULL)</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 newHead.ParametricCurves = newEntry;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :     }</span>
+<span id="L101"><span class="lineNum">     101</span>              : </span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :   ctx -&gt;chunks[CurvesPlugin] = _cmsSubAllocDup(ctx-&gt;MemPool, &amp;newHead, sizeof(_cmsCurvesPluginChunkType));</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : }</span>
+<span id="L104"><span class="lineNum">     104</span>              : </span>
+<span id="L105"><span class="lineNum">     105</span>              : // The allocator have to follow the chain</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">        9593 : void _cmsAllocCurvesPluginChunk(struct _cmsContext_struct* ctx,</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                                 const struct _cmsContext_struct* src)</span>
+<span id="L108"><span class="lineNum">     108</span>              : {</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">        9593 :     _cmsAssert(ctx != NULL);</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">        9593 :     if (src != NULL) {</span></span>
+<span id="L112"><span class="lineNum">     112</span>              : </span>
+<span id="L113"><span class="lineNum">     113</span>              :         // Copy all linked list</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :        DupPluginCurvesList(ctx, src);</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :     }</span>
+<span id="L116"><span class="lineNum">     116</span>              :     else {</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">        9593 :         static _cmsCurvesPluginChunkType CurvesPluginChunk = { NULL };</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">        9593 :         ctx -&gt;chunks[CurvesPlugin] = _cmsSubAllocDup(ctx -&gt;MemPool, &amp;CurvesPluginChunk, sizeof(_cmsCurvesPluginChunkType));</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :     }</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">        9593 : }</span></span>
+<span id="L121"><span class="lineNum">     121</span>              : </span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span>              : // The linked list head</span>
+<span id="L124"><span class="lineNum">     124</span>              : _cmsCurvesPluginChunkType _cmsCurvesPluginChunk = { NULL };</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span>              : // As a way to install new parametric curves</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">        9591 : cmsBool _cmsRegisterParametricCurvesPlugin(cmsContext ContextID, cmsPluginBase* Data)</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : {</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">        9591 :     _cmsCurvesPluginChunkType* ctx = ( _cmsCurvesPluginChunkType*) _cmsContextGetClientChunk(ContextID, CurvesPlugin);</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">        9591 :     cmsPluginParametricCurves* Plugin = (cmsPluginParametricCurves*) Data;</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">        9591 :     _cmsParametricCurvesCollection* fl;</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">        9591 :     if (Data == NULL) {</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">        9591 :           ctx -&gt; ParametricCurves =  NULL;</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">        9591 :           return TRUE;</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :     }</span>
+<span id="L138"><span class="lineNum">     138</span>              : </span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :     fl = (_cmsParametricCurvesCollection*) _cmsPluginMalloc(ContextID, sizeof(_cmsParametricCurvesCollection));</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :     if (fl == NULL) return FALSE;</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span>              :     // Copy the parameters</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     fl -&gt;Evaluator  = Plugin -&gt;Evaluator;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     fl -&gt;nFunctions = Plugin -&gt;nFunctions;</span></span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span>              :     // Make sure no mem overwrites</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     if (fl -&gt;nFunctions &gt; MAX_TYPES_IN_LCMS_PLUGIN)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         fl -&gt;nFunctions = MAX_TYPES_IN_LCMS_PLUGIN;</span></span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              :     // Copy the data</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     memmove(fl-&gt;FunctionTypes,  Plugin -&gt;FunctionTypes,   fl-&gt;nFunctions * sizeof(cmsUInt32Number));</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     memmove(fl-&gt;ParameterCount, Plugin -&gt;ParameterCount,  fl-&gt;nFunctions * sizeof(cmsUInt32Number));</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              :     // Keep linked list</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     fl -&gt;Next = ctx-&gt;ParametricCurves;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     ctx-&gt;ParametricCurves = fl;</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              :     // All is ok</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     return TRUE;</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // Search in type list, return position or -1 if not found</span>
+<span id="L164"><span class="lineNum">     164</span>              : static</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">        3288 : int IsInSet(int Type, _cmsParametricCurvesCollection* c)</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">        3288 :     int i;</span></span>
+<span id="L168"><span class="lineNum">     168</span>              : </span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">        6848 :     for (i=0; i &lt; (int) c -&gt;nFunctions; i++)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">        6670 :         if (abs(Type) == c -&gt;FunctionTypes[i]) return i;</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              :     return -1;</span>
+<span id="L173"><span class="lineNum">     173</span>              : }</span>
+<span id="L174"><span class="lineNum">     174</span>              : </span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : // Search for the collection which contains a specific type</span>
+<span id="L177"><span class="lineNum">     177</span>              : static</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">        3288 : _cmsParametricCurvesCollection *GetParametricCurveByType(cmsContext ContextID, int Type, int* index)</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">        3288 :     _cmsParametricCurvesCollection* c;</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">        3288 :     int Position;</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">        3288 :     _cmsCurvesPluginChunkType* ctx = ( _cmsCurvesPluginChunkType*) _cmsContextGetClientChunk(ContextID, CurvesPlugin);</span></span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">        3288 :     for (c = ctx-&gt;ParametricCurves; c != NULL; c = c -&gt;Next) {</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :         Position = IsInSet(Type, c);</span></span>
+<span id="L187"><span class="lineNum">     187</span>              : </span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         if (Position != -1) {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :             if (index != NULL)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 *index = Position;</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :             return c;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :         }</span>
+<span id="L193"><span class="lineNum">     193</span>              :     }</span>
+<span id="L194"><span class="lineNum">     194</span>              :     // If none found, revert for defaults</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC tlaBgGNC">        3466 :     for (c = &amp;DefaultCurves; c != NULL; c = c -&gt;Next) {</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">        3288 :         Position = IsInSet(Type, c);</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : </span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">        3288 :         if (Position != -1) {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">        3110 :             if (index != NULL)</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">         546 :                 *index = Position;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">        3110 :             return c;</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :         }</span>
+<span id="L204"><span class="lineNum">     204</span>              :     }</span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span>              :     return NULL;</span>
+<span id="L207"><span class="lineNum">     207</span>              : }</span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span>              : // Low level allocate, which takes care of memory details. nEntries may be zero, and in this case</span>
+<span id="L210"><span class="lineNum">     210</span>              : // no optimation curve is computed. nSegments may also be zero in the inverse case, where only the</span>
+<span id="L211"><span class="lineNum">     211</span>              : // optimization curve is given. Both features simultaneously is an error</span>
+<span id="L212"><span class="lineNum">     212</span>              : static</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">      113845 : cmsToneCurve* AllocateToneCurveStruct(cmsContext ContextID, cmsUInt32Number nEntries,</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :                                       cmsUInt32Number nSegments, const cmsCurveSegment* Segments,</span>
+<span id="L215"><span class="lineNum">     215</span>              :                                       const cmsUInt16Number* Values)</span>
+<span id="L216"><span class="lineNum">     216</span>              : {</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">      113845 :     cmsToneCurve* p;</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">      113845 :     cmsUInt32Number i;</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              :     // We allow huge tables, which are then restricted for smoothing operations</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">      113845 :     if (nEntries &gt; 65530) {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC tlaBgUNC">           0 :         cmsSignalError(ContextID, cmsERROR_RANGE, &quot;Couldn't create tone curve of more than 65530 entries&quot;);</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L224"><span class="lineNum">     224</span>              :     }</span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">      113845 :     if (nEntries == 0 &amp;&amp; nSegments == 0) {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :         cmsSignalError(ContextID, cmsERROR_RANGE, &quot;Couldn't create tone curve with zero segments and no table&quot;);</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :     }</span>
+<span id="L230"><span class="lineNum">     230</span>              : </span>
+<span id="L231"><span class="lineNum">     231</span>              :     // Allocate all required pointers, etc.</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">      113845 :     p = (cmsToneCurve*) _cmsMallocZero(ContextID, sizeof(cmsToneCurve));</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">      113845 :     if (!p) return NULL;</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : </span>
+<span id="L235"><span class="lineNum">     235</span>              :     // In this case, there are no segments</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">      113845 :     if (nSegments == 0) {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">      111459 :         p -&gt;Segments = NULL;</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">      111459 :         p -&gt;Evals = NULL;</span></span>
+<span id="L239"><span class="lineNum">     239</span>              :     }</span>
+<span id="L240"><span class="lineNum">     240</span>              :     else {</span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">        2386 :         p -&gt;Segments = (cmsCurveSegment*) _cmsCalloc(ContextID, nSegments, sizeof(cmsCurveSegment));</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">        2386 :         if (p -&gt;Segments == NULL) goto Error;</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">        2386 :         p -&gt;Evals    = (cmsParametricCurveEvaluator*) _cmsCalloc(ContextID, nSegments, sizeof(cmsParametricCurveEvaluator));</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">        2386 :         if (p -&gt;Evals == NULL) goto Error;</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :     }</span>
+<span id="L247"><span class="lineNum">     247</span>              : </span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">      113845 :     p -&gt; nSegments = nSegments;</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span>              :     // This 16-bit table contains a limited precision representation of the whole curve and is kept for</span>
+<span id="L251"><span class="lineNum">     251</span>              :     // increasing xput on certain operations.</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">      113845 :     if (nEntries == 0) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :         p -&gt;Table16 = NULL;</span></span>
+<span id="L254"><span class="lineNum">     254</span>              :     }</span>
+<span id="L255"><span class="lineNum">     255</span>              :     else {</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">      113845 :        p -&gt;Table16 = (cmsUInt16Number*)  _cmsCalloc(ContextID, nEntries, sizeof(cmsUInt16Number));</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">      113845 :        if (p -&gt;Table16 == NULL) goto Error;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :     }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">      113845 :     p -&gt; nEntries  = nEntries;</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span>              :     // Initialize members if requested</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">      113845 :     if (Values != NULL &amp;&amp; (nEntries &gt; 0)) {</span></span>
+<span id="L264"><span class="lineNum">     264</span>              : </span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">   144576470 :         for (i=0; i &lt; nEntries; i++)</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">   144492916 :             p -&gt;Table16[i] = Values[i];</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :     }</span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span>              :     // Initialize the segments stuff. The evaluator for each segment is located and a pointer to it</span>
+<span id="L270"><span class="lineNum">     270</span>              :     // is placed in advance to maximize performance.</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">      113845 :     if (Segments != NULL &amp;&amp; (nSegments &gt; 0)) {</span></span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">        2386 :         _cmsParametricCurvesCollection *c;</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">        2386 :         p -&gt;SegInterp = (cmsInterpParams**) _cmsCalloc(ContextID, nSegments, sizeof(cmsInterpParams*));</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">        2386 :         if (p -&gt;SegInterp == NULL) goto Error;</span></span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">        5128 :         for (i=0; i &lt; nSegments; i++) {</span></span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span>              :             // Type 0 is a special marker for table-based curves</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">        2742 :             if (Segments[i].Type == 0)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">         178 :                 p -&gt;SegInterp[i] = _cmsComputeInterpParams(ContextID, Segments[i].nGridPoints, 1, 1, NULL, CMS_LERP_FLAGS_FLOAT);</span></span>
+<span id="L283"><span class="lineNum">     283</span>              : </span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">        2742 :             memmove(&amp;p -&gt;Segments[i], &amp;Segments[i], sizeof(cmsCurveSegment));</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">        2742 :             if (Segments[i].Type == 0 &amp;&amp; Segments[i].SampledPoints != NULL)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">         178 :                 p -&gt;Segments[i].SampledPoints = (cmsFloat32Number*) _cmsDupMem(ContextID, Segments[i].SampledPoints, sizeof(cmsFloat32Number) * Segments[i].nGridPoints);</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :             else</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">        2564 :                 p -&gt;Segments[i].SampledPoints = NULL;</span></span>
+<span id="L290"><span class="lineNum">     290</span>              : </span>
+<span id="L291"><span class="lineNum">     291</span>              : </span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">        2742 :             c = GetParametricCurveByType(ContextID, Segments[i].Type, NULL);</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">        2742 :             if (c != NULL)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">        2564 :                     p -&gt;Evals[i] = c -&gt;Evaluator;</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :         }</span>
+<span id="L296"><span class="lineNum">     296</span>              :     }</span>
+<span id="L297"><span class="lineNum">     297</span>              : </span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">      113845 :     p -&gt;InterpParams = _cmsComputeInterpParams(ContextID, p -&gt;nEntries, 1, 1, p-&gt;Table16, CMS_LERP_FLAGS_16BITS);</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">      113845 :     if (p-&gt;InterpParams != NULL)</span></span>
+<span id="L300"><span class="lineNum">     300</span>              :         return p;</span>
+<span id="L301"><span class="lineNum">     301</span>              : </span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 : Error:</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :     if (p -&gt; SegInterp) _cmsFree(ContextID, p -&gt; SegInterp);</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :     if (p -&gt; Segments) _cmsFree(ContextID, p -&gt; Segments);</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :     if (p -&gt; Evals) _cmsFree(ContextID, p -&gt; Evals);</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :     if (p -&gt;Table16) _cmsFree(ContextID, p -&gt;Table16);</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     _cmsFree(ContextID, p);</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     return NULL;</span></span>
+<span id="L309"><span class="lineNum">     309</span>              : }</span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span>              : </span>
+<span id="L312"><span class="lineNum">     312</span>              : // Generates a sigmoidal function with desired steepness.</span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 : cmsINLINE double sigmoid_base(double k, double t)</span></span>
+<span id="L314"><span class="lineNum">     314</span>              : {</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     return (1.0 / (1.0 + exp(-k * t))) - 0.5;</span></span>
+<span id="L316"><span class="lineNum">     316</span>              : }</span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 : cmsINLINE double inverted_sigmoid_base(double k, double t)</span></span>
+<span id="L319"><span class="lineNum">     319</span>              : {</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :     return -log((1.0 / (t + 0.5)) - 1.0) / k;</span></span>
+<span id="L321"><span class="lineNum">     321</span>              : }</span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 : cmsINLINE double sigmoid_factory(double k, double t)</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : {</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :     double correction = 0.5 / sigmoid_base(k, 1);</span></span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :     return correction * sigmoid_base(k, 2.0 * t - 1.0) + 0.5;</span></span>
+<span id="L328"><span class="lineNum">     328</span>              : }</span>
+<span id="L329"><span class="lineNum">     329</span>              : </span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 : cmsINLINE double inverse_sigmoid_factory(double k, double t)</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : {</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     double correction = 0.5 / sigmoid_base(k, 1);</span></span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :     return (inverted_sigmoid_base(k, (t - 0.5) / correction) + 1.0) / 2.0;</span></span>
+<span id="L335"><span class="lineNum">     335</span>              : }</span>
+<span id="L336"><span class="lineNum">     336</span>              : </span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span>              : // Parametric Fn using floating point</span>
+<span id="L339"><span class="lineNum">     339</span>              : static</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC tlaBgGNC">        1270 : cmsFloat64Number DefaultEvalParametricFn(cmsContext ContextID, cmsInt32Number Type, const cmsFloat64Number Params[], cmsFloat64Number R)</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : {</span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">        1270 :     cmsFloat64Number e, Val, disc;</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">        1270 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L344"><span class="lineNum">     344</span>              : </span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">        1270 :     switch (Type) {</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span>              :    // X = Y ^ Gamma</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">        1092 :     case 1:</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">        1092 :         if (R &lt; 0) {</span></span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC tlaBgUNC">           0 :             if (fabs(Params[0] - 1.0) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :                 Val = R;</span>
+<span id="L353"><span class="lineNum">     353</span>              :             else</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 Val = 0;</span></span>
+<span id="L355"><span class="lineNum">     355</span>              :         }</span>
+<span id="L356"><span class="lineNum">     356</span>              :         else</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC tlaBgGNC">        1092 :             Val = pow(R, Params[0]);</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :         break;</span>
+<span id="L359"><span class="lineNum">     359</span>              : </span>
+<span id="L360"><span class="lineNum">     360</span>              :     // Type 1 Reversed: X = Y ^1/gamma</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :     case -1:</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         if (R &lt; 0) {</span></span>
+<span id="L363"><span class="lineNum">     363</span>              : </span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :             if (fabs(Params[0] - 1.0) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L365"><span class="lineNum">     365</span>              :                 Val = R;</span>
+<span id="L366"><span class="lineNum">     366</span>              :             else</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 Val = 0;</span></span>
+<span id="L368"><span class="lineNum">     368</span>              :         }</span>
+<span id="L369"><span class="lineNum">     369</span>              :         else</span>
+<span id="L370"><span class="lineNum">     370</span>              :         {</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :             if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L372"><span class="lineNum">     372</span>              :                 Val = PLUS_INF;</span>
+<span id="L373"><span class="lineNum">     373</span>              :             else</span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                 Val = pow(R, 1 / Params[0]);</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :         }</span>
+<span id="L376"><span class="lineNum">     376</span>              :         break;</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              :     // CIE 122-1966</span>
+<span id="L379"><span class="lineNum">     379</span>              :     // Y = (aX + b)^Gamma  | X &gt;= -b/a</span>
+<span id="L380"><span class="lineNum">     380</span>              :     // Y = 0               | else</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :     case 2:</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :     {</span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         if (fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L385"><span class="lineNum">     385</span>              :         {</span>
+<span id="L386"><span class="lineNum">     386</span>              :             Val = 0;</span>
+<span id="L387"><span class="lineNum">     387</span>              :         }</span>
+<span id="L388"><span class="lineNum">     388</span>              :         else</span>
+<span id="L389"><span class="lineNum">     389</span>              :         {</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :             disc = -Params[2] / Params[1];</span></span>
+<span id="L391"><span class="lineNum">     391</span>              : </span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :             if (R &gt;= disc) {</span></span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 e = Params[1] * R + Params[2];</span></span>
+<span id="L395"><span class="lineNum">     395</span>              : </span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                 if (e &gt; 0)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                     Val = pow(e, Params[0]);</span></span>
+<span id="L398"><span class="lineNum">     398</span>              :                 else</span>
+<span id="L399"><span class="lineNum">     399</span>              :                     Val = 0;</span>
+<span id="L400"><span class="lineNum">     400</span>              :             }</span>
+<span id="L401"><span class="lineNum">     401</span>              :             else</span>
+<span id="L402"><span class="lineNum">     402</span>              :                 Val = 0;</span>
+<span id="L403"><span class="lineNum">     403</span>              :         }</span>
+<span id="L404"><span class="lineNum">     404</span>              :     }</span>
+<span id="L405"><span class="lineNum">     405</span>              :     break;</span>
+<span id="L406"><span class="lineNum">     406</span>              : </span>
+<span id="L407"><span class="lineNum">     407</span>              :      // Type 2 Reversed</span>
+<span id="L408"><span class="lineNum">     408</span>              :      // X = (Y ^1/g  - b) / a</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :      case -2:</span></span>
+<span id="L410"><span class="lineNum">     410</span>              :      {</span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :          if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :              fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :          {</span>
+<span id="L414"><span class="lineNum">     414</span>              :              Val = 0;</span>
+<span id="L415"><span class="lineNum">     415</span>              :          }</span>
+<span id="L416"><span class="lineNum">     416</span>              :          else</span>
+<span id="L417"><span class="lineNum">     417</span>              :          {</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :              if (R &lt; 0)</span></span>
+<span id="L419"><span class="lineNum">     419</span>              :                  Val = 0;</span>
+<span id="L420"><span class="lineNum">     420</span>              :              else</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                  Val = (pow(R, 1.0 / Params[0]) - Params[2]) / Params[1];</span></span>
+<span id="L422"><span class="lineNum">     422</span>              : </span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :              if (Val &lt; 0)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                  Val = 0;</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :          }</span>
+<span id="L426"><span class="lineNum">     426</span>              :      }</span>
+<span id="L427"><span class="lineNum">     427</span>              :      break;</span>
+<span id="L428"><span class="lineNum">     428</span>              : </span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span>              :     // IEC 61966-3</span>
+<span id="L431"><span class="lineNum">     431</span>              :     // Y = (aX + b)^Gamma | X &lt;= -b/a</span>
+<span id="L432"><span class="lineNum">     432</span>              :     // Y = c              | else</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :     case 3:</span></span>
+<span id="L434"><span class="lineNum">     434</span>              :     {</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :         if (fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L436"><span class="lineNum">     436</span>              :         {</span>
+<span id="L437"><span class="lineNum">     437</span>              :             Val = 0;</span>
+<span id="L438"><span class="lineNum">     438</span>              :         }</span>
+<span id="L439"><span class="lineNum">     439</span>              :         else</span>
+<span id="L440"><span class="lineNum">     440</span>              :         {</span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :             disc = -Params[2] / Params[1];</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :             if (disc &lt; 0)</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                 disc = 0;</span></span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :             if (R &gt;= disc) {</span></span>
+<span id="L446"><span class="lineNum">     446</span>              : </span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                 e = Params[1] * R + Params[2];</span></span>
+<span id="L448"><span class="lineNum">     448</span>              : </span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                 if (e &gt; 0)</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                     Val = pow(e, Params[0]) + Params[3];</span></span>
+<span id="L451"><span class="lineNum">     451</span>              :                 else</span>
+<span id="L452"><span class="lineNum">     452</span>              :                     Val = 0;</span>
+<span id="L453"><span class="lineNum">     453</span>              :             }</span>
+<span id="L454"><span class="lineNum">     454</span>              :             else</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :                 Val = Params[3];</span></span>
+<span id="L456"><span class="lineNum">     456</span>              :         }</span>
+<span id="L457"><span class="lineNum">     457</span>              :     }</span>
+<span id="L458"><span class="lineNum">     458</span>              :     break;</span>
+<span id="L459"><span class="lineNum">     459</span>              : </span>
+<span id="L460"><span class="lineNum">     460</span>              : </span>
+<span id="L461"><span class="lineNum">     461</span>              :     // Type 3 reversed</span>
+<span id="L462"><span class="lineNum">     462</span>              :     // X=((Y-c)^1/g - b)/a      | (Y&gt;=c)</span>
+<span id="L463"><span class="lineNum">     463</span>              :     // X=-b/a                   | (Y&lt;c)</span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :     case -3:</span></span>
+<span id="L465"><span class="lineNum">     465</span>              :     {</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         if (fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L467"><span class="lineNum">     467</span>              :         {</span>
+<span id="L468"><span class="lineNum">     468</span>              :             Val = 0;</span>
+<span id="L469"><span class="lineNum">     469</span>              :         }</span>
+<span id="L470"><span class="lineNum">     470</span>              :         else</span>
+<span id="L471"><span class="lineNum">     471</span>              :         {</span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :             if (R &gt;= Params[3]) {</span></span>
+<span id="L473"><span class="lineNum">     473</span>              : </span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 e = R - Params[3];</span></span>
+<span id="L475"><span class="lineNum">     475</span>              : </span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :                 if (e &gt; 0)</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :                     Val = (pow(e, 1 / Params[0]) - Params[2]) / Params[1];</span></span>
+<span id="L478"><span class="lineNum">     478</span>              :                 else</span>
+<span id="L479"><span class="lineNum">     479</span>              :                     Val = 0;</span>
+<span id="L480"><span class="lineNum">     480</span>              :             }</span>
+<span id="L481"><span class="lineNum">     481</span>              :             else {</span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 Val = -Params[2] / Params[1];</span></span>
+<span id="L483"><span class="lineNum">     483</span>              :             }</span>
+<span id="L484"><span class="lineNum">     484</span>              :         }</span>
+<span id="L485"><span class="lineNum">     485</span>              :     }</span>
+<span id="L486"><span class="lineNum">     486</span>              :     break;</span>
+<span id="L487"><span class="lineNum">     487</span>              : </span>
+<span id="L488"><span class="lineNum">     488</span>              : </span>
+<span id="L489"><span class="lineNum">     489</span>              :     // IEC 61966-2.1 (sRGB)</span>
+<span id="L490"><span class="lineNum">     490</span>              :     // Y = (aX + b)^Gamma | X &gt;= d</span>
+<span id="L491"><span class="lineNum">     491</span>              :     // Y = cX             | X &lt; d</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :     case 4:</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         if (R &gt;= Params[4]) {</span></span>
+<span id="L494"><span class="lineNum">     494</span>              : </span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :             e = Params[1]*R + Params[2];</span></span>
+<span id="L496"><span class="lineNum">     496</span>              : </span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :             if (e &gt; 0)</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 Val = pow(e, Params[0]);</span></span>
+<span id="L499"><span class="lineNum">     499</span>              :             else</span>
+<span id="L500"><span class="lineNum">     500</span>              :                 Val = 0;</span>
+<span id="L501"><span class="lineNum">     501</span>              :         }</span>
+<span id="L502"><span class="lineNum">     502</span>              :         else</span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :             Val = R * Params[3];</span></span>
+<span id="L504"><span class="lineNum">     504</span>              :         break;</span>
+<span id="L505"><span class="lineNum">     505</span>              : </span>
+<span id="L506"><span class="lineNum">     506</span>              :     // Type 4 reversed</span>
+<span id="L507"><span class="lineNum">     507</span>              :     // X=((Y^1/g-b)/a)    | Y &gt;= (ad+b)^g</span>
+<span id="L508"><span class="lineNum">     508</span>              :     // X=Y/c              | Y&lt; (ad+b)^g</span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :     case -4:</span></span>
+<span id="L510"><span class="lineNum">     510</span>              :     {</span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :         if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :             fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :             fabs(Params[3]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L514"><span class="lineNum">     514</span>              :         {</span>
+<span id="L515"><span class="lineNum">     515</span>              :             Val = 0;</span>
+<span id="L516"><span class="lineNum">     516</span>              :         }</span>
+<span id="L517"><span class="lineNum">     517</span>              :         else</span>
+<span id="L518"><span class="lineNum">     518</span>              :         {</span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :             e = Params[1] * Params[4] + Params[2];</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :             if (e &lt; 0)</span></span>
+<span id="L521"><span class="lineNum">     521</span>              :                 disc = 0;</span>
+<span id="L522"><span class="lineNum">     522</span>              :             else</span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                 disc = pow(e, Params[0]);</span></span>
+<span id="L524"><span class="lineNum">     524</span>              : </span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :             if (R &gt;= disc) {</span></span>
+<span id="L526"><span class="lineNum">     526</span>              : </span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                 Val = (pow(R, 1.0 / Params[0]) - Params[2]) / Params[1];</span></span>
+<span id="L528"><span class="lineNum">     528</span>              :             }</span>
+<span id="L529"><span class="lineNum">     529</span>              :             else {</span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 Val = R / Params[3];</span></span>
+<span id="L531"><span class="lineNum">     531</span>              :             }</span>
+<span id="L532"><span class="lineNum">     532</span>              :         }</span>
+<span id="L533"><span class="lineNum">     533</span>              :     }</span>
+<span id="L534"><span class="lineNum">     534</span>              :     break;</span>
+<span id="L535"><span class="lineNum">     535</span>              : </span>
+<span id="L536"><span class="lineNum">     536</span>              : </span>
+<span id="L537"><span class="lineNum">     537</span>              :     // Y = (aX + b)^Gamma + e | X &gt;= d</span>
+<span id="L538"><span class="lineNum">     538</span>              :     // Y = cX + f             | X &lt; d</span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :     case 5:</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         if (R &gt;= Params[4]) {</span></span>
+<span id="L541"><span class="lineNum">     541</span>              : </span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :             e = Params[1]*R + Params[2];</span></span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :             if (e &gt; 0)</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 Val = pow(e, Params[0]) + Params[5];</span></span>
+<span id="L546"><span class="lineNum">     546</span>              :             else</span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                 Val = Params[5];</span></span>
+<span id="L548"><span class="lineNum">     548</span>              :         }</span>
+<span id="L549"><span class="lineNum">     549</span>              :         else</span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :             Val = R*Params[3] + Params[6];</span></span>
+<span id="L551"><span class="lineNum">     551</span>              :         break;</span>
+<span id="L552"><span class="lineNum">     552</span>              : </span>
+<span id="L553"><span class="lineNum">     553</span>              : </span>
+<span id="L554"><span class="lineNum">     554</span>              :     // Reversed type 5</span>
+<span id="L555"><span class="lineNum">     555</span>              :     // X=((Y-e)1/g-b)/a   | Y &gt;=(ad+b)^g+e), cd+f</span>
+<span id="L556"><span class="lineNum">     556</span>              :     // X=(Y-f)/c          | else</span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :     case -5:</span></span>
+<span id="L558"><span class="lineNum">     558</span>              :     {</span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         if (fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :             fabs(Params[3]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L561"><span class="lineNum">     561</span>              :         {</span>
+<span id="L562"><span class="lineNum">     562</span>              :             Val = 0;</span>
+<span id="L563"><span class="lineNum">     563</span>              :         }</span>
+<span id="L564"><span class="lineNum">     564</span>              :         else</span>
+<span id="L565"><span class="lineNum">     565</span>              :         {</span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :             disc = Params[3] * Params[4] + Params[6];</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :             if (R &gt;= disc) {</span></span>
+<span id="L568"><span class="lineNum">     568</span>              : </span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :                 e = R - Params[5];</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 if (e &lt; 0)</span></span>
+<span id="L571"><span class="lineNum">     571</span>              :                     Val = 0;</span>
+<span id="L572"><span class="lineNum">     572</span>              :                 else</span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                     Val = (pow(e, 1.0 / Params[0]) - Params[2]) / Params[1];</span></span>
+<span id="L574"><span class="lineNum">     574</span>              :             }</span>
+<span id="L575"><span class="lineNum">     575</span>              :             else {</span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                 Val = (R - Params[6]) / Params[3];</span></span>
+<span id="L577"><span class="lineNum">     577</span>              :             }</span>
+<span id="L578"><span class="lineNum">     578</span>              :         }</span>
+<span id="L579"><span class="lineNum">     579</span>              :     }</span>
+<span id="L580"><span class="lineNum">     580</span>              :     break;</span>
+<span id="L581"><span class="lineNum">     581</span>              : </span>
+<span id="L582"><span class="lineNum">     582</span>              : </span>
+<span id="L583"><span class="lineNum">     583</span>              :     // Types 6,7,8 comes from segmented curves as described in ICCSpecRevision_02_11_06_Float.pdf</span>
+<span id="L584"><span class="lineNum">     584</span>              :     // Type 6 is basically identical to type 5 without d</span>
+<span id="L585"><span class="lineNum">     585</span>              : </span>
+<span id="L586"><span class="lineNum">     586</span>              :     // Y = (a * X + b) ^ Gamma + c</span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC tlaBgGNC">         178 :     case 6:</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">         178 :         e = Params[1]*R + Params[2];</span></span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">         178 :         if (e &lt; 0)</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC tlaBgUNC">           0 :             Val = Params[3];</span></span>
+<span id="L592"><span class="lineNum">     592</span>              :         else</span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC tlaBgGNC">         178 :             Val = pow(e, Params[0]) + Params[3];</span></span>
+<span id="L594"><span class="lineNum">     594</span>              :         break;</span>
+<span id="L595"><span class="lineNum">     595</span>              : </span>
+<span id="L596"><span class="lineNum">     596</span>              :     // ((Y - c) ^1/Gamma - b) / a</span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC tlaBgUNC">           0 :     case -6:</span></span>
+<span id="L598"><span class="lineNum">     598</span>              :     {</span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :         if (fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L600"><span class="lineNum">     600</span>              :         {</span>
+<span id="L601"><span class="lineNum">     601</span>              :             Val = 0;</span>
+<span id="L602"><span class="lineNum">     602</span>              :         }</span>
+<span id="L603"><span class="lineNum">     603</span>              :         else</span>
+<span id="L604"><span class="lineNum">     604</span>              :         {</span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :             e = R - Params[3];</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :             if (e &lt; 0)</span></span>
+<span id="L607"><span class="lineNum">     607</span>              :                 Val = 0;</span>
+<span id="L608"><span class="lineNum">     608</span>              :             else</span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                 Val = (pow(e, 1.0 / Params[0]) - Params[2]) / Params[1];</span></span>
+<span id="L610"><span class="lineNum">     610</span>              :         }</span>
+<span id="L611"><span class="lineNum">     611</span>              :     }</span>
+<span id="L612"><span class="lineNum">     612</span>              :     break;</span>
+<span id="L613"><span class="lineNum">     613</span>              : </span>
+<span id="L614"><span class="lineNum">     614</span>              : </span>
+<span id="L615"><span class="lineNum">     615</span>              :     // Y = a * log (b * X^Gamma + c) + d</span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC">           0 :     case 7:</span></span>
+<span id="L617"><span class="lineNum">     617</span>              : </span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :        e = Params[2] * pow(R, Params[0]) + Params[3];</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaUNC">           0 :        if (e &lt;= 0)</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC">           0 :            Val = Params[4];</span></span>
+<span id="L621"><span class="lineNum">     621</span>              :        else</span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaUNC">           0 :            Val = Params[1]*log10(e) + Params[4];</span></span>
+<span id="L623"><span class="lineNum">     623</span>              :        break;</span>
+<span id="L624"><span class="lineNum">     624</span>              : </span>
+<span id="L625"><span class="lineNum">     625</span>              :     // (Y - d) / a = log(b * X ^Gamma + c)</span>
+<span id="L626"><span class="lineNum">     626</span>              :     // pow(10, (Y-d) / a) = b * X ^Gamma + c</span>
+<span id="L627"><span class="lineNum">     627</span>              :     // pow((pow(10, (Y-d) / a) - c) / b, 1/g) = X</span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC">           0 :     case -7:</span></span>
+<span id="L629"><span class="lineNum">     629</span>              :     {</span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaUNC">           0 :         if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaUNC">           0 :             fabs(Params[1]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaUNC">           0 :             fabs(Params[2]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L633"><span class="lineNum">     633</span>              :         {</span>
+<span id="L634"><span class="lineNum">     634</span>              :             Val = 0;</span>
+<span id="L635"><span class="lineNum">     635</span>              :         }</span>
+<span id="L636"><span class="lineNum">     636</span>              :         else</span>
+<span id="L637"><span class="lineNum">     637</span>              :         {</span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaUNC">           0 :             Val = pow((pow(10.0, (R - Params[4]) / Params[1]) - Params[3]) / Params[2], 1.0 / Params[0]);</span></span>
+<span id="L639"><span class="lineNum">     639</span>              :         }</span>
+<span id="L640"><span class="lineNum">     640</span>              :     }</span>
+<span id="L641"><span class="lineNum">     641</span>              :     break;</span>
+<span id="L642"><span class="lineNum">     642</span>              : </span>
+<span id="L643"><span class="lineNum">     643</span>              : </span>
+<span id="L644"><span class="lineNum">     644</span>              :    //Y = a * b^(c*X+d) + e</span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaUNC">           0 :    case 8:</span></span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaUNC">           0 :        Val = (Params[0] * pow(Params[1], Params[2] * R + Params[3]) + Params[4]);</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaUNC">           0 :        break;</span></span>
+<span id="L648"><span class="lineNum">     648</span>              : </span>
+<span id="L649"><span class="lineNum">     649</span>              : </span>
+<span id="L650"><span class="lineNum">     650</span>              :    // Y = (log((y-e) / a) / log(b) - d ) / c</span>
+<span id="L651"><span class="lineNum">     651</span>              :    // a=0, b=1, c=2, d=3, e=4,</span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaUNC">           0 :    case -8:</span></span>
+<span id="L653"><span class="lineNum">     653</span>              : </span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaUNC">           0 :        disc = R - Params[4];</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaUNC">           0 :        if (disc &lt; 0) Val = 0;</span></span>
+<span id="L656"><span class="lineNum">     656</span>              :        else</span>
+<span id="L657"><span class="lineNum">     657</span>              :        {</span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaUNC">           0 :            if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE ||</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaUNC">           0 :                fabs(Params[2]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L660"><span class="lineNum">     660</span>              :            {</span>
+<span id="L661"><span class="lineNum">     661</span>              :                Val = 0;</span>
+<span id="L662"><span class="lineNum">     662</span>              :            }</span>
+<span id="L663"><span class="lineNum">     663</span>              :            else</span>
+<span id="L664"><span class="lineNum">     664</span>              :            {</span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaUNC">           0 :                Val = (log(disc / Params[0]) / log(Params[1]) - Params[3]) / Params[2];</span></span>
+<span id="L666"><span class="lineNum">     666</span>              :            }</span>
+<span id="L667"><span class="lineNum">     667</span>              :        }</span>
+<span id="L668"><span class="lineNum">     668</span>              :        break;</span>
+<span id="L669"><span class="lineNum">     669</span>              : </span>
+<span id="L670"><span class="lineNum">     670</span>              : </span>
+<span id="L671"><span class="lineNum">     671</span>              :    // S-Shaped: (1 - (1-x)^1/g)^1/g</span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :    case 108:</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :        if (fabs(Params[0]) &lt; MATRIX_DET_TOLERANCE)</span></span>
+<span id="L674"><span class="lineNum">     674</span>              :            Val = 0;</span>
+<span id="L675"><span class="lineNum">     675</span>              :        else</span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :            Val = pow(1.0 - pow(1 - R, 1/Params[0]), 1/Params[0]);</span></span>
+<span id="L677"><span class="lineNum">     677</span>              :       break;</span>
+<span id="L678"><span class="lineNum">     678</span>              : </span>
+<span id="L679"><span class="lineNum">     679</span>              :     // y = (1 - (1-x)^1/g)^1/g</span>
+<span id="L680"><span class="lineNum">     680</span>              :     // y^g = (1 - (1-x)^1/g)</span>
+<span id="L681"><span class="lineNum">     681</span>              :     // 1 - y^g = (1-x)^1/g</span>
+<span id="L682"><span class="lineNum">     682</span>              :     // (1 - y^g)^g = 1 - x</span>
+<span id="L683"><span class="lineNum">     683</span>              :     // 1 - (1 - y^g)^g</span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :     case -108:</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :         Val = 1 - pow(1 - pow(R, Params[0]), Params[0]);</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :         break;</span></span>
+<span id="L687"><span class="lineNum">     687</span>              : </span>
+<span id="L688"><span class="lineNum">     688</span>              :     // Sigmoidals</span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaUNC">           0 :     case 109:</span></span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaUNC">           0 :         Val = sigmoid_factory(Params[0], R);</span></span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :         break;</span></span>
+<span id="L692"><span class="lineNum">     692</span>              : </span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :     case -109:</span></span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaUNC">           0 :         Val = inverse_sigmoid_factory(Params[0], R);</span></span>
+<span id="L695"><span class="lineNum">     695</span> <span class="tlaUNC">           0 :         break;</span></span>
+<span id="L696"><span class="lineNum">     696</span>              : </span>
+<span id="L697"><span class="lineNum">     697</span>              :     default:</span>
+<span id="L698"><span class="lineNum">     698</span>              :         // Unsupported parametric curve. Should never reach here</span>
+<span id="L699"><span class="lineNum">     699</span>              :         return 0;</span>
+<span id="L700"><span class="lineNum">     700</span>              :     }</span>
+<span id="L701"><span class="lineNum">     701</span>              : </span>
+<span id="L702"><span class="lineNum">     702</span>              :     return Val;</span>
+<span id="L703"><span class="lineNum">     703</span>              : }</span>
+<span id="L704"><span class="lineNum">     704</span>              : </span>
+<span id="L705"><span class="lineNum">     705</span>              : // Evaluate a segmented function for a single value. Return -Inf if no valid segment found .</span>
+<span id="L706"><span class="lineNum">     706</span>              : // If fn type is 0, perform an interpolation on the table</span>
+<span id="L707"><span class="lineNum">     707</span>              : static</span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC tlaBgGNC">     1459090 : cmsFloat64Number EvalSegmentedFn(cmsContext ContextID, const cmsToneCurve *g, cmsFloat64Number R)</span></span>
+<span id="L709"><span class="lineNum">     709</span>              : {</span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">     1459090 :     int i;</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">     1459090 :     cmsFloat32Number Out32;</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">     1459090 :     cmsFloat64Number Out;</span></span>
+<span id="L713"><span class="lineNum">     713</span>              : </span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">     2917266 :     for (i = (int) g-&gt;nSegments - 1; i &gt;= 0; --i) {</span></span>
+<span id="L715"><span class="lineNum">     715</span>              : </span>
+<span id="L716"><span class="lineNum">     716</span>              :         // Check for domain</span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">     2917266 :         if ((R &gt; g-&gt;Segments[i].x0) &amp;&amp; (R &lt;= g-&gt;Segments[i].x1)) {</span></span>
+<span id="L718"><span class="lineNum">     718</span>              : </span>
+<span id="L719"><span class="lineNum">     719</span>              :             // Type == 0 means segment is sampled</span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">     1459090 :             if (g-&gt;Segments[i].Type == 0) {</span></span>
+<span id="L721"><span class="lineNum">     721</span>              : </span>
+<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">     1457820 :                 cmsFloat32Number R1 = (cmsFloat32Number)(R - g-&gt;Segments[i].x0) / (g-&gt;Segments[i].x1 - g-&gt;Segments[i].x0);</span></span>
+<span id="L723"><span class="lineNum">     723</span>              : </span>
+<span id="L724"><span class="lineNum">     724</span>              :                 // Setup the table (TODO: clean that)</span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaGNC">     1457820 :                 g-&gt;SegInterp[i]-&gt;Table = g-&gt;Segments[i].SampledPoints;</span></span>
+<span id="L726"><span class="lineNum">     726</span>              : </span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaGNC">     1457820 :                 g-&gt;SegInterp[i]-&gt;Interpolation.LerpFloat(ContextID, &amp;R1, &amp;Out32, g-&gt;SegInterp[i]);</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC">     1457820 :                 Out = (cmsFloat64Number) Out32;</span></span>
+<span id="L729"><span class="lineNum">     729</span>              : </span>
+<span id="L730"><span class="lineNum">     730</span>              :             }</span>
+<span id="L731"><span class="lineNum">     731</span>              :             else {</span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaGNC">        1270 :                 Out = g-&gt;Evals[i](ContextID, g-&gt;Segments[i].Type, g-&gt;Segments[i].Params, R);</span></span>
+<span id="L733"><span class="lineNum">     733</span>              :             }</span>
+<span id="L734"><span class="lineNum">     734</span>              : </span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaGNC">     1459090 :             if (isinf(Out))</span></span>
+<span id="L736"><span class="lineNum">     736</span>              :                 return PLUS_INF;</span>
+<span id="L737"><span class="lineNum">     737</span>              :             else</span>
+<span id="L738"><span class="lineNum">     738</span>              :             {</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">     1459090 :                 if (isinf(-Out))</span></span>
+<span id="L740"><span class="lineNum">     740</span>              :                     return MINUS_INF;</span>
+<span id="L741"><span class="lineNum">     741</span>              :             }</span>
+<span id="L742"><span class="lineNum">     742</span>              : </span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">     1459090 :             return Out;</span></span>
+<span id="L744"><span class="lineNum">     744</span>              :         }</span>
+<span id="L745"><span class="lineNum">     745</span>              :     }</span>
+<span id="L746"><span class="lineNum">     746</span>              : </span>
+<span id="L747"><span class="lineNum">     747</span>              :     return MINUS_INF;</span>
+<span id="L748"><span class="lineNum">     748</span>              : }</span>
+<span id="L749"><span class="lineNum">     749</span>              : </span>
+<span id="L750"><span class="lineNum">     750</span>              : // Access to estimated low-res table</span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC tlaBgUNC">           0 : cmsUInt32Number CMSEXPORT cmsGetToneCurveEstimatedTableEntries(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L752"><span class="lineNum">     752</span>              : {</span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L754"><span class="lineNum">     754</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :     return t -&gt;nEntries;</span></span>
+<span id="L756"><span class="lineNum">     756</span>              : }</span>
+<span id="L757"><span class="lineNum">     757</span>              : </span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 : const cmsUInt16Number* CMSEXPORT cmsGetToneCurveEstimatedTable(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L759"><span class="lineNum">     759</span>              : {</span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :     return t -&gt;Table16;</span></span>
+<span id="L763"><span class="lineNum">     763</span>              : }</span>
+<span id="L764"><span class="lineNum">     764</span>              : </span>
+<span id="L765"><span class="lineNum">     765</span>              : </span>
+<span id="L766"><span class="lineNum">     766</span>              : // Create an empty gamma curve, by using tables. This specifies only the limited-precision part, and leaves the</span>
+<span id="L767"><span class="lineNum">     767</span>              : // floating point description empty.</span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaGNC tlaBgGNC">       29567 : cmsToneCurve* CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, cmsUInt32Number nEntries, const cmsUInt16Number Values[])</span></span>
+<span id="L769"><span class="lineNum">     769</span>              : {</span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaGNC">       19668 :     return AllocateToneCurveStruct(ContextID, nEntries, 0, NULL, Values);</span></span>
+<span id="L771"><span class="lineNum">     771</span>              : }</span>
+<span id="L772"><span class="lineNum">     772</span>              : </span>
+<span id="L773"><span class="lineNum">     773</span>              : static</span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaGNC">         546 : cmsUInt32Number EntriesByGamma(cmsFloat64Number Gamma)</span></span>
+<span id="L775"><span class="lineNum">     775</span>              : {</span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaGNC">         546 :     if (fabs(Gamma - 1.0) &lt; 0.001) return 2;</span></span>
+<span id="L777"><span class="lineNum">     777</span>              :     return 4096;</span>
+<span id="L778"><span class="lineNum">     778</span>              : }</span>
+<span id="L779"><span class="lineNum">     779</span>              : </span>
+<span id="L780"><span class="lineNum">     780</span>              : </span>
+<span id="L781"><span class="lineNum">     781</span>              : // Create a segmented gamma, fill the table</span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaGNC">         724 : cmsToneCurve* CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,</span></span>
+<span id="L783"><span class="lineNum">     783</span>              :                                                    cmsUInt32Number nSegments, const cmsCurveSegment Segments[])</span>
+<span id="L784"><span class="lineNum">     784</span>              : {</span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaGNC">         724 :     cmsUInt32Number i;</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaGNC">         724 :     cmsFloat64Number R, Val;</span></span>
+<span id="L787"><span class="lineNum">     787</span> <span class="tlaGNC">         724 :     cmsToneCurve* g;</span></span>
+<span id="L788"><span class="lineNum">     788</span> <span class="tlaGNC">         724 :     cmsUInt32Number nGridPoints = 4096;</span></span>
+<span id="L789"><span class="lineNum">     789</span>              : </span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaGNC">         724 :     _cmsAssert(Segments != NULL);</span></span>
+<span id="L791"><span class="lineNum">     791</span>              : </span>
+<span id="L792"><span class="lineNum">     792</span>              :     // Optimizatin for identity curves.</span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaGNC">         724 :     if (nSegments == 1 &amp;&amp; Segments[0].Type == 1) {</span></span>
+<span id="L794"><span class="lineNum">     794</span>              : </span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">         546 :         nGridPoints = EntriesByGamma(Segments[0].Params[0]);</span></span>
+<span id="L796"><span class="lineNum">     796</span>              :     }</span>
+<span id="L797"><span class="lineNum">     797</span>              : </span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaGNC">         724 :     g = AllocateToneCurveStruct(ContextID, nGridPoints, nSegments, Segments, NULL);</span></span>
+<span id="L799"><span class="lineNum">     799</span> <span class="tlaGNC">         724 :     if (g == NULL) return NULL;</span></span>
+<span id="L800"><span class="lineNum">     800</span>              : </span>
+<span id="L801"><span class="lineNum">     801</span>              :     // Once we have the floating point version, we can approximate a 16 bit table of 4096 entries</span>
+<span id="L802"><span class="lineNum">     802</span>              :     // for performance reasons. This table would normally not be used except on 8/16 bits transforms.</span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaGNC">      730904 :     for (i = 0; i &lt; nGridPoints; i++) {</span></span>
+<span id="L804"><span class="lineNum">     804</span>              : </span>
+<span id="L805"><span class="lineNum">     805</span> <span class="tlaGNC">      730180 :         R   = (cmsFloat64Number) i / (nGridPoints-1);</span></span>
+<span id="L806"><span class="lineNum">     806</span>              : </span>
+<span id="L807"><span class="lineNum">     807</span> <span class="tlaGNC">      730180 :         Val = EvalSegmentedFn(ContextID, g, R);</span></span>
+<span id="L808"><span class="lineNum">     808</span>              : </span>
+<span id="L809"><span class="lineNum">     809</span>              :         // Round and saturate</span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaGNC">     1460360 :         g -&gt;Table16[i] = _cmsQuickSaturateWord(Val * 65535.0);</span></span>
+<span id="L811"><span class="lineNum">     811</span>              :     }</span>
+<span id="L812"><span class="lineNum">     812</span>              : </span>
+<span id="L813"><span class="lineNum">     813</span>              :     return g;</span>
+<span id="L814"><span class="lineNum">     814</span>              : }</span>
+<span id="L815"><span class="lineNum">     815</span>              : </span>
+<span id="L816"><span class="lineNum">     816</span>              : // Use a segmented curve to store the floating point table</span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaGNC">         178 : cmsToneCurve* CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, cmsUInt32Number nEntries, const cmsFloat32Number values[])</span></span>
+<span id="L818"><span class="lineNum">     818</span>              : {</span>
+<span id="L819"><span class="lineNum">     819</span> <span class="tlaGNC">         178 :     cmsCurveSegment Seg[3];</span></span>
+<span id="L820"><span class="lineNum">     820</span>              : </span>
+<span id="L821"><span class="lineNum">     821</span>              :     // A segmented tone curve should have function segments in the first and last positions</span>
+<span id="L822"><span class="lineNum">     822</span>              :     // Initialize segmented curve part up to 0 to constant value = samples[0]</span>
+<span id="L823"><span class="lineNum">     823</span> <span class="tlaGNC">         178 :     Seg[0].x0 = MINUS_INF;</span></span>
+<span id="L824"><span class="lineNum">     824</span> <span class="tlaGNC">         178 :     Seg[0].x1 = 0;</span></span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">         178 :     Seg[0].Type = 6;</span></span>
+<span id="L826"><span class="lineNum">     826</span>              : </span>
+<span id="L827"><span class="lineNum">     827</span> <span class="tlaGNC">         178 :     Seg[0].Params[0] = 1;</span></span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaGNC">         178 :     Seg[0].Params[1] = 0;</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaGNC">         178 :     Seg[0].Params[2] = 0;</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaGNC">         178 :     Seg[0].Params[3] = values[0];</span></span>
+<span id="L831"><span class="lineNum">     831</span> <span class="tlaGNC">         178 :     Seg[0].Params[4] = 0;</span></span>
+<span id="L832"><span class="lineNum">     832</span>              : </span>
+<span id="L833"><span class="lineNum">     833</span>              :     // From zero to 1</span>
+<span id="L834"><span class="lineNum">     834</span> <span class="tlaGNC">         178 :     Seg[1].x0 = 0;</span></span>
+<span id="L835"><span class="lineNum">     835</span> <span class="tlaGNC">         178 :     Seg[1].x1 = 1.0;</span></span>
+<span id="L836"><span class="lineNum">     836</span> <span class="tlaGNC">         178 :     Seg[1].Type = 0;</span></span>
+<span id="L837"><span class="lineNum">     837</span>              : </span>
+<span id="L838"><span class="lineNum">     838</span> <span class="tlaGNC">         178 :     Seg[1].nGridPoints = nEntries;</span></span>
+<span id="L839"><span class="lineNum">     839</span> <span class="tlaGNC">         178 :     Seg[1].SampledPoints = (cmsFloat32Number*) values;</span></span>
+<span id="L840"><span class="lineNum">     840</span>              : </span>
+<span id="L841"><span class="lineNum">     841</span>              :     // Final segment is constant = lastsample</span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaGNC">         178 :     Seg[2].x0 = 1.0;</span></span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaGNC">         178 :     Seg[2].x1 = PLUS_INF;</span></span>
+<span id="L844"><span class="lineNum">     844</span> <span class="tlaGNC">         178 :     Seg[2].Type = 6;</span></span>
+<span id="L845"><span class="lineNum">     845</span>              : </span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">         178 :     Seg[2].Params[0] = 1;</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">         178 :     Seg[2].Params[1] = 0;</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaGNC">         178 :     Seg[2].Params[2] = 0;</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaGNC">         178 :     Seg[2].Params[3] = values[nEntries-1];</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaGNC">         178 :     Seg[2].Params[4] = 0;</span></span>
+<span id="L851"><span class="lineNum">     851</span>              : </span>
+<span id="L852"><span class="lineNum">     852</span>              : </span>
+<span id="L853"><span class="lineNum">     853</span> <span class="tlaGNC">         178 :     return cmsBuildSegmentedToneCurve(ContextID, 3, Seg);</span></span>
+<span id="L854"><span class="lineNum">     854</span>              : }</span>
+<span id="L855"><span class="lineNum">     855</span>              : </span>
+<span id="L856"><span class="lineNum">     856</span>              : // Parametric curves</span>
+<span id="L857"><span class="lineNum">     857</span>              : //</span>
+<span id="L858"><span class="lineNum">     858</span>              : // Parameters goes as: Curve, a, b, c, d, e, f</span>
+<span id="L859"><span class="lineNum">     859</span>              : // Type is the ICC type +1</span>
+<span id="L860"><span class="lineNum">     860</span>              : // if type is negative, then the curve is analytically inverted</span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaGNC">         546 : cmsToneCurve* CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, cmsInt32Number Type, const cmsFloat64Number Params[])</span></span>
+<span id="L862"><span class="lineNum">     862</span>              : {</span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaGNC">         546 :     cmsCurveSegment Seg0;</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaGNC">         546 :     int Pos = 0;</span></span>
+<span id="L865"><span class="lineNum">     865</span> <span class="tlaGNC">         546 :     cmsUInt32Number size;</span></span>
+<span id="L866"><span class="lineNum">     866</span> <span class="tlaGNC">         546 :     _cmsParametricCurvesCollection* c = GetParametricCurveByType(ContextID, Type, &amp;Pos);</span></span>
+<span id="L867"><span class="lineNum">     867</span>              : </span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaGNC">         546 :     _cmsAssert(Params != NULL);</span></span>
+<span id="L869"><span class="lineNum">     869</span>              : </span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaGNC">         546 :     if (c == NULL) {</span></span>
+<span id="L871"><span class="lineNum">     871</span> <span class="tlaUNC tlaBgUNC">           0 :         cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, &quot;Invalid parametric curve type %d&quot;, Type);</span></span>
+<span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :         return NULL;</span></span>
+<span id="L873"><span class="lineNum">     873</span>              :     }</span>
+<span id="L874"><span class="lineNum">     874</span>              : </span>
+<span id="L875"><span class="lineNum">     875</span> <span class="tlaGNC tlaBgGNC">         546 :     memset(&amp;Seg0, 0, sizeof(Seg0));</span></span>
+<span id="L876"><span class="lineNum">     876</span>              : </span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaGNC">         546 :     Seg0.x0   = MINUS_INF;</span></span>
+<span id="L878"><span class="lineNum">     878</span> <span class="tlaGNC">         546 :     Seg0.x1   = PLUS_INF;</span></span>
+<span id="L879"><span class="lineNum">     879</span> <span class="tlaGNC">         546 :     Seg0.Type = Type;</span></span>
+<span id="L880"><span class="lineNum">     880</span>              : </span>
+<span id="L881"><span class="lineNum">     881</span> <span class="tlaGNC">         546 :     size = c-&gt;ParameterCount[Pos] * sizeof(cmsFloat64Number);</span></span>
+<span id="L882"><span class="lineNum">     882</span> <span class="tlaGNC">         546 :     memmove(Seg0.Params, Params, size);</span></span>
+<span id="L883"><span class="lineNum">     883</span>              : </span>
+<span id="L884"><span class="lineNum">     884</span> <span class="tlaGNC">         546 :     return cmsBuildSegmentedToneCurve(ContextID, 1, &amp;Seg0);</span></span>
+<span id="L885"><span class="lineNum">     885</span>              : }</span>
+<span id="L886"><span class="lineNum">     886</span>              : </span>
+<span id="L887"><span class="lineNum">     887</span>              : </span>
+<span id="L888"><span class="lineNum">     888</span>              : </span>
+<span id="L889"><span class="lineNum">     889</span>              : // Build a gamma table based on gamma constant</span>
+<span id="L890"><span class="lineNum">     890</span> <span class="tlaGNC">         546 : cmsToneCurve* CMSEXPORT cmsBuildGamma(cmsContext ContextID, cmsFloat64Number Gamma)</span></span>
+<span id="L891"><span class="lineNum">     891</span>              : {</span>
+<span id="L892"><span class="lineNum">     892</span> <span class="tlaGNC">         546 :     return cmsBuildParametricToneCurve(ContextID, 1, &amp;Gamma);</span></span>
+<span id="L893"><span class="lineNum">     893</span>              : }</span>
+<span id="L894"><span class="lineNum">     894</span>              : </span>
+<span id="L895"><span class="lineNum">     895</span>              : </span>
+<span id="L896"><span class="lineNum">     896</span>              : // Free all memory taken by the gamma curve</span>
+<span id="L897"><span class="lineNum">     897</span> <span class="tlaGNC">       94177 : void CMSEXPORT cmsFreeToneCurve(cmsContext ContextID, cmsToneCurve* Curve)</span></span>
+<span id="L898"><span class="lineNum">     898</span>              : {</span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaGNC">       94177 :     if (Curve == NULL) return;</span></span>
+<span id="L900"><span class="lineNum">     900</span>              : </span>
+<span id="L901"><span class="lineNum">     901</span> <span class="tlaGNC">       94177 :     _cmsFreeInterpParams(ContextID, Curve -&gt;InterpParams);</span></span>
+<span id="L902"><span class="lineNum">     902</span>              : </span>
+<span id="L903"><span class="lineNum">     903</span> <span class="tlaGNC">       94177 :     if (Curve -&gt; Table16)</span></span>
+<span id="L904"><span class="lineNum">     904</span> <span class="tlaGNC">       94177 :         _cmsFree(ContextID, Curve -&gt;Table16);</span></span>
+<span id="L905"><span class="lineNum">     905</span>              : </span>
+<span id="L906"><span class="lineNum">     906</span> <span class="tlaGNC">       94177 :     if (Curve -&gt;Segments) {</span></span>
+<span id="L907"><span class="lineNum">     907</span>              : </span>
+<span id="L908"><span class="lineNum">     908</span>              :         cmsUInt32Number i;</span>
+<span id="L909"><span class="lineNum">     909</span>              : </span>
+<span id="L910"><span class="lineNum">     910</span> <span class="tlaGNC">        5128 :         for (i=0; i &lt; Curve -&gt;nSegments; i++) {</span></span>
+<span id="L911"><span class="lineNum">     911</span>              : </span>
+<span id="L912"><span class="lineNum">     912</span> <span class="tlaGNC">        2742 :             if (Curve -&gt;Segments[i].SampledPoints) {</span></span>
+<span id="L913"><span class="lineNum">     913</span> <span class="tlaGNC">         178 :                 _cmsFree(ContextID, Curve -&gt;Segments[i].SampledPoints);</span></span>
+<span id="L914"><span class="lineNum">     914</span>              :             }</span>
+<span id="L915"><span class="lineNum">     915</span>              : </span>
+<span id="L916"><span class="lineNum">     916</span> <span class="tlaGNC">        2742 :             if (Curve -&gt;SegInterp[i] != 0)</span></span>
+<span id="L917"><span class="lineNum">     917</span> <span class="tlaGNC">         178 :                 _cmsFreeInterpParams(ContextID, Curve-&gt;SegInterp[i]);</span></span>
+<span id="L918"><span class="lineNum">     918</span>              :         }</span>
+<span id="L919"><span class="lineNum">     919</span>              : </span>
+<span id="L920"><span class="lineNum">     920</span> <span class="tlaGNC">        2386 :         _cmsFree(ContextID, Curve -&gt;Segments);</span></span>
+<span id="L921"><span class="lineNum">     921</span> <span class="tlaGNC">        2386 :         _cmsFree(ContextID, Curve -&gt;SegInterp);</span></span>
+<span id="L922"><span class="lineNum">     922</span>              :     }</span>
+<span id="L923"><span class="lineNum">     923</span>              : </span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaGNC">       94177 :     if (Curve -&gt; Evals)</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaGNC">        2386 :         _cmsFree(ContextID, Curve -&gt; Evals);</span></span>
+<span id="L926"><span class="lineNum">     926</span>              : </span>
+<span id="L927"><span class="lineNum">     927</span> <span class="tlaGNC">       94177 :     _cmsFree(ContextID, Curve);</span></span>
+<span id="L928"><span class="lineNum">     928</span>              : }</span>
+<span id="L929"><span class="lineNum">     929</span>              : </span>
+<span id="L930"><span class="lineNum">     930</span>              : // Utility function, free 3 gamma tables</span>
+<span id="L931"><span class="lineNum">     931</span> <span class="tlaUNC tlaBgUNC">           0 : void CMSEXPORT cmsFreeToneCurveTriple(cmsContext ContextID, cmsToneCurve* Curve[3])</span></span>
+<span id="L932"><span class="lineNum">     932</span>              : {</span>
+<span id="L933"><span class="lineNum">     933</span>              : </span>
+<span id="L934"><span class="lineNum">     934</span> <span class="tlaUNC">           0 :     _cmsAssert(Curve != NULL);</span></span>
+<span id="L935"><span class="lineNum">     935</span>              : </span>
+<span id="L936"><span class="lineNum">     936</span> <span class="tlaUNC">           0 :     if (Curve[0] != NULL) cmsFreeToneCurve(ContextID, Curve[0]);</span></span>
+<span id="L937"><span class="lineNum">     937</span> <span class="tlaUNC">           0 :     if (Curve[1] != NULL) cmsFreeToneCurve(ContextID, Curve[1]);</span></span>
+<span id="L938"><span class="lineNum">     938</span> <span class="tlaUNC">           0 :     if (Curve[2] != NULL) cmsFreeToneCurve(ContextID, Curve[2]);</span></span>
+<span id="L939"><span class="lineNum">     939</span>              : </span>
+<span id="L940"><span class="lineNum">     940</span> <span class="tlaUNC">           0 :     Curve[0] = Curve[1] = Curve[2] = NULL;</span></span>
+<span id="L941"><span class="lineNum">     941</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L942"><span class="lineNum">     942</span>              : </span>
+<span id="L943"><span class="lineNum">     943</span>              : </span>
+<span id="L944"><span class="lineNum">     944</span>              : // Duplicate a gamma table</span>
+<span id="L945"><span class="lineNum">     945</span> <span class="tlaGNC tlaBgGNC">       83554 : cmsToneCurve* CMSEXPORT cmsDupToneCurve(cmsContext ContextID, const cmsToneCurve* In)</span></span>
+<span id="L946"><span class="lineNum">     946</span>              : {</span>
+<span id="L947"><span class="lineNum">     947</span> <span class="tlaGNC">       83554 :     if (In == NULL) return NULL;</span></span>
+<span id="L948"><span class="lineNum">     948</span>              : </span>
+<span id="L949"><span class="lineNum">     949</span> <span class="tlaGNC">       83554 :     return  AllocateToneCurveStruct(ContextID, In -&gt;nEntries, In -&gt;nSegments, In -&gt;Segments, In -&gt;Table16);</span></span>
+<span id="L950"><span class="lineNum">     950</span>              : }</span>
+<span id="L951"><span class="lineNum">     951</span>              : </span>
+<span id="L952"><span class="lineNum">     952</span>              : // Joins two curves for X and Y. Curves should be monotonic.</span>
+<span id="L953"><span class="lineNum">     953</span>              : // We want to get</span>
+<span id="L954"><span class="lineNum">     954</span>              : //</span>
+<span id="L955"><span class="lineNum">     955</span>              : //      y = Y^-1(X(t))</span>
+<span id="L956"><span class="lineNum">     956</span>              : //</span>
+<span id="L957"><span class="lineNum">     957</span> <span class="tlaUNC tlaBgUNC">           0 : cmsToneCurve* CMSEXPORT cmsJoinToneCurve(cmsContext ContextID,</span></span>
+<span id="L958"><span class="lineNum">     958</span>              :                                       const cmsToneCurve* X,</span>
+<span id="L959"><span class="lineNum">     959</span>              :                                       const cmsToneCurve* Y, cmsUInt32Number nResultingPoints)</span>
+<span id="L960"><span class="lineNum">     960</span>              : {</span>
+<span id="L961"><span class="lineNum">     961</span> <span class="tlaUNC">           0 :     cmsToneCurve* out = NULL;</span></span>
+<span id="L962"><span class="lineNum">     962</span> <span class="tlaUNC">           0 :     cmsToneCurve* Yreversed = NULL;</span></span>
+<span id="L963"><span class="lineNum">     963</span> <span class="tlaUNC">           0 :     cmsFloat32Number t, x;</span></span>
+<span id="L964"><span class="lineNum">     964</span> <span class="tlaUNC">           0 :     cmsFloat32Number* Res = NULL;</span></span>
+<span id="L965"><span class="lineNum">     965</span> <span class="tlaUNC">           0 :     cmsUInt32Number i;</span></span>
+<span id="L966"><span class="lineNum">     966</span>              : </span>
+<span id="L967"><span class="lineNum">     967</span>              : </span>
+<span id="L968"><span class="lineNum">     968</span> <span class="tlaUNC">           0 :     _cmsAssert(X != NULL);</span></span>
+<span id="L969"><span class="lineNum">     969</span> <span class="tlaUNC">           0 :     _cmsAssert(Y != NULL);</span></span>
+<span id="L970"><span class="lineNum">     970</span>              : </span>
+<span id="L971"><span class="lineNum">     971</span> <span class="tlaUNC">           0 :     Yreversed = cmsReverseToneCurveEx(ContextID, nResultingPoints, Y);</span></span>
+<span id="L972"><span class="lineNum">     972</span> <span class="tlaUNC">           0 :     if (Yreversed == NULL) goto Error;</span></span>
+<span id="L973"><span class="lineNum">     973</span>              : </span>
+<span id="L974"><span class="lineNum">     974</span> <span class="tlaUNC">           0 :     Res = (cmsFloat32Number*) _cmsCalloc(ContextID, nResultingPoints, sizeof(cmsFloat32Number));</span></span>
+<span id="L975"><span class="lineNum">     975</span> <span class="tlaUNC">           0 :     if (Res == NULL) goto Error;</span></span>
+<span id="L976"><span class="lineNum">     976</span>              : </span>
+<span id="L977"><span class="lineNum">     977</span>              :     //Iterate</span>
+<span id="L978"><span class="lineNum">     978</span> <span class="tlaUNC">           0 :     for (i=0; i &lt;  nResultingPoints; i++) {</span></span>
+<span id="L979"><span class="lineNum">     979</span>              : </span>
+<span id="L980"><span class="lineNum">     980</span> <span class="tlaUNC">           0 :         t = (cmsFloat32Number) i / (cmsFloat32Number)(nResultingPoints-1);</span></span>
+<span id="L981"><span class="lineNum">     981</span> <span class="tlaUNC">           0 :         x = cmsEvalToneCurveFloat(ContextID, X,  t);</span></span>
+<span id="L982"><span class="lineNum">     982</span> <span class="tlaUNC">           0 :         Res[i] = cmsEvalToneCurveFloat(ContextID, Yreversed, x);</span></span>
+<span id="L983"><span class="lineNum">     983</span>              :     }</span>
+<span id="L984"><span class="lineNum">     984</span>              : </span>
+<span id="L985"><span class="lineNum">     985</span>              :     // Allocate space for output</span>
+<span id="L986"><span class="lineNum">     986</span> <span class="tlaUNC">           0 :     out = cmsBuildTabulatedToneCurveFloat(ContextID, nResultingPoints, Res);</span></span>
+<span id="L987"><span class="lineNum">     987</span>              : </span>
+<span id="L988"><span class="lineNum">     988</span> <span class="tlaUNC">           0 : Error:</span></span>
+<span id="L989"><span class="lineNum">     989</span>              : </span>
+<span id="L990"><span class="lineNum">     990</span> <span class="tlaUNC">           0 :     if (Res != NULL) _cmsFree(ContextID, Res);</span></span>
+<span id="L991"><span class="lineNum">     991</span> <span class="tlaUNC">           0 :     if (Yreversed != NULL) cmsFreeToneCurve(ContextID, Yreversed);</span></span>
+<span id="L992"><span class="lineNum">     992</span>              : </span>
+<span id="L993"><span class="lineNum">     993</span> <span class="tlaUNC">           0 :     return out;</span></span>
+<span id="L994"><span class="lineNum">     994</span>              : }</span>
+<span id="L995"><span class="lineNum">     995</span>              : </span>
+<span id="L996"><span class="lineNum">     996</span>              : </span>
+<span id="L997"><span class="lineNum">     997</span>              : </span>
+<span id="L998"><span class="lineNum">     998</span>              : // Get the surrounding nodes. This is tricky on non-monotonic tables</span>
+<span id="L999"><span class="lineNum">     999</span>              : static</span>
+<span id="L1000"><span class="lineNum">    1000</span> <span class="tlaGNC tlaBgGNC">    40546304 : int GetInterval(cmsFloat64Number In, const cmsUInt16Number LutTable[], const struct _cms_interp_struc* p)</span></span>
+<span id="L1001"><span class="lineNum">    1001</span>              : {</span>
+<span id="L1002"><span class="lineNum">    1002</span> <span class="tlaGNC">    40546304 :     int i;</span></span>
+<span id="L1003"><span class="lineNum">    1003</span> <span class="tlaGNC">    40546304 :     int y0, y1;</span></span>
+<span id="L1004"><span class="lineNum">    1004</span>              : </span>
+<span id="L1005"><span class="lineNum">    1005</span>              :     // A 1 point table is not allowed</span>
+<span id="L1006"><span class="lineNum">    1006</span> <span class="tlaGNC">    40546304 :     if (p -&gt; Domain[0] &lt; 1) return -1;</span></span>
+<span id="L1007"><span class="lineNum">    1007</span>              : </span>
+<span id="L1008"><span class="lineNum">    1008</span>              :     // Let's see if ascending or descending.</span>
+<span id="L1009"><span class="lineNum">    1009</span> <span class="tlaGNC">    40546304 :     if (LutTable[0] &lt; LutTable[p -&gt;Domain[0]]) {</span></span>
+<span id="L1010"><span class="lineNum">    1010</span>              : </span>
+<span id="L1011"><span class="lineNum">    1011</span>              :         // Table is overall ascending</span>
+<span id="L1012"><span class="lineNum">    1012</span> <span class="tlaGNC"> 12891734973 :         for (i = (int) p-&gt;Domain[0] - 1; i &gt;= 0; --i) {</span></span>
+<span id="L1013"><span class="lineNum">    1013</span>              : </span>
+<span id="L1014"><span class="lineNum">    1014</span> <span class="tlaGNC"> 12891734973 :             y0 = LutTable[i];</span></span>
+<span id="L1015"><span class="lineNum">    1015</span> <span class="tlaGNC"> 12891734973 :             y1 = LutTable[i+1];</span></span>
+<span id="L1016"><span class="lineNum">    1016</span>              : </span>
+<span id="L1017"><span class="lineNum">    1017</span> <span class="tlaGNC"> 12891734973 :             if (y0 &lt;= y1) { // Increasing</span></span>
+<span id="L1018"><span class="lineNum">    1018</span> <span class="tlaGNC"> 12891734973 :                 if (In &gt;= y0 &amp;&amp; In &lt;= y1) return i;</span></span>
+<span id="L1019"><span class="lineNum">    1019</span>              :             }</span>
+<span id="L1020"><span class="lineNum">    1020</span>              :             else</span>
+<span id="L1021"><span class="lineNum">    1021</span> <span class="tlaUNC tlaBgUNC">           0 :                 if (y1 &lt; y0) { // Decreasing</span></span>
+<span id="L1022"><span class="lineNum">    1022</span> <span class="tlaUNC">           0 :                     if (In &gt;= y1 &amp;&amp; In &lt;= y0) return i;</span></span>
+<span id="L1023"><span class="lineNum">    1023</span>              :                 }</span>
+<span id="L1024"><span class="lineNum">    1024</span>              :         }</span>
+<span id="L1025"><span class="lineNum">    1025</span>              :     }</span>
+<span id="L1026"><span class="lineNum">    1026</span>              :     else {</span>
+<span id="L1027"><span class="lineNum">    1027</span>              :         // Table is overall descending</span>
+<span id="L1028"><span class="lineNum">    1028</span> <span class="tlaUNC">           0 :         for (i=0; i &lt; (int) p -&gt; Domain[0]; i++) {</span></span>
+<span id="L1029"><span class="lineNum">    1029</span>              : </span>
+<span id="L1030"><span class="lineNum">    1030</span> <span class="tlaUNC">           0 :             y0 = LutTable[i];</span></span>
+<span id="L1031"><span class="lineNum">    1031</span> <span class="tlaUNC">           0 :             y1 = LutTable[i+1];</span></span>
+<span id="L1032"><span class="lineNum">    1032</span>              : </span>
+<span id="L1033"><span class="lineNum">    1033</span> <span class="tlaUNC">           0 :             if (y0 &lt;= y1) { // Increasing</span></span>
+<span id="L1034"><span class="lineNum">    1034</span> <span class="tlaUNC">           0 :                 if (In &gt;= y0 &amp;&amp; In &lt;= y1) return i;</span></span>
+<span id="L1035"><span class="lineNum">    1035</span>              :             }</span>
+<span id="L1036"><span class="lineNum">    1036</span>              :             else</span>
+<span id="L1037"><span class="lineNum">    1037</span> <span class="tlaUNC">           0 :                 if (y1 &lt; y0) { // Decreasing</span></span>
+<span id="L1038"><span class="lineNum">    1038</span> <span class="tlaUNC">           0 :                     if (In &gt;= y1 &amp;&amp; In &lt;= y0) return i;</span></span>
+<span id="L1039"><span class="lineNum">    1039</span>              :                 }</span>
+<span id="L1040"><span class="lineNum">    1040</span>              :         }</span>
+<span id="L1041"><span class="lineNum">    1041</span>              :     }</span>
+<span id="L1042"><span class="lineNum">    1042</span>              : </span>
+<span id="L1043"><span class="lineNum">    1043</span>              :     return -1;</span>
+<span id="L1044"><span class="lineNum">    1044</span>              : }</span>
+<span id="L1045"><span class="lineNum">    1045</span>              : </span>
+<span id="L1046"><span class="lineNum">    1046</span>              : // Reverse a gamma table</span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaGNC tlaBgGNC">        9899 : cmsToneCurve* CMSEXPORT cmsReverseToneCurveEx(cmsContext ContextID, cmsUInt32Number nResultSamples, const cmsToneCurve* InCurve)</span></span>
+<span id="L1048"><span class="lineNum">    1048</span>              : {</span>
+<span id="L1049"><span class="lineNum">    1049</span> <span class="tlaGNC">        9899 :     cmsToneCurve *out;</span></span>
+<span id="L1050"><span class="lineNum">    1050</span> <span class="tlaGNC">        9899 :     cmsFloat64Number a = 0, b = 0, y, x1, y1, x2, y2;</span></span>
+<span id="L1051"><span class="lineNum">    1051</span> <span class="tlaGNC">        9899 :     int i, j;</span></span>
+<span id="L1052"><span class="lineNum">    1052</span> <span class="tlaGNC">        9899 :     int Ascending;</span></span>
+<span id="L1053"><span class="lineNum">    1053</span>              : </span>
+<span id="L1054"><span class="lineNum">    1054</span> <span class="tlaGNC">        9899 :     _cmsAssert(InCurve != NULL);</span></span>
+<span id="L1055"><span class="lineNum">    1055</span>              : </span>
+<span id="L1056"><span class="lineNum">    1056</span>              :     // Try to reverse it analytically whatever possible</span>
+<span id="L1057"><span class="lineNum">    1057</span>              : </span>
+<span id="L1058"><span class="lineNum">    1058</span> <span class="tlaGNC">        9899 :     if (InCurve -&gt;nSegments == 1 &amp;&amp; InCurve -&gt;Segments[0].Type &gt; 0 &amp;&amp;</span></span>
+<span id="L1059"><span class="lineNum">    1059</span>              :         /* InCurve -&gt; Segments[0].Type &lt;= 5 */</span>
+<span id="L1060"><span class="lineNum">    1060</span> <span class="tlaUNC tlaBgUNC">           0 :         GetParametricCurveByType(ContextID, InCurve -&gt;Segments[0].Type, NULL) != NULL) {</span></span>
+<span id="L1061"><span class="lineNum">    1061</span>              : </span>
+<span id="L1062"><span class="lineNum">    1062</span> <span class="tlaUNC">           0 :         return cmsBuildParametricToneCurve(ContextID,</span></span>
+<span id="L1063"><span class="lineNum">    1063</span> <span class="tlaUNC">           0 :                                        -(InCurve -&gt; Segments[0].Type),</span></span>
+<span id="L1064"><span class="lineNum">    1064</span> <span class="tlaUNC">           0 :                                        InCurve -&gt; Segments[0].Params);</span></span>
+<span id="L1065"><span class="lineNum">    1065</span>              :     }</span>
+<span id="L1066"><span class="lineNum">    1066</span>              : </span>
+<span id="L1067"><span class="lineNum">    1067</span>              :     // Nope, reverse the table.</span>
+<span id="L1068"><span class="lineNum">    1068</span> <span class="tlaGNC tlaBgGNC">        9899 :     out = cmsBuildTabulatedToneCurve16(ContextID, nResultSamples, NULL);</span></span>
+<span id="L1069"><span class="lineNum">    1069</span> <span class="tlaGNC">        9899 :     if (out == NULL)</span></span>
+<span id="L1070"><span class="lineNum">    1070</span>              :         return NULL;</span>
+<span id="L1071"><span class="lineNum">    1071</span>              : </span>
+<span id="L1072"><span class="lineNum">    1072</span>              :     // We want to know if this is an ascending or descending table</span>
+<span id="L1073"><span class="lineNum">    1073</span> <span class="tlaGNC">        9899 :     Ascending = !cmsIsToneCurveDescending(ContextID, InCurve);</span></span>
+<span id="L1074"><span class="lineNum">    1074</span>              : </span>
+<span id="L1075"><span class="lineNum">    1075</span>              :     // Iterate across Y axis</span>
+<span id="L1076"><span class="lineNum">    1076</span> <span class="tlaGNC">    40556203 :     for (i=0; i &lt; (int) nResultSamples; i++) {</span></span>
+<span id="L1077"><span class="lineNum">    1077</span>              : </span>
+<span id="L1078"><span class="lineNum">    1078</span> <span class="tlaGNC">    40546304 :         y = (cmsFloat64Number) i * 65535.0 / (nResultSamples - 1);</span></span>
+<span id="L1079"><span class="lineNum">    1079</span>              : </span>
+<span id="L1080"><span class="lineNum">    1080</span>              :         // Find interval in which y is within.</span>
+<span id="L1081"><span class="lineNum">    1081</span> <span class="tlaGNC">    40546304 :         j = GetInterval(y, InCurve-&gt;Table16, InCurve-&gt;InterpParams);</span></span>
+<span id="L1082"><span class="lineNum">    1082</span> <span class="tlaGNC">    40546304 :         if (j &gt;= 0) {</span></span>
+<span id="L1083"><span class="lineNum">    1083</span>              : </span>
+<span id="L1084"><span class="lineNum">    1084</span>              : </span>
+<span id="L1085"><span class="lineNum">    1085</span>              :             // Get limits of interval</span>
+<span id="L1086"><span class="lineNum">    1086</span> <span class="tlaGNC">    40546304 :             x1 = InCurve -&gt;Table16[j];</span></span>
+<span id="L1087"><span class="lineNum">    1087</span> <span class="tlaGNC">    40546304 :             x2 = InCurve -&gt;Table16[j+1];</span></span>
+<span id="L1088"><span class="lineNum">    1088</span>              : </span>
+<span id="L1089"><span class="lineNum">    1089</span> <span class="tlaGNC">    40546304 :             y1 = (cmsFloat64Number) (j * 65535.0) / (InCurve -&gt;nEntries - 1);</span></span>
+<span id="L1090"><span class="lineNum">    1090</span> <span class="tlaGNC">    40546304 :             y2 = (cmsFloat64Number) ((j+1) * 65535.0 ) / (InCurve -&gt;nEntries - 1);</span></span>
+<span id="L1091"><span class="lineNum">    1091</span>              : </span>
+<span id="L1092"><span class="lineNum">    1092</span>              :             // If collapsed, then use any</span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaGNC">    40546304 :             if (x1 == x2) {</span></span>
+<span id="L1094"><span class="lineNum">    1094</span>              : </span>
+<span id="L1095"><span class="lineNum">    1095</span> <span class="tlaUNC tlaBgUNC">           0 :                 out -&gt;Table16[i] = _cmsQuickSaturateWord(Ascending ? y2 : y1);</span></span>
+<span id="L1096"><span class="lineNum">    1096</span> <span class="tlaUNC">           0 :                 continue;</span></span>
+<span id="L1097"><span class="lineNum">    1097</span>              : </span>
+<span id="L1098"><span class="lineNum">    1098</span>              :             } else {</span>
+<span id="L1099"><span class="lineNum">    1099</span>              : </span>
+<span id="L1100"><span class="lineNum">    1100</span>              :                 // Interpolate</span>
+<span id="L1101"><span class="lineNum">    1101</span> <span class="tlaGNC tlaBgGNC">    40546304 :                 a = (y2 - y1) / (x2 - x1);</span></span>
+<span id="L1102"><span class="lineNum">    1102</span> <span class="tlaGNC">    40546304 :                 b = y2 - a * x2;</span></span>
+<span id="L1103"><span class="lineNum">    1103</span>              :             }</span>
+<span id="L1104"><span class="lineNum">    1104</span>              :         }</span>
+<span id="L1105"><span class="lineNum">    1105</span>              : </span>
+<span id="L1106"><span class="lineNum">    1106</span> <span class="tlaGNC">    81092608 :         out -&gt;Table16[i] = _cmsQuickSaturateWord(a* y + b);</span></span>
+<span id="L1107"><span class="lineNum">    1107</span>              :     }</span>
+<span id="L1108"><span class="lineNum">    1108</span>              : </span>
+<span id="L1109"><span class="lineNum">    1109</span>              : </span>
+<span id="L1110"><span class="lineNum">    1110</span>              :     return out;</span>
+<span id="L1111"><span class="lineNum">    1111</span>              : }</span>
+<span id="L1112"><span class="lineNum">    1112</span>              : </span>
+<span id="L1113"><span class="lineNum">    1113</span>              : // Reverse a gamma table</span>
+<span id="L1114"><span class="lineNum">    1114</span> <span class="tlaGNC">        9899 : cmsToneCurve* CMSEXPORT cmsReverseToneCurve(cmsContext ContextID, const cmsToneCurve* InGamma)</span></span>
+<span id="L1115"><span class="lineNum">    1115</span>              : {</span>
+<span id="L1116"><span class="lineNum">    1116</span> <span class="tlaGNC">        9899 :     _cmsAssert(InGamma != NULL);</span></span>
+<span id="L1117"><span class="lineNum">    1117</span>              : </span>
+<span id="L1118"><span class="lineNum">    1118</span> <span class="tlaGNC">        9899 :     return cmsReverseToneCurveEx(ContextID, 4096, InGamma);</span></span>
+<span id="L1119"><span class="lineNum">    1119</span>              : }</span>
+<span id="L1120"><span class="lineNum">    1120</span>              : </span>
+<span id="L1121"><span class="lineNum">    1121</span>              : // From: Eilers, P.H.C. (1994) Smoothing and interpolation with finite</span>
+<span id="L1122"><span class="lineNum">    1122</span>              : // differences. in: Graphic Gems IV, Heckbert, P.S. (ed.), Academic press.</span>
+<span id="L1123"><span class="lineNum">    1123</span>              : //</span>
+<span id="L1124"><span class="lineNum">    1124</span>              : // Smoothing and interpolation with second differences.</span>
+<span id="L1125"><span class="lineNum">    1125</span>              : //</span>
+<span id="L1126"><span class="lineNum">    1126</span>              : //   Input:  weights (w), data (y): vector from 1 to m.</span>
+<span id="L1127"><span class="lineNum">    1127</span>              : //   Input:  smoothing parameter (lambda), length (m).</span>
+<span id="L1128"><span class="lineNum">    1128</span>              : //   Output: smoothed vector (z): vector from 1 to m.</span>
+<span id="L1129"><span class="lineNum">    1129</span>              : </span>
+<span id="L1130"><span class="lineNum">    1130</span>              : static</span>
+<span id="L1131"><span class="lineNum">    1131</span> <span class="tlaUNC tlaBgUNC">           0 : cmsBool smooth2(cmsContext ContextID, cmsFloat32Number w[], cmsFloat32Number y[],</span></span>
+<span id="L1132"><span class="lineNum">    1132</span>              :                 cmsFloat32Number z[], cmsFloat32Number lambda, int m)</span>
+<span id="L1133"><span class="lineNum">    1133</span>              : {</span>
+<span id="L1134"><span class="lineNum">    1134</span> <span class="tlaUNC">           0 :     int i, i1, i2;</span></span>
+<span id="L1135"><span class="lineNum">    1135</span> <span class="tlaUNC">           0 :     cmsFloat32Number *c, *d, *e;</span></span>
+<span id="L1136"><span class="lineNum">    1136</span> <span class="tlaUNC">           0 :     cmsBool st;</span></span>
+<span id="L1137"><span class="lineNum">    1137</span>              : </span>
+<span id="L1138"><span class="lineNum">    1138</span>              : </span>
+<span id="L1139"><span class="lineNum">    1139</span> <span class="tlaUNC">           0 :     c = (cmsFloat32Number*) _cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(cmsFloat32Number));</span></span>
+<span id="L1140"><span class="lineNum">    1140</span> <span class="tlaUNC">           0 :     d = (cmsFloat32Number*) _cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(cmsFloat32Number));</span></span>
+<span id="L1141"><span class="lineNum">    1141</span> <span class="tlaUNC">           0 :     e = (cmsFloat32Number*) _cmsCalloc(ContextID, MAX_NODES_IN_CURVE, sizeof(cmsFloat32Number));</span></span>
+<span id="L1142"><span class="lineNum">    1142</span>              : </span>
+<span id="L1143"><span class="lineNum">    1143</span> <span class="tlaUNC">           0 :     if (c != NULL &amp;&amp; d != NULL &amp;&amp; e != NULL) {</span></span>
+<span id="L1144"><span class="lineNum">    1144</span>              : </span>
+<span id="L1145"><span class="lineNum">    1145</span>              : </span>
+<span id="L1146"><span class="lineNum">    1146</span> <span class="tlaUNC">           0 :     d[1] = w[1] + lambda;</span></span>
+<span id="L1147"><span class="lineNum">    1147</span> <span class="tlaUNC">           0 :     c[1] = -2 * lambda / d[1];</span></span>
+<span id="L1148"><span class="lineNum">    1148</span> <span class="tlaUNC">           0 :     e[1] = lambda /d[1];</span></span>
+<span id="L1149"><span class="lineNum">    1149</span> <span class="tlaUNC">           0 :     z[1] = w[1] * y[1];</span></span>
+<span id="L1150"><span class="lineNum">    1150</span> <span class="tlaUNC">           0 :     d[2] = w[2] + 5 * lambda - d[1] * c[1] *  c[1];</span></span>
+<span id="L1151"><span class="lineNum">    1151</span> <span class="tlaUNC">           0 :     c[2] = (-4 * lambda - d[1] * c[1] * e[1]) / d[2];</span></span>
+<span id="L1152"><span class="lineNum">    1152</span> <span class="tlaUNC">           0 :     e[2] = lambda / d[2];</span></span>
+<span id="L1153"><span class="lineNum">    1153</span> <span class="tlaUNC">           0 :     z[2] = w[2] * y[2] - c[1] * z[1];</span></span>
+<span id="L1154"><span class="lineNum">    1154</span>              : </span>
+<span id="L1155"><span class="lineNum">    1155</span> <span class="tlaUNC">           0 :     for (i = 3; i &lt; m - 1; i++) {</span></span>
+<span id="L1156"><span class="lineNum">    1156</span> <span class="tlaUNC">           0 :         i1 = i - 1; i2 = i - 2;</span></span>
+<span id="L1157"><span class="lineNum">    1157</span> <span class="tlaUNC">           0 :         d[i]= w[i] + 6 * lambda - c[i1] * c[i1] * d[i1] - e[i2] * e[i2] * d[i2];</span></span>
+<span id="L1158"><span class="lineNum">    1158</span> <span class="tlaUNC">           0 :         c[i] = (-4 * lambda -d[i1] * c[i1] * e[i1])/ d[i];</span></span>
+<span id="L1159"><span class="lineNum">    1159</span> <span class="tlaUNC">           0 :         e[i] = lambda / d[i];</span></span>
+<span id="L1160"><span class="lineNum">    1160</span> <span class="tlaUNC">           0 :         z[i] = w[i] * y[i] - c[i1] * z[i1] - e[i2] * z[i2];</span></span>
+<span id="L1161"><span class="lineNum">    1161</span>              :     }</span>
+<span id="L1162"><span class="lineNum">    1162</span>              : </span>
+<span id="L1163"><span class="lineNum">    1163</span> <span class="tlaUNC">           0 :     i1 = m - 2; i2 = m - 3;</span></span>
+<span id="L1164"><span class="lineNum">    1164</span>              : </span>
+<span id="L1165"><span class="lineNum">    1165</span> <span class="tlaUNC">           0 :     d[m - 1] = w[m - 1] + 5 * lambda -c[i1] * c[i1] * d[i1] - e[i2] * e[i2] * d[i2];</span></span>
+<span id="L1166"><span class="lineNum">    1166</span> <span class="tlaUNC">           0 :     c[m - 1] = (-2 * lambda - d[i1] * c[i1] * e[i1]) / d[m - 1];</span></span>
+<span id="L1167"><span class="lineNum">    1167</span> <span class="tlaUNC">           0 :     z[m - 1] = w[m - 1] * y[m - 1] - c[i1] * z[i1] - e[i2] * z[i2];</span></span>
+<span id="L1168"><span class="lineNum">    1168</span> <span class="tlaUNC">           0 :     i1 = m - 1; i2 = m - 2;</span></span>
+<span id="L1169"><span class="lineNum">    1169</span>              : </span>
+<span id="L1170"><span class="lineNum">    1170</span> <span class="tlaUNC">           0 :     d[m] = w[m] + lambda - c[i1] * c[i1] * d[i1] - e[i2] * e[i2] * d[i2];</span></span>
+<span id="L1171"><span class="lineNum">    1171</span> <span class="tlaUNC">           0 :     z[m] = (w[m] * y[m] - c[i1] * z[i1] - e[i2] * z[i2]) / d[m];</span></span>
+<span id="L1172"><span class="lineNum">    1172</span> <span class="tlaUNC">           0 :     z[m - 1] = z[m - 1] / d[m - 1] - c[m - 1] * z[m];</span></span>
+<span id="L1173"><span class="lineNum">    1173</span>              : </span>
+<span id="L1174"><span class="lineNum">    1174</span> <span class="tlaUNC">           0 :     for (i = m - 2; 1&lt;= i; i--)</span></span>
+<span id="L1175"><span class="lineNum">    1175</span> <span class="tlaUNC">           0 :         z[i] = z[i] / d[i] - c[i] * z[i + 1] - e[i] * z[i + 2];</span></span>
+<span id="L1176"><span class="lineNum">    1176</span>              : </span>
+<span id="L1177"><span class="lineNum">    1177</span>              :       st = TRUE;</span>
+<span id="L1178"><span class="lineNum">    1178</span>              :     }</span>
+<span id="L1179"><span class="lineNum">    1179</span>              :     else st = FALSE;</span>
+<span id="L1180"><span class="lineNum">    1180</span>              : </span>
+<span id="L1181"><span class="lineNum">    1181</span> <span class="tlaUNC">           0 :     if (c != NULL) _cmsFree(ContextID, c);</span></span>
+<span id="L1182"><span class="lineNum">    1182</span> <span class="tlaUNC">           0 :     if (d != NULL) _cmsFree(ContextID, d);</span></span>
+<span id="L1183"><span class="lineNum">    1183</span> <span class="tlaUNC">           0 :     if (e != NULL) _cmsFree(ContextID, e);</span></span>
+<span id="L1184"><span class="lineNum">    1184</span>              : </span>
+<span id="L1185"><span class="lineNum">    1185</span> <span class="tlaUNC">           0 :     return st;</span></span>
+<span id="L1186"><span class="lineNum">    1186</span>              : }</span>
+<span id="L1187"><span class="lineNum">    1187</span>              : </span>
+<span id="L1188"><span class="lineNum">    1188</span>              : // Smooths a curve sampled at regular intervals.</span>
+<span id="L1189"><span class="lineNum">    1189</span> <span class="tlaUNC">           0 : cmsBool  CMSEXPORT cmsSmoothToneCurve(cmsContext ContextID, cmsToneCurve* Tab, cmsFloat64Number lambda)</span></span>
+<span id="L1190"><span class="lineNum">    1190</span>              : {</span>
+<span id="L1191"><span class="lineNum">    1191</span> <span class="tlaUNC">           0 :     cmsBool SuccessStatus = TRUE;</span></span>
+<span id="L1192"><span class="lineNum">    1192</span> <span class="tlaUNC">           0 :     cmsFloat32Number *w, *y, *z;</span></span>
+<span id="L1193"><span class="lineNum">    1193</span> <span class="tlaUNC">           0 :     cmsUInt32Number i, nItems, Zeros, Poles;</span></span>
+<span id="L1194"><span class="lineNum">    1194</span> <span class="tlaUNC">           0 :     cmsBool notCheck = FALSE;</span></span>
+<span id="L1195"><span class="lineNum">    1195</span>              : </span>
+<span id="L1196"><span class="lineNum">    1196</span> <span class="tlaUNC">           0 :     if (Tab != NULL &amp;&amp; Tab-&gt;InterpParams != NULL)</span></span>
+<span id="L1197"><span class="lineNum">    1197</span>              :     {</span>
+<span id="L1198"><span class="lineNum">    1198</span> <span class="tlaUNC">           0 :         if (!cmsIsToneCurveLinear(ContextID, Tab)) // Only non-linear curves need smoothing</span></span>
+<span id="L1199"><span class="lineNum">    1199</span>              :         {</span>
+<span id="L1200"><span class="lineNum">    1200</span> <span class="tlaUNC">           0 :             nItems = Tab-&gt;nEntries;</span></span>
+<span id="L1201"><span class="lineNum">    1201</span> <span class="tlaUNC">           0 :             if (nItems &lt; MAX_NODES_IN_CURVE)</span></span>
+<span id="L1202"><span class="lineNum">    1202</span>              :             {</span>
+<span id="L1203"><span class="lineNum">    1203</span>              :                 // Allocate one more item than needed</span>
+<span id="L1204"><span class="lineNum">    1204</span> <span class="tlaUNC">           0 :                 w = (cmsFloat32Number *)_cmsCalloc(ContextID, nItems + 1, sizeof(cmsFloat32Number));</span></span>
+<span id="L1205"><span class="lineNum">    1205</span> <span class="tlaUNC">           0 :                 y = (cmsFloat32Number *)_cmsCalloc(ContextID, nItems + 1, sizeof(cmsFloat32Number));</span></span>
+<span id="L1206"><span class="lineNum">    1206</span> <span class="tlaUNC">           0 :                 z = (cmsFloat32Number *)_cmsCalloc(ContextID, nItems + 1, sizeof(cmsFloat32Number));</span></span>
+<span id="L1207"><span class="lineNum">    1207</span>              : </span>
+<span id="L1208"><span class="lineNum">    1208</span> <span class="tlaUNC">           0 :                 if (w != NULL &amp;&amp; y != NULL &amp;&amp; z != NULL) // Ensure no memory allocation failure</span></span>
+<span id="L1209"><span class="lineNum">    1209</span>              :                 {</span>
+<span id="L1210"><span class="lineNum">    1210</span> <span class="tlaUNC">           0 :                     memset(w, 0, (nItems + 1) * sizeof(cmsFloat32Number));</span></span>
+<span id="L1211"><span class="lineNum">    1211</span> <span class="tlaUNC">           0 :                     memset(y, 0, (nItems + 1) * sizeof(cmsFloat32Number));</span></span>
+<span id="L1212"><span class="lineNum">    1212</span> <span class="tlaUNC">           0 :                     memset(z, 0, (nItems + 1) * sizeof(cmsFloat32Number));</span></span>
+<span id="L1213"><span class="lineNum">    1213</span>              : </span>
+<span id="L1214"><span class="lineNum">    1214</span> <span class="tlaUNC">           0 :                     for (i = 0; i &lt; nItems; i++)</span></span>
+<span id="L1215"><span class="lineNum">    1215</span>              :                     {</span>
+<span id="L1216"><span class="lineNum">    1216</span> <span class="tlaUNC">           0 :                         y[i + 1] = (cmsFloat32Number)Tab-&gt;Table16[i];</span></span>
+<span id="L1217"><span class="lineNum">    1217</span> <span class="tlaUNC">           0 :                         w[i + 1] = 1.0;</span></span>
+<span id="L1218"><span class="lineNum">    1218</span>              :                     }</span>
+<span id="L1219"><span class="lineNum">    1219</span>              : </span>
+<span id="L1220"><span class="lineNum">    1220</span> <span class="tlaUNC">           0 :                     if (lambda &lt; 0)</span></span>
+<span id="L1221"><span class="lineNum">    1221</span>              :                     {</span>
+<span id="L1222"><span class="lineNum">    1222</span> <span class="tlaUNC">           0 :                         notCheck = TRUE;</span></span>
+<span id="L1223"><span class="lineNum">    1223</span> <span class="tlaUNC">           0 :                         lambda = -lambda;</span></span>
+<span id="L1224"><span class="lineNum">    1224</span>              :                     }</span>
+<span id="L1225"><span class="lineNum">    1225</span>              : </span>
+<span id="L1226"><span class="lineNum">    1226</span> <span class="tlaUNC">           0 :                     if (smooth2(ContextID, w, y, z, (cmsFloat32Number)lambda, (int)nItems))</span></span>
+<span id="L1227"><span class="lineNum">    1227</span>              :                     {</span>
+<span id="L1228"><span class="lineNum">    1228</span>              :                         // Do some reality - checking...</span>
+<span id="L1229"><span class="lineNum">    1229</span>              : </span>
+<span id="L1230"><span class="lineNum">    1230</span>              :                         Zeros = Poles = 0;</span>
+<span id="L1231"><span class="lineNum">    1231</span> <span class="tlaUNC">           0 :                         for (i = nItems; i &gt; 1; --i)</span></span>
+<span id="L1232"><span class="lineNum">    1232</span>              :                         {</span>
+<span id="L1233"><span class="lineNum">    1233</span> <span class="tlaUNC">           0 :                             if (z[i] == 0.) Zeros++;</span></span>
+<span id="L1234"><span class="lineNum">    1234</span> <span class="tlaUNC">           0 :                             if (z[i] &gt;= 65535.) Poles++;</span></span>
+<span id="L1235"><span class="lineNum">    1235</span> <span class="tlaUNC">           0 :                             if (z[i] &lt; z[i - 1])</span></span>
+<span id="L1236"><span class="lineNum">    1236</span>              :                             {</span>
+<span id="L1237"><span class="lineNum">    1237</span> <span class="tlaUNC">           0 :                                 cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Non-Monotonic.&quot;);</span></span>
+<span id="L1238"><span class="lineNum">    1238</span> <span class="tlaUNC">           0 :                                 SuccessStatus = notCheck;</span></span>
+<span id="L1239"><span class="lineNum">    1239</span> <span class="tlaUNC">           0 :                                 break;</span></span>
+<span id="L1240"><span class="lineNum">    1240</span>              :                             }</span>
+<span id="L1241"><span class="lineNum">    1241</span>              :                         }</span>
+<span id="L1242"><span class="lineNum">    1242</span>              : </span>
+<span id="L1243"><span class="lineNum">    1243</span> <span class="tlaUNC">           0 :                         if (SuccessStatus &amp;&amp; Zeros &gt; (nItems / 3))</span></span>
+<span id="L1244"><span class="lineNum">    1244</span>              :                         {</span>
+<span id="L1245"><span class="lineNum">    1245</span> <span class="tlaUNC">           0 :                             cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Degenerated, mostly zeros.&quot;);</span></span>
+<span id="L1246"><span class="lineNum">    1246</span> <span class="tlaUNC">           0 :                             SuccessStatus = notCheck;</span></span>
+<span id="L1247"><span class="lineNum">    1247</span>              :                         }</span>
+<span id="L1248"><span class="lineNum">    1248</span>              : </span>
+<span id="L1249"><span class="lineNum">    1249</span> <span class="tlaUNC">           0 :                         if (SuccessStatus &amp;&amp; Poles &gt; (nItems / 3))</span></span>
+<span id="L1250"><span class="lineNum">    1250</span>              :                         {</span>
+<span id="L1251"><span class="lineNum">    1251</span> <span class="tlaUNC">           0 :                             cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Degenerated, mostly poles.&quot;);</span></span>
+<span id="L1252"><span class="lineNum">    1252</span> <span class="tlaUNC">           0 :                             SuccessStatus = notCheck;</span></span>
+<span id="L1253"><span class="lineNum">    1253</span>              :                         }</span>
+<span id="L1254"><span class="lineNum">    1254</span>              : </span>
+<span id="L1255"><span class="lineNum">    1255</span> <span class="tlaUNC">           0 :                         if (SuccessStatus) // Seems ok</span></span>
+<span id="L1256"><span class="lineNum">    1256</span>              :                         {</span>
+<span id="L1257"><span class="lineNum">    1257</span> <span class="tlaUNC">           0 :                             for (i = 0; i &lt; nItems; i++)</span></span>
+<span id="L1258"><span class="lineNum">    1258</span>              :                             {</span>
+<span id="L1259"><span class="lineNum">    1259</span>              :                                 // Clamp to cmsUInt16Number</span>
+<span id="L1260"><span class="lineNum">    1260</span> <span class="tlaUNC">           0 :                                 Tab-&gt;Table16[i] = _cmsQuickSaturateWord(z[i + 1]);</span></span>
+<span id="L1261"><span class="lineNum">    1261</span>              :                             }</span>
+<span id="L1262"><span class="lineNum">    1262</span>              :                         }</span>
+<span id="L1263"><span class="lineNum">    1263</span>              :                     }</span>
+<span id="L1264"><span class="lineNum">    1264</span>              :                     else // Could not smooth</span>
+<span id="L1265"><span class="lineNum">    1265</span>              :                     {</span>
+<span id="L1266"><span class="lineNum">    1266</span> <span class="tlaUNC">           0 :                         cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Function smooth2 failed.&quot;);</span></span>
+<span id="L1267"><span class="lineNum">    1267</span> <span class="tlaUNC">           0 :                         SuccessStatus = FALSE;</span></span>
+<span id="L1268"><span class="lineNum">    1268</span>              :                     }</span>
+<span id="L1269"><span class="lineNum">    1269</span>              :                 }</span>
+<span id="L1270"><span class="lineNum">    1270</span>              :                 else // One or more buffers could not be allocated</span>
+<span id="L1271"><span class="lineNum">    1271</span>              :                 {</span>
+<span id="L1272"><span class="lineNum">    1272</span> <span class="tlaUNC">           0 :                     cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Could not allocate memory.&quot;);</span></span>
+<span id="L1273"><span class="lineNum">    1273</span> <span class="tlaUNC">           0 :                     SuccessStatus = FALSE;</span></span>
+<span id="L1274"><span class="lineNum">    1274</span>              :                 }</span>
+<span id="L1275"><span class="lineNum">    1275</span>              : </span>
+<span id="L1276"><span class="lineNum">    1276</span> <span class="tlaUNC">           0 :                 if (z != NULL)</span></span>
+<span id="L1277"><span class="lineNum">    1277</span> <span class="tlaUNC">           0 :                     _cmsFree(ContextID, z);</span></span>
+<span id="L1278"><span class="lineNum">    1278</span>              : </span>
+<span id="L1279"><span class="lineNum">    1279</span> <span class="tlaUNC">           0 :                 if (y != NULL)</span></span>
+<span id="L1280"><span class="lineNum">    1280</span> <span class="tlaUNC">           0 :                     _cmsFree(ContextID, y);</span></span>
+<span id="L1281"><span class="lineNum">    1281</span>              : </span>
+<span id="L1282"><span class="lineNum">    1282</span> <span class="tlaUNC">           0 :                 if (w != NULL)</span></span>
+<span id="L1283"><span class="lineNum">    1283</span> <span class="tlaUNC">           0 :                     _cmsFree(ContextID, w);</span></span>
+<span id="L1284"><span class="lineNum">    1284</span>              :             }</span>
+<span id="L1285"><span class="lineNum">    1285</span>              :             else // too many items in the table</span>
+<span id="L1286"><span class="lineNum">    1286</span>              :             {</span>
+<span id="L1287"><span class="lineNum">    1287</span> <span class="tlaUNC">           0 :                 cmsSignalError(ContextID, cmsERROR_RANGE, &quot;cmsSmoothToneCurve: Too many points.&quot;);</span></span>
+<span id="L1288"><span class="lineNum">    1288</span> <span class="tlaUNC">           0 :                 SuccessStatus = FALSE;</span></span>
+<span id="L1289"><span class="lineNum">    1289</span>              :             }</span>
+<span id="L1290"><span class="lineNum">    1290</span>              :         }</span>
+<span id="L1291"><span class="lineNum">    1291</span>              :     }</span>
+<span id="L1292"><span class="lineNum">    1292</span>              :     else // Tab parameter or Tab-&gt;InterpParams is NULL</span>
+<span id="L1293"><span class="lineNum">    1293</span>              :     {</span>
+<span id="L1294"><span class="lineNum">    1294</span>              :         // Can't signal an error here since the ContextID is not known at this point</span>
+<span id="L1295"><span class="lineNum">    1295</span>              :         SuccessStatus = FALSE;</span>
+<span id="L1296"><span class="lineNum">    1296</span>              :     }</span>
+<span id="L1297"><span class="lineNum">    1297</span>              : </span>
+<span id="L1298"><span class="lineNum">    1298</span> <span class="tlaUNC">           0 :     return SuccessStatus;</span></span>
+<span id="L1299"><span class="lineNum">    1299</span>              : }</span>
+<span id="L1300"><span class="lineNum">    1300</span>              : </span>
+<span id="L1301"><span class="lineNum">    1301</span>              : // Is a table linear? Do not use parametric since we cannot guarantee some weird parameters resulting</span>
+<span id="L1302"><span class="lineNum">    1302</span>              : // in a linear table. This way assures it is linear in 12 bits, which should be enough in most cases.</span>
+<span id="L1303"><span class="lineNum">    1303</span> <span class="tlaUNC">           0 : cmsBool CMSEXPORT cmsIsToneCurveLinear(cmsContext ContextID, const cmsToneCurve* Curve)</span></span>
+<span id="L1304"><span class="lineNum">    1304</span>              : {</span>
+<span id="L1305"><span class="lineNum">    1305</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L1306"><span class="lineNum">    1306</span> <span class="tlaUNC">           0 :     int diff;</span></span>
+<span id="L1307"><span class="lineNum">    1307</span> <span class="tlaUNC">           0 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L1308"><span class="lineNum">    1308</span>              : </span>
+<span id="L1309"><span class="lineNum">    1309</span> <span class="tlaUNC">           0 :     _cmsAssert(Curve != NULL);</span></span>
+<span id="L1310"><span class="lineNum">    1310</span>              : </span>
+<span id="L1311"><span class="lineNum">    1311</span> <span class="tlaUNC">           0 :     for (i=0; i &lt; (int) Curve -&gt;nEntries; i++) {</span></span>
+<span id="L1312"><span class="lineNum">    1312</span>              : </span>
+<span id="L1313"><span class="lineNum">    1313</span> <span class="tlaUNC">           0 :         diff = abs((int) Curve-&gt;Table16[i] - (int) _cmsQuantizeVal(i, Curve -&gt;nEntries));</span></span>
+<span id="L1314"><span class="lineNum">    1314</span> <span class="tlaUNC">           0 :         if (diff &gt; 0x0f)</span></span>
+<span id="L1315"><span class="lineNum">    1315</span>              :             return FALSE;</span>
+<span id="L1316"><span class="lineNum">    1316</span>              :     }</span>
+<span id="L1317"><span class="lineNum">    1317</span>              : </span>
+<span id="L1318"><span class="lineNum">    1318</span>              :     return TRUE;</span>
+<span id="L1319"><span class="lineNum">    1319</span>              : }</span>
+<span id="L1320"><span class="lineNum">    1320</span>              : </span>
+<span id="L1321"><span class="lineNum">    1321</span>              : // Same, but for monotonicity</span>
+<span id="L1322"><span class="lineNum">    1322</span> <span class="tlaUNC">           0 : cmsBool  CMSEXPORT cmsIsToneCurveMonotonic(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L1323"><span class="lineNum">    1323</span>              : {</span>
+<span id="L1324"><span class="lineNum">    1324</span> <span class="tlaUNC">           0 :     cmsUInt32Number n;</span></span>
+<span id="L1325"><span class="lineNum">    1325</span> <span class="tlaUNC">           0 :     int i, last;</span></span>
+<span id="L1326"><span class="lineNum">    1326</span> <span class="tlaUNC">           0 :     cmsBool lDescending;</span></span>
+<span id="L1327"><span class="lineNum">    1327</span>              : </span>
+<span id="L1328"><span class="lineNum">    1328</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1329"><span class="lineNum">    1329</span>              : </span>
+<span id="L1330"><span class="lineNum">    1330</span>              :     // Degenerated curves are monotonic? Ok, let's pass them</span>
+<span id="L1331"><span class="lineNum">    1331</span> <span class="tlaUNC">           0 :     n = t -&gt;nEntries;</span></span>
+<span id="L1332"><span class="lineNum">    1332</span> <span class="tlaUNC">           0 :     if (n &lt; 2) return TRUE;</span></span>
+<span id="L1333"><span class="lineNum">    1333</span>              : </span>
+<span id="L1334"><span class="lineNum">    1334</span>              :     // Curve direction</span>
+<span id="L1335"><span class="lineNum">    1335</span> <span class="tlaUNC">           0 :     lDescending = cmsIsToneCurveDescending(ContextID, t);</span></span>
+<span id="L1336"><span class="lineNum">    1336</span>              : </span>
+<span id="L1337"><span class="lineNum">    1337</span> <span class="tlaUNC">           0 :     if (lDescending) {</span></span>
+<span id="L1338"><span class="lineNum">    1338</span>              : </span>
+<span id="L1339"><span class="lineNum">    1339</span> <span class="tlaUNC">           0 :         last = t -&gt;Table16[0];</span></span>
+<span id="L1340"><span class="lineNum">    1340</span>              : </span>
+<span id="L1341"><span class="lineNum">    1341</span> <span class="tlaUNC">           0 :         for (i = 1; i &lt; (int) n; i++) {</span></span>
+<span id="L1342"><span class="lineNum">    1342</span>              : </span>
+<span id="L1343"><span class="lineNum">    1343</span> <span class="tlaUNC">           0 :             if (t -&gt;Table16[i] - last &gt; 2) // We allow some ripple</span></span>
+<span id="L1344"><span class="lineNum">    1344</span>              :                 return FALSE;</span>
+<span id="L1345"><span class="lineNum">    1345</span>              :             else</span>
+<span id="L1346"><span class="lineNum">    1346</span> <span class="tlaUNC">           0 :                 last = t -&gt;Table16[i];</span></span>
+<span id="L1347"><span class="lineNum">    1347</span>              : </span>
+<span id="L1348"><span class="lineNum">    1348</span>              :         }</span>
+<span id="L1349"><span class="lineNum">    1349</span>              :     }</span>
+<span id="L1350"><span class="lineNum">    1350</span>              :     else {</span>
+<span id="L1351"><span class="lineNum">    1351</span>              : </span>
+<span id="L1352"><span class="lineNum">    1352</span> <span class="tlaUNC">           0 :         last = t -&gt;Table16[n-1];</span></span>
+<span id="L1353"><span class="lineNum">    1353</span>              : </span>
+<span id="L1354"><span class="lineNum">    1354</span> <span class="tlaUNC">           0 :         for (i = (int) n - 2; i &gt;= 0; --i) {</span></span>
+<span id="L1355"><span class="lineNum">    1355</span>              : </span>
+<span id="L1356"><span class="lineNum">    1356</span> <span class="tlaUNC">           0 :             if (t -&gt;Table16[i] - last &gt; 2)</span></span>
+<span id="L1357"><span class="lineNum">    1357</span>              :                 return FALSE;</span>
+<span id="L1358"><span class="lineNum">    1358</span>              :             else</span>
+<span id="L1359"><span class="lineNum">    1359</span> <span class="tlaUNC">           0 :                 last = t -&gt;Table16[i];</span></span>
+<span id="L1360"><span class="lineNum">    1360</span>              : </span>
+<span id="L1361"><span class="lineNum">    1361</span>              :         }</span>
+<span id="L1362"><span class="lineNum">    1362</span>              :     }</span>
+<span id="L1363"><span class="lineNum">    1363</span>              : </span>
+<span id="L1364"><span class="lineNum">    1364</span>              :     return TRUE;</span>
+<span id="L1365"><span class="lineNum">    1365</span>              : }</span>
+<span id="L1366"><span class="lineNum">    1366</span>              : </span>
+<span id="L1367"><span class="lineNum">    1367</span>              : // Same, but for descending tables</span>
+<span id="L1368"><span class="lineNum">    1368</span> <span class="tlaGNC tlaBgGNC">        9899 : cmsBool  CMSEXPORT cmsIsToneCurveDescending(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L1369"><span class="lineNum">    1369</span>              : {</span>
+<span id="L1370"><span class="lineNum">    1370</span> <span class="tlaGNC">        9899 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1371"><span class="lineNum">    1371</span> <span class="tlaGNC">        9899 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L1372"><span class="lineNum">    1372</span>              : </span>
+<span id="L1373"><span class="lineNum">    1373</span> <span class="tlaGNC">        9899 :     return t -&gt;Table16[0] &gt; t -&gt;Table16[t -&gt;nEntries-1];</span></span>
+<span id="L1374"><span class="lineNum">    1374</span>              : }</span>
+<span id="L1375"><span class="lineNum">    1375</span>              : </span>
+<span id="L1376"><span class="lineNum">    1376</span>              : </span>
+<span id="L1377"><span class="lineNum">    1377</span>              : // Another info fn: is out gamma table multisegment?</span>
+<span id="L1378"><span class="lineNum">    1378</span> <span class="tlaUNC tlaBgUNC">           0 : cmsBool  CMSEXPORT cmsIsToneCurveMultisegment(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L1379"><span class="lineNum">    1379</span>              : {</span>
+<span id="L1380"><span class="lineNum">    1380</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1381"><span class="lineNum">    1381</span> <span class="tlaUNC">           0 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L1382"><span class="lineNum">    1382</span>              : </span>
+<span id="L1383"><span class="lineNum">    1383</span> <span class="tlaUNC">           0 :     return t -&gt; nSegments &gt; 1;</span></span>
+<span id="L1384"><span class="lineNum">    1384</span>              : }</span>
+<span id="L1385"><span class="lineNum">    1385</span>              : </span>
+<span id="L1386"><span class="lineNum">    1386</span> <span class="tlaUNC">           0 : cmsInt32Number  CMSEXPORT cmsGetToneCurveParametricType(cmsContext ContextID, const cmsToneCurve* t)</span></span>
+<span id="L1387"><span class="lineNum">    1387</span>              : {</span>
+<span id="L1388"><span class="lineNum">    1388</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1389"><span class="lineNum">    1389</span> <span class="tlaUNC">           0 :     cmsUNUSED_PARAMETER(ContextID);</span></span>
+<span id="L1390"><span class="lineNum">    1390</span>              : </span>
+<span id="L1391"><span class="lineNum">    1391</span> <span class="tlaUNC">           0 :     if (t -&gt; nSegments != 1) return 0;</span></span>
+<span id="L1392"><span class="lineNum">    1392</span> <span class="tlaUNC">           0 :     return t -&gt;Segments[0].Type;</span></span>
+<span id="L1393"><span class="lineNum">    1393</span>              : }</span>
+<span id="L1394"><span class="lineNum">    1394</span>              : </span>
+<span id="L1395"><span class="lineNum">    1395</span>              : // We need accuracy this time</span>
+<span id="L1396"><span class="lineNum">    1396</span> <span class="tlaGNC tlaBgGNC">    94559086 : cmsFloat32Number CMSEXPORT cmsEvalToneCurveFloat(cmsContext ContextID, const cmsToneCurve* Curve, cmsFloat32Number v)</span></span>
+<span id="L1397"><span class="lineNum">    1397</span>              : {</span>
+<span id="L1398"><span class="lineNum">    1398</span> <span class="tlaGNC">    94559086 :     _cmsAssert(Curve != NULL);</span></span>
+<span id="L1399"><span class="lineNum">    1399</span>              : </span>
+<span id="L1400"><span class="lineNum">    1400</span>              :     // Check for 16 bits table. If so, this is a limited-precision tone curve</span>
+<span id="L1401"><span class="lineNum">    1401</span> <span class="tlaGNC">    94559086 :     if (Curve -&gt;nSegments == 0) {</span></span>
+<span id="L1402"><span class="lineNum">    1402</span>              : </span>
+<span id="L1403"><span class="lineNum">    1403</span> <span class="tlaGNC">    93830176 :         cmsUInt16Number In, Out;</span></span>
+<span id="L1404"><span class="lineNum">    1404</span>              : </span>
+<span id="L1405"><span class="lineNum">    1405</span> <span class="tlaGNC">    93830176 :         In = (cmsUInt16Number) _cmsQuickSaturateWord(v * 65535.0);</span></span>
+<span id="L1406"><span class="lineNum">    1406</span> <span class="tlaGNC">   187660352 :         Out = cmsEvalToneCurve16(ContextID, Curve, In);</span></span>
+<span id="L1407"><span class="lineNum">    1407</span>              : </span>
+<span id="L1408"><span class="lineNum">    1408</span> <span class="tlaGNC">    93830176 :         return (cmsFloat32Number) (Out / 65535.0);</span></span>
+<span id="L1409"><span class="lineNum">    1409</span>              :     }</span>
+<span id="L1410"><span class="lineNum">    1410</span>              : </span>
+<span id="L1411"><span class="lineNum">    1411</span> <span class="tlaGNC">      728910 :     return (cmsFloat32Number) EvalSegmentedFn(ContextID, Curve, v);</span></span>
+<span id="L1412"><span class="lineNum">    1412</span>              : }</span>
+<span id="L1413"><span class="lineNum">    1413</span>              : </span>
+<span id="L1414"><span class="lineNum">    1414</span>              : // We need xput over here</span>
+<span id="L1415"><span class="lineNum">    1415</span> <span class="tlaGNC">    93830176 : cmsUInt16Number CMSEXPORT cmsEvalToneCurve16(cmsContext ContextID, const cmsToneCurve* Curve, cmsUInt16Number v)</span></span>
+<span id="L1416"><span class="lineNum">    1416</span>              : {</span>
+<span id="L1417"><span class="lineNum">    1417</span> <span class="tlaGNC">    93830176 :     cmsUInt16Number out;</span></span>
+<span id="L1418"><span class="lineNum">    1418</span>              : </span>
+<span id="L1419"><span class="lineNum">    1419</span> <span class="tlaGNC">    93830176 :     _cmsAssert(Curve != NULL);</span></span>
+<span id="L1420"><span class="lineNum">    1420</span>              : </span>
+<span id="L1421"><span class="lineNum">    1421</span> <span class="tlaGNC">    93830176 :     Curve -&gt;InterpParams -&gt;Interpolation.Lerp16(ContextID, &amp;v, &amp;out, Curve -&gt;InterpParams);</span></span>
+<span id="L1422"><span class="lineNum">    1422</span> <span class="tlaGNC">    93830176 :     return out;</span></span>
+<span id="L1423"><span class="lineNum">    1423</span>              : }</span>
+<span id="L1424"><span class="lineNum">    1424</span>              : </span>
+<span id="L1425"><span class="lineNum">    1425</span>              : </span>
+<span id="L1426"><span class="lineNum">    1426</span>              : // Least squares fitting.</span>
+<span id="L1427"><span class="lineNum">    1427</span>              : // A mathematical procedure for finding the best-fitting curve to a given set of points by</span>
+<span id="L1428"><span class="lineNum">    1428</span>              : // minimizing the sum of the squares of the offsets (&quot;the residuals&quot;) of the points from the curve.</span>
+<span id="L1429"><span class="lineNum">    1429</span>              : // The sum of the squares of the offsets is used instead of the offset absolute values because</span>
+<span id="L1430"><span class="lineNum">    1430</span>              : // this allows the residuals to be treated as a continuous differentiable quantity.</span>
+<span id="L1431"><span class="lineNum">    1431</span>              : //</span>
+<span id="L1432"><span class="lineNum">    1432</span>              : // y = f(x) = x ^ g</span>
+<span id="L1433"><span class="lineNum">    1433</span>              : //</span>
+<span id="L1434"><span class="lineNum">    1434</span>              : // R  = (yi - (xi^g))</span>
+<span id="L1435"><span class="lineNum">    1435</span>              : // R2 = (yi - (xi^g))2</span>
+<span id="L1436"><span class="lineNum">    1436</span>              : // SUM R2 = SUM (yi - (xi^g))2</span>
+<span id="L1437"><span class="lineNum">    1437</span>              : //</span>
+<span id="L1438"><span class="lineNum">    1438</span>              : // dR2/dg = -2 SUM x^g log(x)(y - x^g)</span>
+<span id="L1439"><span class="lineNum">    1439</span>              : // solving for dR2/dg = 0</span>
+<span id="L1440"><span class="lineNum">    1440</span>              : //</span>
+<span id="L1441"><span class="lineNum">    1441</span>              : // g = 1/n * SUM(log(y) / log(x))</span>
+<span id="L1442"><span class="lineNum">    1442</span>              : </span>
+<span id="L1443"><span class="lineNum">    1443</span> <span class="tlaGNC">         178 : cmsFloat64Number CMSEXPORT cmsEstimateGamma(cmsContext ContextID, const cmsToneCurve* t, cmsFloat64Number Precision)</span></span>
+<span id="L1444"><span class="lineNum">    1444</span>              : {</span>
+<span id="L1445"><span class="lineNum">    1445</span> <span class="tlaGNC">         178 :     cmsFloat64Number gamma, sum, sum2;</span></span>
+<span id="L1446"><span class="lineNum">    1446</span> <span class="tlaGNC">         178 :     cmsFloat64Number n, x, y, Std;</span></span>
+<span id="L1447"><span class="lineNum">    1447</span> <span class="tlaGNC">         178 :     cmsUInt32Number i;</span></span>
+<span id="L1448"><span class="lineNum">    1448</span>              : </span>
+<span id="L1449"><span class="lineNum">    1449</span> <span class="tlaGNC">         178 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1450"><span class="lineNum">    1450</span>              : </span>
+<span id="L1451"><span class="lineNum">    1451</span> <span class="tlaGNC">         178 :     sum = sum2 = n = 0;</span></span>
+<span id="L1452"><span class="lineNum">    1452</span>              : </span>
+<span id="L1453"><span class="lineNum">    1453</span>              :     // Excluding endpoints</span>
+<span id="L1454"><span class="lineNum">    1454</span> <span class="tlaGNC">      729088 :     for (i=1; i &lt; (MAX_NODES_IN_CURVE-1); i++) {</span></span>
+<span id="L1455"><span class="lineNum">    1455</span>              : </span>
+<span id="L1456"><span class="lineNum">    1456</span> <span class="tlaGNC">      728910 :         x = (cmsFloat64Number) i / (MAX_NODES_IN_CURVE-1);</span></span>
+<span id="L1457"><span class="lineNum">    1457</span> <span class="tlaGNC">      728910 :         y = (cmsFloat64Number) cmsEvalToneCurveFloat(ContextID, t, (cmsFloat32Number) x);</span></span>
+<span id="L1458"><span class="lineNum">    1458</span>              : </span>
+<span id="L1459"><span class="lineNum">    1459</span>              :         // Avoid 7% on lower part to prevent</span>
+<span id="L1460"><span class="lineNum">    1460</span>              :         // artifacts due to linear ramps</span>
+<span id="L1461"><span class="lineNum">    1461</span>              : </span>
+<span id="L1462"><span class="lineNum">    1462</span> <span class="tlaGNC">      728910 :         if (y &gt; 0. &amp;&amp; y &lt; 1. &amp;&amp; x &gt; 0.07) {</span></span>
+<span id="L1463"><span class="lineNum">    1463</span>              : </span>
+<span id="L1464"><span class="lineNum">    1464</span> <span class="tlaGNC">      678002 :             gamma = log(y) / log(x);</span></span>
+<span id="L1465"><span class="lineNum">    1465</span> <span class="tlaGNC">      678002 :             sum  += gamma;</span></span>
+<span id="L1466"><span class="lineNum">    1466</span> <span class="tlaGNC">      678002 :             sum2 += gamma * gamma;</span></span>
+<span id="L1467"><span class="lineNum">    1467</span> <span class="tlaGNC">      678002 :             n++;</span></span>
+<span id="L1468"><span class="lineNum">    1468</span>              :         }</span>
+<span id="L1469"><span class="lineNum">    1469</span>              :     }</span>
+<span id="L1470"><span class="lineNum">    1470</span>              : </span>
+<span id="L1471"><span class="lineNum">    1471</span>              :     // Take a look on SD to see if gamma isn't exponential at all</span>
+<span id="L1472"><span class="lineNum">    1472</span> <span class="tlaGNC">         178 :     Std = sqrt((n * sum2 - sum * sum) / (n*(n-1)));</span></span>
+<span id="L1473"><span class="lineNum">    1473</span>              : </span>
+<span id="L1474"><span class="lineNum">    1474</span> <span class="tlaGNC">         178 :     if (Std &gt; Precision)</span></span>
+<span id="L1475"><span class="lineNum">    1475</span>              :         return -1.0;</span>
+<span id="L1476"><span class="lineNum">    1476</span>              : </span>
+<span id="L1477"><span class="lineNum">    1477</span> <span class="tlaGNC">         178 :     return (sum / n);   // The mean</span></span>
+<span id="L1478"><span class="lineNum">    1478</span>              : }</span>
+<span id="L1479"><span class="lineNum">    1479</span>              : </span>
+<span id="L1480"><span class="lineNum">    1480</span>              : </span>
+<span id="L1481"><span class="lineNum">    1481</span>              : // Retrieve parameters on one-segment tone curves</span>
+<span id="L1482"><span class="lineNum">    1482</span>              : </span>
+<span id="L1483"><span class="lineNum">    1483</span> <span class="tlaUNC tlaBgUNC">           0 : cmsFloat64Number* CMSEXPORT cmsGetToneCurveParams(cmsContext contextID, const cmsToneCurve* t)</span></span>
+<span id="L1484"><span class="lineNum">    1484</span>              : {</span>
+<span id="L1485"><span class="lineNum">    1485</span> <span class="tlaUNC">           0 :     _cmsAssert(t != NULL);</span></span>
+<span id="L1486"><span class="lineNum">    1486</span>              : </span>
+<span id="L1487"><span class="lineNum">    1487</span> <span class="tlaUNC">           0 :     if (t-&gt;nSegments != 1) return NULL;</span></span>
+<span id="L1488"><span class="lineNum">    1488</span> <span class="tlaUNC">           0 :     return t-&gt;Segments[0].Params;</span></span>
+<span id="L1489"><span class="lineNum">    1489</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

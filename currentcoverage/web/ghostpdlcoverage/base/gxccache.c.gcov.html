@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxccache.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxccache.c<span style="font-size: 80%;"> (source / <a href="gxccache.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">20.2&nbsp;%</td>
+            <td class="headerCovTableEntry">223</td>
+            <td class="headerCovTableEntry">45</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">50.0&nbsp;%</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">3</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Fast case character cache routines for Ghostscript library */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gx.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gpcheck.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gscencs.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxfixed.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxmatrix.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gzstate.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gzpath.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gxdevice.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gxdevmem.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gzcpath.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gxchar.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;gxfont.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;gxfcache.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;gxxfont.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;gximask.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;gscspace.h&quot;         /* for gsimage.h */</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;gsimage.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;gxhttile.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;gsptype1.h&quot;       /* for gx_dc_is_pattern1_color_with_trans */</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : /* Forward references */</span>
+<span id="L42"><span class="lineNum">      42</span>              : static byte *compress_alpha_bits(const cached_char *, gs_memory_t *);</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : /* Define a scale factor of 1. */</span>
+<span id="L45"><span class="lineNum">      45</span>              : static const gs_log2_scale_point scale_log2_1 =</span>
+<span id="L46"><span class="lineNum">      46</span>              : {0, 0};</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : void</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">      197844 : gx_compute_char_matrix(const gs_matrix *char_tm, const gs_log2_scale_point *log2_scale,</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :     float *mxx, float *mxy, float *myx, float *myy)</span>
+<span id="L51"><span class="lineNum">      51</span>              : {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">      197844 :     int scale_x = 1 &lt;&lt; log2_scale-&gt;x;</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">      197844 :     int scale_y = 1 &lt;&lt; log2_scale-&gt;y;</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">      197844 :     *mxx = char_tm-&gt;xx * scale_x;</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">      197844 :     *mxy = char_tm-&gt;xy * scale_x;</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">      197844 :     *myx = char_tm-&gt;yx * scale_y;</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">      197844 :     *myy = char_tm-&gt;yy * scale_y;</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">      197844 : }</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : </span>
+<span id="L61"><span class="lineNum">      61</span>              : void</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      197844 : gx_compute_ccache_key(gs_font * pfont, const gs_matrix *char_tm,</span></span>
+<span id="L63"><span class="lineNum">      63</span>              :     const gs_log2_scale_point *log2_scale, bool design_grid,</span>
+<span id="L64"><span class="lineNum">      64</span>              :     float *mxx, float *mxy, float *myx, float *myy)</span>
+<span id="L65"><span class="lineNum">      65</span>              : {</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">      197844 :     if (design_grid &amp;&amp;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :             (pfont-&gt;FontType == ft_TrueType || pfont-&gt;FontType == ft_CID_TrueType)) {</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :         /*</span>
+<span id="L69"><span class="lineNum">      69</span>              :          * We need a special face for this case, because the TT interpreter</span>
+<span id="L70"><span class="lineNum">      70</span>              :          * can't generate both grid_fitted and non-grid-fitted outlines</span>
+<span id="L71"><span class="lineNum">      71</span>              :          * with a same face instance. This happens due to control</span>
+<span id="L72"><span class="lineNum">      72</span>              :          * values in 'cvt' must be different.</span>
+<span id="L73"><span class="lineNum">      73</span>              :          * Since a single face satisfies all font sizes,</span>
+<span id="L74"><span class="lineNum">      74</span>              :          * we use a zero matrix as the cache entry key.</span>
+<span id="L75"><span class="lineNum">      75</span>              :          */</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         *mxx = *mxy = *myx = *myy = 0;</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :     } else</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">      197844 :         gx_compute_char_matrix(char_tm, log2_scale, mxx, mxy, myx, myy);</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">      197844 : }</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              : /* Look up, and if necessary add, a font/matrix pair in the cache */</span>
+<span id="L82"><span class="lineNum">      82</span>              : int</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">      197468 : gx_lookup_fm_pair(gs_font * pfont, const gs_matrix *char_tm,</span></span>
+<span id="L84"><span class="lineNum">      84</span>              :     const gs_log2_scale_point *log2_scale, bool design_grid, cached_fm_pair **ppair)</span>
+<span id="L85"><span class="lineNum">      85</span>              : {</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">      197468 :     float mxx, mxy, myx, myy;</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">      197468 :     gs_font *font = pfont;</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">      197468 :     register gs_font_dir *dir = font-&gt;dir;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">      197468 :     register cached_fm_pair *pair = dir-&gt;fmcache.mdata + dir-&gt;fmcache.used;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">      197468 :     int count = dir-&gt;fmcache.msize;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">      197468 :     gs_uid uid;</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">      197468 :     gx_compute_ccache_key(pfont, char_tm, log2_scale, design_grid,</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :                             &amp;mxx, &amp;mxy, &amp;myx, &amp;myy);</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">      197468 :     if (font-&gt;FontType == ft_composite || font-&gt;PaintType != 0) { /* We can't cache by UID alone. */</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC tlaBgUNC">           0 :         uid_set_invalid(&amp;uid);</span></span>
+<span id="L97"><span class="lineNum">      97</span>              :     } else {</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">      197468 :         uid = ((gs_font_base *) font)-&gt;UID;</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">      197468 :         if (uid_is_valid(&amp;uid))</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">      197468 :             font = 0;</span></span>
+<span id="L101"><span class="lineNum">     101</span>              :     }</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">      198020 :     for (;count--; pair = dir-&gt;fmcache.mdata + pair-&gt;next) {</span></span>
+<span id="L103"><span class="lineNum">     103</span>              :         /* We have either a non-zero font and an invalid UID, */</span>
+<span id="L104"><span class="lineNum">     104</span>              :         /* or a zero font and a valid UID. */</span>
+<span id="L105"><span class="lineNum">     105</span>              :         /* We have to break up the test */</span>
+<span id="L106"><span class="lineNum">     106</span>              :         /* because of a bug in the Zortech compiler. */</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">      197644 :         if (font != 0) {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">      197644 :             if (pair-&gt;font != font)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 :                 continue;</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :         } else {</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :             if (!uid_equal(&amp;pair-&gt;UID, &amp;uid) ||</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 pair-&gt;FontType != pfont-&gt;FontType</span></span>
+<span id="L113"><span class="lineNum">     113</span>              :                 )</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 continue;</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         }</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">      197644 :         if (pair-&gt;mxx == mxx &amp;&amp; pair-&gt;mxy == mxy &amp;&amp;</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">      197092 :             pair-&gt;myx == myx &amp;&amp; pair-&gt;myy == myy</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">      197092 :             &amp;&amp; pair-&gt;design_grid == design_grid) {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">      197092 :             int code;</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">      197092 :             if (pair-&gt;font == 0) {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC tlaBgUNC">           0 :                 pair-&gt;font = pfont;</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 if_debug2m('k', pfont-&gt;memory, &quot;[k]updating pair &quot;PRI_INTPTR&quot; with font &quot;PRI_INTPTR&quot;\n&quot;,</span></span>
+<span id="L124"><span class="lineNum">     124</span>              :                            (intptr_t)pair, (intptr_t)pfont);</span>
+<span id="L125"><span class="lineNum">     125</span>              :             } else {</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC tlaBgGNC">      197092 :                 if_debug2m('k', pfont-&gt;memory, &quot;[k]found pair &quot;PRI_INTPTR&quot;: font=&quot;PRI_INTPTR&quot;\n&quot;,</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :                            (intptr_t)pair, (intptr_t)pair-&gt;font);</span>
+<span id="L128"><span class="lineNum">     128</span>              :             }</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">      197092 :             code = gx_touch_fm_pair(dir, pair);</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">      197092 :             if (code &lt; 0)</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :                 return code;</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">      197092 :             code = gx_provide_fm_pair_attributes(dir, pfont, pair,</span></span>
+<span id="L133"><span class="lineNum">     133</span>              :                                 char_tm, log2_scale, design_grid);</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">      197092 :             if (code &lt; 0)</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :                 return code;</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">      197092 :             *ppair = pair;</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">      197092 :             return 0;</span></span>
+<span id="L138"><span class="lineNum">     138</span>              :         }</span>
+<span id="L139"><span class="lineNum">     139</span>              :     }</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         376 :     return gx_add_fm_pair(dir, pfont, &amp;uid, char_tm, log2_scale, design_grid, ppair);</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : }</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : /* Look up a glyph with the right depth in the cache. */</span>
+<span id="L144"><span class="lineNum">     144</span>              : /* Return the cached_char or 0. */</span>
+<span id="L145"><span class="lineNum">     145</span>              : cached_char *</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">      197468 : gx_lookup_cached_char(const gs_font * pfont, const cached_fm_pair * pair,</span></span>
+<span id="L147"><span class="lineNum">     147</span>              :                       gs_glyph glyph, int wmode, int depth,</span>
+<span id="L148"><span class="lineNum">     148</span>              :                       gs_fixed_point *subpix_origin)</span>
+<span id="L149"><span class="lineNum">     149</span>              : {</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">      197468 :     gs_font_dir *dir = pfont-&gt;dir;</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">      197468 :     uint chi = chars_head_index(glyph, pair);</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">      197468 :     register cached_char *cc;</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">      197468 :     while ((cc = dir-&gt;ccache.table[chi &amp; dir-&gt;ccache.table_mask]) != 0) {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC tlaBgUNC">           0 :         if (cc-&gt;code == glyph &amp;&amp; cc_pair(cc) == pair &amp;&amp;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :             cc-&gt;subpix_origin.x == subpix_origin-&gt;x &amp;&amp;</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :             cc-&gt;subpix_origin.y == subpix_origin-&gt;y &amp;&amp;</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :             cc-&gt;wmode == wmode &amp;&amp; cc_depth(cc) == depth</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :             ) {</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :             if_debug4m('K', pfont-&gt;memory,</span></span>
+<span id="L161"><span class="lineNum">     161</span>              :                        &quot;[K]found &quot;PRI_INTPTR&quot; (depth=%d) for glyph=0x%lx, wmode=%d\n&quot;,</span>
+<span id="L162"><span class="lineNum">     162</span>              :                        (intptr_t)cc, cc_depth(cc), (ulong)glyph, wmode);</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :             return cc;</span></span>
+<span id="L164"><span class="lineNum">     164</span>              :         }</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         chi++;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :     }</span>
+<span id="L167"><span class="lineNum">     167</span>              :     if_debug3m('K', pfont-&gt;memory, &quot;[K]not found: glyph=0x%lx, wmode=%d, depth=%d\n&quot;,</span>
+<span id="L168"><span class="lineNum">     168</span>              :               (ulong) glyph, wmode, depth);</span>
+<span id="L169"><span class="lineNum">     169</span>              :     return 0;</span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              : /* Copy a cached character to the screen. */</span>
+<span id="L173"><span class="lineNum">     173</span>              : /* Assume the caller has already done gx_color_load. */</span>
+<span id="L174"><span class="lineNum">     174</span>              : /* Return 0 if OK, 1 if we couldn't do the operation but no error */</span>
+<span id="L175"><span class="lineNum">     175</span>              : /* should be signalled, or a negative error code. */</span>
+<span id="L176"><span class="lineNum">     176</span>              : int</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 : gx_image_cached_char(register gs_show_enum * penum, register cached_char * cc)</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : {</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     register gs_gstate *pgs = penum-&gt;pgs;</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :     gx_device_color *pdevc = gs_currentdevicecolor_inline(pgs);</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     int x, y, w, h, depth;</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     gs_fixed_point pt;</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     gx_device *dev = penum-&gt;dev;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     gx_device *imaging_dev = penum-&gt;imaging_dev ? penum-&gt;imaging_dev : dev;</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :     gx_device *orig_dev = imaging_dev;</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :     gx_device_clip cdev;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :     gx_xglyph xg = cc-&gt;xglyph;</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     gx_xfont *xf;</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :     byte *bits;</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              :     /* This is only to silence a Coverity warning */</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :     cdev.target = NULL;</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     cdev.cpath = NULL;</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :   top:code = gx_path_current_point_inline(pgs, &amp;pt);</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :         return code;</span>
+<span id="L199"><span class="lineNum">     199</span>              :     /*</span>
+<span id="L200"><span class="lineNum">     200</span>              :      * If the character doesn't lie entirely within the inner</span>
+<span id="L201"><span class="lineNum">     201</span>              :      * clipping rectangle, we set up an intermediate clipping device.</span>
+<span id="L202"><span class="lineNum">     202</span>              :      * Note that if the original device implements fill_mask, we may</span>
+<span id="L203"><span class="lineNum">     203</span>              :      * never actually use the clipping device.</span>
+<span id="L204"><span class="lineNum">     204</span>              :      */</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     pt.x -= cc-&gt;offset.x + cc-&gt;subpix_origin.x;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     x = fixed2int_var_rounded(pt.x) + penum-&gt;ftx;</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     pt.y -= cc-&gt;offset.y + cc-&gt;subpix_origin.y;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     y = fixed2int_var_rounded(pt.y) + penum-&gt;fty;</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     w = cc-&gt;width;</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     h = cc-&gt;height;</span></span>
+<span id="L211"><span class="lineNum">     211</span>              : #ifdef DEBUG</span>
+<span id="L212"><span class="lineNum">     212</span>              :     if (gs_debug_c('K')) {</span>
+<span id="L213"><span class="lineNum">     213</span>              :         if (cc_has_bits(cc))</span>
+<span id="L214"><span class="lineNum">     214</span>              :             debug_dump_bitmap(penum-&gt;memory, cc_bits(cc), cc_raster(cc), h,</span>
+<span id="L215"><span class="lineNum">     215</span>              :                               &quot;[K]bits&quot;);</span>
+<span id="L216"><span class="lineNum">     216</span>              :         else</span>
+<span id="L217"><span class="lineNum">     217</span>              :             dmputs(penum-&gt;memory, &quot;[K]no bits\n&quot;);</span>
+<span id="L218"><span class="lineNum">     218</span>              :         dmlprintf3(penum-&gt;memory, &quot;[K]copying &quot;PRI_INTPTR&quot;, offset=(%g,%g)\n&quot;,</span>
+<span id="L219"><span class="lineNum">     219</span>              :                    (intptr_t) cc,</span>
+<span id="L220"><span class="lineNum">     220</span>              :                    fixed2float(-cc-&gt;offset.x),</span>
+<span id="L221"><span class="lineNum">     221</span>              :                    fixed2float(-cc-&gt;offset.y));</span>
+<span id="L222"><span class="lineNum">     222</span>              :         dmlprintf6(penum-&gt;memory, &quot;   at (%g,%g)+(%d,%d)-&gt;(%d,%d)\n&quot;,</span>
+<span id="L223"><span class="lineNum">     223</span>              :                    fixed2float(pt.x), fixed2float(pt.y),</span>
+<span id="L224"><span class="lineNum">     224</span>              :                    penum-&gt;ftx, penum-&gt;fty, x, y);</span>
+<span id="L225"><span class="lineNum">     225</span>              :     }</span>
+<span id="L226"><span class="lineNum">     226</span>              : #endif</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :     if ((x &lt; penum-&gt;ibox.p.x || x + w &gt; penum-&gt;ibox.q.x ||</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :          y &lt; penum-&gt;ibox.p.y || y + h &gt; penum-&gt;ibox.q.y) &amp;&amp;</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :         imaging_dev != (gx_device *) &amp; cdev /* might be 2nd time around */</span>
+<span id="L230"><span class="lineNum">     230</span>              :         ) {                     /* Check for the character falling entirely outside */</span>
+<span id="L231"><span class="lineNum">     231</span>              :         /* the clipping region. */</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         gx_clip_path *pcpath;</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         if (x &gt;= penum-&gt;obox.q.x || x + w &lt;= penum-&gt;obox.p.x ||</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :             y &gt;= penum-&gt;obox.q.y || y + h &lt;= penum-&gt;obox.p.y</span></span>
+<span id="L236"><span class="lineNum">     236</span>              :             )</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :             return 0;           /* nothing to do */</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         code = gx_effective_clip_path(pgs, &amp;pcpath);</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         gx_make_clip_device_on_stack(&amp;cdev, pcpath, imaging_dev);</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         imaging_dev = (gx_device *) &amp; cdev;</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if_debug0m('K', penum-&gt;memory, &quot;[K](clipping)\n&quot;);</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :     }</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     code = gx_set_dev_color(pgs);</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     if (code != 0) {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :             gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :     }</span>
+<span id="L251"><span class="lineNum">     251</span>              :     /* If an xfont can render this character, use it. */</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     if (xg != gx_no_xglyph &amp;&amp; (xf = cc_pair(cc)-&gt;xfont) != 0) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         int cx = x + fixed2int(cc-&gt;offset.x);</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         int cy = y + fixed2int(cc-&gt;offset.y);</span></span>
+<span id="L255"><span class="lineNum">     255</span>              : </span>
+<span id="L256"><span class="lineNum">     256</span>              :         /*</span>
+<span id="L257"><span class="lineNum">     257</span>              :          * Note that we prefer a 1-bit xfont implementation over</span>
+<span id="L258"><span class="lineNum">     258</span>              :          * a multi-bit cached bitmap.  Eventually we should change</span>
+<span id="L259"><span class="lineNum">     259</span>              :          * the xfont interface so it can deliver multi-bit bitmaps,</span>
+<span id="L260"><span class="lineNum">     260</span>              :          * or else implement oversampling for xfonts.</span>
+<span id="L261"><span class="lineNum">     261</span>              :          */</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         if (gs_color_writes_pure(pgs)) {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :             code = (*xf-&gt;common.procs-&gt;render_char) (xf, xg,</span></span>
+<span id="L264"><span class="lineNum">     264</span>              :                                         imaging_dev, cx, cy,</span>
+<span id="L265"><span class="lineNum">     265</span>              :                                         pdevc-&gt;colors.pure, 0);</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :             if_debug8m('K', penum-&gt;memory,</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :                        &quot;[K]render_char display: xfont=&quot;PRI_INTPTR&quot;, glyph=0x%lx\n\tdev=&quot;PRI_INTPTR&quot;(%s) x,y=%d,%d, color=0x%lx =&gt; %d\n&quot;,</span>
+<span id="L268"><span class="lineNum">     268</span>              :                        (intptr_t)xf, (ulong)xg, (intptr_t)imaging_dev,</span>
+<span id="L269"><span class="lineNum">     269</span>              :                        imaging_dev-&gt;dname, cx, cy,</span>
+<span id="L270"><span class="lineNum">     270</span>              :                        (ulong) pdevc-&gt;colors.pure, code);</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :             if (code == 0) {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                     gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 return_check_interrupt(penum-&gt;memory, 0);</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :             }</span>
+<span id="L276"><span class="lineNum">     276</span>              :         }</span>
+<span id="L277"><span class="lineNum">     277</span>              :         /* Can't render directly.  If we don't have a bitmap yet, */</span>
+<span id="L278"><span class="lineNum">     278</span>              :         /* get it from the xfont now. */</span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         if (!cc_has_bits(cc)) {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :             gx_device_memory mdev;</span></span>
+<span id="L281"><span class="lineNum">     281</span>              : </span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :             gs_make_mem_mono_device(&amp;mdev, dev-&gt;memory, imaging_dev);</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :             gx_open_cache_device(&amp;mdev, cc);</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :             code = (*xf-&gt;common.procs-&gt;render_char) (xf, xg,</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :                                        (gx_device *) &amp; mdev, cx - x, cy - y,</span>
+<span id="L286"><span class="lineNum">     286</span>              :                                                      (gx_color_index) 1, 1);</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :             if_debug7m('K', penum-&gt;memory,</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :                        &quot;[K]render_char to bits: xfont=&quot;PRI_INTPTR&quot;, glyph=0x%lx\n\tdev=&quot;PRI_INTPTR&quot;(%s) x,y=%d,%d =&gt; %d\n&quot;,</span>
+<span id="L289"><span class="lineNum">     289</span>              :                       (intptr_t)xf, (ulong) xg, (intptr_t)&amp;mdev,</span>
+<span id="L290"><span class="lineNum">     290</span>              :                       mdev.dname, cx - x, cy - y, code);</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :             if (code != 0) {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                     gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 return_check_interrupt(penum-&gt;memory, 1);</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :             }</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :             gx_add_char_bits(cc_pair(cc)-&gt;font-&gt;dir,</span></span>
+<span id="L297"><span class="lineNum">     297</span>              :                              cc, &amp;scale_log2_1);</span>
+<span id="L298"><span class="lineNum">     298</span>              :             /* gx_add_char_bits may change width, height, */</span>
+<span id="L299"><span class="lineNum">     299</span>              :             /* raster, and/or offset.  It's easiest to */</span>
+<span id="L300"><span class="lineNum">     300</span>              :             /* start over from the top.  Clear xg so that */</span>
+<span id="L301"><span class="lineNum">     301</span>              :             /* we don't waste time trying render_char again. */</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :             xg = gx_no_xglyph;</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :             goto top;</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :         }</span>
+<span id="L305"><span class="lineNum">     305</span>              :     }</span>
+<span id="L306"><span class="lineNum">     306</span>              :     /*</span>
+<span id="L307"><span class="lineNum">     307</span>              :      * No xfont.  Render from the cached bits.  If the cached bits</span>
+<span id="L308"><span class="lineNum">     308</span>              :      * have more than 1 bit of alpha, and the color isn't pure or</span>
+<span id="L309"><span class="lineNum">     309</span>              :      * the copy_alpha operation fails, construct a single-bit mask</span>
+<span id="L310"><span class="lineNum">     310</span>              :      * by taking the high-order alpha bit.</span>
+<span id="L311"><span class="lineNum">     311</span>              :      */</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     bits = cc_bits(cc);</span></span>
+<span id="L313"><span class="lineNum">     313</span>              :     /* With 4x2 scale, depth == 3.</span>
+<span id="L314"><span class="lineNum">     314</span>              :      * An example is -dTextAlphaBits=4 comparefiles/fonttest.pdf .</span>
+<span id="L315"><span class="lineNum">     315</span>              :      * We need to map 4 bitmap bits to 2 alpha bits.</span>
+<span id="L316"><span class="lineNum">     316</span>              :      */</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :     depth = (cc_depth(cc) == 3 ? 2 : cc_depth(cc));</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :     if ((dev_proc(orig_dev, fill_mask) != gx_default_fill_mask ||</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         !lop_no_S_is_T(pgs-&gt;log_op))) {</span></span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :         gx_clip_path *pcpath;</span></span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         penum-&gt;use_wxy_float = false;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         penum-&gt;wxy_float.x = penum-&gt;wxy_float.y = 0.0;</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         penum-&gt;wxy = cc-&gt;wxy;</span></span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         code = gx_effective_clip_path(pgs, &amp;pcpath);</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         if (code &gt;= 0) {</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :             code = gx_image_fill_masked</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 (orig_dev, bits, 0, cc_raster(cc), cc-&gt;id,</span></span>
+<span id="L331"><span class="lineNum">     331</span>              :                  x, y, w, h, pdevc, depth, pgs-&gt;log_op, pcpath);</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :             if (code &gt;= 0)</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 goto done;</span></span>
+<span id="L334"><span class="lineNum">     334</span>              :         }</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :     } else if (gs_color_writes_pure(pgs)) {</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         gx_color_index color = pdevc-&gt;colors.pure;</span></span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         if (depth &gt; 1) {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :             code = (*dev_proc(imaging_dev, copy_alpha))</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 (imaging_dev, bits, 0, cc_raster(cc), cc-&gt;id,</span></span>
+<span id="L341"><span class="lineNum">     341</span>              :                  x, y, w, h, color, depth);</span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :             if (code &gt;= 0)</span></span>
+<span id="L343"><span class="lineNum">     343</span>              :                 return_check_interrupt(penum-&gt;memory, 0);</span>
+<span id="L344"><span class="lineNum">     344</span>              :             /* copy_alpha failed, construct a monobit mask. */</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :             bits = compress_alpha_bits(cc, penum-&gt;memory-&gt;non_gc_memory);</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :             if (bits == 0) {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                     gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 return 1;       /* VMerror, but recoverable */</span></span>
+<span id="L350"><span class="lineNum">     350</span>              :             }</span>
+<span id="L351"><span class="lineNum">     351</span>              :         }</span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         code = (*dev_proc(imaging_dev, copy_mono))</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :             (imaging_dev, bits, 0, bitmap_raster(w), gs_no_id,</span></span>
+<span id="L354"><span class="lineNum">     354</span>              :              x, y, w, h, gx_no_color_index, color);</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         goto done;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              :     }</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :     if (depth &gt; 1) {         /* Complex color or fill_mask / copy_alpha failed, */</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :         /* construct a monobit mask. */</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         bits = compress_alpha_bits(cc, penum-&gt;memory-&gt;non_gc_memory);</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         if (bits == 0) {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :             if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :             return 1;           /* VMerror, but recoverable */</span></span>
+<span id="L364"><span class="lineNum">     364</span>              :         }</span>
+<span id="L365"><span class="lineNum">     365</span>              :     } {                         /* Use imagemask to render the character. */</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         gs_memory_t *mem = penum-&gt;memory-&gt;non_gc_memory;</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :         gs_image_enum *pie =</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :             gs_image_enum_alloc(mem, &quot;image_char(image_enum)&quot;);</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :         gs_image_t image;</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         int iy;</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         uint used, raster = (bits == cc_bits(cc) ? cc_raster(cc)</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                              : bitmap_raster(cc-&gt;width) );</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         int code1;</span></span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :         if (pie == 0) {</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :             if (bits != cc_bits(cc))</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 gs_free_object(mem, bits,</span></span>
+<span id="L378"><span class="lineNum">     378</span>              :                                &quot;compress_alpha_bits&quot;);</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :             if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                 gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :             return 1;           /* VMerror, but recoverable */</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :         }</span>
+<span id="L383"><span class="lineNum">     383</span>              :         /* Make a matrix that will place the image */</span>
+<span id="L384"><span class="lineNum">     384</span>              :         /* at (x,y) with no transformation. */</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         gs_image_t_init_mask(&amp;image, true);</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         gs_make_translation((double) - x, (double) - y, &amp;image.ImageMatrix);</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         gs_matrix_multiply(&amp;ctm_only(pgs), &amp;image.ImageMatrix, &amp;image.ImageMatrix);</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         image.Width = w;</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         image.Height = h;</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         image.adjust = false;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         code = gs_image_init(pie, &amp;image, false, true, pgs);</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         switch (code) {</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :             case 1:             /* empty image */</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 code = 0;</span></span>
+<span id="L395"><span class="lineNum">     395</span>              :             default:</span>
+<span id="L396"><span class="lineNum">     396</span>              :                 break;</span>
+<span id="L397"><span class="lineNum">     397</span>              :             case 0:</span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 for (iy = 0; iy &lt; h &amp;&amp; code &gt;= 0; iy++)</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                     code = gs_image_next(pie, bits + iy * raster,</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                                          (w + 7) &gt;&gt; 3, &amp;used);</span></span>
+<span id="L401"><span class="lineNum">     401</span>              :         }</span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         code1 = gs_image_cleanup_and_free_enum(pie, pgs);</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         if (code &gt;= 0 &amp;&amp; code1 &lt; 0)</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :             code = code1;</span></span>
+<span id="L405"><span class="lineNum">     405</span>              :     }</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :   done:if (bits != cc_bits(cc))</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         gs_free_object(penum-&gt;memory-&gt;non_gc_memory, bits, &quot;compress_alpha_bits&quot;);</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :     if (code &gt; 0)</span></span>
+<span id="L409"><span class="lineNum">     409</span>              :         code = 0;</span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :     if (imaging_dev == (gx_device *) &amp; cdev)</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         gx_destroy_clip_device_on_stack(&amp;cdev);</span></span>
+<span id="L412"><span class="lineNum">     412</span>              :     return_check_interrupt(penum-&gt;memory, code);</span>
+<span id="L413"><span class="lineNum">     413</span>              : }</span>
+<span id="L414"><span class="lineNum">     414</span>              : </span>
+<span id="L415"><span class="lineNum">     415</span>              : /* ------ Image manipulation ------ */</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              : /*</span>
+<span id="L418"><span class="lineNum">     418</span>              :  * Compress a mask with 2 or 4 bits of alpha to a monobit mask.</span>
+<span id="L419"><span class="lineNum">     419</span>              :  * Allocate and return the address of the monobit mask.</span>
+<span id="L420"><span class="lineNum">     420</span>              :  */</span>
+<span id="L421"><span class="lineNum">     421</span>              : static byte *</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 : compress_alpha_bits(const cached_char * cc, gs_memory_t * mem)</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : {</span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :     const byte *data = cc_const_bits(cc);</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :     uint width = cc-&gt;width;</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :     uint height = cc-&gt;height;</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :     /* With 4x2 scale, depth == 3.</span>
+<span id="L428"><span class="lineNum">     428</span>              :      * An example is -dTextAlphaBits=4 comparefiles/fonttest.pdf .</span>
+<span id="L429"><span class="lineNum">     429</span>              :      * We need to map 4 bitmap bits to 2 alpha bits.</span>
+<span id="L430"><span class="lineNum">     430</span>              :      */</span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :     int depth = (cc_depth(cc) == 3 ? 2 : cc_depth(cc));</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :     uint sraster = cc_raster(cc);</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :     uint sskip = sraster - ((width * depth + 7) &gt;&gt; 3);</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :     uint draster = bitmap_raster(width);</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     uint dskip = draster - ((width + 7) &gt;&gt; 3);</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :     byte *mask = gs_alloc_bytes(mem, (size_t)draster * height,</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :                                 &quot;compress_alpha_bits&quot;);</span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :     const byte *sptr = data;</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :     byte *dptr = mask;</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :     uint h;</span></span>
+<span id="L441"><span class="lineNum">     441</span>              : </span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :     if (mask == 0)</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :         return 0;</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :     for (h = height; h; --h) {</span></span>
+<span id="L445"><span class="lineNum">     445</span>              :         byte sbit = 0x80;</span>
+<span id="L446"><span class="lineNum">     446</span>              :         byte d = 0;</span>
+<span id="L447"><span class="lineNum">     447</span>              :         byte dbit = 0x80;</span>
+<span id="L448"><span class="lineNum">     448</span>              :         uint w;</span>
+<span id="L449"><span class="lineNum">     449</span>              : </span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :         for (w = width; w; --w) {</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :             if (*sptr &amp; sbit)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                 d += dbit;</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :             if (!(sbit &gt;&gt;= depth))</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :                 sbit = 0x80, sptr++;</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :             if (!(dbit &gt;&gt;= 1)) {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :                 *dptr++ = d;</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :                 dbit = 0x80, d = 0;</span></span>
+<span id="L458"><span class="lineNum">     458</span>              :             }</span>
+<span id="L459"><span class="lineNum">     459</span>              :         }</span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         if (dbit != 0x80)</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :             *dptr++ = d;</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :         for (w = dskip; w != 0; --w)</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :             *dptr++ = 0;</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         if (sbit != 0x80)</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :             ++sptr;</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         sptr += sskip;</span></span>
+<span id="L467"><span class="lineNum">     467</span>              :     }</span>
+<span id="L468"><span class="lineNum">     468</span>              :     return mask;</span>
+<span id="L469"><span class="lineNum">     469</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

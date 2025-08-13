@@ -1,0 +1,1267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/contrib/pcl3/eprn/gdeveprn.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/contrib/pcl3/eprn</a> - gdeveprn.c<span style="font-size: 80%;"> (source / <a href="gdeveprn.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">385</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /******************************************************************************</span>
+<span id="L2"><span class="lineNum">       2</span>              :   File:     $Id: gdeveprn.c,v 1.25 2001/04/30 05:15:51 Martin Rel $</span>
+<span id="L3"><span class="lineNum">       3</span>              :   Contents: Implementation of the abstract ghostscript device 'eprn':</span>
+<span id="L4"><span class="lineNum">       4</span>              :             general functions and page layout</span>
+<span id="L5"><span class="lineNum">       5</span>              :   Author:   Martin Lottermoser, Greifswaldstrasse 28, 38124 Braunschweig,</span>
+<span id="L6"><span class="lineNum">       6</span>              :             Germany. E-mail: Martin.Lottermoser@t-online.de.</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : *******************************************************************************</span>
+<span id="L9"><span class="lineNum">       9</span>              : *                                                                             *</span>
+<span id="L10"><span class="lineNum">      10</span>              : *       Copyright (C) 2000, 2001 by Martin Lottermoser                        *</span>
+<span id="L11"><span class="lineNum">      11</span>              : *       All rights reserved                                                   *</span>
+<span id="L12"><span class="lineNum">      12</span>              : *                                                                             *</span>
+<span id="L13"><span class="lineNum">      13</span>              : *******************************************************************************</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              :   Preprocessor variables:</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              :     EPRN_NO_PAGECOUNTFILE</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Define this if you do not want to use eprn's pagecount-file feature.</span>
+<span id="L19"><span class="lineNum">      19</span>              :         You very likely must define this on Microsoft Windows.</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              :     EPRN_TRACE</span>
+<span id="L22"><span class="lineNum">      22</span>              :         Define this to enable tracing. Only useful for development.</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              :     EPRN_USE_GSTATE (integer)</span>
+<span id="L25"><span class="lineNum">      25</span>              :         Define this to be non-zero if the graphics state should be accessed</span>
+<span id="L26"><span class="lineNum">      26</span>              :         directly instead of via the interpreter context state. Newer ghostscript</span>
+<span id="L27"><span class="lineNum">      27</span>              :         versions require the latter path. The default is zero unless</span>
+<span id="L28"><span class="lineNum">      28</span>              :         GS_REVISION is defined and less than 600.</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              :     GS_REVISION (integer)</span>
+<span id="L31"><span class="lineNum">      31</span>              :         If defined, this must be the ghostscript version number, e.g., 601 for</span>
+<span id="L32"><span class="lineNum">      32</span>              :         ghostscript 6.01.</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : ******************************************************************************/</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : /*****************************************************************************/</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : #ifndef _XOPEN_SOURCE</span>
+<span id="L39"><span class="lineNum">      39</span>              : #define _XOPEN_SOURCE   500</span>
+<span id="L40"><span class="lineNum">      40</span>              : #endif</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : /* Preprocessor symbol with version-dependent default */</span>
+<span id="L43"><span class="lineNum">      43</span>              : #ifndef EPRN_USE_GSTATE</span>
+<span id="L44"><span class="lineNum">      44</span>              : #if !defined(GS_REVISION) || GS_REVISION &gt;= 600</span>
+<span id="L45"><span class="lineNum">      45</span>              : #define EPRN_USE_GSTATE 0</span>
+<span id="L46"><span class="lineNum">      46</span>              : #else</span>
+<span id="L47"><span class="lineNum">      47</span>              : #define EPRN_USE_GSTATE 1</span>
+<span id="L48"><span class="lineNum">      48</span>              : #endif</span>
+<span id="L49"><span class="lineNum">      49</span>              : #endif  /* !EPRN_USE_GSTATE */</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : /*****************************************************************************/</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : /* Special Aladdin header, must be included before &lt;sys/types.h&gt; on some</span>
+<span id="L54"><span class="lineNum">      54</span>              :    platforms (e.g., FreeBSD). */</span>
+<span id="L55"><span class="lineNum">      55</span>              : #include &quot;std.h&quot;</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /* Standard headers */</span>
+<span id="L58"><span class="lineNum">      58</span>              : #include &lt;assert.h&gt;</span>
+<span id="L59"><span class="lineNum">      59</span>              : #include &lt;math.h&gt;</span>
+<span id="L60"><span class="lineNum">      60</span>              : #include &lt;string.h&gt;</span>
+<span id="L61"><span class="lineNum">      61</span>              : #include &lt;stdio.h&gt;</span>
+<span id="L62"><span class="lineNum">      62</span>              : #include &lt;stdlib.h&gt;</span>
+<span id="L63"><span class="lineNum">      63</span>              : #ifdef EPRN_TRACE</span>
+<span id="L64"><span class="lineNum">      64</span>              : #include &lt;time.h&gt;</span>
+<span id="L65"><span class="lineNum">      65</span>              : #endif  /* EPRN_TRACE */</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : /*  Ghostscript headers. With the exception of gdebug.h, these files are only</span>
+<span id="L68"><span class="lineNum">      68</span>              :     needed to compile eprn_forget_defaultmatrix() which needs the prototypes</span>
+<span id="L69"><span class="lineNum">      69</span>              :     for gs_setdefaultmatrix() (in gscoord.h) and gs_main_instance_default()</span>
+<span id="L70"><span class="lineNum">      70</span>              :     (in imain.h). Unfortunately and in disregard of good SE practice,</span>
+<span id="L71"><span class="lineNum">      71</span>              :     ghostscript's header files are not self-contained. Therefore, if this file</span>
+<span id="L72"><span class="lineNum">      72</span>              :     does not compile because of undefined symbols, just add include directives</span>
+<span id="L73"><span class="lineNum">      73</span>              :     until it does.  */</span>
+<span id="L74"><span class="lineNum">      74</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L75"><span class="lineNum">      75</span>              : #include &quot;iref.h&quot;       /* needed by icstate.h */</span>
+<span id="L76"><span class="lineNum">      76</span>              : #include &quot;gsmemraw.h&quot;   /* needed by icstate.h */</span>
+<span id="L77"><span class="lineNum">      77</span>              : #include &quot;gsmemory.h&quot;   /* needed by icstate.h */</span>
+<span id="L78"><span class="lineNum">      78</span>              : #include &quot;gstypes.h&quot;    /* needed by gsstate.h */</span>
+<span id="L79"><span class="lineNum">      79</span>              : #include &quot;gsstate.h&quot;    /* needed by icstate.h */</span>
+<span id="L80"><span class="lineNum">      80</span>              : #include &quot;icstate.h&quot;    /* for struct gs_context_state_s */</span>
+<span id="L81"><span class="lineNum">      81</span>              : #if !defined(GS_REVISION) || GS_REVISION &gt;= 700</span>
+<span id="L82"><span class="lineNum">      82</span>              : #include &quot;iapi.h&quot;       /* needed by iminst.h */</span>
+<span id="L83"><span class="lineNum">      83</span>              : #endif  /* GS_REVISION */</span>
+<span id="L84"><span class="lineNum">      84</span>              : #include &quot;iminst.h&quot;     /* for struct gs_main_instance_s */</span>
+<span id="L85"><span class="lineNum">      85</span>              : #include &quot;imain.h&quot;      /* for gs_main_instance_default() */</span>
+<span id="L86"><span class="lineNum">      86</span>              : #include &quot;gscoord.h&quot;    /* for gs_setdefaultmatrix() */</span>
+<span id="L87"><span class="lineNum">      87</span>              : #if EPRN_USE_GSTATE</span>
+<span id="L88"><span class="lineNum">      88</span>              : #include &quot;igstate.h&quot;</span>
+<span id="L89"><span class="lineNum">      89</span>              : #endif  /* EPRN_USE_GSTATE */</span>
+<span id="L90"><span class="lineNum">      90</span>              : #ifdef EPRN_TRACE</span>
+<span id="L91"><span class="lineNum">      91</span>              : #include &quot;gdebug.h&quot;</span>
+<span id="L92"><span class="lineNum">      92</span>              : #endif  /* EPRN_TRACE */</span>
+<span id="L93"><span class="lineNum">      93</span>              : #include &quot;gxstdio.h&quot;</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : /* Special headers for this device */</span>
+<span id="L96"><span class="lineNum">      96</span>              : #ifndef EPRN_NO_PAGECOUNTFILE</span>
+<span id="L97"><span class="lineNum">      97</span>              : #include &quot;pagecount.h&quot;</span>
+<span id="L98"><span class="lineNum">      98</span>              : #endif  /* EPRN_NO_PAGECOUNTFILE */</span>
+<span id="L99"><span class="lineNum">      99</span>              : #include &quot;gdeveprn.h&quot;</span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span>              : /*****************************************************************************/</span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              : /* Prefix for error messages */</span>
+<span id="L104"><span class="lineNum">     104</span>              : #define ERRPREF &quot;? eprn: &quot;</span>
+<span id="L105"><span class="lineNum">     105</span>              : </span>
+<span id="L106"><span class="lineNum">     106</span>              : </span>
+<span id="L107"><span class="lineNum">     107</span>              : /******************************************************************************</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              :   Function: eprn_get_initial_matrix</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              :   This function returns the initial matrix for the device.</span>
+<span id="L112"><span class="lineNum">     112</span>              : </span>
+<span id="L113"><span class="lineNum">     113</span>              :   The result is based on the following parameters:</span>
+<span id="L114"><span class="lineNum">     114</span>              :   - eprn: default_orientation, down_shift, right_shift, soft_tumble</span>
+<span id="L115"><span class="lineNum">     115</span>              :   - HWResolution, MediaSize, ShowpageCount</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : ******************************************************************************/</span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC tlaBgUNC">           0 : void eprn_get_initial_matrix(gx_device *device, gs_matrix *mptr)</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : {</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :   eprn_Device *dev = (eprn_Device *)device;</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :   float</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :     /*  The following two arrays are oriented w.r.t. pixmap device space, i.e.,</span>
+<span id="L124"><span class="lineNum">     124</span>              :         the index 0 refers to the x coordinate (horizontal) and the index 1 to</span>
+<span id="L125"><span class="lineNum">     125</span>              :         the y coordinate (vertical) in pixmap device space. */</span>
+<span id="L126"><span class="lineNum">     126</span>              :     extension[2],       /* media extension in pixels */</span>
+<span id="L127"><span class="lineNum">     127</span>              :     pixels_per_bp[2];   /* resolution */</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :   int</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :     j,</span>
+<span id="L130"><span class="lineNum">     130</span>              :     quarters;</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : #ifdef EPRN_TRACE</span>
+<span id="L133"><span class="lineNum">     133</span>              :   if_debug0(EPRN_TRACE_CHAR, &quot;! eprn_get_initial_matrix()...\n&quot;);</span>
+<span id="L134"><span class="lineNum">     134</span>              : #endif</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              :   /* We need 'default_orientation' and also the margins. */</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :   if (dev-&gt;eprn.code == ms_none) {</span></span>
+<span id="L138"><span class="lineNum">     138</span>              : #ifdef EPRN_TRACE</span>
+<span id="L139"><span class="lineNum">     139</span>              :     if_debug0(EPRN_TRACE_CHAR,</span>
+<span id="L140"><span class="lineNum">     140</span>              :       &quot;! eprn_get_initial_matrix(): code is still ms_none.\n&quot;);</span>
+<span id="L141"><span class="lineNum">     141</span>              : #endif</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     if (eprn_set_page_layout(dev) != 0)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :       eprintf(&quot;  Processing can't be stopped at this point although this error &quot;</span></span>
+<span id="L144"><span class="lineNum">     144</span>              :         &quot;occurred.\n&quot;);</span>
+<span id="L145"><span class="lineNum">     145</span>              :       /* The current function has a signature without the ability to signal</span>
+<span id="L146"><span class="lineNum">     146</span>              :          an error condition. */</span>
+<span id="L147"><span class="lineNum">     147</span>              :   }</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :   quarters = dev-&gt;eprn.default_orientation +</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     (dev-&gt;MediaSize[0] &lt;= dev-&gt;MediaSize[1]? 0: 1);</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :      /* Number of quarter-circle rotations by +90 degrees necessary to obtain</span>
+<span id="L152"><span class="lineNum">     152</span>              :         default user space starting with the y axis upwards in pixmap device</span>
+<span id="L153"><span class="lineNum">     153</span>              :         space.</span>
+<span id="L154"><span class="lineNum">     154</span>              :         It's not documented, but 'MediaSize' is the requested &quot;PageSize&quot; page</span>
+<span id="L155"><span class="lineNum">     155</span>              :         device parameter value and hence is to be interpreted in default (not</span>
+<span id="L156"><span class="lineNum">     156</span>              :         default default!) user space. The condition above therefore tests</span>
+<span id="L157"><span class="lineNum">     157</span>              :         whether landscape orientation has been requested.</span>
+<span id="L158"><span class="lineNum">     158</span>              :       */</span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span>              :   /* Soft tumble option: rotate default user space by 180 degrees on every</span>
+<span id="L161"><span class="lineNum">     161</span>              :      second page */</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :   if (dev-&gt;eprn.soft_tumble &amp;&amp; dev-&gt;ShowpageCount % 2 != 0) quarters += 2;</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              :   /* Prepare auxiliary data */</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :   for (j = 0; j &lt; 2; j++) pixels_per_bp[j] = dev-&gt;HWResolution[j]/BP_PER_IN;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :   /*  'HWResolution[]' contains the standard PostScript page device parameter</span>
+<span id="L167"><span class="lineNum">     167</span>              :       'HWResolution' which is defined in pixels per inch with respect to</span>
+<span id="L168"><span class="lineNum">     168</span>              :        device space. */</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :   if (quarters % 2 == 0) {</span></span>
+<span id="L170"><span class="lineNum">     170</span>              :     /* Default user space and pixmap device space agree in what is &quot;horizontal&quot;</span>
+<span id="L171"><span class="lineNum">     171</span>              :        and what is &quot;vertical&quot;. */</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     extension[0] = dev-&gt;MediaSize[0];</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     extension[1] = dev-&gt;MediaSize[1];</span></span>
+<span id="L174"><span class="lineNum">     174</span>              :   }</span>
+<span id="L175"><span class="lineNum">     175</span>              :   else {</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :     extension[0] = dev-&gt;MediaSize[1];</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     extension[1] = dev-&gt;MediaSize[0];</span></span>
+<span id="L178"><span class="lineNum">     178</span>              :   }</span>
+<span id="L179"><span class="lineNum">     179</span>              :   /* Convert from bp to pixels: */</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :   for (j = 0; j &lt; 2; j++) extension[j] *= pixels_per_bp[j];</span></span>
+<span id="L181"><span class="lineNum">     181</span>              :    /* Note that we are using the user-specified extension of the sheet, not the</span>
+<span id="L182"><span class="lineNum">     182</span>              :       &quot;official&quot; one we could obtain in most cases from 'size'. */</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :   switch (quarters % 4) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :   case 0:</span></span>
+<span id="L186"><span class="lineNum">     186</span>              :     /*  The y axis of default user space points upwards in pixmap device space.</span>
+<span id="L187"><span class="lineNum">     187</span>              :         The CTM is uniquely characterized by the following mappings from</span>
+<span id="L188"><span class="lineNum">     188</span>              :         default user space to pixmap device space:</span>
+<span id="L189"><span class="lineNum">     189</span>              :           (0, 0)                -&gt; (0, height in pixels)</span>
+<span id="L190"><span class="lineNum">     190</span>              :           (width in bp, 0)      -&gt; (width in pixels, height in pixels)</span>
+<span id="L191"><span class="lineNum">     191</span>              :           (0, height in bp)     -&gt; (0, 0)</span>
+<span id="L192"><span class="lineNum">     192</span>              :         'width' and 'height' refer to the sheet's extension as seen from pixmap</span>
+<span id="L193"><span class="lineNum">     193</span>              :         device space, i.e., width in pixels == extension[0] and</span>
+<span id="L194"><span class="lineNum">     194</span>              :         height in pixels == extension[1].</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span>              :         From the PLR we find that the CTM is a PostScript matrix</span>
+<span id="L197"><span class="lineNum">     197</span>              :         [a b c d tx ty] used for mapping user space coordinates (x, y) to</span>
+<span id="L198"><span class="lineNum">     198</span>              :         device space coordinates (x', y') as follows:</span>
+<span id="L199"><span class="lineNum">     199</span>              :           x' = a*x + c*y + tx</span>
+<span id="L200"><span class="lineNum">     200</span>              :           y' = b*x + d*y + ty</span>
+<span id="L201"><span class="lineNum">     201</span>              :         Ghostscript's matrix type 'gs_matrix' writes its structure components</span>
+<span id="L202"><span class="lineNum">     202</span>              :         'xx' etc. in storage layout order into a PostScript matrix (see</span>
+<span id="L203"><span class="lineNum">     203</span>              :         write_matrix() in iutil.c), hence we obtain by comparison with</span>
+<span id="L204"><span class="lineNum">     204</span>              :         gsmatrix.h the PostScript matrix [ xx xy yx yy tx ty ].</span>
+<span id="L205"><span class="lineNum">     205</span>              :         The correspondence can also be seen by comparison of the equations</span>
+<span id="L206"><span class="lineNum">     206</span>              :         above with the code in gs_point_transform() in gsmatrix.c.</span>
+<span id="L207"><span class="lineNum">     207</span>              :         It would, however, still be reassuring to have a corresponding</span>
+<span id="L208"><span class="lineNum">     208</span>              :         statement in ghostscript's documentation.</span>
+<span id="L209"><span class="lineNum">     209</span>              :     */</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     gx_default_get_initial_matrix(device, mptr);</span></span>
+<span id="L211"><span class="lineNum">     211</span>              :     /*  Of course, I could also set this directly:</span>
+<span id="L212"><span class="lineNum">     212</span>              :           mptr-&gt;xx = pixels_per_bp[0];</span>
+<span id="L213"><span class="lineNum">     213</span>              :           mptr-&gt;xy = 0;</span>
+<span id="L214"><span class="lineNum">     214</span>              :           mptr-&gt;yx = 0;</span>
+<span id="L215"><span class="lineNum">     215</span>              :           mptr-&gt;yy = -pixels_per_bp[1];</span>
+<span id="L216"><span class="lineNum">     216</span>              :           mptr-&gt;tx = 0;</span>
+<span id="L217"><span class="lineNum">     217</span>              :           mptr-&gt;ty = extension[1];</span>
+<span id="L218"><span class="lineNum">     218</span>              :         Doing it in this way is, however, more stable against dramatic changes</span>
+<span id="L219"><span class="lineNum">     219</span>              :         in ghostscript.</span>
+<span id="L220"><span class="lineNum">     220</span>              :     */</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     break;</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :   case 1:</span></span>
+<span id="L223"><span class="lineNum">     223</span>              :     /*  The y axis of default user space points to the left in pixmap device</span>
+<span id="L224"><span class="lineNum">     224</span>              :         space. The CTM is uniquely characterized by the following mappings from</span>
+<span id="L225"><span class="lineNum">     225</span>              :         default user space to pixmap device space:</span>
+<span id="L226"><span class="lineNum">     226</span>              :           (0, 0)                -&gt; (width in pixels, height in pixels)</span>
+<span id="L227"><span class="lineNum">     227</span>              :           (height in bp, 0)     -&gt; (width in pixels, 0)</span>
+<span id="L228"><span class="lineNum">     228</span>              :           (0, width in bp)      -&gt; (0, height in pixels)</span>
+<span id="L229"><span class="lineNum">     229</span>              :     */</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :     mptr-&gt;xx = 0;</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :     mptr-&gt;xy = -pixels_per_bp[1];</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :     mptr-&gt;yx = -pixels_per_bp[0];</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :     mptr-&gt;yy = 0;</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     mptr-&gt;tx = extension[0];</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :     mptr-&gt;ty = extension[1];</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     break;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :   case 2:</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :     /*  The y axis of default user space points downwards in pixmap device</span>
+<span id="L239"><span class="lineNum">     239</span>              :         space. The CTM is uniquely characterized by the following mappings from</span>
+<span id="L240"><span class="lineNum">     240</span>              :         default user space to pixmap device space:</span>
+<span id="L241"><span class="lineNum">     241</span>              :           (0, 0)                -&gt; (width in pixels, 0)</span>
+<span id="L242"><span class="lineNum">     242</span>              :           (width in bp, 0)      -&gt; (0, 0)</span>
+<span id="L243"><span class="lineNum">     243</span>              :           (0, height in bp)     -&gt; (width in pixels, height in pixels)</span>
+<span id="L244"><span class="lineNum">     244</span>              :     */</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     mptr-&gt;xx = -pixels_per_bp[0];</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     mptr-&gt;xy = 0;</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :     mptr-&gt;yx = 0;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :     mptr-&gt;yy = pixels_per_bp[1];</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :     mptr-&gt;tx = extension[0];</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :     mptr-&gt;ty = 0;</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :     break;</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :   case 3:</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :     /*  The y axis of default user space points to the right in pixmap device</span>
+<span id="L254"><span class="lineNum">     254</span>              :         space. The CTM is uniquely characterized by the following mappings from</span>
+<span id="L255"><span class="lineNum">     255</span>              :         default user space to pixmap device space:</span>
+<span id="L256"><span class="lineNum">     256</span>              :           (0, 0)                -&gt; (0, 0)</span>
+<span id="L257"><span class="lineNum">     257</span>              :           (height in bp, 0)     -&gt; (0, height in pixels)</span>
+<span id="L258"><span class="lineNum">     258</span>              :           (0, width in bp)      -&gt; (width in pixels, 0)</span>
+<span id="L259"><span class="lineNum">     259</span>              :     */</span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :     mptr-&gt;xx = 0;</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :     mptr-&gt;xy = pixels_per_bp[1];</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :     mptr-&gt;yx = pixels_per_bp[0];</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :     mptr-&gt;yy = 0;</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :     mptr-&gt;tx = 0;</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :     mptr-&gt;ty = 0;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     break;</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :   }</span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span>              :   /*  Finally, shift the device space origin to the top-left corner of the</span>
+<span id="L270"><span class="lineNum">     270</span>              :       printable area. I am deliberately not using the corresponding shift</span>
+<span id="L271"><span class="lineNum">     271</span>              :       feature in gx_device_set_margins() because it achieves its effect by</span>
+<span id="L272"><span class="lineNum">     272</span>              :       using the 'Margins' array which should remain at the user's disposal for</span>
+<span id="L273"><span class="lineNum">     273</span>              :       correcting misadjustments. In addition, gx_device_set_margins() will not</span>
+<span id="L274"><span class="lineNum">     274</span>              :       work correctly for quarters % 4 != 0 anyway.</span>
+<span id="L275"><span class="lineNum">     275</span>              :   */</span>
+<span id="L276"><span class="lineNum">     276</span>              :   {</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :     gs_matrix translation;</span></span>
+<span id="L278"><span class="lineNum">     278</span>              : </span>
+<span id="L279"><span class="lineNum">     279</span>              :     /*  Translation of pixmap device space origin by top and left margins in</span>
+<span id="L280"><span class="lineNum">     280</span>              :         pixmap device space */</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :     gs_make_translation(</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :       -dev-&gt;eprn.right_shift*pixels_per_bp[0],</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :       -dev-&gt;eprn.down_shift *pixels_per_bp[1],</span></span>
+<span id="L284"><span class="lineNum">     284</span>              :       &amp;translation);</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              :     /* Multiply the initial matrix from the right with the translation matrix,</span>
+<span id="L287"><span class="lineNum">     287</span>              :        i.e., in going from user to device space the translation will be applied</span>
+<span id="L288"><span class="lineNum">     288</span>              :        last. */</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :     gs_matrix_multiply(mptr, &amp;translation, mptr);</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :   }</span>
+<span id="L291"><span class="lineNum">     291</span>              : </span>
+<span id="L292"><span class="lineNum">     292</span>              : #ifdef EPRN_TRACE</span>
+<span id="L293"><span class="lineNum">     293</span>              :   if_debug6(EPRN_TRACE_CHAR, &quot;  Returning [%g %g %g %g %g %g].\n&quot;,</span>
+<span id="L294"><span class="lineNum">     294</span>              :     mptr-&gt;xx, mptr-&gt;xy, mptr-&gt;yx, mptr-&gt;yy, mptr-&gt;tx, mptr-&gt;ty);</span>
+<span id="L295"><span class="lineNum">     295</span>              : #endif</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :   return;</span></span>
+<span id="L297"><span class="lineNum">     297</span>              : }</span>
+<span id="L298"><span class="lineNum">     298</span>              : </span>
+<span id="L299"><span class="lineNum">     299</span>              : /******************************************************************************</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              :   Function: print_flags</span>
+<span id="L302"><span class="lineNum">     302</span>              : </span>
+<span id="L303"><span class="lineNum">     303</span>              :   Print a textual description of 'flags' to the error stream.</span>
+<span id="L304"><span class="lineNum">     304</span>              : </span>
+<span id="L305"><span class="lineNum">     305</span>              : ******************************************************************************/</span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 : static void print_flags(ms_MediaCode flags, const ms_Flag *user_flags)</span></span>
+<span id="L308"><span class="lineNum">     308</span>              : {</span>
+<span id="L309"><span class="lineNum">     309</span>              :   /* Non-standard flags first */</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :   if (user_flags != NULL) {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     while (user_flags-&gt;code != ms_none) {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :       if (user_flags-&gt;code &amp; flags) {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :         eprintf1(&quot;%s&quot;, user_flags-&gt;name);</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :         flags &amp;= ~user_flags-&gt;code;</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :       }</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :       user_flags++;</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :     }</span>
+<span id="L318"><span class="lineNum">     318</span>              :   }</span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span>              :   /* Standard substrings */</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :   if (flags &amp; MS_SMALL_FLAG) eprintf(MS_SMALL_STRING);</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :   if (flags &amp; MS_BIG_FLAG  ) eprintf(MS_BIG_STRING);</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :   if (flags &amp; MS_EXTRA_FLAG) eprintf(MS_EXTRA_STRING);</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :   flags &amp;= ~(MS_SMALL_FLAG | MS_BIG_FLAG | MS_EXTRA_FLAG);</span></span>
+<span id="L325"><span class="lineNum">     325</span>              : </span>
+<span id="L326"><span class="lineNum">     326</span>              :   /* Completeness check */</span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :   if (flags &amp; ~MS_TRANSVERSE_FLAG)</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     eprintf1(&quot;0x%04X&quot;, (unsigned int)(flags &amp; ~MS_TRANSVERSE_FLAG));</span></span>
+<span id="L329"><span class="lineNum">     329</span>              : </span>
+<span id="L330"><span class="lineNum">     330</span>              :   /* Standard qualifier */</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :   if (flags &amp; MS_TRANSVERSE_FLAG) eprintf(&quot;.&quot; MS_TRANSVERSE_STRING);</span></span>
+<span id="L332"><span class="lineNum">     332</span>              : </span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :   return;</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : }</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span>              : /******************************************************************************</span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span>              :   Function: eprn_flag_mismatch</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              :   This routine is called if the media size can be supported for some</span>
+<span id="L341"><span class="lineNum">     341</span>              :   combination of flags but not for that combination which has been requested.</span>
+<span id="L342"><span class="lineNum">     342</span>              :   The parameter 'no_match' indicates whether these flags are supported at all</span>
+<span id="L343"><span class="lineNum">     343</span>              :   for any of the supported sizes or not.</span>
+<span id="L344"><span class="lineNum">     344</span>              : </span>
+<span id="L345"><span class="lineNum">     345</span>              :   If the derived device has set a flag mismatch error reporting function, the</span>
+<span id="L346"><span class="lineNum">     346</span>              :   call will be passed to that function. Otherwise a general error message is</span>
+<span id="L347"><span class="lineNum">     347</span>              :   written through the graphics library's eprintf().</span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span>              : ******************************************************************************/</span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 : static void eprn_flag_mismatch(const struct s_eprn_Device *eprn,</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :   bool no_match)</span>
+<span id="L353"><span class="lineNum">     353</span>              : {</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :   if (eprn-&gt;fmr != NULL) (*eprn-&gt;fmr)(eprn, no_match);</span></span>
+<span id="L355"><span class="lineNum">     355</span>              :   else {</span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :     const char *epref = eprn-&gt;CUPS_messages? CUPS_ERRPREF: &quot;&quot;;</span></span>
+<span id="L357"><span class="lineNum">     357</span>              : </span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :     eprintf2(&quot;%s&quot; ERRPREF &quot;The %s does not support &quot;,</span></span>
+<span id="L359"><span class="lineNum">     359</span>              :       epref, eprn-&gt;cap-&gt;name);</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :     if (eprn-&gt;desired_flags == 0) eprintf(&quot;an empty set of media flags&quot;);</span></span>
+<span id="L361"><span class="lineNum">     361</span>              :     else {</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :       eprintf(&quot;the \&quot;&quot;);</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :       print_flags(eprn-&gt;desired_flags, eprn-&gt;flag_desc);</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :       eprintf(&quot;\&quot; flag(s)&quot;);</span></span>
+<span id="L365"><span class="lineNum">     365</span>              :     }</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :     eprintf1(&quot;\n%s  (ignoring presence or absence of \&quot;&quot;, epref);</span></span>
+<span id="L367"><span class="lineNum">     367</span>              :     {</span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :       ms_MediaCode optional = MS_TRANSVERSE_FLAG;</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :       if (eprn-&gt;optional_flags != NULL) {</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :         const ms_MediaCode *of = eprn-&gt;optional_flags;</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         while (*of != ms_none) optional |= *of++;</span></span>
+<span id="L372"><span class="lineNum">     372</span>              :       }</span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :       print_flags(optional, eprn-&gt;flag_desc);</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :     }</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :     eprintf(&quot;\&quot;) for &quot;);</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :     if (no_match) eprintf(&quot;any&quot;); else eprintf(&quot;this&quot;);</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :     eprintf(&quot; page size.\n&quot;);</span></span>
+<span id="L378"><span class="lineNum">     378</span>              :   }</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :   return;</span></span>
+<span id="L381"><span class="lineNum">     381</span>              : }</span>
+<span id="L382"><span class="lineNum">     382</span>              : </span>
+<span id="L383"><span class="lineNum">     383</span>              : /******************************************************************************</span>
+<span id="L384"><span class="lineNum">     384</span>              : </span>
+<span id="L385"><span class="lineNum">     385</span>              :   Function: better_flag_match</span>
+<span id="L386"><span class="lineNum">     386</span>              : </span>
+<span id="L387"><span class="lineNum">     387</span>              :   This function returns true iff the flags in 'new_code' match the requested</span>
+<span id="L388"><span class="lineNum">     388</span>              :   flags (strictly) better than those in 'old_code'.</span>
+<span id="L389"><span class="lineNum">     389</span>              : </span>
+<span id="L390"><span class="lineNum">     390</span>              : ******************************************************************************/</span>
+<span id="L391"><span class="lineNum">     391</span>              : </span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 : static bool better_flag_match(ms_MediaCode desired,</span></span>
+<span id="L393"><span class="lineNum">     393</span>              :   const ms_MediaCode *optional, ms_MediaCode old_code, ms_MediaCode new_code)</span>
+<span id="L394"><span class="lineNum">     394</span>              : {</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :   ms_MediaCode</span></span>
+<span id="L396"><span class="lineNum">     396</span>              :     old_diff,   /* difference between old flags and desired flags */</span>
+<span id="L397"><span class="lineNum">     397</span>              :     new_diff;   /* difference between new flags and desired flags */</span>
+<span id="L398"><span class="lineNum">     398</span>              : </span>
+<span id="L399"><span class="lineNum">     399</span>              :   /* Ignore the size information */</span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :   old_code = ms_flags(old_code);</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :   new_code = ms_flags(new_code);</span></span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              :   /* Determine differences to desired flags */</span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :   old_diff = old_code ^ desired;</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :   new_diff = new_code ^ desired;</span></span>
+<span id="L406"><span class="lineNum">     406</span>              : </span>
+<span id="L407"><span class="lineNum">     407</span>              :   /* Check for exact matches */</span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :   if (old_diff == 0) return false;</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :   if (new_diff == 0) return true;</span></span>
+<span id="L410"><span class="lineNum">     410</span>              : </span>
+<span id="L411"><span class="lineNum">     411</span>              :   /* Is the difference at most MS_TRANSVERSE_FLAG? */</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :   old_diff = old_diff &amp; ~MS_TRANSVERSE_FLAG;</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :   new_diff = new_diff &amp; ~MS_TRANSVERSE_FLAG;</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :   if (old_diff == 0) return false;</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :   if (new_diff == 0) return true;</span></span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              :   /* Loop over the remaining optional flags */</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :   if (optional != NULL) {</span></span>
+<span id="L419"><span class="lineNum">     419</span>              :     const ms_MediaCode *opt = optional;</span>
+<span id="L420"><span class="lineNum">     420</span>              : </span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :     while (*opt != ms_none) {</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :       old_diff = old_diff &amp; ~*opt;</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :       new_diff = new_diff &amp; ~*opt;</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :       if (old_diff == 0) {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :         if (new_diff != 0) return false;</span></span>
+<span id="L426"><span class="lineNum">     426</span>              :         /* At this point both are matches at the same level of optional flags.</span>
+<span id="L427"><span class="lineNum">     427</span>              :            Now look for the last preceding flag in which they differ. */</span>
+<span id="L428"><span class="lineNum">     428</span>              :         {</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :           ms_MediaCode diff = ms_flags(old_code ^ new_code);</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :           while (optional &lt; opt &amp;&amp; (diff &amp; *opt) == 0) opt--;</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :           if ((diff &amp; *opt) == 0) {</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :             if ((diff &amp; MS_TRANSVERSE_FLAG) == 0) return false;</span></span>
+<span id="L433"><span class="lineNum">     433</span>              :             /* old and new differ in MS_TRANSVERSE_FLAG */</span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :             return (new_code &amp; MS_TRANSVERSE_FLAG) ==</span></span>
+<span id="L435"><span class="lineNum">     435</span>              :               (desired &amp; MS_TRANSVERSE_FLAG);</span>
+<span id="L436"><span class="lineNum">     436</span>              :           }</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :           return (new_code &amp; *opt) == (desired &amp; *opt);</span></span>
+<span id="L438"><span class="lineNum">     438</span>              :         }</span>
+<span id="L439"><span class="lineNum">     439</span>              :       }</span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :       if (new_diff == 0) return true;</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :       opt++;</span></span>
+<span id="L442"><span class="lineNum">     442</span>              :     }</span>
+<span id="L443"><span class="lineNum">     443</span>              :   }</span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span>              :   return false; /* Both codes are mismatches at this point */</span>
+<span id="L446"><span class="lineNum">     446</span>              : }</span>
+<span id="L447"><span class="lineNum">     447</span>              : </span>
+<span id="L448"><span class="lineNum">     448</span>              : /******************************************************************************</span>
+<span id="L449"><span class="lineNum">     449</span>              : </span>
+<span id="L450"><span class="lineNum">     450</span>              :   Function: flag_match</span>
+<span id="L451"><span class="lineNum">     451</span>              : </span>
+<span id="L452"><span class="lineNum">     452</span>              :   This function returns true iff 'code' is an acceptable match for the flag</span>
+<span id="L453"><span class="lineNum">     453</span>              :   request.</span>
+<span id="L454"><span class="lineNum">     454</span>              : </span>
+<span id="L455"><span class="lineNum">     455</span>              : ******************************************************************************/</span>
+<span id="L456"><span class="lineNum">     456</span>              : </span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 : static bool flag_match(ms_MediaCode desired,</span></span>
+<span id="L458"><span class="lineNum">     458</span>              :   const ms_MediaCode *optional, ms_MediaCode code)</span>
+<span id="L459"><span class="lineNum">     459</span>              : {</span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :   code = (ms_flags(code) ^ desired) &amp; ~MS_TRANSVERSE_FLAG;</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :   if (code == 0) return true;</span></span>
+<span id="L462"><span class="lineNum">     462</span>              : </span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :   if (optional == NULL) return false;</span></span>
+<span id="L464"><span class="lineNum">     464</span>              : </span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :   while (*optional != ms_none &amp;&amp; code != 0) {</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :     code = code &amp; ~*optional;</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :     optional++;</span></span>
+<span id="L468"><span class="lineNum">     468</span>              :   }</span>
+<span id="L469"><span class="lineNum">     469</span>              : </span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :   return code == 0;</span></span>
+<span id="L471"><span class="lineNum">     471</span>              : }</span>
+<span id="L472"><span class="lineNum">     472</span>              : </span>
+<span id="L473"><span class="lineNum">     473</span>              : /******************************************************************************</span>
+<span id="L474"><span class="lineNum">     474</span>              : </span>
+<span id="L475"><span class="lineNum">     475</span>              :   Function: eprn_set_page_layout</span>
+<span id="L476"><span class="lineNum">     476</span>              : </span>
+<span id="L477"><span class="lineNum">     477</span>              :   This function determines media size, sheet orientation in pixmap device space,</span>
+<span id="L478"><span class="lineNum">     478</span>              :   the orientation of default user space, and the imageable area. It should be</span>
+<span id="L479"><span class="lineNum">     479</span>              :   called whenever the page device parameters &quot;PageSize&quot; and &quot;LeadingEdge&quot;,</span>
+<span id="L480"><span class="lineNum">     480</span>              :   the media flags, or the page descriptions have been changed.</span>
+<span id="L481"><span class="lineNum">     481</span>              : </span>
+<span id="L482"><span class="lineNum">     482</span>              :   The function returns zero on success and a non-zero value otherwise.</span>
+<span id="L483"><span class="lineNum">     483</span>              :   In the latter case, an error message has been issued. This can only</span>
+<span id="L484"><span class="lineNum">     484</span>              :   occur if the media size is not supported with the flags requested.</span>
+<span id="L485"><span class="lineNum">     485</span>              : </span>
+<span id="L486"><span class="lineNum">     486</span>              :   On success, the following variables in the device structure are consistent:</span>
+<span id="L487"><span class="lineNum">     487</span>              :   width, height, MediaSize[], HWMargins[], eprn.code, eprn.default_orientation,</span>
+<span id="L488"><span class="lineNum">     488</span>              :   eprn.right_shift, eprn.down_shift.</span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              : ******************************************************************************/</span>
+<span id="L491"><span class="lineNum">     491</span>              : </span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 : int eprn_set_page_layout(eprn_Device *dev)</span></span>
+<span id="L493"><span class="lineNum">     493</span>              : {</span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :   bool</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :     no_match = true,</span></span>
+<span id="L496"><span class="lineNum">     496</span>              :      /* Are the requested flags supported for some size? */</span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :     landscape = dev-&gt;MediaSize[0] &gt; dev-&gt;MediaSize[1];</span></span>
+<span id="L498"><span class="lineNum">     498</span>              :      /* It's not documented, but 'MediaSize' is the requested &quot;PageSize&quot; page</span>
+<span id="L499"><span class="lineNum">     499</span>              :         device parameter value and hence is to be interpreted in default (not</span>
+<span id="L500"><span class="lineNum">     500</span>              :         default default!) user space. */</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :   const char *epref = dev-&gt;eprn.CUPS_messages? CUPS_ERRPREF: &quot;&quot;;</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :   const eprn_CustomPageDescription</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :     *best_cmatch = NULL;        /* best custom page size match */</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :   eprn_Eprn</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :     *eprn = &amp;dev-&gt;eprn;</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :   const eprn_PageDescription</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :     *best_cdmatch = NULL,     /* best custom page size match in discrete list*/</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :     *best_dmatch = NULL,        /* best discrete match */</span></span>
+<span id="L509"><span class="lineNum">     509</span>              :     *pd;                        /* loop variable */</span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :   float</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :     /* Page width and height in bp with w &lt;= h (in a moment): */</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :     w = dev-&gt;MediaSize[0],</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :     h = dev-&gt;MediaSize[1],</span></span>
+<span id="L514"><span class="lineNum">     514</span>              :     /* pixmap device space margins in bp (canonical order): */</span>
+<span id="L515"><span class="lineNum">     515</span>              :     margins[4];</span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :   int</span></span>
+<span id="L517"><span class="lineNum">     517</span>              :     quarters;</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :   ms_MediaCode</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :     desired = eprn-&gt;desired_flags;</span></span>
+<span id="L520"><span class="lineNum">     520</span>              : </span>
+<span id="L521"><span class="lineNum">     521</span>              : #ifdef EPRN_TRACE</span>
+<span id="L522"><span class="lineNum">     522</span>              :   if_debug3(EPRN_TRACE_CHAR,</span>
+<span id="L523"><span class="lineNum">     523</span>              :     &quot;! eprn_set_page_layout(): PageSize = [%.0f %.0f], &quot;</span>
+<span id="L524"><span class="lineNum">     524</span>              :       &quot;desired_flags = 0x%04X.\n&quot;,</span>
+<span id="L525"><span class="lineNum">     525</span>              :     dev-&gt;MediaSize[0], dev-&gt;MediaSize[1], (unsigned int)desired);</span>
+<span id="L526"><span class="lineNum">     526</span>              : #endif</span>
+<span id="L527"><span class="lineNum">     527</span>              : </span>
+<span id="L528"><span class="lineNum">     528</span>              :   /* Ensure w &lt;= h */</span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :   if (w &gt; h) {</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :     float temp;</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :     temp = w; w = h; h = temp;</span></span>
+<span id="L532"><span class="lineNum">     532</span>              :     /* This has effectively split 'MediaSize[]' into 'w', 'h' and 'landscape'.</span>
+<span id="L533"><span class="lineNum">     533</span>              :      */</span>
+<span id="L534"><span class="lineNum">     534</span>              :   }</span>
+<span id="L535"><span class="lineNum">     535</span>              : </span>
+<span id="L536"><span class="lineNum">     536</span>              :   /* Initialization of primary return value */</span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :   eprn-&gt;code = ms_none;</span></span>
+<span id="L538"><span class="lineNum">     538</span>              : </span>
+<span id="L539"><span class="lineNum">     539</span>              :   /* Put the LeadingEdge value into the desired flag pattern if it's set */</span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :   if (eprn-&gt;leading_edge_set) {</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :     if (eprn-&gt;default_orientation % 2 == 0)     /* true on short edge first */</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :       desired &amp;= ~MS_TRANSVERSE_FLAG;</span></span>
+<span id="L543"><span class="lineNum">     543</span>              :     else</span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :       desired |= MS_TRANSVERSE_FLAG;</span></span>
+<span id="L545"><span class="lineNum">     545</span>              :   }</span>
+<span id="L546"><span class="lineNum">     546</span>              : </span>
+<span id="L547"><span class="lineNum">     547</span>              :   /* Find best match in discrete sizes */</span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :   if (eprn-&gt;media_overrides == NULL) pd = eprn-&gt;cap-&gt;sizes;</span></span>
+<span id="L549"><span class="lineNum">     549</span>              :   else pd = eprn-&gt;media_overrides;</span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :   while (pd-&gt;code != ms_none) {</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :     const ms_SizeDescription *ms = ms_find_size_from_code(pd-&gt;code);</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :     if (ms-&gt;dimen[0] &gt; 0.0 /* ignore variable sizes */ &amp;&amp;</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         fabs(w - ms-&gt;dimen[0])  &lt;= 5.0 &amp;&amp;</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         fabs(h - ms-&gt;dimen[1]) &lt;= 5.0) {</span></span>
+<span id="L555"><span class="lineNum">     555</span>              :        /* The size does match at 5 bp tolerance. This value has been chosen</span>
+<span id="L556"><span class="lineNum">     556</span>              :           arbitrarily to be equal to PostScript's PageSize matching tolerance</span>
+<span id="L557"><span class="lineNum">     557</span>              :           during media selection. The tolerance should really be that at which</span>
+<span id="L558"><span class="lineNum">     558</span>              :           the printer in question distinguishes between sizes or smaller than</span>
+<span id="L559"><span class="lineNum">     559</span>              :           that in order to at least prevent printing on unsupported sizes.</span>
+<span id="L560"><span class="lineNum">     560</span>              :         */</span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :       if (best_dmatch == NULL ||</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :           better_flag_match(desired, eprn-&gt;optional_flags, best_dmatch-&gt;code,</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :             pd-&gt;code))</span></span>
+<span id="L564"><span class="lineNum">     564</span>              :         best_dmatch = pd;</span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :       if (flag_match(desired, eprn-&gt;optional_flags, pd-&gt;code))</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         no_match = false;</span></span>
+<span id="L567"><span class="lineNum">     567</span>              :     }</span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :     pd++;</span></span>
+<span id="L569"><span class="lineNum">     569</span>              :   }</span>
+<span id="L570"><span class="lineNum">     570</span>              : </span>
+<span id="L571"><span class="lineNum">     571</span>              :   /* Next find the best match among the custom size descriptions */</span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :   if (eprn-&gt;cap-&gt;custom != NULL) {</span></span>
+<span id="L573"><span class="lineNum">     573</span>              :     const eprn_CustomPageDescription *cp = eprn-&gt;cap-&gt;custom;</span>
+<span id="L574"><span class="lineNum">     574</span>              : </span>
+<span id="L575"><span class="lineNum">     575</span>              :     /* First check whether the size is in the supported range */</span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :     while (cp-&gt;width_max &gt; 0.0) {</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :       if (cp-&gt;width_min  &lt;= w &amp;&amp; w &lt;= cp-&gt;width_max &amp;&amp;</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :           cp-&gt;height_min &lt;= h &amp;&amp; h &lt;= cp-&gt;height_max) {</span></span>
+<span id="L579"><span class="lineNum">     579</span>              :         /* The size does match. */</span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :         if (best_cmatch == NULL ||</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :             better_flag_match(desired, eprn-&gt;optional_flags, best_cmatch-&gt;code,</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :               cp-&gt;code))</span></span>
+<span id="L583"><span class="lineNum">     583</span>              :           best_cmatch = cp;</span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :         if (eprn-&gt;media_overrides == NULL &amp;&amp;</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :             flag_match(desired, eprn-&gt;optional_flags, cp-&gt;code))</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :           no_match = false;</span></span>
+<span id="L587"><span class="lineNum">     587</span>              :       }</span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :       cp++;</span></span>
+<span id="L589"><span class="lineNum">     589</span>              :     }</span>
+<span id="L590"><span class="lineNum">     590</span>              : </span>
+<span id="L591"><span class="lineNum">     591</span>              :     /* If we have read a media configuration file, the flags to be matched</span>
+<span id="L592"><span class="lineNum">     592</span>              :        must be sought in 'media_overrides'. */</span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 :     if (best_cmatch != NULL &amp;&amp; eprn-&gt;media_overrides != NULL) {</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC">           0 :       for (pd = eprn-&gt;media_overrides; pd-&gt;code != ms_none; pd++) {</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :         if (ms_without_flags(pd-&gt;code) == ms_CustomPageSize) {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC">           0 :           if (best_cdmatch == NULL ||</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :               better_flag_match(desired, eprn-&gt;optional_flags,</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :                 best_cdmatch-&gt;code, pd-&gt;code))</span></span>
+<span id="L599"><span class="lineNum">     599</span>              :             best_cdmatch = pd;</span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :           if (flag_match(desired, eprn-&gt;optional_flags, pd-&gt;code))</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :             no_match = false;</span></span>
+<span id="L602"><span class="lineNum">     602</span>              :         }</span>
+<span id="L603"><span class="lineNum">     603</span>              :       }</span>
+<span id="L604"><span class="lineNum">     604</span>              :     }</span>
+<span id="L605"><span class="lineNum">     605</span>              :   }</span>
+<span id="L606"><span class="lineNum">     606</span>              : </span>
+<span id="L607"><span class="lineNum">     607</span>              :   /*  Now the 'best_*match' variables indicate for each of the categories of</span>
+<span id="L608"><span class="lineNum">     608</span>              :       page descriptions to which extent the size is supported at all (non-NULL</span>
+<span id="L609"><span class="lineNum">     609</span>              :       value) and what the best flag match in the category is. Here we now check</span>
+<span id="L610"><span class="lineNum">     610</span>              :       for NULL values, i.e., size matches. */</span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :   if (best_dmatch == NULL) {</span></span>
+<span id="L612"><span class="lineNum">     612</span>              :     /* No discrete match */</span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :     if (best_cmatch == NULL) {</span></span>
+<span id="L614"><span class="lineNum">     614</span>              :       /* No match at all. */</span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :       eprintf3(&quot;%s&quot; ERRPREF</span></span>
+<span id="L616"><span class="lineNum">     616</span>              :         &quot;This document requests a page size of %.0f x %.0f bp.\n&quot;,</span>
+<span id="L617"><span class="lineNum">     617</span>              :            epref, dev-&gt;MediaSize[0], dev-&gt;MediaSize[1]);</span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :       if (eprn-&gt;cap-&gt;custom == NULL) {</span></span>
+<span id="L619"><span class="lineNum">     619</span>              :         /* The printer does not support custom page sizes */</span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC">           0 :         if (eprn-&gt;media_overrides != NULL)</span></span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaUNC">           0 :           eprintf1(</span></span>
+<span id="L622"><span class="lineNum">     622</span>              :             &quot;%s  The media configuration file does not contain an entry for &quot;</span>
+<span id="L623"><span class="lineNum">     623</span>              :               &quot; this size.\n&quot;, epref);</span>
+<span id="L624"><span class="lineNum">     624</span>              :         else</span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaUNC">           0 :           eprintf2(&quot;%s  This size is not supported by the %s.\n&quot;,</span></span>
+<span id="L626"><span class="lineNum">     626</span>              :             epref, eprn-&gt;cap-&gt;name);</span>
+<span id="L627"><span class="lineNum">     627</span>              :       }</span>
+<span id="L628"><span class="lineNum">     628</span>              :       else</span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaUNC">           0 :         eprintf3(</span></span>
+<span id="L630"><span class="lineNum">     630</span>              :           &quot;%s  This size is not supported as a discrete size and it exceeds &quot;</span>
+<span id="L631"><span class="lineNum">     631</span>              :             &quot;the\n&quot;</span>
+<span id="L632"><span class="lineNum">     632</span>              :           &quot;%s  custom page size limits for the %s.\n&quot;,</span>
+<span id="L633"><span class="lineNum">     633</span>              :           epref, epref, eprn-&gt;cap-&gt;name);</span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaUNC">           0 :       return -1;</span></span>
+<span id="L635"><span class="lineNum">     635</span>              :     }</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaUNC">           0 :     if (eprn-&gt;media_overrides != NULL &amp;&amp; best_cdmatch == NULL) {</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaUNC">           0 :       eprintf6(&quot;%s&quot; ERRPREF</span></span>
+<span id="L638"><span class="lineNum">     638</span>              :         &quot;This document requests a page size of %.0f x %.0f bp\n&quot;</span>
+<span id="L639"><span class="lineNum">     639</span>              :         &quot;%s  but there is no entry for this size in the &quot;</span>
+<span id="L640"><span class="lineNum">     640</span>              :           &quot;media configuration file\n&quot;</span>
+<span id="L641"><span class="lineNum">     641</span>              :         &quot;%s  %s.\n&quot;,</span>
+<span id="L642"><span class="lineNum">     642</span>              :         epref, dev-&gt;MediaSize[0], dev-&gt;MediaSize[1], epref, epref,</span>
+<span id="L643"><span class="lineNum">     643</span>              :         eprn-&gt;media_file);</span>
+<span id="L644"><span class="lineNum">     644</span> <span class="tlaUNC">           0 :       return -1;</span></span>
+<span id="L645"><span class="lineNum">     645</span>              :     }</span>
+<span id="L646"><span class="lineNum">     646</span>              :   }</span>
+<span id="L647"><span class="lineNum">     647</span>              :   /* Now we have: best_dmatch != NULL || best_cmatch != NULL &amp;&amp;</span>
+<span id="L648"><span class="lineNum">     648</span>              :      (eprn-&gt;media_overrides == NULL || best_cdmatch != NULL). */</span>
+<span id="L649"><span class="lineNum">     649</span>              : </span>
+<span id="L650"><span class="lineNum">     650</span>              :   /* Find a flag match among the size matches found so far */</span>
+<span id="L651"><span class="lineNum">     651</span>              :   {</span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaUNC">           0 :     ms_MediaCode custom_code = ms_none;</span></span>
+<span id="L653"><span class="lineNum">     653</span>              :       /* best custom page size match (either from cmatch or dcmatch) */</span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaUNC">           0 :     if (best_cmatch != NULL &amp;&amp;</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaUNC">           0 :         (eprn-&gt;media_overrides == NULL || best_cdmatch != NULL))</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaUNC">           0 :       custom_code = (eprn-&gt;media_overrides == NULL?</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaUNC">           0 :         best_cmatch-&gt;code: best_cdmatch-&gt;code);</span></span>
+<span id="L658"><span class="lineNum">     658</span>              : </span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaUNC">           0 :     if (best_dmatch == NULL ||</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaUNC">           0 :         (best_cmatch != NULL &amp;&amp;</span></span>
+<span id="L661"><span class="lineNum">     661</span> <span class="tlaUNC">           0 :          better_flag_match(desired, eprn-&gt;optional_flags, best_dmatch-&gt;code,</span></span>
+<span id="L662"><span class="lineNum">     662</span>              :                            custom_code))) {</span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaUNC">           0 :       if (flag_match(desired, eprn-&gt;optional_flags, custom_code)) {</span></span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaUNC">           0 :         if (eprn-&gt;media_overrides == NULL) {</span></span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaUNC">           0 :           eprn-&gt;code = best_cmatch-&gt;code;</span></span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaUNC">           0 :           margins[0] = best_cmatch-&gt;left;</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaUNC">           0 :           margins[1] = best_cmatch-&gt;bottom;</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaUNC">           0 :           margins[2] = best_cmatch-&gt;right;</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaUNC">           0 :           margins[3] = best_cmatch-&gt;top;</span></span>
+<span id="L670"><span class="lineNum">     670</span>              :         }</span>
+<span id="L671"><span class="lineNum">     671</span>              :         else {</span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :           eprn-&gt;code = best_cdmatch-&gt;code;</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :           margins[0] = best_cdmatch-&gt;left;</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaUNC">           0 :           margins[1] = best_cdmatch-&gt;bottom;</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC">           0 :           margins[2] = best_cdmatch-&gt;right;</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :           margins[3] = best_cdmatch-&gt;top;</span></span>
+<span id="L677"><span class="lineNum">     677</span>              :         }</span>
+<span id="L678"><span class="lineNum">     678</span>              :       }</span>
+<span id="L679"><span class="lineNum">     679</span>              :     }</span>
+<span id="L680"><span class="lineNum">     680</span>              :     else {</span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaUNC">           0 :       if (flag_match(desired, eprn-&gt;optional_flags, best_dmatch-&gt;code)) {</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC">           0 :         eprn-&gt;code = best_dmatch-&gt;code;</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :         margins[0] = best_dmatch-&gt;left;</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :         margins[1] = best_dmatch-&gt;bottom;</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :         margins[2] = best_dmatch-&gt;right;</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :         margins[3] = best_dmatch-&gt;top;</span></span>
+<span id="L687"><span class="lineNum">     687</span>              :       }</span>
+<span id="L688"><span class="lineNum">     688</span>              :     }</span>
+<span id="L689"><span class="lineNum">     689</span>              :   }</span>
+<span id="L690"><span class="lineNum">     690</span>              :   /* If we've found a match, 'code' is no longer 'ms_none'. */</span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :   if (eprn-&gt;code == ms_none) {</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 :     eprn_flag_mismatch(eprn, no_match);</span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :     return -1;</span></span>
+<span id="L694"><span class="lineNum">     694</span>              :   }</span>
+<span id="L695"><span class="lineNum">     695</span>              : </span>
+<span id="L696"><span class="lineNum">     696</span>              :   /* Adapt the orientation of default default user space if not prescribed */</span>
+<span id="L697"><span class="lineNum">     697</span> <span class="tlaUNC">           0 :   if (!eprn-&gt;leading_edge_set) {</span></span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaUNC">           0 :     if (eprn-&gt;code &amp; MS_TRANSVERSE_FLAG) eprn-&gt;default_orientation = 3;</span></span>
+<span id="L699"><span class="lineNum">     699</span>              :      /* This leads to 0 if landscape orientation is requested. */</span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaUNC">           0 :     else eprn-&gt;default_orientation = 0;</span></span>
+<span id="L701"><span class="lineNum">     701</span>              :   }</span>
+<span id="L702"><span class="lineNum">     702</span>              : </span>
+<span id="L703"><span class="lineNum">     703</span>              :   /*</span>
+<span id="L704"><span class="lineNum">     704</span>              :     Now 'eprn-&gt;default_orientation % 2' describes the sheet's orientation in</span>
+<span id="L705"><span class="lineNum">     705</span>              :     pixmap device space. If this does not agree with the width and height</span>
+<span id="L706"><span class="lineNum">     706</span>              :     values in the device instance, we'll have to adapt them.</span>
+<span id="L707"><span class="lineNum">     707</span>              :     This is only necessary if there is a significant difference between width</span>
+<span id="L708"><span class="lineNum">     708</span>              :     and height.</span>
+<span id="L709"><span class="lineNum">     709</span>              :    */</span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :   if (fabs(w - h) &gt; 1 /* arbitrary */ &amp;&amp;</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :     (eprn-&gt;default_orientation % 2 == 0) !=</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 :         (dev-&gt;width/dev-&gt;HWResolution[0] &lt;= dev-&gt;height/dev-&gt;HWResolution[1])) {</span></span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :     bool reallocate = false;</span></span>
+<span id="L714"><span class="lineNum">     714</span>              : </span>
+<span id="L715"><span class="lineNum">     715</span>              : #ifdef EPRN_TRACE</span>
+<span id="L716"><span class="lineNum">     716</span>              :     if_debug0(EPRN_TRACE_CHAR,</span>
+<span id="L717"><span class="lineNum">     717</span>              :       &quot;! eprn_set_page_layout(): width-height change is necessary.\n&quot;);</span>
+<span id="L718"><span class="lineNum">     718</span>              : #endif</span>
+<span id="L719"><span class="lineNum">     719</span>              : </span>
+<span id="L720"><span class="lineNum">     720</span>              :     /* Free old storage if the device is open */</span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :     if (dev-&gt;is_open) {</span></span>
+<span id="L722"><span class="lineNum">     722</span>              : #ifdef EPRN_TRACE</span>
+<span id="L723"><span class="lineNum">     723</span>              :       if_debug0(EPRN_TRACE_CHAR, &quot;! eprn_set_page_layout(): Device is open.\n&quot;);</span>
+<span id="L724"><span class="lineNum">     724</span>              : #endif</span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :       reallocate = true;</span></span>
+<span id="L726"><span class="lineNum">     726</span>              :        /* One could try and call the allocation/reallocation routines of the</span>
+<span id="L727"><span class="lineNum">     727</span>              :           prn device directly, but they are not available in older ghostscript</span>
+<span id="L728"><span class="lineNum">     728</span>              :           versions and this method is safer anyway because it relies on a</span>
+<span id="L729"><span class="lineNum">     729</span>              :           documented API. */</span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :       gdev_prn_close((gx_device *)dev);         /* ignore the result */</span></span>
+<span id="L731"><span class="lineNum">     731</span>              :     }</span>
+<span id="L732"><span class="lineNum">     732</span>              : </span>
+<span id="L733"><span class="lineNum">     733</span>              :     /*  Now set width and height via gx_device_set_media_size(). This function</span>
+<span id="L734"><span class="lineNum">     734</span>              :         sets 'MediaSize[]', 'width', and 'height' based on the assumption that</span>
+<span id="L735"><span class="lineNum">     735</span>              :         default user space has a y axis which is vertical in pixmap device</span>
+<span id="L736"><span class="lineNum">     736</span>              :         space. This may be wrong and we have to fix it. Because fixing</span>
+<span id="L737"><span class="lineNum">     737</span>              :         'MediaSize[]' is simpler, gx_device_set_media_size() is called such</span>
+<span id="L738"><span class="lineNum">     738</span>              :         that it gives the correct values for 'width' and 'height'. */</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :     if (eprn-&gt;default_orientation % 2 == 0) {</span></span>
+<span id="L740"><span class="lineNum">     740</span>              :       /* portrait orientation of the sheet in pixmap device space */</span>
+<span id="L741"><span class="lineNum">     741</span> <span class="tlaUNC">           0 :       gx_device_set_media_size((gx_device *)dev, w, h);</span></span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaUNC">           0 :       if (landscape) {</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaUNC">           0 :         dev-&gt;MediaSize[0] = h;</span></span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaUNC">           0 :         dev-&gt;MediaSize[1] = w;</span></span>
+<span id="L745"><span class="lineNum">     745</span>              :       }</span>
+<span id="L746"><span class="lineNum">     746</span>              :     }</span>
+<span id="L747"><span class="lineNum">     747</span>              :     else {</span>
+<span id="L748"><span class="lineNum">     748</span>              :       /* landscape orientation in pixmap device space (transverse) */</span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 :       gx_device_set_media_size((gx_device *)dev, h, w);</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC">           0 :       if (!landscape) {</span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :         dev-&gt;MediaSize[0] = w;</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :         dev-&gt;MediaSize[1] = h;</span></span>
+<span id="L753"><span class="lineNum">     753</span>              :       }</span>
+<span id="L754"><span class="lineNum">     754</span>              :     }</span>
+<span id="L755"><span class="lineNum">     755</span>              : </span>
+<span id="L756"><span class="lineNum">     756</span>              :     /* If the device is/was open, reallocate storage */</span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaUNC">           0 :     if (reallocate) {</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :       int rc;</span></span>
+<span id="L759"><span class="lineNum">     759</span>              : </span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :       rc = gdev_prn_open((gx_device *)dev);</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaUNC">           0 :       if (rc &lt; 0) {</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :         eprintf2(&quot;%s&quot; ERRPREF</span></span>
+<span id="L763"><span class="lineNum">     763</span>              :           &quot;Failure of gdev_prn_open(), code is %d.\n&quot;,</span>
+<span id="L764"><span class="lineNum">     764</span>              :           epref, rc);</span>
+<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 :         return rc;</span></span>
+<span id="L766"><span class="lineNum">     766</span>              :       }</span>
+<span id="L767"><span class="lineNum">     767</span>              :     }</span>
+<span id="L768"><span class="lineNum">     768</span>              :   }</span>
+<span id="L769"><span class="lineNum">     769</span>              : </span>
+<span id="L770"><span class="lineNum">     770</span>              :   /* Increase the bottom margin for coloured modes except if it is exactly</span>
+<span id="L771"><span class="lineNum">     771</span>              :      zero */</span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :   if (eprn-&gt;colour_model != eprn_DeviceGray &amp;&amp; margins[1] != 0.0)</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :     margins[1] += eprn-&gt;cap-&gt;bottom_increment;</span></span>
+<span id="L774"><span class="lineNum">     774</span>              : </span>
+<span id="L775"><span class="lineNum">     775</span>              :   /* Number of +90-degree rotations needed for default user space: */</span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :   quarters = eprn-&gt;default_orientation;</span></span>
+<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 :   if (landscape) quarters = (quarters + 1)%4;</span></span>
+<span id="L778"><span class="lineNum">     778</span>              : </span>
+<span id="L779"><span class="lineNum">     779</span>              :   /* Store the top and left margins in the device structure for use by</span>
+<span id="L780"><span class="lineNum">     780</span>              :      eprn_get_initial_matrix() and set the margins of the printable area if</span>
+<span id="L781"><span class="lineNum">     781</span>              :      we may.</span>
+<span id="L782"><span class="lineNum">     782</span>              :      gx_device_set_margins() (see gsdevice.c) copies the margins[] array to</span>
+<span id="L783"><span class="lineNum">     783</span>              :      HWMargins[] which is presumably to be interpreted in default user space</span>
+<span id="L784"><span class="lineNum">     784</span>              :      (see gs_initclip() in gspath.c), and if its second argument is true it</span>
+<span id="L785"><span class="lineNum">     785</span>              :      also modifies the offset variable Margins[]. The first property means</span>
+<span id="L786"><span class="lineNum">     786</span>              :      that gx_device_set_margins() can only be used if default user space and</span>
+<span id="L787"><span class="lineNum">     787</span>              :      pixmap device space have the same &quot;up&quot; direction, and the second</span>
+<span id="L788"><span class="lineNum">     788</span>              :      appropriates a parameter which is intended for the user.</span>
+<span id="L789"><span class="lineNum">     789</span>              :   */</span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :   if (eprn-&gt;keep_margins) {</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :     eprn-&gt;down_shift  = dev-&gt;HWMargins[3 - quarters];</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :     eprn-&gt;right_shift = dev-&gt;HWMargins[(4 - quarters)%4];</span></span>
+<span id="L793"><span class="lineNum">     793</span>              :   }</span>
+<span id="L794"><span class="lineNum">     794</span>              :   else {</span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :     int j;</span></span>
+<span id="L796"><span class="lineNum">     796</span>              : </span>
+<span id="L797"><span class="lineNum">     797</span> <span class="tlaUNC">           0 :     eprn-&gt;down_shift  = margins[3];</span></span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC">           0 :     eprn-&gt;right_shift = margins[0];</span></span>
+<span id="L799"><span class="lineNum">     799</span>              : </span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :     if (quarters != 0) {</span></span>
+<span id="L801"><span class="lineNum">     801</span>              :        /* The &quot;canonical margin order&quot; for ghostscript is left, bottom, right,</span>
+<span id="L802"><span class="lineNum">     802</span>              :           top. Hence for, e.g., a +90-degree rotation ('quarters' is 1) of</span>
+<span id="L803"><span class="lineNum">     803</span>              :           default user space with respect to pixmap device space the left</span>
+<span id="L804"><span class="lineNum">     804</span>              :           margin (index 0) in default user space is actually the bottom margin</span>
+<span id="L805"><span class="lineNum">     805</span>              :           (index 1) in pixmap device space, the bottom margin is the right one,</span>
+<span id="L806"><span class="lineNum">     806</span>              :           etc.</span>
+<span id="L807"><span class="lineNum">     807</span>              :         */</span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :       for (j = 0; j &lt; 4; j++) dev-&gt;HWMargins[j] = margins[(j+quarters)%4];</span></span>
+<span id="L809"><span class="lineNum">     809</span>              :       /* 'HWMargins[]' is in bp (see gxdevcli.h) */</span>
+<span id="L810"><span class="lineNum">     810</span>              :     }</span>
+<span id="L811"><span class="lineNum">     811</span>              :     else {</span>
+<span id="L812"><span class="lineNum">     812</span>              :       /* Convert to inches */</span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :       for (j = 0; j &lt; 4; j++) margins[j] /= BP_PER_IN;</span></span>
+<span id="L814"><span class="lineNum">     814</span>              : </span>
+<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :       gx_device_set_margins((gx_device *)dev, margins, false);</span></span>
+<span id="L816"><span class="lineNum">     816</span>              :        /* Of course, I could set HWMargins[] directly also in this case. This</span>
+<span id="L817"><span class="lineNum">     817</span>              :           way is however less prone to break on possible future incompatible</span>
+<span id="L818"><span class="lineNum">     818</span>              :           changes to ghostscript and it covers the most frequent case (portrait</span>
+<span id="L819"><span class="lineNum">     819</span>              :           and short edge first). */</span>
+<span id="L820"><span class="lineNum">     820</span>              :     }</span>
+<span id="L821"><span class="lineNum">     821</span>              :   }</span>
+<span id="L822"><span class="lineNum">     822</span>              : </span>
+<span id="L823"><span class="lineNum">     823</span>              :   return 0;</span>
+<span id="L824"><span class="lineNum">     824</span>              : }</span>
+<span id="L825"><span class="lineNum">     825</span>              : </span>
+<span id="L826"><span class="lineNum">     826</span>              : /******************************************************************************</span>
+<span id="L827"><span class="lineNum">     827</span>              : </span>
+<span id="L828"><span class="lineNum">     828</span>              :   Function: eprn_init_device</span>
+<span id="L829"><span class="lineNum">     829</span>              : </span>
+<span id="L830"><span class="lineNum">     830</span>              :   This function sets 'cap' to 'desc' and all device parameters which are</span>
+<span id="L831"><span class="lineNum">     831</span>              :   modified through the put_params routines to default values. The resolution is</span>
+<span id="L832"><span class="lineNum">     832</span>              :   left at its old value (and don't ask me why or I'll start to whimper). If the</span>
+<span id="L833"><span class="lineNum">     833</span>              :   device is open when this function is called the device will be closed</span>
+<span id="L834"><span class="lineNum">     834</span>              :   afterwards.</span>
+<span id="L835"><span class="lineNum">     835</span>              : </span>
+<span id="L836"><span class="lineNum">     836</span>              :   'desc' may not be NULL.</span>
+<span id="L837"><span class="lineNum">     837</span>              : </span>
+<span id="L838"><span class="lineNum">     838</span>              : ******************************************************************************/</span>
+<span id="L839"><span class="lineNum">     839</span>              : </span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaUNC">           0 : int eprn_init_device(eprn_Device *dev, const eprn_PrinterDescription *desc)</span></span>
+<span id="L841"><span class="lineNum">     841</span>              : {</span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaUNC">           0 :   eprn_Eprn *eprn = &amp;dev-&gt;eprn;</span></span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 :   int j;</span></span>
+<span id="L844"><span class="lineNum">     844</span> <span class="tlaUNC">           0 :   float hres, vres;</span></span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaUNC">           0 :   int code;</span></span>
+<span id="L846"><span class="lineNum">     846</span>              : </span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :   if (dev-&gt;is_open) gs_closedevice((gx_device *)dev);</span></span>
+<span id="L848"><span class="lineNum">     848</span>              : </span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :   assert(desc != NULL);</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC">           0 :   eprn-&gt;cap = desc;</span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :   eprn_set_media_data(dev, NULL, 0);</span></span>
+<span id="L852"><span class="lineNum">     852</span>              : </span>
+<span id="L853"><span class="lineNum">     853</span>              :   /* The media flags are retained because they have not been prescribed by the</span>
+<span id="L854"><span class="lineNum">     854</span>              :      user directly in contact with eprn but are completely under the control</span>
+<span id="L855"><span class="lineNum">     855</span>              :      of the derived device. */</span>
+<span id="L856"><span class="lineNum">     856</span>              : </span>
+<span id="L857"><span class="lineNum">     857</span> <span class="tlaUNC">           0 :   eprn-&gt;code = ms_none;</span></span>
+<span id="L858"><span class="lineNum">     858</span> <span class="tlaUNC">           0 :   eprn-&gt;leading_edge_set = false;</span></span>
+<span id="L859"><span class="lineNum">     859</span> <span class="tlaUNC">           0 :   eprn-&gt;right_shift = 0;</span></span>
+<span id="L860"><span class="lineNum">     860</span> <span class="tlaUNC">           0 :   eprn-&gt;down_shift = 0;</span></span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 :   eprn-&gt;keep_margins = false;</span></span>
+<span id="L862"><span class="lineNum">     862</span> <span class="tlaUNC">           0 :   eprn-&gt;soft_tumble = false;</span></span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :   for (j = 0; j &lt; 4; j++) dev-&gt;HWMargins[j] = 0;</span></span>
+<span id="L864"><span class="lineNum">     864</span>              : </span>
+<span id="L865"><span class="lineNum">     865</span>              :   /* Set to default colour state, ignoring request failures */</span>
+<span id="L866"><span class="lineNum">     866</span> <span class="tlaUNC">           0 :   eprn-&gt;colour_model = eprn_DeviceGray;</span></span>
+<span id="L867"><span class="lineNum">     867</span> <span class="tlaUNC">           0 :   eprn-&gt;black_levels = 2;</span></span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC">           0 :   eprn-&gt;non_black_levels = 0;</span></span>
+<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :   eprn-&gt;intensity_rendering = eprn_IR_halftones;</span></span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :   hres = dev-&gt;HWResolution[0];</span></span>
+<span id="L871"><span class="lineNum">     871</span> <span class="tlaUNC">           0 :   vres = dev-&gt;HWResolution[1];</span></span>
+<span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :   code = eprn_check_colour_info(desc-&gt;colour_info, &amp;eprn-&gt;colour_model,</span></span>
+<span id="L873"><span class="lineNum">     873</span>              :       &amp;hres, &amp;vres, &amp;eprn-&gt;black_levels, &amp;eprn-&gt;non_black_levels);</span>
+<span id="L874"><span class="lineNum">     874</span> <span class="tlaUNC">           0 :   if (code) {</span></span>
+<span id="L875"><span class="lineNum">     875</span>              :     return code;</span>
+<span id="L876"><span class="lineNum">     876</span>              :   }</span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaUNC">           0 :   if (eprn-&gt;pagecount_file != NULL) {</span></span>
+<span id="L878"><span class="lineNum">     878</span> <span class="tlaUNC">           0 :     gs_free(dev-&gt;memory-&gt;non_gc_memory, eprn-&gt;pagecount_file, strlen(eprn-&gt;pagecount_file) + 1,</span></span>
+<span id="L879"><span class="lineNum">     879</span>              :       sizeof(char), &quot;eprn_init_device&quot;);</span>
+<span id="L880"><span class="lineNum">     880</span> <span class="tlaUNC">           0 :     eprn-&gt;pagecount_file = NULL;</span></span>
+<span id="L881"><span class="lineNum">     881</span>              :   }</span>
+<span id="L882"><span class="lineNum">     882</span>              : </span>
+<span id="L883"><span class="lineNum">     883</span> <span class="tlaUNC">           0 :   eprn-&gt;media_position_set = false;</span></span>
+<span id="L884"><span class="lineNum">     884</span>              : </span>
+<span id="L885"><span class="lineNum">     885</span> <span class="tlaUNC">           0 :   return 0;</span></span>
+<span id="L886"><span class="lineNum">     886</span>              : }</span>
+<span id="L887"><span class="lineNum">     887</span>              : </span>
+<span id="L888"><span class="lineNum">     888</span>              : /******************************************************************************</span>
+<span id="L889"><span class="lineNum">     889</span>              : </span>
+<span id="L890"><span class="lineNum">     890</span>              :   Function: eprn_set_media_flags</span>
+<span id="L891"><span class="lineNum">     891</span>              : </span>
+<span id="L892"><span class="lineNum">     892</span>              : ******************************************************************************/</span>
+<span id="L893"><span class="lineNum">     893</span>              : </span>
+<span id="L894"><span class="lineNum">     894</span> <span class="tlaUNC">           0 : void eprn_set_media_flags(eprn_Device *dev, ms_MediaCode desired,</span></span>
+<span id="L895"><span class="lineNum">     895</span>              :   const ms_MediaCode *optional)</span>
+<span id="L896"><span class="lineNum">     896</span>              : {</span>
+<span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :   dev-&gt;eprn.code = ms_none;</span></span>
+<span id="L898"><span class="lineNum">     898</span>              : </span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :   dev-&gt;eprn.desired_flags = desired;</span></span>
+<span id="L900"><span class="lineNum">     900</span> <span class="tlaUNC">           0 :   dev-&gt;eprn.optional_flags = optional;</span></span>
+<span id="L901"><span class="lineNum">     901</span>              : </span>
+<span id="L902"><span class="lineNum">     902</span> <span class="tlaUNC">           0 :   return;</span></span>
+<span id="L903"><span class="lineNum">     903</span>              : }</span>
+<span id="L904"><span class="lineNum">     904</span>              : </span>
+<span id="L905"><span class="lineNum">     905</span>              : /******************************************************************************</span>
+<span id="L906"><span class="lineNum">     906</span>              : </span>
+<span id="L907"><span class="lineNum">     907</span>              :   Function: eprn_open_device</span>
+<span id="L908"><span class="lineNum">     908</span>              : </span>
+<span id="L909"><span class="lineNum">     909</span>              :   This function &quot;opens&quot; the device. According to Drivers.htm, the 'open_device'</span>
+<span id="L910"><span class="lineNum">     910</span>              :   functions are called before any output is sent to the device, and they must</span>
+<span id="L911"><span class="lineNum">     911</span>              :   ensure that the device instance is valid, possibly by doing suitable</span>
+<span id="L912"><span class="lineNum">     912</span>              :   initialization.</span>
+<span id="L913"><span class="lineNum">     913</span>              : </span>
+<span id="L914"><span class="lineNum">     914</span>              :   This particular implementation also checks whether the requested page size</span>
+<span id="L915"><span class="lineNum">     915</span>              :   is supported by the printer. This discovery must, unfortunately, be</span>
+<span id="L916"><span class="lineNum">     916</span>              :   delayed until the moment this function is called. Note that this also implies</span>
+<span id="L917"><span class="lineNum">     917</span>              :   that various eprn parameters depending on the page size (e.g., 'eprn.code')</span>
+<span id="L918"><span class="lineNum">     918</span>              :   can be relied upon to have valid values only after the device has been</span>
+<span id="L919"><span class="lineNum">     919</span>              :   successfully opened. The same applies to rendering parameters.</span>
+<span id="L920"><span class="lineNum">     920</span>              : </span>
+<span id="L921"><span class="lineNum">     921</span>              :   This function also opens the parts defined by base classes.</span>
+<span id="L922"><span class="lineNum">     922</span>              : </span>
+<span id="L923"><span class="lineNum">     923</span>              :   The function returns zero on success and a ghostscript error value otherwise.</span>
+<span id="L924"><span class="lineNum">     924</span>              : </span>
+<span id="L925"><span class="lineNum">     925</span>              : ******************************************************************************/</span>
+<span id="L926"><span class="lineNum">     926</span>              : </span>
+<span id="L927"><span class="lineNum">     927</span> <span class="tlaUNC">           0 : int eprn_open_device(gx_device *device)</span></span>
+<span id="L928"><span class="lineNum">     928</span>              : {</span>
+<span id="L929"><span class="lineNum">     929</span> <span class="tlaUNC">           0 :   eprn_Eprn *eprn = &amp;((eprn_Device *)device)-&gt;eprn;</span></span>
+<span id="L930"><span class="lineNum">     930</span> <span class="tlaUNC">           0 :   const char *epref = eprn-&gt;CUPS_messages? CUPS_ERRPREF: &quot;&quot;;</span></span>
+<span id="L931"><span class="lineNum">     931</span> <span class="tlaUNC">           0 :   int rc;</span></span>
+<span id="L932"><span class="lineNum">     932</span>              : </span>
+<span id="L933"><span class="lineNum">     933</span>              : #ifdef EPRN_TRACE</span>
+<span id="L934"><span class="lineNum">     934</span>              :   if_debug0(EPRN_TRACE_CHAR, &quot;! eprn_open_device()...\n&quot;);</span>
+<span id="L935"><span class="lineNum">     935</span>              : #endif</span>
+<span id="L936"><span class="lineNum">     936</span>              : </span>
+<span id="L937"><span class="lineNum">     937</span>              :   /* Checks on page size and determination of derived values */</span>
+<span id="L938"><span class="lineNum">     938</span> <span class="tlaUNC">           0 :   if (eprn_set_page_layout((eprn_Device *)device) != 0)</span></span>
+<span id="L939"><span class="lineNum">     939</span>              :     return_error(gs_error_rangecheck);</span>
+<span id="L940"><span class="lineNum">     940</span>              : </span>
+<span id="L941"><span class="lineNum">     941</span>              :   /* Check the rendering parameters */</span>
+<span id="L942"><span class="lineNum">     942</span> <span class="tlaUNC">           0 :   if (eprn_check_colour_info(eprn-&gt;cap-&gt;colour_info, &amp;eprn-&gt;colour_model,</span></span>
+<span id="L943"><span class="lineNum">     943</span>              :       &amp;device-&gt;HWResolution[0], &amp;device-&gt;HWResolution[1],</span>
+<span id="L944"><span class="lineNum">     944</span>              :       &amp;eprn-&gt;black_levels, &amp;eprn-&gt;non_black_levels) != 0) {</span>
+<span id="L945"><span class="lineNum">     945</span> <span class="tlaUNC">           0 :     gs_param_string str;</span></span>
+<span id="L946"><span class="lineNum">     946</span>              : </span>
+<span id="L947"><span class="lineNum">     947</span> <span class="tlaUNC">           0 :     eprintf1(&quot;%s&quot; ERRPREF &quot;The requested combination of colour model (&quot;,</span></span>
+<span id="L948"><span class="lineNum">     948</span>              :       epref);</span>
+<span id="L949"><span class="lineNum">     949</span> <span class="tlaUNC">           0 :     str.size = 0;</span></span>
+<span id="L950"><span class="lineNum">     950</span> <span class="tlaUNC">           0 :     if (eprn_get_string(eprn-&gt;colour_model, eprn_colour_model_list, &amp;str) != 0)</span></span>
+<span id="L951"><span class="lineNum">     951</span> <span class="tlaUNC">           0 :       assert(0); /* Bug. No harm on NDEBUG because I've just set the size. */</span></span>
+<span id="L952"><span class="lineNum">     952</span> <span class="tlaUNC">           0 :     errwrite(device-&gt;memory, (const char *)str.data, str.size * sizeof(str.data[0]));</span></span>
+<span id="L953"><span class="lineNum">     953</span> <span class="tlaUNC">           0 :     eprintf7(&quot;),\n&quot;</span></span>
+<span id="L954"><span class="lineNum">     954</span>              :       &quot;%s  resolution (%gx%g ppi) and intensity levels (%d, %d) is\n&quot;</span>
+<span id="L955"><span class="lineNum">     955</span>              :       &quot;%s  not supported by the %s.\n&quot;,</span>
+<span id="L956"><span class="lineNum">     956</span>              :       epref, device-&gt;HWResolution[0], device-&gt;HWResolution[1],</span>
+<span id="L957"><span class="lineNum">     957</span>              :       eprn-&gt;black_levels, eprn-&gt;non_black_levels, epref, eprn-&gt;cap-&gt;name);</span>
+<span id="L958"><span class="lineNum">     958</span> <span class="tlaUNC">           0 :     return_error(gs_error_rangecheck);</span></span>
+<span id="L959"><span class="lineNum">     959</span>              :   }</span>
+<span id="L960"><span class="lineNum">     960</span>              : </span>
+<span id="L961"><span class="lineNum">     961</span>              :   /* Initialization for colour rendering */</span>
+<span id="L962"><span class="lineNum">     962</span> <span class="tlaUNC">           0 :   if (device-&gt;color_info.num_components == 4) {</span></span>
+<span id="L963"><span class="lineNum">     963</span>              :     /* Native colour space is 'DeviceCMYK' */</span>
+<span id="L964"><span class="lineNum">     964</span> <span class="tlaUNC">           0 :     set_dev_proc(device, map_rgb_color, NULL);</span></span>
+<span id="L965"><span class="lineNum">     965</span>              : </span>
+<span id="L966"><span class="lineNum">     966</span> <span class="tlaUNC">           0 :     if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg)</span></span>
+<span id="L967"><span class="lineNum">     967</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_cmyk_color, &amp;eprn_map_cmyk_color_max);</span></span>
+<span id="L968"><span class="lineNum">     968</span> <span class="tlaUNC">           0 :     else if (device-&gt;color_info.max_gray &gt; 1 || device-&gt;color_info.max_color &gt; 1)</span></span>
+<span id="L969"><span class="lineNum">     969</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_cmyk_color, &amp;eprn_map_cmyk_color_flex);</span></span>
+<span id="L970"><span class="lineNum">     970</span>              :     else</span>
+<span id="L971"><span class="lineNum">     971</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_cmyk_color, &amp;eprn_map_cmyk_color);</span></span>
+<span id="L972"><span class="lineNum">     972</span>              : </span>
+<span id="L973"><span class="lineNum">     973</span> <span class="tlaUNC">           0 :     if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg)</span></span>
+<span id="L974"><span class="lineNum">     974</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K_max);</span></span>
+<span id="L975"><span class="lineNum">     975</span> <span class="tlaUNC">           0 :     else if (device-&gt;color_info.max_gray &gt; 1 || device-&gt;color_info.max_color &gt; 1)</span></span>
+<span id="L976"><span class="lineNum">     976</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K_flex);</span></span>
+<span id="L977"><span class="lineNum">     977</span>              :     else</span>
+<span id="L978"><span class="lineNum">     978</span> <span class="tlaUNC">           0 :       set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K);</span></span>
+<span id="L979"><span class="lineNum">     979</span>              : </span>
+<span id="L980"><span class="lineNum">     980</span>              :   }</span>
+<span id="L981"><span class="lineNum">     981</span>              :   else {</span>
+<span id="L982"><span class="lineNum">     982</span> <span class="tlaUNC">           0 :     set_dev_proc(device, map_cmyk_color, NULL);</span></span>
+<span id="L983"><span class="lineNum">     983</span>              : </span>
+<span id="L984"><span class="lineNum">     984</span> <span class="tlaUNC">           0 :     if (eprn-&gt;colour_model == eprn_DeviceRGB) {</span></span>
+<span id="L985"><span class="lineNum">     985</span> <span class="tlaUNC">           0 :       if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg)</span></span>
+<span id="L986"><span class="lineNum">     986</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_RGB_max);</span></span>
+<span id="L987"><span class="lineNum">     987</span> <span class="tlaUNC">           0 :       else if (device-&gt;color_info.max_color &gt; 1)</span></span>
+<span id="L988"><span class="lineNum">     988</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_RGB_flex);</span></span>
+<span id="L989"><span class="lineNum">     989</span>              :       else</span>
+<span id="L990"><span class="lineNum">     990</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_RGB);</span></span>
+<span id="L991"><span class="lineNum">     991</span>              :     } else {</span>
+<span id="L992"><span class="lineNum">     992</span> <span class="tlaUNC">           0 :       if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg)</span></span>
+<span id="L993"><span class="lineNum">     993</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K_max);</span></span>
+<span id="L994"><span class="lineNum">     994</span> <span class="tlaUNC">           0 :       else if (device-&gt;color_info.max_gray &gt; 1 || device-&gt;color_info.max_color &gt; 1)</span></span>
+<span id="L995"><span class="lineNum">     995</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K_flex);</span></span>
+<span id="L996"><span class="lineNum">     996</span>              :       else</span>
+<span id="L997"><span class="lineNum">     997</span> <span class="tlaUNC">           0 :         set_dev_proc(device, map_rgb_color, &amp;eprn_map_rgb_color_for_CMY_or_K);</span></span>
+<span id="L998"><span class="lineNum">     998</span>              :     }</span>
+<span id="L999"><span class="lineNum">     999</span>              :   }</span>
+<span id="L1000"><span class="lineNum">    1000</span> <span class="tlaUNC">           0 :   eprn-&gt;output_planes = eprn_bits_for_levels(eprn-&gt;black_levels) +</span></span>
+<span id="L1001"><span class="lineNum">    1001</span> <span class="tlaUNC">           0 :     3 * eprn_bits_for_levels(eprn-&gt;non_black_levels);</span></span>
+<span id="L1002"><span class="lineNum">    1002</span>              : </span>
+<span id="L1003"><span class="lineNum">    1003</span>              : #if !defined(GS_REVISION) || GS_REVISION &gt;= 600</span>
+<span id="L1004"><span class="lineNum">    1004</span>              :   /*  According to my understanding, the following call should be superfluous</span>
+<span id="L1005"><span class="lineNum">    1005</span>              :       (because the colour mapping functions may not be called while the device</span>
+<span id="L1006"><span class="lineNum">    1006</span>              :       is closed) and I am also not aware of any situation where it does make a</span>
+<span id="L1007"><span class="lineNum">    1007</span>              :       difference. It shouldn't do any harm, though, and I feel safer with it :-)</span>
+<span id="L1008"><span class="lineNum">    1008</span>              :   */</span>
+<span id="L1009"><span class="lineNum">    1009</span> <span class="tlaUNC">           0 :   gx_device_decache_colors(device);</span></span>
+<span id="L1010"><span class="lineNum">    1010</span>              : #endif</span>
+<span id="L1011"><span class="lineNum">    1011</span>              : </span>
+<span id="L1012"><span class="lineNum">    1012</span>              : #ifndef EPRN_NO_PAGECOUNTFILE</span>
+<span id="L1013"><span class="lineNum">    1013</span>              :   /* Read the page count value */</span>
+<span id="L1014"><span class="lineNum">    1014</span> <span class="tlaUNC">           0 :   if (eprn-&gt;pagecount_file != NULL) {</span></span>
+<span id="L1015"><span class="lineNum">    1015</span> <span class="tlaUNC">           0 :     unsigned long count;</span></span>
+<span id="L1016"><span class="lineNum">    1016</span> <span class="tlaUNC">           0 :     if (pcf_getcount(device-&gt;memory, eprn-&gt;pagecount_file, &amp;count) == 0)</span></span>
+<span id="L1017"><span class="lineNum">    1017</span> <span class="tlaUNC">           0 :       device-&gt;PageCount = count;</span></span>
+<span id="L1018"><span class="lineNum">    1018</span>              :        /* unsigned to signed. The C standard permits</span>
+<span id="L1019"><span class="lineNum">    1019</span>              :           an implementation to generate an overflow indication if the value is</span>
+<span id="L1020"><span class="lineNum">    1020</span>              :           too large. I consider this to mean that the type of 'PageCount' is</span>
+<span id="L1021"><span class="lineNum">    1021</span>              :           inappropriate :-). Note that eprn does not use 'PageCount' for</span>
+<span id="L1022"><span class="lineNum">    1022</span>              :           updating the file. */</span>
+<span id="L1023"><span class="lineNum">    1023</span>              :     else {</span>
+<span id="L1024"><span class="lineNum">    1024</span>              :       /* pcf_getcount() has issued an error message. */</span>
+<span id="L1025"><span class="lineNum">    1025</span> <span class="tlaUNC">           0 :       eprintf(</span></span>
+<span id="L1026"><span class="lineNum">    1026</span>              :         &quot;  No further attempts will be made to access the page count file.\n&quot;);</span>
+<span id="L1027"><span class="lineNum">    1027</span> <span class="tlaUNC">           0 :       gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;pagecount_file, strlen(eprn-&gt;pagecount_file) + 1,</span></span>
+<span id="L1028"><span class="lineNum">    1028</span>              :         sizeof(char), &quot;eprn_open_device&quot;);</span>
+<span id="L1029"><span class="lineNum">    1029</span> <span class="tlaUNC">           0 :       eprn-&gt;pagecount_file = NULL;</span></span>
+<span id="L1030"><span class="lineNum">    1030</span>              :     }</span>
+<span id="L1031"><span class="lineNum">    1031</span>              :   }</span>
+<span id="L1032"><span class="lineNum">    1032</span>              : #endif  /* !EPRN_NO_PAGECOUNTFILE */</span>
+<span id="L1033"><span class="lineNum">    1033</span>              : </span>
+<span id="L1034"><span class="lineNum">    1034</span>              :   /* Open the &quot;prn&quot; device part */</span>
+<span id="L1035"><span class="lineNum">    1035</span> <span class="tlaUNC">           0 :   if ((rc = gdev_prn_open(device)) != 0) return rc;</span></span>
+<span id="L1036"><span class="lineNum">    1036</span>              : </span>
+<span id="L1037"><span class="lineNum">    1037</span>              :   /* if device has been subclassed (FirstPage/LastPage device) then make sure we use</span>
+<span id="L1038"><span class="lineNum">    1038</span>              :    * the subclassed device.</span>
+<span id="L1039"><span class="lineNum">    1039</span>              :    */</span>
+<span id="L1040"><span class="lineNum">    1040</span> <span class="tlaUNC">           0 :   while (device-&gt;child)</span></span>
+<span id="L1041"><span class="lineNum">    1041</span>              :       device = device-&gt;child;</span>
+<span id="L1042"><span class="lineNum">    1042</span> <span class="tlaUNC">           0 :   eprn = &amp;((eprn_Device *)device)-&gt;eprn;</span></span>
+<span id="L1043"><span class="lineNum">    1043</span>              : </span>
+<span id="L1044"><span class="lineNum">    1044</span>              :   /* Just in case a previous open call failed in a derived device (note that</span>
+<span id="L1045"><span class="lineNum">    1045</span>              :      'octets_per_line' is still the same as then): */</span>
+<span id="L1046"><span class="lineNum">    1046</span> <span class="tlaUNC">           0 :   if (eprn-&gt;scan_line.str != NULL)</span></span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaUNC">           0 :     gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;scan_line.str, eprn-&gt;octets_per_line, sizeof(eprn_Octet),</span></span>
+<span id="L1048"><span class="lineNum">    1048</span>              :       &quot;eprn_open_device&quot;);</span>
+<span id="L1049"><span class="lineNum">    1049</span> <span class="tlaUNC">           0 :   if (eprn-&gt;next_scan_line.str != NULL) {</span></span>
+<span id="L1050"><span class="lineNum">    1050</span> <span class="tlaUNC">           0 :     gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;next_scan_line.str, eprn-&gt;octets_per_line, sizeof(eprn_Octet),</span></span>
+<span id="L1051"><span class="lineNum">    1051</span>              :       &quot;eprn_open_device&quot;);</span>
+<span id="L1052"><span class="lineNum">    1052</span> <span class="tlaUNC">           0 :     eprn-&gt;next_scan_line.str = NULL;</span></span>
+<span id="L1053"><span class="lineNum">    1053</span>              :   }</span>
+<span id="L1054"><span class="lineNum">    1054</span>              : </span>
+<span id="L1055"><span class="lineNum">    1055</span>              :   /* Calls which might depend on prn having been initialized */</span>
+<span id="L1056"><span class="lineNum">    1056</span> <span class="tlaUNC">           0 :   eprn-&gt;octets_per_line = gdev_prn_raster((gx_device_printer *)device);</span></span>
+<span id="L1057"><span class="lineNum">    1057</span> <span class="tlaUNC">           0 :   eprn-&gt;scan_line.str = (eprn_Octet *) gs_malloc(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;octets_per_line,</span></span>
+<span id="L1058"><span class="lineNum">    1058</span>              :     sizeof(eprn_Octet), &quot;eprn_open_device&quot;);</span>
+<span id="L1059"><span class="lineNum">    1059</span> <span class="tlaUNC">           0 :   if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg) {</span></span>
+<span id="L1060"><span class="lineNum">    1060</span> <span class="tlaUNC">           0 :     eprn-&gt;next_scan_line.str = (eprn_Octet *) gs_malloc(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;octets_per_line,</span></span>
+<span id="L1061"><span class="lineNum">    1061</span>              :       sizeof(eprn_Octet), &quot;eprn_open_device&quot;);</span>
+<span id="L1062"><span class="lineNum">    1062</span> <span class="tlaUNC">           0 :     if (eprn-&gt;next_scan_line.str == NULL &amp;&amp; eprn-&gt;scan_line.str != NULL) {</span></span>
+<span id="L1063"><span class="lineNum">    1063</span> <span class="tlaUNC">           0 :       gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;scan_line.str, eprn-&gt;octets_per_line, sizeof(eprn_Octet),</span></span>
+<span id="L1064"><span class="lineNum">    1064</span>              :         &quot;eprn_open_device&quot;);</span>
+<span id="L1065"><span class="lineNum">    1065</span> <span class="tlaUNC">           0 :       eprn-&gt;scan_line.str = NULL;</span></span>
+<span id="L1066"><span class="lineNum">    1066</span>              :     }</span>
+<span id="L1067"><span class="lineNum">    1067</span>              :   }</span>
+<span id="L1068"><span class="lineNum">    1068</span> <span class="tlaUNC">           0 :   if (eprn-&gt;scan_line.str == NULL) {</span></span>
+<span id="L1069"><span class="lineNum">    1069</span> <span class="tlaUNC">           0 :     eprintf1(&quot;%s&quot; ERRPREF</span></span>
+<span id="L1070"><span class="lineNum">    1070</span>              :       &quot;Memory allocation failure from gs_malloc() in eprn_open_device().\n&quot;,</span>
+<span id="L1071"><span class="lineNum">    1071</span>              :       epref);</span>
+<span id="L1072"><span class="lineNum">    1072</span> <span class="tlaUNC">           0 :     return_error(gs_error_VMerror);</span></span>
+<span id="L1073"><span class="lineNum">    1073</span>              :   }</span>
+<span id="L1074"><span class="lineNum">    1074</span>              : </span>
+<span id="L1075"><span class="lineNum">    1075</span>              :   return rc;</span>
+<span id="L1076"><span class="lineNum">    1076</span>              : }</span>
+<span id="L1077"><span class="lineNum">    1077</span>              : </span>
+<span id="L1078"><span class="lineNum">    1078</span>              : /******************************************************************************</span>
+<span id="L1079"><span class="lineNum">    1079</span>              : </span>
+<span id="L1080"><span class="lineNum">    1080</span>              :   Function: eprn_close_device</span>
+<span id="L1081"><span class="lineNum">    1081</span>              : </span>
+<span id="L1082"><span class="lineNum">    1082</span>              : ******************************************************************************/</span>
+<span id="L1083"><span class="lineNum">    1083</span>              : </span>
+<span id="L1084"><span class="lineNum">    1084</span> <span class="tlaUNC">           0 : int eprn_close_device(gx_device *device)</span></span>
+<span id="L1085"><span class="lineNum">    1085</span>              : {</span>
+<span id="L1086"><span class="lineNum">    1086</span> <span class="tlaUNC">           0 :   eprn_Eprn *eprn = &amp;((eprn_Device *)device)-&gt;eprn;</span></span>
+<span id="L1087"><span class="lineNum">    1087</span>              : </span>
+<span id="L1088"><span class="lineNum">    1088</span>              : #ifdef EPRN_TRACE</span>
+<span id="L1089"><span class="lineNum">    1089</span>              :   if_debug0(EPRN_TRACE_CHAR, &quot;! eprn_close_device()...\n&quot;);</span>
+<span id="L1090"><span class="lineNum">    1090</span>              : #endif</span>
+<span id="L1091"><span class="lineNum">    1091</span>              : </span>
+<span id="L1092"><span class="lineNum">    1092</span> <span class="tlaUNC">           0 :   if (eprn-&gt;scan_line.str != NULL) {</span></span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaUNC">           0 :     gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;scan_line.str, eprn-&gt;octets_per_line, sizeof(eprn_Octet),</span></span>
+<span id="L1094"><span class="lineNum">    1094</span>              :       &quot;eprn_close_device&quot;);</span>
+<span id="L1095"><span class="lineNum">    1095</span> <span class="tlaUNC">           0 :     eprn-&gt;scan_line.str = NULL;</span></span>
+<span id="L1096"><span class="lineNum">    1096</span>              :   }</span>
+<span id="L1097"><span class="lineNum">    1097</span> <span class="tlaUNC">           0 :   if (eprn-&gt;next_scan_line.str != NULL) {</span></span>
+<span id="L1098"><span class="lineNum">    1098</span> <span class="tlaUNC">           0 :     gs_free(device-&gt;memory-&gt;non_gc_memory, eprn-&gt;next_scan_line.str, eprn-&gt;octets_per_line, sizeof(eprn_Octet),</span></span>
+<span id="L1099"><span class="lineNum">    1099</span>              :       &quot;eprn_close_device&quot;);</span>
+<span id="L1100"><span class="lineNum">    1100</span> <span class="tlaUNC">           0 :     eprn-&gt;next_scan_line.str = NULL;</span></span>
+<span id="L1101"><span class="lineNum">    1101</span>              :   }</span>
+<span id="L1102"><span class="lineNum">    1102</span>              : </span>
+<span id="L1103"><span class="lineNum">    1103</span> <span class="tlaUNC">           0 :   return gdev_prn_close(device);</span></span>
+<span id="L1104"><span class="lineNum">    1104</span>              : }</span>
+<span id="L1105"><span class="lineNum">    1105</span>              : </span>
+<span id="L1106"><span class="lineNum">    1106</span>              : /******************************************************************************</span>
+<span id="L1107"><span class="lineNum">    1107</span>              : </span>
+<span id="L1108"><span class="lineNum">    1108</span>              :   Function: eprn_forget_defaultmatrix</span>
+<span id="L1109"><span class="lineNum">    1109</span>              : </span>
+<span id="L1110"><span class="lineNum">    1110</span>              :   This function tells the ghostscript kernel to forget the default matrix,</span>
+<span id="L1111"><span class="lineNum">    1111</span>              :   i.e., to consult the get_initial_matrix device procedure the next time the</span>
+<span id="L1112"><span class="lineNum">    1112</span>              :   default CTM is needed.</span>
+<span id="L1113"><span class="lineNum">    1113</span>              : </span>
+<span id="L1114"><span class="lineNum">    1114</span>              : ******************************************************************************/</span>
+<span id="L1115"><span class="lineNum">    1115</span>              : </span>
+<span id="L1116"><span class="lineNum">    1116</span> <span class="tlaUNC">           0 : static void eprn_forget_defaultmatrix(gx_device *device)</span></span>
+<span id="L1117"><span class="lineNum">    1117</span>              : {</span>
+<span id="L1118"><span class="lineNum">    1118</span> <span class="tlaUNC">           0 :   eprn_Eprn *eprn = &amp;((eprn_Device *)device)-&gt;eprn;</span></span>
+<span id="L1119"><span class="lineNum">    1119</span>              : </span>
+<span id="L1120"><span class="lineNum">    1120</span> <span class="tlaUNC">           0 :   gs_setdefaultmatrix((gs_gstate *)eprn-&gt;pgs, NULL);</span></span>
+<span id="L1121"><span class="lineNum">    1121</span>              : </span>
+<span id="L1122"><span class="lineNum">    1122</span> <span class="tlaUNC">           0 :   return;</span></span>
+<span id="L1123"><span class="lineNum">    1123</span>              : }</span>
+<span id="L1124"><span class="lineNum">    1124</span>              : </span>
+<span id="L1125"><span class="lineNum">    1125</span>              : /******************************************************************************</span>
+<span id="L1126"><span class="lineNum">    1126</span>              : </span>
+<span id="L1127"><span class="lineNum">    1127</span>              :   Function: eprn_output_page</span>
+<span id="L1128"><span class="lineNum">    1128</span>              : </span>
+<span id="L1129"><span class="lineNum">    1129</span>              :   This function is a wrapper for gdev_prn_output_page() in order to catch the</span>
+<span id="L1130"><span class="lineNum">    1130</span>              :   number of pages printed and to initialize the eprn_get_planes() API.</span>
+<span id="L1131"><span class="lineNum">    1131</span>              : </span>
+<span id="L1132"><span class="lineNum">    1132</span>              : ******************************************************************************/</span>
+<span id="L1133"><span class="lineNum">    1133</span>              : </span>
+<span id="L1134"><span class="lineNum">    1134</span> <span class="tlaUNC">           0 : int eprn_output_page(gx_device *dev, int num_copies, int flush)</span></span>
+<span id="L1135"><span class="lineNum">    1135</span>              : {</span>
+<span id="L1136"><span class="lineNum">    1136</span> <span class="tlaUNC">           0 :   eprn_Eprn *eprn = &amp;((eprn_Device *)dev)-&gt;eprn;</span></span>
+<span id="L1137"><span class="lineNum">    1137</span> <span class="tlaUNC">           0 :   int rc;</span></span>
+<span id="L1138"><span class="lineNum">    1138</span>              : </span>
+<span id="L1139"><span class="lineNum">    1139</span>              : #ifdef EPRN_TRACE</span>
+<span id="L1140"><span class="lineNum">    1140</span>              :   clock_t start_time = clock();</span>
+<span id="L1141"><span class="lineNum">    1141</span>              :   if_debug0(EPRN_TRACE_CHAR, &quot;! eprn_output_page()...\n&quot;);</span>
+<span id="L1142"><span class="lineNum">    1142</span>              : #endif</span>
+<span id="L1143"><span class="lineNum">    1143</span>              : </span>
+<span id="L1144"><span class="lineNum">    1144</span>              :   /* Initialize eprn_get_planes() data */</span>
+<span id="L1145"><span class="lineNum">    1145</span> <span class="tlaUNC">           0 :   eprn-&gt;next_y = 0;</span></span>
+<span id="L1146"><span class="lineNum">    1146</span> <span class="tlaUNC">           0 :   if (eprn-&gt;intensity_rendering == eprn_IR_FloydSteinberg) {</span></span>
+<span id="L1147"><span class="lineNum">    1147</span>              :     /* Fetch the first line and store it in 'next_scan_line'. */</span>
+<span id="L1148"><span class="lineNum">    1148</span> <span class="tlaUNC">           0 :     if (eprn_fetch_scan_line((eprn_Device *)dev, &amp;eprn-&gt;next_scan_line) == 0)</span></span>
+<span id="L1149"><span class="lineNum">    1149</span> <span class="tlaUNC">           0 :       eprn-&gt;next_y++;</span></span>
+<span id="L1150"><span class="lineNum">    1150</span>              :   }</span>
+<span id="L1151"><span class="lineNum">    1151</span>              : </span>
+<span id="L1152"><span class="lineNum">    1152</span>              :   /* Ship out */</span>
+<span id="L1153"><span class="lineNum">    1153</span> <span class="tlaUNC">           0 :   rc = gdev_prn_output_page(dev, num_copies, flush);</span></span>
+<span id="L1154"><span class="lineNum">    1154</span>              : </span>
+<span id="L1155"><span class="lineNum">    1155</span>              :   /*  CUPS page accounting message. The CUPS documentation is not perfectly</span>
+<span id="L1156"><span class="lineNum">    1156</span>              :       clear on whether one should generate this message before printing a page</span>
+<span id="L1157"><span class="lineNum">    1157</span>              :       or after printing has been successful. The rasterto* filters generate it</span>
+<span id="L1158"><span class="lineNum">    1158</span>              :       before sending the page, but as the scheduler uses these messages for</span>
+<span id="L1159"><span class="lineNum">    1159</span>              :       accounting, this seems unfair.</span>
+<span id="L1160"><span class="lineNum">    1160</span>              :   */</span>
+<span id="L1161"><span class="lineNum">    1161</span> <span class="tlaUNC">           0 :   if (rc == 0 &amp;&amp; eprn-&gt;CUPS_accounting)</span></span>
+<span id="L1162"><span class="lineNum">    1162</span> <span class="tlaUNC">           0 :     eprintf2(&quot;PAGE: %ld %d\n&quot;, dev-&gt;ShowpageCount, num_copies);</span></span>
+<span id="L1163"><span class="lineNum">    1163</span>              :     /* The arguments are the number of the page, starting at 1, and the number</span>
+<span id="L1164"><span class="lineNum">    1164</span>              :        of copies of that page. */</span>
+<span id="L1165"><span class="lineNum">    1165</span>              : </span>
+<span id="L1166"><span class="lineNum">    1166</span>              : #ifndef EPRN_NO_PAGECOUNTFILE</span>
+<span id="L1167"><span class="lineNum">    1167</span>              :   /* On success, record the number of pages printed */</span>
+<span id="L1168"><span class="lineNum">    1168</span> <span class="tlaUNC">           0 :   if (rc == 0 &amp;&amp; eprn-&gt;pagecount_file != NULL) {</span></span>
+<span id="L1169"><span class="lineNum">    1169</span> <span class="tlaUNC">           0 :     assert(num_copies &gt; 0);     /* because of signed/unsigned */</span></span>
+<span id="L1170"><span class="lineNum">    1170</span> <span class="tlaUNC">           0 :     if (pcf_inccount(dev-&gt;memory, eprn-&gt;pagecount_file, num_copies) != 0) {</span></span>
+<span id="L1171"><span class="lineNum">    1171</span>              :       /* pcf_inccount() has issued an error message. */</span>
+<span id="L1172"><span class="lineNum">    1172</span> <span class="tlaUNC">           0 :       eprintf(</span></span>
+<span id="L1173"><span class="lineNum">    1173</span>              :         &quot;  No further attempts will be made to access the page count file.\n&quot;);</span>
+<span id="L1174"><span class="lineNum">    1174</span> <span class="tlaUNC">           0 :       gs_free(dev-&gt;memory-&gt;non_gc_memory, eprn-&gt;pagecount_file, strlen(eprn-&gt;pagecount_file) + 1,</span></span>
+<span id="L1175"><span class="lineNum">    1175</span>              :         sizeof(char), &quot;eprn_output_page&quot;);</span>
+<span id="L1176"><span class="lineNum">    1176</span> <span class="tlaUNC">           0 :       eprn-&gt;pagecount_file = NULL;</span></span>
+<span id="L1177"><span class="lineNum">    1177</span>              :     }</span>
+<span id="L1178"><span class="lineNum">    1178</span>              :   }</span>
+<span id="L1179"><span class="lineNum">    1179</span>              : #endif  /* !EPRN_NO_PAGECOUNTFILE */</span>
+<span id="L1180"><span class="lineNum">    1180</span>              : </span>
+<span id="L1181"><span class="lineNum">    1181</span>              :   /* If soft tumble has been demanded, ensure the get_initial_matrix procedure</span>
+<span id="L1182"><span class="lineNum">    1182</span>              :      is consulted for the next page */</span>
+<span id="L1183"><span class="lineNum">    1183</span> <span class="tlaUNC">           0 :   if (eprn-&gt;soft_tumble) eprn_forget_defaultmatrix(dev);</span></span>
+<span id="L1184"><span class="lineNum">    1184</span>              : </span>
+<span id="L1185"><span class="lineNum">    1185</span>              : #ifdef EPRN_TRACE</span>
+<span id="L1186"><span class="lineNum">    1186</span>              :   if_debug1(EPRN_TRACE_CHAR, &quot;! eprn_output_page() terminates after %f s.\n&quot;,</span>
+<span id="L1187"><span class="lineNum">    1187</span>              :     ((float)(clock() - start_time))/CLOCKS_PER_SEC);</span>
+<span id="L1188"><span class="lineNum">    1188</span>              : #endif</span>
+<span id="L1189"><span class="lineNum">    1189</span>              : </span>
+<span id="L1190"><span class="lineNum">    1190</span> <span class="tlaUNC">           0 :   return rc;</span></span>
+<span id="L1191"><span class="lineNum">    1191</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

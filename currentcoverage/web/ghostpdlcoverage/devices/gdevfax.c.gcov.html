@@ -1,0 +1,437 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/devices/gdevfax.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/devices</a> - gdevfax.c<span style="font-size: 80%;"> (source / <a href="gdevfax.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">172</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /* Fax devices */</span>
+<span id="L17"><span class="lineNum">      17</span>              : #include &quot;gdevprn.h&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;strimpl.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;scfx.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gdevfax.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;minftrsz.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : /* The device descriptors */</span>
+<span id="L24"><span class="lineNum">      24</span>              : static dev_proc_print_page(faxg3_print_page);</span>
+<span id="L25"><span class="lineNum">      25</span>              : static dev_proc_print_page(faxg32d_print_page);</span>
+<span id="L26"><span class="lineNum">      26</span>              : static dev_proc_print_page(faxg4_print_page);</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : /* Define procedures that adjust the paper size. */</span>
+<span id="L29"><span class="lineNum">      29</span>              : /* Since the print_page doesn't alter the device, this device can print in the background */</span>
+<span id="L30"><span class="lineNum">      30</span>              : static void</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : fax_initialize_device_procs(gx_device *dev)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : {</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :     gdev_prn_initialize_device_procs_mono_bg(dev);</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, open_device, gdev_prn_open);</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, get_params, gdev_fax_get_params);</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     set_dev_proc(dev, put_params, gdev_fax_put_params);</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : #define FAX_DEVICE(dname, print_page)\</span>
+<span id="L41"><span class="lineNum">      41</span>              : {\</span>
+<span id="L42"><span class="lineNum">      42</span>              :     FAX_DEVICE_BODY(gx_device_fax, fax_initialize_device_procs, dname, print_page)\</span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : const gx_device_fax gs_faxg3_device =</span>
+<span id="L46"><span class="lineNum">      46</span>              :     FAX_DEVICE(&quot;faxg3&quot;, faxg3_print_page);</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : const gx_device_fax gs_faxg32d_device =</span>
+<span id="L49"><span class="lineNum">      49</span>              :     FAX_DEVICE(&quot;faxg32d&quot;, faxg32d_print_page);</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : const gx_device_fax gs_faxg4_device =</span>
+<span id="L52"><span class="lineNum">      52</span>              :     FAX_DEVICE(&quot;faxg4&quot;, faxg4_print_page);</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : /* Open the device. */</span>
+<span id="L55"><span class="lineNum">      55</span>              : /* This is no longer needed: we retain it for client backward compatibility. */</span>
+<span id="L56"><span class="lineNum">      56</span>              : int</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 : gdev_fax_open(gx_device * dev)</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : {</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     return gdev_prn_open(dev);</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : }</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : /* Get/put the fax parameters: AdjustWidth and MinFeatureSize */</span>
+<span id="L63"><span class="lineNum">      63</span>              : int</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : gdev_fax_get_params(gx_device * dev, gs_param_list * plist)</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : {</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     gx_device_fax *const fdev = (gx_device_fax *)dev;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     int code = gdev_prn_get_params(dev, plist);</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     int ecode = code;</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :     if ((code = param_write_int(plist, &quot;AdjustWidth&quot;, &amp;fdev-&gt;AdjustWidth)) &lt; 0)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         ecode = code;</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :     if ((code = param_write_int(plist, &quot;MinFeatureSize&quot;, &amp;fdev-&gt;MinFeatureSize)) &lt; 0)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         ecode = code;</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     if ((code = param_write_int(plist, &quot;FillOrder&quot;, &amp;fdev-&gt;FillOrder)) &lt; 0)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         ecode = code;</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :      if ((code = param_write_bool(plist, &quot;BlackIs1&quot;, &amp;fdev-&gt;BlackIs1)) &lt; 0)</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         ecode = code;</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     return ecode;</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : int</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 : gdev_fax_put_params(gx_device * dev, gs_param_list * plist)</span></span>
+<span id="L83"><span class="lineNum">      83</span>              : {</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     gx_device_fax *const fdev = (gx_device_fax *)dev;</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :     int ecode = 0;</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     int fill_order = fdev-&gt;FillOrder;</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     bool blackis1 = fdev-&gt;BlackIs1;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     int aw = fdev-&gt;AdjustWidth;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     int mfs = fdev-&gt;MinFeatureSize;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     const char *param_name;</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :     switch (code = param_read_int(plist, (param_name = &quot;AdjustWidth&quot;), &amp;aw)) {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         case 0:</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :             if (aw &gt;= 0)</span></span>
+<span id="L96"><span class="lineNum">      96</span>              :                 break;</span>
+<span id="L97"><span class="lineNum">      97</span>              :             code = gs_error_rangecheck;</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :             ecode = code;</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :             param_signal_error(plist, param_name, ecode);</span></span>
+<span id="L101"><span class="lineNum">     101</span>              :         case 1:</span>
+<span id="L102"><span class="lineNum">     102</span>              :             break;</span>
+<span id="L103"><span class="lineNum">     103</span>              :     }</span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :     switch (code = param_read_int(plist, (param_name = &quot;FillOrder&quot;), &amp;fill_order)) {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         case 0:</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :             if (fill_order == 1 || fill_order == 2)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                 break;</span>
+<span id="L108"><span class="lineNum">     108</span>              :             code = gs_error_rangecheck;</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :             ecode = code;</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :             param_signal_error(plist, param_name, ecode);</span></span>
+<span id="L112"><span class="lineNum">     112</span>              :         case 1:</span>
+<span id="L113"><span class="lineNum">     113</span>              :             break;</span>
+<span id="L114"><span class="lineNum">     114</span>              :     }</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :     switch (code = param_read_bool(plist, (param_name = &quot;BlackIs1&quot;), &amp;blackis1)) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :             ecode = code;</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :             param_signal_error(plist, param_name, ecode);</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :         case 0:</span>
+<span id="L120"><span class="lineNum">     120</span>              :         case 1:</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :     }</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :     switch (code = param_read_int(plist, (param_name = &quot;MinFeatureSize&quot;), &amp;mfs)) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         case 0:</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :             if (mfs &gt;= 0 &amp;&amp; mfs &lt;= 4)</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :                 break;</span>
+<span id="L127"><span class="lineNum">     127</span>              :             code = gs_error_rangecheck;</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :             ecode = code;</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :             param_signal_error(plist, param_name, ecode);</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :         case 1:</span>
+<span id="L132"><span class="lineNum">     132</span>              :             break;</span>
+<span id="L133"><span class="lineNum">     133</span>              :     }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     if (ecode &lt; 0)</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :         return ecode;</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :     code = gdev_prn_put_params(dev, plist);</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         return code;</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :     fdev-&gt;AdjustWidth = aw;</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     fdev-&gt;MinFeatureSize = mfs;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     fdev-&gt;FillOrder = fill_order;</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : /* Initialize the stream state with a set of default parameters. */</span>
+<span id="L149"><span class="lineNum">     149</span>              : /* These select the same defaults as the CCITTFaxEncode filter, */</span>
+<span id="L150"><span class="lineNum">     150</span>              : /* except we set BlackIs1 = true. */</span>
+<span id="L151"><span class="lineNum">     151</span>              : static void</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 : gdev_fax_init_state_adjust(stream_CFE_state *ss,</span></span>
+<span id="L153"><span class="lineNum">     153</span>              :                            const gx_device_fax *fdev,</span>
+<span id="L154"><span class="lineNum">     154</span>              :                            int adjust_width)</span>
+<span id="L155"><span class="lineNum">     155</span>              : {</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     s_CFE_template.set_defaults((stream_state *)ss);</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :     ss-&gt;Columns = fdev-&gt;width;</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     ss-&gt;Rows = fdev-&gt;height;</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     ss-&gt;BlackIs1 = fdev-&gt;BlackIs1;</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     ss-&gt;FirstBitLowOrder = fdev-&gt;FillOrder == 2;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     ss-&gt;Columns = fax_adjusted_width(ss-&gt;Columns, adjust_width);</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              : void</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : gdev_fax_init_state(stream_CFE_state *ss, const gx_device_fax *fdev)</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     gdev_fax_init_state_adjust(ss, fdev, 1);</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : void</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 : gdev_fax_init_fax_state(stream_CFE_state *ss, const gx_device_fax *fdev)</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : {</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     gdev_fax_init_state_adjust(ss, fdev, fdev-&gt;AdjustWidth);</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : </span>
+<span id="L175"><span class="lineNum">     175</span>              : /*</span>
+<span id="L176"><span class="lineNum">     176</span>              :  * Print one strip with fax compression.  Fax devices call this once per</span>
+<span id="L177"><span class="lineNum">     177</span>              :  * page; TIFF devices call this once per strip.</span>
+<span id="L178"><span class="lineNum">     178</span>              :  */</span>
+<span id="L179"><span class="lineNum">     179</span>              : int</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : gdev_fax_print_strip(gx_device_printer * pdev, gp_file * prn_stream,</span></span>
+<span id="L181"><span class="lineNum">     181</span>              :                      const stream_template * temp, stream_state * ss,</span>
+<span id="L182"><span class="lineNum">     182</span>              :                      int width, int row_first, int row_end /* last + 1 */)</span>
+<span id="L183"><span class="lineNum">     183</span>              : {</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = pdev-&gt;memory;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :     stream_cursor_read r;</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :     stream_cursor_write w;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :     int in_size = gdev_mem_bytes_per_scan_line((gx_device *) pdev);</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :     /*</span>
+<span id="L190"><span class="lineNum">     190</span>              :      * Because of the width adjustment for fax systems, width may</span>
+<span id="L191"><span class="lineNum">     191</span>              :      * be different from (either greater than or less than) pdev-&gt;width.</span>
+<span id="L192"><span class="lineNum">     192</span>              :      * Allocate a large enough buffer to account for this.</span>
+<span id="L193"><span class="lineNum">     193</span>              :      */</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     int col_size = (width * pdev-&gt;color_info.depth + 7) &gt;&gt; 3;</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     int max_size = max(in_size, col_size);</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     int lnum = 0;</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     int row_in = row_first;</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     byte *in;</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :     byte *out;</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     void *min_feature_data = NULL;</span></span>
+<span id="L201"><span class="lineNum">     201</span>              :     /* If the file is 'nul', don't even do the writes. */</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     bool nul = !strcmp(pdev-&gt;fname, &quot;nul&quot;);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     int lnum_in = row_in;</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :     int min_feature_size = ((gx_device_fax *const)pdev)-&gt;MinFeatureSize;</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span>              :     /* Initialize the common part of the encoder state. */</span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     ss-&gt;templat = temp;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     ss-&gt;memory = mem;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :     /* Now initialize the encoder. */</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     code = temp-&gt;init(ss);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :         return_error(gs_error_limitcheck);      /* bogus, but as good as any */</span>
+<span id="L213"><span class="lineNum">     213</span>              : </span>
+<span id="L214"><span class="lineNum">     214</span>              :     /* Allocate the buffers. */</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :     in = gs_alloc_bytes(mem, temp-&gt;min_in_size + max_size + 1,</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :                         &quot;gdev_stream_print_page(in)&quot;);</span>
+<span id="L217"><span class="lineNum">     217</span>              : #define OUT_SIZE 1000</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :     out = gs_alloc_bytes(mem, OUT_SIZE, &quot;gdev_stream_print_page(out)&quot;);</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :     if (in == 0 || out == 0) {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         code = gs_note_error(gs_error_VMerror);</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         goto done;</span></span>
+<span id="L222"><span class="lineNum">     222</span>              :     }</span>
+<span id="L223"><span class="lineNum">     223</span>              :     /* Init the min_feature_size expansion for entire image (not strip) */</span>
+<span id="L224"><span class="lineNum">     224</span>              :     /* This is only called from gdev_fax_print_page() and row_first is *always* 0</span>
+<span id="L225"><span class="lineNum">     225</span>              :      * By removing this check, we can make it synonymous with the use of</span>
+<span id="L226"><span class="lineNum">     226</span>              :      * min_feature_data below, so we don't need to check min_feature_data there.</span>
+<span id="L227"><span class="lineNum">     227</span>              :      */</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :     if ((min_feature_size &gt; 1) /* &amp;&amp; (row_first == 0) */) {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         code = min_feature_size_init(mem, min_feature_size,</span></span>
+<span id="L230"><span class="lineNum">     230</span>              :                                      width, pdev-&gt;height, &amp;min_feature_data);</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :             goto done;</span></span>
+<span id="L233"><span class="lineNum">     233</span>              :     }</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     if (min_feature_size &gt; 1)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         row_in = max(0, row_first-min_feature_size);    /* need some data before this row */</span></span>
+<span id="L236"><span class="lineNum">     236</span>              : </span>
+<span id="L237"><span class="lineNum">     237</span>              :     /* Set up the processing loop. */</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     r.ptr = r.limit = in - 1;</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     w.ptr = out - 1;</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :     w.limit = w.ptr + OUT_SIZE;</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : #undef OUT_SIZE</span>
+<span id="L242"><span class="lineNum">     242</span>              : </span>
+<span id="L243"><span class="lineNum">     243</span>              :     /* Process the image. */</span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :     for (lnum = row_in; ;) {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         int status;</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if_debug7m('w', mem,</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :                    &quot;[w]lnum=%d r=&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot; w=&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;\n&quot;, lnum,</span>
+<span id="L249"><span class="lineNum">     249</span>              :                    (intptr_t)in, (intptr_t)r.ptr, (intptr_t)r.limit,</span>
+<span id="L250"><span class="lineNum">     250</span>              :                    (intptr_t)out, (intptr_t)w.ptr, (intptr_t)w.limit);</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         status = temp-&gt;process(ss, &amp;r, &amp;w, lnum == row_end);</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         if_debug7m('w', mem,</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :                    &quot;...%d, r=&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot; w=&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;,&quot;PRI_INTPTR&quot;\n&quot;, status,</span>
+<span id="L254"><span class="lineNum">     254</span>              :                    (intptr_t)in, (intptr_t)r.ptr, (intptr_t)r.limit,</span>
+<span id="L255"><span class="lineNum">     255</span>              :                    (intptr_t)out, (intptr_t)w.ptr, (intptr_t)w.limit);</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         switch (status) {</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :             case 0:             /* need more input data */</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 if (lnum == row_end)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                     goto ok;</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :                 {</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                     uint left = r.limit - r.ptr;</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                     int filtered_count = in_size;</span></span>
+<span id="L263"><span class="lineNum">     263</span>              : </span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                     memcpy(in, r.ptr + 1, left);</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                     do {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         if (lnum_in &lt; row_end)</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :                         {</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                             code = gdev_prn_copy_scan_lines(pdev, lnum_in++, in + left, in_size);</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                             if (code &lt; 0) {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                                 code = gs_note_error(code);</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                                 goto done;</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :                             }</span>
+<span id="L273"><span class="lineNum">     273</span>              :                         }</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                         if (min_feature_size &gt; 1)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                             filtered_count =</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                                 min_feature_size_process(in+left, min_feature_data);</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                     } while (filtered_count == 0);</span></span>
+<span id="L278"><span class="lineNum">     278</span>              :                     /* Note: we use col_size here, not in_size. */</span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                     lnum++;</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                     if (col_size &gt; in_size) {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                         memset(in + left + in_size, 0, col_size - in_size);</span></span>
+<span id="L282"><span class="lineNum">     282</span>              :                     }</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                     r.limit = in + left + col_size - 1;</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                     r.ptr = in - 1;</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :                 }</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :             case 1:             /* need to write output */</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 if (!nul)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                     gp_fwrite(out, 1, w.ptr + 1 - out, prn_stream);</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 w.ptr = out - 1;</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :         }</span>
+<span id="L293"><span class="lineNum">     293</span>              :     }</span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :   ok:</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :     /* Write out any remaining output. */</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :     if (!nul)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         gp_fwrite(out, 1, w.ptr + 1 - out, prn_stream);</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :   done:</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :     /* We only get one strip, we need to free min_feature_data without</span>
+<span id="L302"><span class="lineNum">     302</span>              :      * any further checks or we will leak memory as we will allocate a</span>
+<span id="L303"><span class="lineNum">     303</span>              :      * new one next time round. In truth it should only be possible to</span>
+<span id="L304"><span class="lineNum">     304</span>              :      * get here with lnum != pdev-.Height in the case of an error, in</span>
+<span id="L305"><span class="lineNum">     305</span>              :      * which case we still want to free the buffer!</span>
+<span id="L306"><span class="lineNum">     306</span>              :      */</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     if ((min_feature_size &gt; 1) /* &amp;&amp; (lnum == pdev-&gt;height) */)</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         min_feature_size_dnit(min_feature_data);</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :     gs_free_object(mem, out, &quot;gdev_stream_print_page(out)&quot;);</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :     gs_free_object(mem, in, &quot;gdev_stream_print_page(in)&quot;);</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     if (temp-&gt;release)</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :         temp-&gt;release(ss);</span></span>
+<span id="L313"><span class="lineNum">     313</span>              :     return code;</span>
+<span id="L314"><span class="lineNum">     314</span>              : }</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span>              : /* Print a fax page.  Other fax drivers use this. */</span>
+<span id="L317"><span class="lineNum">     317</span>              : int</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 : gdev_fax_print_page(gx_device_printer * pdev, gp_file * prn_stream,</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :                     stream_CFE_state * ss)</span>
+<span id="L320"><span class="lineNum">     320</span>              : {</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :     return gdev_fax_print_strip(pdev, prn_stream, &amp;s_CFE_template,</span></span>
+<span id="L322"><span class="lineNum">     322</span>              :                                 (stream_state *)ss, ss-&gt;Columns,</span>
+<span id="L323"><span class="lineNum">     323</span>              :                                 0, pdev-&gt;height);</span>
+<span id="L324"><span class="lineNum">     324</span>              : }</span>
+<span id="L325"><span class="lineNum">     325</span>              : </span>
+<span id="L326"><span class="lineNum">     326</span>              : /* Print a 1-D Group 3 page. */</span>
+<span id="L327"><span class="lineNum">     327</span>              : static int</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 : faxg3_print_page(gx_device_printer * pdev, gp_file * prn_stream)</span></span>
+<span id="L329"><span class="lineNum">     329</span>              : {</span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :     stream_CFE_state state;</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     gdev_fax_init_fax_state(&amp;state, (gx_device_fax *)pdev);</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :     state.EndOfLine = true;</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :     state.EndOfBlock = false;</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :     return gdev_fax_print_page(pdev, prn_stream, &amp;state);</span></span>
+<span id="L336"><span class="lineNum">     336</span>              : }</span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span>              : /* Print a 2-D Group 3 page. */</span>
+<span id="L339"><span class="lineNum">     339</span>              : static int</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 : faxg32d_print_page(gx_device_printer * pdev, gp_file * prn_stream)</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : {</span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :     stream_CFE_state state;</span></span>
+<span id="L343"><span class="lineNum">     343</span>              : </span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :     gdev_fax_init_fax_state(&amp;state, (gx_device_fax *)pdev);</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :     state.K = (pdev-&gt;y_pixels_per_inch &lt; 100 ? 2 : 4);</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :     state.EndOfLine = true;</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :     state.EndOfBlock = false;</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :     return gdev_fax_print_page(pdev, prn_stream, &amp;state);</span></span>
+<span id="L349"><span class="lineNum">     349</span>              : }</span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span>              : /* Print a Group 4 page. */</span>
+<span id="L352"><span class="lineNum">     352</span>              : static int</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 : faxg4_print_page(gx_device_printer * pdev, gp_file * prn_stream)</span></span>
+<span id="L354"><span class="lineNum">     354</span>              : {</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :     stream_CFE_state state;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :     gdev_fax_init_fax_state(&amp;state, (gx_device_fax *)pdev);</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :     state.K = -1;</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :     state.EndOfBlock = false;</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :     return gdev_fax_print_page(pdev, prn_stream, &amp;state);</span></span>
+<span id="L361"><span class="lineNum">     361</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

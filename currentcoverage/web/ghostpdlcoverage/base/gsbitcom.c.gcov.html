@@ -1,0 +1,407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsbitcom.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsbitcom.c<span style="font-size: 80%;"> (source / <a href="gsbitcom.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">131</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : #include &lt;assert.h&gt;</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : /* Oversampled bitmap compression */</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;std.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gstypes.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gdebug.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsbitops.h&quot;         /* for prototype */</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : /*</span>
+<span id="L25"><span class="lineNum">      25</span>              :  * Define a compile-time option to reverse nibble order in alpha maps.</span>
+<span id="L26"><span class="lineNum">      26</span>              :  * Note that this does not reverse bit order within nibbles.</span>
+<span id="L27"><span class="lineNum">      27</span>              :  * This option is here for a very specialized purpose and does not</span>
+<span id="L28"><span class="lineNum">      28</span>              :  * interact well with the rest of the code.</span>
+<span id="L29"><span class="lineNum">      29</span>              :  */</span>
+<span id="L30"><span class="lineNum">      30</span>              : #ifndef ALPHA_LSB_FIRST</span>
+<span id="L31"><span class="lineNum">      31</span>              : #  define ALPHA_LSB_FIRST 0</span>
+<span id="L32"><span class="lineNum">      32</span>              : #endif</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : /* Count the number of 1-bits in a half-byte. */</span>
+<span id="L35"><span class="lineNum">      35</span>              : static const byte half_byte_1s[16] = {</span>
+<span id="L36"><span class="lineNum">      36</span>              :     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4</span>
+<span id="L37"><span class="lineNum">      37</span>              : };</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* Count the number of trailing 1s in an up-to-5-bit value, -1. */</span>
+<span id="L40"><span class="lineNum">      40</span>              : static const byte bits5_trailing_1s[32] = {</span>
+<span id="L41"><span class="lineNum">      41</span>              :     0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 3,</span>
+<span id="L42"><span class="lineNum">      42</span>              :     0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 4</span>
+<span id="L43"><span class="lineNum">      43</span>              : };</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : /* Count the number of leading 1s in an up-to-5-bit value, -1. */</span>
+<span id="L46"><span class="lineNum">      46</span>              : static const byte bits5_leading_1s[32] = {</span>
+<span id="L47"><span class="lineNum">      47</span>              :     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</span>
+<span id="L48"><span class="lineNum">      48</span>              :     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 4</span>
+<span id="L49"><span class="lineNum">      49</span>              : };</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : /*</span>
+<span id="L52"><span class="lineNum">      52</span>              :  * Compress a value between 0 and 2^M to a value between 0 and 2^N-1.</span>
+<span id="L53"><span class="lineNum">      53</span>              :  * Possible values of M are 1, 2, 3, or 4; of N are 1, 2, and 4.</span>
+<span id="L54"><span class="lineNum">      54</span>              :  * The name of the table is compress_count_M_N.</span>
+<span id="L55"><span class="lineNum">      55</span>              :  * As noted below, we require that N &lt;= M.</span>
+<span id="L56"><span class="lineNum">      56</span>              :  */</span>
+<span id="L57"><span class="lineNum">      57</span>              : static const byte compress_1_1[3] = {</span>
+<span id="L58"><span class="lineNum">      58</span>              :     0, 1, 1</span>
+<span id="L59"><span class="lineNum">      59</span>              : };</span>
+<span id="L60"><span class="lineNum">      60</span>              : static const byte compress_2_1[5] = {</span>
+<span id="L61"><span class="lineNum">      61</span>              :     0, 0, 1, 1, 1</span>
+<span id="L62"><span class="lineNum">      62</span>              : };</span>
+<span id="L63"><span class="lineNum">      63</span>              : static const byte compress_2_2[5] = {</span>
+<span id="L64"><span class="lineNum">      64</span>              :     0, 1, 2, 2, 3</span>
+<span id="L65"><span class="lineNum">      65</span>              : };</span>
+<span id="L66"><span class="lineNum">      66</span>              : static const byte compress_3_1[9] = {</span>
+<span id="L67"><span class="lineNum">      67</span>              :     0, 0, 0, 0, 1, 1, 1, 1, 1</span>
+<span id="L68"><span class="lineNum">      68</span>              : };</span>
+<span id="L69"><span class="lineNum">      69</span>              : static const byte compress_3_2[9] = {</span>
+<span id="L70"><span class="lineNum">      70</span>              :     0, 0, 1, 1, 2, 2, 2, 3, 3</span>
+<span id="L71"><span class="lineNum">      71</span>              : };</span>
+<span id="L72"><span class="lineNum">      72</span>              : static const byte compress_4_1[17] = {</span>
+<span id="L73"><span class="lineNum">      73</span>              :     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1</span>
+<span id="L74"><span class="lineNum">      74</span>              : };</span>
+<span id="L75"><span class="lineNum">      75</span>              : static const byte compress_4_2[17] = {</span>
+<span id="L76"><span class="lineNum">      76</span>              :     0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3</span>
+<span id="L77"><span class="lineNum">      77</span>              : };</span>
+<span id="L78"><span class="lineNum">      78</span>              : static const byte compress_4_4[17] = {</span>
+<span id="L79"><span class="lineNum">      79</span>              :     0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10, 11, 12, 13, 14, 15</span>
+<span id="L80"><span class="lineNum">      80</span>              : };</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : /* The table of tables is indexed by log2(N) and then by M-1. */</span>
+<span id="L83"><span class="lineNum">      83</span>              : static const byte *const compress_tables[4][4] = {</span>
+<span id="L84"><span class="lineNum">      84</span>              :     {compress_1_1, compress_2_1, compress_3_1, compress_4_1},</span>
+<span id="L85"><span class="lineNum">      85</span>              :     {0, compress_2_2, compress_3_2, compress_4_2},</span>
+<span id="L86"><span class="lineNum">      86</span>              :     {0, 0, 0, compress_4_4}</span>
+<span id="L87"><span class="lineNum">      87</span>              : };</span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span>              : /*</span>
+<span id="L90"><span class="lineNum">      90</span>              :  * Compress an XxY-oversampled bitmap to Nx1 by counting 1-bits.  The X and</span>
+<span id="L91"><span class="lineNum">      91</span>              :  * Y oversampling factors are 1, 2, or 4, but may be different.  N, the</span>
+<span id="L92"><span class="lineNum">      92</span>              :  * resulting number of (alpha) bits per pixel, may be 1, 2, or 4; we allow</span>
+<span id="L93"><span class="lineNum">      93</span>              :  * compression in place, in which case N must not exceed the X oversampling</span>
+<span id="L94"><span class="lineNum">      94</span>              :  * factor.  Width and height are the source dimensions, and hence reflect</span>
+<span id="L95"><span class="lineNum">      95</span>              :  * the oversampling; both are multiples of the relevant scale factor.  The</span>
+<span id="L96"><span class="lineNum">      96</span>              :  * same is true for srcx.</span>
+<span id="L97"><span class="lineNum">      97</span>              :  */</span>
+<span id="L98"><span class="lineNum">      98</span>              : void</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC tlaBgUNC">           0 : bits_compress_scaled(const byte * src, int srcx, uint width, uint height,</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :                      uint sraster, byte * dest, uint draster,</span>
+<span id="L101"><span class="lineNum">     101</span>              :                      const gs_log2_scale_point *plog2_scale, int log2_out_bits)</span>
+<span id="L102"><span class="lineNum">     102</span>              : {</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :     int log2_x = plog2_scale-&gt;x, log2_y = plog2_scale-&gt;y;</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :     int xscale = 1 &lt;&lt; log2_x;</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :     int yscale = 1 &lt;&lt; log2_y;</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :     int out_bits = 1 &lt;&lt; log2_out_bits;</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :     /*</span>
+<span id="L108"><span class="lineNum">     108</span>              :      * The following two initializations are only needed (and the variables</span>
+<span id="L109"><span class="lineNum">     109</span>              :      * are only used) if out_bits &lt;= xscale.  We do them in all cases only</span>
+<span id="L110"><span class="lineNum">     110</span>              :      * to suppress bogus &quot;possibly uninitialized variable&quot; warnings from</span>
+<span id="L111"><span class="lineNum">     111</span>              :      * certain compilers.</span>
+<span id="L112"><span class="lineNum">     112</span>              :      */</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :     int input_byte_out_bits = out_bits &lt;&lt; (3 - log2_x);</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :     byte input_byte_out_mask = (1 &lt;&lt; input_byte_out_bits) - 1;</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :     const byte *table =</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         compress_tables[log2_out_bits][log2_x + log2_y - 1];</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :     uint sskip = sraster &lt;&lt; log2_y;</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :     uint dwidth = (width &gt;&gt; log2_x) &lt;&lt; log2_out_bits;</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :     uint dskip = draster - ((dwidth + 7) &gt;&gt; 3);</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :     uint mask = (1 &lt;&lt; xscale) - 1;</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :     uint count_max = 1 &lt;&lt; (log2_x + log2_y);</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :     /*</span>
+<span id="L123"><span class="lineNum">     123</span>              :      * For the moment, we don't attempt to take advantage of the fact</span>
+<span id="L124"><span class="lineNum">     124</span>              :      * that the input is aligned.</span>
+<span id="L125"><span class="lineNum">     125</span>              :      */</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :     const byte *srow = src + (srcx &gt;&gt; 3);</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :     int in_shift_initial = 8 - xscale - (srcx &amp; 7);</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :     int in_shift_check = (out_bits &lt;= xscale ? 8 - xscale : -1);</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :     byte *d = dest;</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :     uint h;</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              :     /* Assert some preconditions are satisfied: */</span>
+<span id="L133"><span class="lineNum">     133</span>              : </span>
+<span id="L134"><span class="lineNum">     134</span>              :     /* log2_x and log2_y must each be 0, 1 or 2. */</span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     assert(log2_x &gt;= 0 &amp;&amp; log2_x &lt; 3);</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     assert(log2_y &gt;= 0 &amp;&amp; log2_y &lt; 3);</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              :     /* srcx and width must be multiple of xscale. */</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :     assert(srcx % xscale == 0);</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :     assert(width % xscale == 0);</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span>              :     /* height must be multiple of yscale. */</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     assert(height % yscale == 0);</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span>              :     /* because xscale is 1, 2 or 4 and srcx is a multiple of xscale,</span>
+<span id="L146"><span class="lineNum">     146</span>              :     in_shift_initial ends up being constrained as follows: */</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     if (log2_x == 0) {</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         /* in_shift_initial is {0,1,2,3,4,5,6,7]} */</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         assert(in_shift_initial &gt;= 0 &amp;&amp; in_shift_initial &lt; 8);</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :     }</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     if (log2_x == 1) {</span></span>
+<span id="L152"><span class="lineNum">     152</span>              :         /* in_shift_initial is {0,2,4,6}. */</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         assert(in_shift_initial &gt;= 0 &amp;&amp; in_shift_initial &lt; 7 &amp;&amp; in_shift_initial % 2 == 0);</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :     }</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     if (log2_x == 2) {</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         /* in_shift_initial is {0,4} */</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         assert(in_shift_initial == 0 || in_shift_initial == 4);</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :     }</span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     for (h = height; h; srow += sskip, h -= yscale) {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         const byte *s = srow;</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : #if ALPHA_LSB_FIRST</span>
+<span id="L164"><span class="lineNum">     164</span>              : #  define out_shift_initial 0</span>
+<span id="L165"><span class="lineNum">     165</span>              : #  define out_shift_update(out_shift, nbits) ((out_shift += (nbits)) &gt;= 8)</span>
+<span id="L166"><span class="lineNum">     166</span>              : #else</span>
+<span id="L167"><span class="lineNum">     167</span>              : #  define out_shift_initial (8 - out_bits)</span>
+<span id="L168"><span class="lineNum">     168</span>              : #  define out_shift_update(out_shift, nbits) ((out_shift -= (nbits)) &lt; 0)</span>
+<span id="L169"><span class="lineNum">     169</span>              : #endif</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         int out_shift = out_shift_initial;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         byte out = 0;</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         int in_shift = in_shift_initial;</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         int dw = 8 - (srcx &amp; 7);</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         int w;</span></span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              :         /* Loop over source bytes. */</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         for (w = width; w &gt; 0; w -= dw, dw = 8) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :             int index;</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :             int in_shift_final = (w &gt;= dw ? 0 : dw - w);</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              :             /*</span>
+<span id="L182"><span class="lineNum">     182</span>              :              * Check quickly for all-0s or all-1s, but only if each</span>
+<span id="L183"><span class="lineNum">     183</span>              :              * input byte generates no more than one output byte,</span>
+<span id="L184"><span class="lineNum">     184</span>              :              * we're at an input byte boundary, and we're processing</span>
+<span id="L185"><span class="lineNum">     185</span>              :              * an entire input byte (i.e., this isn't a final</span>
+<span id="L186"><span class="lineNum">     186</span>              :              * partial byte.)</span>
+<span id="L187"><span class="lineNum">     187</span>              :              */</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :             if (in_shift == in_shift_check &amp;&amp; in_shift_final == 0)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 switch (*s) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                     case 0:</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         for (index = sraster; index != sskip; index += sraster)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                             if (s[index] != 0)</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                                 goto p;</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                         if (out_shift_update(out_shift, input_byte_out_bits))</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                             *d++ = out, out_shift &amp;= 7, out = 0;</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         s++;</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                         continue;</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : #if !ALPHA_LSB_FIRST            /* too messy to make it work */</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                     case 0xff:</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         for (index = sraster; index != sskip; index += sraster)</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                             if (s[index] != 0xff)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                 goto p;</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :                         {</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                             int shift =</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                                 (out_shift -= input_byte_out_bits) + out_bits;</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : </span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                             if (shift &gt; 0)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                 out |= input_byte_out_mask &lt;&lt; shift;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :                             else {</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                                 out |= input_byte_out_mask &gt;&gt; -shift;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                                 *d++ = out;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                                 out_shift += 8;</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                                 out = input_byte_out_mask &lt;&lt; (8 + shift);</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :                             }</span>
+<span id="L215"><span class="lineNum">     215</span>              :                         }</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         s++;</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                         continue;</span></span>
+<span id="L218"><span class="lineNum">     218</span>              : #endif</span>
+<span id="L219"><span class="lineNum">     219</span>              :                     default:</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                         ;</span></span>
+<span id="L221"><span class="lineNum">     221</span>              :                 }</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :           p:                    /* Loop over source pixels within a byte. */</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :             do {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 uint count;</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 for (index = 0, count = 0; index != sskip;</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                      index += sraster</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :                     ) {</span>
+<span id="L229"><span class="lineNum">     229</span>              :                     /* Coverity 94484 incorrectly thinks in_shift can be negative. */</span>
+<span id="L230"><span class="lineNum">     230</span>              :                     /* coverity[negative_shift] */</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                     count += half_byte_1s[(s[index] &gt;&gt; in_shift) &amp; mask];</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :                 }</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 if (count != 0 &amp;&amp; table[count] == 0) {  /* Look at adjacent cells to help prevent */</span></span>
+<span id="L234"><span class="lineNum">     234</span>              :                     /* dropouts. */</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                     uint orig_count = count;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                     uint shifted_mask = mask &lt;&lt; in_shift;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                     byte in;</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                     if_debug3('B', &quot;[B]count(%d,%d)=%d\n&quot;,</span></span>
+<span id="L240"><span class="lineNum">     240</span>              :                               (width - w) / xscale,</span>
+<span id="L241"><span class="lineNum">     241</span>              :                               (height - h) / yscale, count);</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                     if (yscale &gt; 1) {        /* Look at the next &quot;lower&quot; cell. */</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         if (h &lt; height &amp;&amp; (in = s[0] &amp; shifted_mask) != 0) {</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :                             uint lower;</span>
+<span id="L245"><span class="lineNum">     245</span>              : </span>
+<span id="L246"><span class="lineNum">     246</span>              :                             for (index = 0, lower = 0;</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                  -(index -= sraster) &lt;= sskip &amp;&amp;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                                  (in &amp;= s[index]) != 0;</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :                                 )</span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                                 lower += half_byte_1s[in &gt;&gt; in_shift];</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                             if_debug1('B', &quot;[B]  lower adds %d\n&quot;,</span></span>
+<span id="L252"><span class="lineNum">     252</span>              :                                       lower);</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                             if (lower &lt;= orig_count)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                                 count += lower;</span></span>
+<span id="L255"><span class="lineNum">     255</span>              :                         }</span>
+<span id="L256"><span class="lineNum">     256</span>              :                         /* Look at the next &quot;higher&quot; cell. */</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                         if (h &gt; yscale &amp;&amp; (in = s[sskip - sraster] &amp; shifted_mask) != 0) {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                             uint upper;</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                             for (index = sskip, upper = 0;</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                                  index &lt; sskip &lt;&lt; 1 &amp;&amp;</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                                  (in &amp;= s[index]) != 0;</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                                  index += sraster</span></span>
+<span id="L264"><span class="lineNum">     264</span>              :                                 )</span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                                 upper += half_byte_1s[in &gt;&gt; in_shift];</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                             if_debug1('B', &quot;[B]  upper adds %d\n&quot;,</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :                                       upper);</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                             if (upper &lt; orig_count)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                                 count += upper;</span></span>
+<span id="L270"><span class="lineNum">     270</span>              :                         }</span>
+<span id="L271"><span class="lineNum">     271</span>              :                     }</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                     if (xscale &gt; 1) {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                         uint mask1 = (mask &lt;&lt; 1) + 1;</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span>              :                         /* Look at the next cell to the left. */</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                         if (w &lt; width) {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                             int lshift = in_shift + xscale - 1;</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                             uint left;</span></span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                             for (index = 0, left = 0;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                                  index &lt; sskip; index += sraster</span></span>
+<span id="L282"><span class="lineNum">     282</span>              :                                 ) {</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                                 uint bits =</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                                 ((s[index - 1] &lt;&lt; 8) +</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                                  s[index]) &gt;&gt; lshift;</span></span>
+<span id="L286"><span class="lineNum">     286</span>              : </span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                                 left += bits5_trailing_1s[bits &amp; mask1];</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :                             }</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                             if_debug1('B', &quot;[B]  left adds %d\n&quot;,</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :                                       left);</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                             if (left &lt; orig_count)</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                                 count += left;</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :                         }</span>
+<span id="L294"><span class="lineNum">     294</span>              :                         /* Look at the next cell to the right. */</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         if (w &gt; xscale) {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                             int rshift = in_shift - xscale + 8;</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                             uint right;</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : </span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                             for (index = 0, right = 0;</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                                  index &lt; sskip; index += sraster</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :                                 ) {</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                                 uint bits =</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                                 ((s[index] &lt;&lt; 8) +</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                                  s[index + 1]) &gt;&gt; rshift;</span></span>
+<span id="L305"><span class="lineNum">     305</span>              : </span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                                 right += bits5_leading_1s[(bits &amp; mask1) &lt;&lt; (4 - xscale)];</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :                             }</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                             if_debug1('B', &quot;[B]  right adds %d\n&quot;,</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                                       right);</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                             if (right &lt;= orig_count)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                                 count += right;</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                         }</span>
+<span id="L313"><span class="lineNum">     313</span>              :                     }</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                     if (count &gt; count_max)</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :                         count = count_max;</span>
+<span id="L316"><span class="lineNum">     316</span>              :                 }</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 out += table[count] &lt;&lt; out_shift;</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 if (out_shift_update(out_shift, out_bits))</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                     *d++ = out, out_shift &amp;= 7, out = 0;</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :             }</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :             while ((in_shift -= xscale) &gt;= in_shift_final);</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :             s++, in_shift += 8;</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :         }</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         if (out_shift != out_shift_initial)</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :             *d++ = out;</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         for (w = dskip; w != 0; w--)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :             *d++ = 0;</span></span>
+<span id="L328"><span class="lineNum">     328</span>              : #undef out_shift_initial</span>
+<span id="L329"><span class="lineNum">     329</span>              : #undef out_shift_update</span>
+<span id="L330"><span class="lineNum">     330</span>              :     }</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsequivc.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsequivc.c<span style="font-size: 80%;"> (source / <a href="gsequivc.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">162</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Routines for determining equivalent color for spot colors */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;math_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gdevprn.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gsparam.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gstypes.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gxdcconv.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gdevdevn.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gsequivc.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gzstate.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gsstate.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gscspace.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gxcspace.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gsicc_manage.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gxdevsop.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : /*</span>
+<span id="L34"><span class="lineNum">      34</span>              :  * These routines are part of the logic for determining an equivalent</span>
+<span id="L35"><span class="lineNum">      35</span>              :  * process color model color for a spot color.  The definition of a</span>
+<span id="L36"><span class="lineNum">      36</span>              :  * Separation or DeviceN color space include a tint transform function.</span>
+<span id="L37"><span class="lineNum">      37</span>              :  * This tint transform function is used if the specified spot or separation</span>
+<span id="L38"><span class="lineNum">      38</span>              :  * colorant is not present.  We want to be able to display the spot colors</span>
+<span id="L39"><span class="lineNum">      39</span>              :  * on our RGB or CMYK display.  We are using the tint transform function</span>
+<span id="L40"><span class="lineNum">      40</span>              :  * to determine a CMYK equivalent to the spot color.  Current only CMYK</span>
+<span id="L41"><span class="lineNum">      41</span>              :  * equivalent colors are supported.  This is because the CMYK is the only</span>
+<span id="L42"><span class="lineNum">      42</span>              :  * standard subtractive color space.</span>
+<span id="L43"><span class="lineNum">      43</span>              :  *</span>
+<span id="L44"><span class="lineNum">      44</span>              :  * This process consists of the following steps:</span>
+<span id="L45"><span class="lineNum">      45</span>              :  *</span>
+<span id="L46"><span class="lineNum">      46</span>              :  * 1.  Whenever new spot colors are found, set status flags indicating</span>
+<span id="L47"><span class="lineNum">      47</span>              :  * that we have one or more spot colors for which we need to determine an</span>
+<span id="L48"><span class="lineNum">      48</span>              :  * equivalent color.  New spot colors can either be explicitly specified by</span>
+<span id="L49"><span class="lineNum">      49</span>              :  * the SeparationColorNames device parameter or they may be detected by the</span>
+<span id="L50"><span class="lineNum">      50</span>              :  * device's get_color_comp_index routine.</span>
+<span id="L51"><span class="lineNum">      51</span>              :  *</span>
+<span id="L52"><span class="lineNum">      52</span>              :  * 2.  Whenever a Separation or DeviceN color space is installed, the</span>
+<span id="L53"><span class="lineNum">      53</span>              :  * update_spot_equivalent_colors device proc is called.  This allows the</span>
+<span id="L54"><span class="lineNum">      54</span>              :  * device to check if the color space contains a spot color for which the</span>
+<span id="L55"><span class="lineNum">      55</span>              :  * device does not know the equivalent CMYK color.  The routine</span>
+<span id="L56"><span class="lineNum">      56</span>              :  * update_spot_equivalent_cmyk_colors is provided for this task (and the</span>
+<span id="L57"><span class="lineNum">      57</span>              :  * next item).</span>
+<span id="L58"><span class="lineNum">      58</span>              :  *</span>
+<span id="L59"><span class="lineNum">      59</span>              :  * 3.  For each spot color for which an equivalent color is not known, we</span>
+<span id="L60"><span class="lineNum">      60</span>              :  * do the following:</span>
+<span id="L61"><span class="lineNum">      61</span>              :  *   a.  Create a copy of the color space and change the copy so that it</span>
+<span id="L62"><span class="lineNum">      62</span>              :  *       uses its alternate colorspace.</span>
+<span id="L63"><span class="lineNum">      63</span>              :  *   b.  Create a copy of the current gs_gstate and modify its color</span>
+<span id="L64"><span class="lineNum">      64</span>              :  *       mapping (cmap) procs to use a special set of 'capture' procs.</span>
+<span id="L65"><span class="lineNum">      65</span>              :  *   c.  Based upon the type of color space (Separation or DeviceN) create</span>
+<span id="L66"><span class="lineNum">      66</span>              :  *       a 'color' which consists of the desired spot color set to 100% and</span>
+<span id="L67"><span class="lineNum">      67</span>              :  *       and other components set to zero.</span>
+<span id="L68"><span class="lineNum">      68</span>              :  *   d.  Call the remap_color routine using our modified color space and</span>
+<span id="L69"><span class="lineNum">      69</span>              :  *       state structures.  Since we have forced the use of the alternate</span>
+<span id="L70"><span class="lineNum">      70</span>              :  *       color space, we will eventually execute one of the 'capture' color</span>
+<span id="L71"><span class="lineNum">      71</span>              :  *       space mapping procs.  This will give us either a gray, RGB, or</span>
+<span id="L72"><span class="lineNum">      72</span>              :  *       CMYK color which is equivalent to the original spot color.  If the</span>
+<span id="L73"><span class="lineNum">      73</span>              :  *       color is gray or RGB we convert it to CMYK.</span>
+<span id="L74"><span class="lineNum">      74</span>              :  *   e.  Save the equivalent CMYK color in the device structure.</span>
+<span id="L75"><span class="lineNum">      75</span>              :  *</span>
+<span id="L76"><span class="lineNum">      76</span>              :  * 4.  When a page is to be displayed or a file created, the saved equivalent</span>
+<span id="L77"><span class="lineNum">      77</span>              :  * color is used as desired.  It can be written into the output file.  It</span>
+<span id="L78"><span class="lineNum">      78</span>              :  * may also be used to provide color values which can be combined with the</span>
+<span id="L79"><span class="lineNum">      79</span>              :  * process color model components for a pixel, to correctly display spot</span>
+<span id="L80"><span class="lineNum">      80</span>              :  * colors on a monitor.  (Note:  Overprinting effects with spot colors are</span>
+<span id="L81"><span class="lineNum">      81</span>              :  * not correctly displayed on an RGB monitor if the device simply uses an RGB</span>
+<span id="L82"><span class="lineNum">      82</span>              :  * process color model.  Instead it is necessary to use a subtractive process</span>
+<span id="L83"><span class="lineNum">      83</span>              :  * color model and save both process color and spot color data and then</span>
+<span id="L84"><span class="lineNum">      84</span>              :  * convert the overall result to RGB for display.)</span>
+<span id="L85"><span class="lineNum">      85</span>              :  *</span>
+<span id="L86"><span class="lineNum">      86</span>              :  * For this process to work properly, the following changes need to made to</span>
+<span id="L87"><span class="lineNum">      87</span>              :  * the device.</span>
+<span id="L88"><span class="lineNum">      88</span>              :  *</span>
+<span id="L89"><span class="lineNum">      89</span>              :  * 1.  The device source module needs to include gsequivc.h for a definition</span>
+<span id="L90"><span class="lineNum">      90</span>              :  *     of the relevant structures and routines.  An equivalent_cmyk_color_params</span>
+<span id="L91"><span class="lineNum">      91</span>              :  *     structure needs to be added to the device's structure definition and</span>
+<span id="L92"><span class="lineNum">      92</span>              :  *     it needs to be initialized.  For examples see the definition of the</span>
+<span id="L93"><span class="lineNum">      93</span>              :  *     psd_device structure in src/gdevpsd.c and the definitions of the</span>
+<span id="L94"><span class="lineNum">      94</span>              :  *     gs_psdrgb_device and gs_psdcmyk_devices devices in the same module.</span>
+<span id="L95"><span class="lineNum">      95</span>              :  * 2.  Logic needs to be added to the device's get_color_comp_index and</span>
+<span id="L96"><span class="lineNum">      96</span>              :  *     put_param routines to check if any separations have been added to the</span>
+<span id="L97"><span class="lineNum">      97</span>              :  *     device.  For examples see code fragments in psd_get_color_comp_index and</span>
+<span id="L98"><span class="lineNum">      98</span>              :  *     psd_put_params in src/gdevpsd.c.</span>
+<span id="L99"><span class="lineNum">      99</span>              :  * 3.  The device needs to have its own version of the</span>
+<span id="L100"><span class="lineNum">     100</span>              :  *     update_spot_equivalent_colors routine.  For examples see the definition</span>
+<span id="L101"><span class="lineNum">     101</span>              :  *     of the device_procs macro and the psd_update_spot_equivalent_colors</span>
+<span id="L102"><span class="lineNum">     102</span>              :  *     routine in src/gdevpsd.c.</span>
+<span id="L103"><span class="lineNum">     103</span>              :  * 4.  The device then uses the saved equivalent color values when its output</span>
+<span id="L104"><span class="lineNum">     104</span>              :  *     is created.  For example see the psd_write_header routine in</span>
+<span id="L105"><span class="lineNum">     105</span>              :  *     src/gdevpsd.c.</span>
+<span id="L106"><span class="lineNum">     106</span>              :  */</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : #define compare_color_names(name, name_size, str, str_size) \</span>
+<span id="L109"><span class="lineNum">     109</span>              :     (name_size == str_size &amp;&amp; \</span>
+<span id="L110"><span class="lineNum">     110</span>              :         (strncmp((const char *)name, (const char *)str, name_size) == 0))</span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span>              : static void</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 : update_Separation_spot_equivalent_cmyk_colors(gx_device * pdev,</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :                     const gs_gstate * pgs, const gs_color_space * pcs,</span>
+<span id="L115"><span class="lineNum">     115</span>              :                     gs_devn_params * pdevn_params,</span>
+<span id="L116"><span class="lineNum">     116</span>              :                     equivalent_cmyk_color_params * pparams)</span>
+<span id="L117"><span class="lineNum">     117</span>              : {</span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : </span>
+<span id="L120"><span class="lineNum">     120</span>              :     /*</span>
+<span id="L121"><span class="lineNum">     121</span>              :      * Check if the color space's separation name matches any of the</span>
+<span id="L122"><span class="lineNum">     122</span>              :      * separations for which we need an equivalent CMYK color.</span>
+<span id="L123"><span class="lineNum">     123</span>              :      */</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; pdevn_params-&gt;separations.num_separations; i++) {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         if (pparams-&gt;color[i].color_info_valid == false) {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :             const devn_separation_name * dev_sep_name =</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :                             &amp;(pdevn_params-&gt;separations.names[i]);</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :             unsigned int cs_sep_name_size;</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :             unsigned char * pcs_sep_name;</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :             pcs_sep_name = (unsigned char *)pcs-&gt;params.separation.sep_name;</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :             cs_sep_name_size = strlen(pcs-&gt;params.separation.sep_name);</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :             if (compare_color_names(dev_sep_name-&gt;data, dev_sep_name-&gt;size,</span></span>
+<span id="L134"><span class="lineNum">     134</span>              :                             pcs_sep_name, cs_sep_name_size)) {</span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 gs_color_space temp_cs = *pcs;</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 gs_client_color client_color;</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              :                 /*</span>
+<span id="L139"><span class="lineNum">     139</span>              :                  * Create a copy of the color space and then modify it</span>
+<span id="L140"><span class="lineNum">     140</span>              :                  * to force the use of the alternate color space.</span>
+<span id="L141"><span class="lineNum">     141</span>              :                  */</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 temp_cs.params.separation.use_alt_cspace = true;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 client_color.paint.values[0] = 1.0;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 capture_spot_equivalent_cmyk_colors(pdev, pgs, &amp;client_color,</span></span>
+<span id="L145"><span class="lineNum">     145</span>              :                                             &amp;temp_cs, i, pparams);</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L147"><span class="lineNum">     147</span>              :             }</span>
+<span id="L148"><span class="lineNum">     148</span>              :         }</span>
+<span id="L149"><span class="lineNum">     149</span>              :     }</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : </span>
+<span id="L152"><span class="lineNum">     152</span>              : /* This is used for getting the equivalent CMYK values for the spots that</span>
+<span id="L153"><span class="lineNum">     153</span>              :    may exist in a DeviceN output ICC profile */</span>
+<span id="L154"><span class="lineNum">     154</span>              : static int</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 : update_ICC_spot_equivalent_cmyk_colors(gx_device * pdev,</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :                     const gs_gstate * pgs, const gs_color_space * pcs,</span>
+<span id="L157"><span class="lineNum">     157</span>              :                     gs_devn_params * pdevn_params,</span>
+<span id="L158"><span class="lineNum">     158</span>              :                     equivalent_cmyk_color_params * pparams)</span>
+<span id="L159"><span class="lineNum">     159</span>              : {</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     int i, j;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     cmm_dev_profile_t *dev_profile;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :     gs_client_color client_color;</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : </span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     code = dev_proc(pdev, get_profile)(pdev, &amp;dev_profile);</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L168"><span class="lineNum">     168</span>              :         return code;</span>
+<span id="L169"><span class="lineNum">     169</span>              :     /*</span>
+<span id="L170"><span class="lineNum">     170</span>              :      * Check if the ICC spot names matche any of the</span>
+<span id="L171"><span class="lineNum">     171</span>              :      * separations for which we need an equivalent CMYK color.</span>
+<span id="L172"><span class="lineNum">     172</span>              :      */</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; pdevn_params-&gt;separations.num_separations; i++) {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         if (pparams-&gt;color[i].color_info_valid == false) {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :             const devn_separation_name * dev_sep_name =</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :                             &amp;(pdevn_params-&gt;separations.names[i]);</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :             gsicc_colorname_t *name_entry;</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :             name_entry = dev_profile-&gt;spotnames-&gt;head;</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :             for (j = 0; j &lt; dev_profile-&gt;device_profile[GS_DEFAULT_DEVICE_PROFILE]-&gt;num_comps; j++) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 client_color.paint.values[j] = 0.0;</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :             }</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :             for (j = 0; j &lt; dev_profile-&gt;spotnames-&gt;count; j++) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 if (compare_color_names(dev_sep_name-&gt;data, dev_sep_name-&gt;size,</span></span>
+<span id="L186"><span class="lineNum">     186</span>              :                                 name_entry-&gt;name, name_entry-&gt;length)) {</span>
+<span id="L187"><span class="lineNum">     187</span>              :                     /*</span>
+<span id="L188"><span class="lineNum">     188</span>              :                      * Create a copy of the color space and then modify it</span>
+<span id="L189"><span class="lineNum">     189</span>              :                      * to force the use of the alternate color space.</span>
+<span id="L190"><span class="lineNum">     190</span>              :                      */</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                     client_color.paint.values[j] = 1.0;</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                     capture_spot_equivalent_cmyk_colors(pdev, pgs, &amp;client_color,</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :                                                 pcs, i, pparams);</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                     break;</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :                 }</span>
+<span id="L196"><span class="lineNum">     196</span>              :                 /* Did not match, grab the next one */</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 name_entry = name_entry-&gt;next;</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :             }</span>
+<span id="L199"><span class="lineNum">     199</span>              :         }</span>
+<span id="L200"><span class="lineNum">     200</span>              :     }</span>
+<span id="L201"><span class="lineNum">     201</span>              :     return 0;</span>
+<span id="L202"><span class="lineNum">     202</span>              : }</span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span>              : static void</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 : update_DeviceN_spot_equivalent_cmyk_colors(gx_device * pdev,</span></span>
+<span id="L206"><span class="lineNum">     206</span>              :                     const gs_gstate * pgs, const gs_color_space * pcs,</span>
+<span id="L207"><span class="lineNum">     207</span>              :                     gs_devn_params * pdevn_params,</span>
+<span id="L208"><span class="lineNum">     208</span>              :                     equivalent_cmyk_color_params * pparams)</span>
+<span id="L209"><span class="lineNum">     209</span>              : {</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     unsigned int j;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     unsigned int cs_sep_name_size;</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :     unsigned char * pcs_sep_name;</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              :     /*</span>
+<span id="L216"><span class="lineNum">     216</span>              :      * Check if the color space contains components named 'None'.  If so then</span>
+<span id="L217"><span class="lineNum">     217</span>              :      * our capture logic does not work properly.  When present, the 'None'</span>
+<span id="L218"><span class="lineNum">     218</span>              :      * components contain alternate color information.  However this info is</span>
+<span id="L219"><span class="lineNum">     219</span>              :      * specified as part of the 'color' and not part of the color space.  Thus</span>
+<span id="L220"><span class="lineNum">     220</span>              :      * we do not have this data when this routine is called.  See the</span>
+<span id="L221"><span class="lineNum">     221</span>              :      * description of DeviceN color spaces in section 4.5 of the PDF spec.</span>
+<span id="L222"><span class="lineNum">     222</span>              :      * In this situation we exit rather than produce invalid values.</span>
+<span id="L223"><span class="lineNum">     223</span>              :      */</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :      for (j = 0; j &lt; pcs-&gt;params.device_n.num_components; j++) {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         pcs_sep_name = (unsigned char *)pcs-&gt;params.device_n.names[j];</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         cs_sep_name_size = strlen(pcs-&gt;params.device_n.names[j]);</span></span>
+<span id="L227"><span class="lineNum">     227</span>              : </span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         if (compare_color_names(&quot;None&quot;, 4, pcs_sep_name, cs_sep_name_size)) {</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :             /* If we are going out to a device that supports devn colors</span>
+<span id="L230"><span class="lineNum">     230</span>              :                then it is possible that any preview that such a device creates</span>
+<span id="L231"><span class="lineNum">     231</span>              :                will be in error due to the lack of the proper mappings from</span>
+<span id="L232"><span class="lineNum">     232</span>              :                the full DeviceN colors (whicn can include one or more \None</span>
+<span id="L233"><span class="lineNum">     233</span>              :                enrties). Display a warning about this if in debug mode */</span>
+<span id="L234"><span class="lineNum">     234</span>              : #ifdef DEBUG</span>
+<span id="L235"><span class="lineNum">     235</span>              :             if (dev_proc(pdev, dev_spec_op)(pdev, gxdso_supports_devn, NULL, 0))</span>
+<span id="L236"><span class="lineNum">     236</span>              :                 gs_warn(&quot;Separation preview may be inaccurate due to presence of \\None colorants&quot;);</span>
+<span id="L237"><span class="lineNum">     237</span>              : #endif</span>
+<span id="L238"><span class="lineNum">     238</span>              :             return;</span>
+<span id="L239"><span class="lineNum">     239</span>              :         }</span>
+<span id="L240"><span class="lineNum">     240</span>              :     }</span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              :     /*</span>
+<span id="L243"><span class="lineNum">     243</span>              :      * Check if the color space's separation names matches any of the</span>
+<span id="L244"><span class="lineNum">     244</span>              :      * separations for which we need an equivalent CMYK color.</span>
+<span id="L245"><span class="lineNum">     245</span>              :      */</span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; pdevn_params-&gt;separations.num_separations; i++) {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if (pparams-&gt;color[i].color_info_valid == false) {</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :             const devn_separation_name * dev_sep_name =</span>
+<span id="L249"><span class="lineNum">     249</span>              :                             &amp;(pdevn_params-&gt;separations.names[i]);</span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :             for (j = 0; j &lt; pcs-&gt;params.device_n.num_components; j++) {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 pcs_sep_name = (unsigned char *)pcs-&gt;params.device_n.names[j];</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 cs_sep_name_size = strlen(pcs-&gt;params.device_n.names[j]);</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 if (compare_color_names(dev_sep_name-&gt;data, dev_sep_name-&gt;size,</span></span>
+<span id="L255"><span class="lineNum">     255</span>              :                             pcs_sep_name, cs_sep_name_size)) {</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                     gs_color_space temp_cs = *pcs;</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                     gs_client_color client_color;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : </span>
+<span id="L259"><span class="lineNum">     259</span>              :                     /*</span>
+<span id="L260"><span class="lineNum">     260</span>              :                      * Create a copy of the color space and then modify it</span>
+<span id="L261"><span class="lineNum">     261</span>              :                      * to force the use of the alternate color space.</span>
+<span id="L262"><span class="lineNum">     262</span>              :                      */</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                     memset(&amp;client_color, 0, sizeof(client_color));</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                     temp_cs.params.device_n.use_alt_cspace = true;</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                     client_color.paint.values[j] = 1.0;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                     capture_spot_equivalent_cmyk_colors(pdev, pgs, &amp;client_color,</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :                                             &amp;temp_cs, i, pparams);</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                     break;</span></span>
+<span id="L269"><span class="lineNum">     269</span>              :                 }</span>
+<span id="L270"><span class="lineNum">     270</span>              :             }</span>
+<span id="L271"><span class="lineNum">     271</span>              :         }</span>
+<span id="L272"><span class="lineNum">     272</span>              :     }</span>
+<span id="L273"><span class="lineNum">     273</span>              : }</span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 : static bool check_all_colors_known(int num_spot,</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :                 equivalent_cmyk_color_params * pparams)</span>
+<span id="L277"><span class="lineNum">     277</span>              : {</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :     for (num_spot--; num_spot &gt;= 0; num_spot--)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         if (pparams-&gt;color[num_spot].color_info_valid == false)</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :             return false;</span>
+<span id="L281"><span class="lineNum">     281</span>              :     return true;</span>
+<span id="L282"><span class="lineNum">     282</span>              : }</span>
+<span id="L283"><span class="lineNum">     283</span>              : </span>
+<span id="L284"><span class="lineNum">     284</span>              : /* If possible, update the equivalent CMYK color for a spot color */</span>
+<span id="L285"><span class="lineNum">     285</span>              : int</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 : update_spot_equivalent_cmyk_colors(gx_device * pdev, const gs_gstate * pgs, const gs_color_space * pcs_in,</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :     gs_devn_params * pdevn_params, equivalent_cmyk_color_params * pparams)</span>
+<span id="L288"><span class="lineNum">     288</span>              : {</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :     const gs_color_space * pcs = pcs_in;</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :     cmm_dev_profile_t *dev_profile;</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L292"><span class="lineNum">     292</span>              : </span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :     code = dev_proc(pdev, get_profile)(pdev, &amp;dev_profile);</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :         return code;</span>
+<span id="L296"><span class="lineNum">     296</span>              : </span>
+<span id="L297"><span class="lineNum">     297</span>              :     /* If all of the color_info is valid then there is nothing to do. */</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :     if (pparams-&gt;all_color_info_valid)</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :         return 0;</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              :     /* Verify that we really have some separations. */</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :     if (pdevn_params-&gt;separations.num_separations == 0) {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         pparams-&gt;all_color_info_valid = true;</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :         return 0;</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :     }</span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span>              :     /* If the caller apssed in NULL for the colour space, use the current colour space */</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     if (pcs_in == NULL)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         pcs = gs_currentcolorspace_inline(pgs);</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span>              :     /*</span>
+<span id="L312"><span class="lineNum">     312</span>              :      * Verify that the given color space is a Separation or a DeviceN color</span>
+<span id="L313"><span class="lineNum">     313</span>              :      * space.  If so then when check if the color space contains a separation</span>
+<span id="L314"><span class="lineNum">     314</span>              :      * color for which we need a CMYK equivalent.</span>
+<span id="L315"><span class="lineNum">     315</span>              :      */</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :     if (pcs != NULL) {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         if (pcs-&gt;type-&gt;index == gs_color_space_index_Separation) {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :             update_Separation_spot_equivalent_cmyk_colors(pdev, pgs, pcs,</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :                                                 pdevn_params, pparams);</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :             pparams-&gt;all_color_info_valid = check_all_colors_known</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :                     (pdevn_params-&gt;separations.num_separations, pparams);</span>
+<span id="L322"><span class="lineNum">     322</span>              :         }</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         else if (pcs-&gt;type-&gt;index == gs_color_space_index_DeviceN) {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :             update_DeviceN_spot_equivalent_cmyk_colors(pdev, pgs, pcs,</span></span>
+<span id="L325"><span class="lineNum">     325</span>              :                                                 pdevn_params, pparams);</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :             pparams-&gt;all_color_info_valid = check_all_colors_known</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :                     (pdevn_params-&gt;separations.num_separations, pparams);</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         } else if (pcs-&gt;type-&gt;index == gs_color_space_index_ICC &amp;&amp;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :             dev_profile-&gt;spotnames != NULL) {</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :             /* In this case, we are trying to set up the equivalent colors</span>
+<span id="L331"><span class="lineNum">     331</span>              :                for the spots in the output ICC profile */</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :             code = update_ICC_spot_equivalent_cmyk_colors(pdev, pgs, pcs,</span></span>
+<span id="L333"><span class="lineNum">     333</span>              :                                                           pdevn_params,</span>
+<span id="L334"><span class="lineNum">     334</span>              :                                                           pparams);</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L336"><span class="lineNum">     336</span>              :                 return code;</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :             pparams-&gt;all_color_info_valid = check_all_colors_known</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :                     (pdevn_params-&gt;separations.num_separations, pparams);</span>
+<span id="L339"><span class="lineNum">     339</span>              :         }</span>
+<span id="L340"><span class="lineNum">     340</span>              :     }</span>
+<span id="L341"><span class="lineNum">     341</span>              :     return 0;</span>
+<span id="L342"><span class="lineNum">     342</span>              : }</span>
+<span id="L343"><span class="lineNum">     343</span>              : </span>
+<span id="L344"><span class="lineNum">     344</span>              : static void</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 : save_spot_equivalent_cmyk_color(int sep_num,</span></span>
+<span id="L346"><span class="lineNum">     346</span>              :                 equivalent_cmyk_color_params * pparams, const frac cmyk[4])</span>
+<span id="L347"><span class="lineNum">     347</span>              : {</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :     pparams-&gt;color[sep_num].c = cmyk[0];</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :     pparams-&gt;color[sep_num].m = cmyk[1];</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :     pparams-&gt;color[sep_num].y = cmyk[2];</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :     pparams-&gt;color[sep_num].k = cmyk[3];</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :     pparams-&gt;color[sep_num].color_info_valid = true;</span></span>
+<span id="L353"><span class="lineNum">     353</span>              : }</span>
+<span id="L354"><span class="lineNum">     354</span>              : </span>
+<span id="L355"><span class="lineNum">     355</span>              : /*</span>
+<span id="L356"><span class="lineNum">     356</span>              :  * A structure definition for a device for capturing equivalent colors</span>
+<span id="L357"><span class="lineNum">     357</span>              :  */</span>
+<span id="L358"><span class="lineNum">     358</span>              : typedef struct color_capture_device_s {</span>
+<span id="L359"><span class="lineNum">     359</span>              :     gx_device_common;</span>
+<span id="L360"><span class="lineNum">     360</span>              :     gx_prn_device_common;</span>
+<span id="L361"><span class="lineNum">     361</span>              :     /*        ... device-specific parameters ... */</span>
+<span id="L362"><span class="lineNum">     362</span>              :     /* The following values are needed by the cmap procs for saving data */</span>
+<span id="L363"><span class="lineNum">     363</span>              :     int sep_num;        /* Number of the separation being captured */</span>
+<span id="L364"><span class="lineNum">     364</span>              :     /* Pointer to original device's equivalent CMYK colors */</span>
+<span id="L365"><span class="lineNum">     365</span>              :     equivalent_cmyk_color_params * pequiv_cmyk_colors;</span>
+<span id="L366"><span class="lineNum">     366</span>              : } color_capture_device;</span>
+<span id="L367"><span class="lineNum">     367</span>              : </span>
+<span id="L368"><span class="lineNum">     368</span>              : /*</span>
+<span id="L369"><span class="lineNum">     369</span>              :  * Replacement routines for the cmap procs.  These routines will capture the</span>
+<span id="L370"><span class="lineNum">     370</span>              :  * equivalent color.</span>
+<span id="L371"><span class="lineNum">     371</span>              :  */</span>
+<span id="L372"><span class="lineNum">     372</span>              : static cmap_proc_gray(cmap_gray_capture_cmyk_color);</span>
+<span id="L373"><span class="lineNum">     373</span>              : static cmap_proc_rgb(cmap_rgb_capture_cmyk_color);</span>
+<span id="L374"><span class="lineNum">     374</span>              : static cmap_proc_cmyk(cmap_cmyk_capture_cmyk_color);</span>
+<span id="L375"><span class="lineNum">     375</span>              : static cmap_proc_separation(cmap_separation_capture_cmyk_color);</span>
+<span id="L376"><span class="lineNum">     376</span>              : static cmap_proc_devicen(cmap_devicen_capture_cmyk_color);</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : static const gx_color_map_procs cmap_capture_cmyk_color = {</span>
+<span id="L379"><span class="lineNum">     379</span>              :     cmap_gray_capture_cmyk_color,</span>
+<span id="L380"><span class="lineNum">     380</span>              :     cmap_rgb_capture_cmyk_color,</span>
+<span id="L381"><span class="lineNum">     381</span>              :     cmap_cmyk_capture_cmyk_color,</span>
+<span id="L382"><span class="lineNum">     382</span>              :     cmap_separation_capture_cmyk_color,</span>
+<span id="L383"><span class="lineNum">     383</span>              :     cmap_devicen_capture_cmyk_color</span>
+<span id="L384"><span class="lineNum">     384</span>              : };</span>
+<span id="L385"><span class="lineNum">     385</span>              : </span>
+<span id="L386"><span class="lineNum">     386</span>              : static void</span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 : cmap_gray_capture_cmyk_color(frac gray, gx_device_color * pdc,</span></span>
+<span id="L388"><span class="lineNum">     388</span>              :         const gs_gstate * pgs, gx_device * dev, gs_color_select_t select)</span>
+<span id="L389"><span class="lineNum">     389</span>              : {</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :     equivalent_cmyk_color_params * pparams =</span></span>
+<span id="L391"><span class="lineNum">     391</span>              :             ((color_capture_device *)dev)-&gt;pequiv_cmyk_colors;</span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :     int sep_num = ((color_capture_device *)dev)-&gt;sep_num;</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :     frac cmyk[4];</span></span>
+<span id="L394"><span class="lineNum">     394</span>              : </span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :     cmyk[0] = cmyk[1] = cmyk[2] = frac_0;</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :     cmyk[3] = frac_1 - gray;</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :     save_spot_equivalent_cmyk_color(sep_num, pparams, cmyk);</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              : static void</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 : cmap_rgb_capture_cmyk_color(frac r, frac g, frac b, gx_device_color * pdc,</span></span>
+<span id="L402"><span class="lineNum">     402</span>              :      const gs_gstate * pgs, gx_device * dev, gs_color_select_t select)</span>
+<span id="L403"><span class="lineNum">     403</span>              : {</span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :     equivalent_cmyk_color_params * pparams =</span></span>
+<span id="L405"><span class="lineNum">     405</span>              :             ((color_capture_device *)dev)-&gt;pequiv_cmyk_colors;</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :     int sep_num = ((color_capture_device *)dev)-&gt;sep_num;</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :     frac cmyk[4];</span></span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :     color_rgb_to_cmyk(r, g, b, pgs, cmyk, dev-&gt;memory);</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :     save_spot_equivalent_cmyk_color(sep_num, pparams, cmyk);</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L412"><span class="lineNum">     412</span>              : </span>
+<span id="L413"><span class="lineNum">     413</span>              : static void</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 : cmap_cmyk_capture_cmyk_color(frac c, frac m, frac y, frac k, gx_device_color * pdc,</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :      const gs_gstate * pgs, gx_device * dev, gs_color_select_t select,</span>
+<span id="L416"><span class="lineNum">     416</span>              :      const gs_color_space *pcs)</span>
+<span id="L417"><span class="lineNum">     417</span>              : {</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :     equivalent_cmyk_color_params * pparams =</span></span>
+<span id="L419"><span class="lineNum">     419</span>              :             ((color_capture_device *)dev)-&gt;pequiv_cmyk_colors;</span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :     int sep_num = ((color_capture_device *)dev)-&gt;sep_num;</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :     frac cmyk[4];</span></span>
+<span id="L422"><span class="lineNum">     422</span>              : </span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :     cmyk[0] = c;</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :     cmyk[1] = m;</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :     cmyk[2] = y;</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :     cmyk[3] = k;</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :     save_spot_equivalent_cmyk_color(sep_num, pparams, cmyk);</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span>              : static void</span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 : cmap_separation_capture_cmyk_color(frac all, gx_device_color * pdc,</span></span>
+<span id="L432"><span class="lineNum">     432</span>              :      const gs_gstate * pgs, gx_device * dev, gs_color_select_t select,</span>
+<span id="L433"><span class="lineNum">     433</span>              :      const gs_color_space *pcs)</span>
+<span id="L434"><span class="lineNum">     434</span>              : {</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     dmprintf(pgs-&gt;memory, &quot;cmap_separation_capture_cmyk_color - this routine should not be executed\n&quot;);</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L437"><span class="lineNum">     437</span>              : </span>
+<span id="L438"><span class="lineNum">     438</span>              : /* The call to this is actually going to occur if we happen to be using a</span>
+<span id="L439"><span class="lineNum">     439</span>              :    named color profile and doing a replacement.  Since the destination profile</span>
+<span id="L440"><span class="lineNum">     440</span>              :    will have been CMYK based during the swap out to find the equivalent color, we can</span>
+<span id="L441"><span class="lineNum">     441</span>              :    go ahead and just grab the cmyk portion */</span>
+<span id="L442"><span class="lineNum">     442</span>              : static void</span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 : cmap_devicen_capture_cmyk_color(const frac * pcc, gx_device_color * pdc,</span></span>
+<span id="L444"><span class="lineNum">     444</span>              :      const gs_gstate * pgs, gx_device * dev, gs_color_select_t select,</span>
+<span id="L445"><span class="lineNum">     445</span>              :      const gs_color_space *pcs)</span>
+<span id="L446"><span class="lineNum">     446</span>              : {</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :     equivalent_cmyk_color_params * pparams =</span></span>
+<span id="L448"><span class="lineNum">     448</span>              :         ((color_capture_device *)dev)-&gt;pequiv_cmyk_colors;</span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :     int sep_num = ((color_capture_device *)dev)-&gt;sep_num;</span></span>
+<span id="L450"><span class="lineNum">     450</span>              : </span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :     save_spot_equivalent_cmyk_color(sep_num, pparams, pcc);</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L453"><span class="lineNum">     453</span>              : </span>
+<span id="L454"><span class="lineNum">     454</span>              : /*</span>
+<span id="L455"><span class="lineNum">     455</span>              :  * Note:  The color space (pcs) has already been modified to use the</span>
+<span id="L456"><span class="lineNum">     456</span>              :  * alternate color space.</span>
+<span id="L457"><span class="lineNum">     457</span>              :  */</span>
+<span id="L458"><span class="lineNum">     458</span>              : void</span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 : capture_spot_equivalent_cmyk_colors(gx_device * pdev, const gs_gstate * pgs,</span></span>
+<span id="L460"><span class="lineNum">     460</span>              :     const gs_client_color * pcc, const gs_color_space * pcs,</span>
+<span id="L461"><span class="lineNum">     461</span>              :     int sep_num, equivalent_cmyk_color_params * pparams)</span>
+<span id="L462"><span class="lineNum">     462</span>              : {</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :     gs_gstate temp_state = *((const gs_gstate *)pgs);</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :     color_capture_device temp_device = { 0 };</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :     gx_device_color dev_color;</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :     gsicc_rendering_param_t render_cond;</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :     cmm_dev_profile_t *dev_profile;</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :     cmm_profile_t *curr_output_profile;</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :     cmm_dev_profile_t temp_profile = {  /* Initialize to 0's/NULL's */</span></span>
+<span id="L470"><span class="lineNum">     470</span>              :                           { 0 } /* device_profile[] */, 0 /* proof_profile */,</span>
+<span id="L471"><span class="lineNum">     471</span>              :                           0 /* link_profile */, 0 /* oi_profile */,</span>
+<span id="L472"><span class="lineNum">     472</span>              :                           0 /* blend_profile */, 0 /* postren_profile */,</span>
+<span id="L473"><span class="lineNum">     473</span>              :                           { {0} } /* rendercond[] */, 0 /* devicegraytok */,</span>
+<span id="L474"><span class="lineNum">     474</span>              :                           0 /* graydection */, 0 /* pageneutralcolor */,</span>
+<span id="L475"><span class="lineNum">     475</span>              :                           0 /* usefastcolor */, 0 /* blacktext */, 0 /* blackvector */,</span>
+<span id="L476"><span class="lineNum">     476</span>              :                           0.0 /* blackthresholdL */, 0.0 /* blackthresholdC */,</span>
+<span id="L477"><span class="lineNum">     477</span>              :                           0 /* supports_devn */, 0 /* overprint_control */,</span>
+<span id="L478"><span class="lineNum">     478</span>              :                           0 /* spotnames */, 0 /* prebandthreshold */, 0 /* memory */,</span>
+<span id="L479"><span class="lineNum">     479</span>              :                           { 0 } /* rc_header */</span>
+<span id="L480"><span class="lineNum">     480</span>              :                           };</span>
+<span id="L481"><span class="lineNum">     481</span>              : </span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :     dev_proc(pdev, get_profile)(pdev, &amp;dev_profile);</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :     gsicc_extract_profile(pdev-&gt;graphics_type_tag,</span></span>
+<span id="L484"><span class="lineNum">     484</span>              :                           dev_profile, &amp;(curr_output_profile), &amp;render_cond);</span>
+<span id="L485"><span class="lineNum">     485</span>              : </span>
+<span id="L486"><span class="lineNum">     486</span>              :     /* If the output profile is not CMYK based (which can happen during overprint</span>
+<span id="L487"><span class="lineNum">     487</span>              :        simulation. In particular when the blending space is RGB or Gray based.</span>
+<span id="L488"><span class="lineNum">     488</span>              :        Think of the case where the file has transparency and we are in an RGB</span>
+<span id="L489"><span class="lineNum">     489</span>              :        page group), then just use DefaultCMYK */</span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :     if (curr_output_profile-&gt;data_cs != gsCMYK)</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         curr_output_profile = pgs-&gt;icc_manager-&gt;default_cmyk;</span></span>
+<span id="L492"><span class="lineNum">     492</span>              : </span>
+<span id="L493"><span class="lineNum">     493</span>              :     /*</span>
+<span id="L494"><span class="lineNum">     494</span>              :      * Create a temp device.  The primary purpose of this device is pass the</span>
+<span id="L495"><span class="lineNum">     495</span>              :      * separation number and a pointer to the original device's equivalent</span>
+<span id="L496"><span class="lineNum">     496</span>              :      * color parameters.  Since we only using this device for a very specific</span>
+<span id="L497"><span class="lineNum">     497</span>              :      * purpose, we only set up the color_info structure and our data.</span>
+<span id="L498"><span class="lineNum">     498</span>              :      */</span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :     temp_device.color_info = pdev-&gt;color_info;</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :     temp_device.sep_num = sep_num;</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :     temp_device.pequiv_cmyk_colors = pparams;</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :     temp_device.memory = pgs-&gt;memory;</span></span>
+<span id="L503"><span class="lineNum">     503</span>              : </span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :     temp_profile.usefastcolor = false;  /* This avoids a few headaches */</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :     temp_profile.blacktext = false;</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :     temp_profile.blackvector = false;</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :     temp_profile.prebandthreshold = true;</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :     temp_profile.supports_devn = false;</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :     temp_profile.rendercond[0] = render_cond;</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :     temp_profile.rendercond[1] = render_cond;</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :     temp_profile.rendercond[2] = render_cond;</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :     temp_profile.rendercond[3] = render_cond;</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :     temp_device.icc_struct = &amp;temp_profile;</span></span>
+<span id="L514"><span class="lineNum">     514</span>              : </span>
+<span id="L515"><span class="lineNum">     515</span>              :     /* The equivalent CMYK colors are used for</span>
+<span id="L516"><span class="lineNum">     516</span>              :        the preview of the composite image and as such should not rely</span>
+<span id="L517"><span class="lineNum">     517</span>              :        upon the output profile if our output profile is a DeviceN profile.</span>
+<span id="L518"><span class="lineNum">     518</span>              :        For example, if our output profile was CMYK + OG then if we use</span>
+<span id="L519"><span class="lineNum">     519</span>              :        the device profile here we may not get CMYK values that</span>
+<span id="L520"><span class="lineNum">     520</span>              :        even come close to the color we want to simulate.  So, for this</span>
+<span id="L521"><span class="lineNum">     521</span>              :        case we go ahead and use the default CMYK profile and let the user</span>
+<span id="L522"><span class="lineNum">     522</span>              :        beware.  Note that the actual separations will be correct however</span>
+<span id="L523"><span class="lineNum">     523</span>              :        for the CMYK + OG values. */</span>
+<span id="L524"><span class="lineNum">     524</span>              : </span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :     if (curr_output_profile-&gt;data_cs == gsNCHANNEL) {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         temp_profile.device_profile[GS_DEFAULT_DEVICE_PROFILE] =</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :             temp_state.icc_manager-&gt;default_cmyk;</span></span>
+<span id="L528"><span class="lineNum">     528</span>              :     } else {</span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         temp_profile.device_profile[GS_DEFAULT_DEVICE_PROFILE] =</span></span>
+<span id="L530"><span class="lineNum">     530</span>              :             curr_output_profile;</span>
+<span id="L531"><span class="lineNum">     531</span>              :     }</span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :     set_dev_proc(&amp;temp_device, get_profile, gx_default_get_profile);</span></span>
+<span id="L533"><span class="lineNum">     533</span>              : </span>
+<span id="L534"><span class="lineNum">     534</span>              :     /*</span>
+<span id="L535"><span class="lineNum">     535</span>              :      * Create a temp copy of the gs_gstate.  We do this so that we</span>
+<span id="L536"><span class="lineNum">     536</span>              :      * can modify the color space mapping (cmap) procs.  We use our</span>
+<span id="L537"><span class="lineNum">     537</span>              :      * replacment procs to capture the color.  The installation of a</span>
+<span id="L538"><span class="lineNum">     538</span>              :      * Separation or DeviceN color space also sets a use_alt_cspace flag</span>
+<span id="L539"><span class="lineNum">     539</span>              :      * in the state.  We also need to set this to use the alternate space.</span>
+<span id="L540"><span class="lineNum">     540</span>              :      */</span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :     temp_state.cmap_procs = &amp;cmap_capture_cmyk_color;</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :     temp_state.color_component_map.use_alt_cspace = true;</span></span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span>              :     /* Now capture the color */</span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :     pcs-&gt;type-&gt;remap_color (pcc, pcs, &amp;dev_color, &amp;temp_state,</span></span>
+<span id="L546"><span class="lineNum">     546</span>              :                             (gx_device *)&amp;temp_device, gs_color_select_texture);</span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L548"><span class="lineNum">     548</span>              : </span>
+<span id="L549"><span class="lineNum">     549</span>              : /* Used for detecting if we are trying to find the equivalant color during</span>
+<span id="L550"><span class="lineNum">     550</span>              :    named color replacement */</span>
+<span id="L551"><span class="lineNum">     551</span>              : bool</span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 : named_color_equivalent_cmyk_colors(const gs_gstate * pgs)</span></span>
+<span id="L553"><span class="lineNum">     553</span>              : {</span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :     return pgs-&gt;cmap_procs == &amp;cmap_capture_cmyk_color;</span></span>
+<span id="L555"><span class="lineNum">     555</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

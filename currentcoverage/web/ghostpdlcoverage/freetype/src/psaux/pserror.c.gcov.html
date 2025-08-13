@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/freetype/src/psaux/pserror.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/freetype/src/psaux</a> - pserror.c<span style="font-size: 80%;"> (source / <a href="pserror.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /****************************************************************************</span>
+<span id="L2"><span class="lineNum">       2</span>              :  *</span>
+<span id="L3"><span class="lineNum">       3</span>              :  * pserror.c</span>
+<span id="L4"><span class="lineNum">       4</span>              :  *</span>
+<span id="L5"><span class="lineNum">       5</span>              :  *   Adobe's code for error handling (body).</span>
+<span id="L6"><span class="lineNum">       6</span>              :  *</span>
+<span id="L7"><span class="lineNum">       7</span>              :  * Copyright 2006-2013 Adobe Systems Incorporated.</span>
+<span id="L8"><span class="lineNum">       8</span>              :  *</span>
+<span id="L9"><span class="lineNum">       9</span>              :  * This software, and all works of authorship, whether in source or</span>
+<span id="L10"><span class="lineNum">      10</span>              :  * object code form as indicated by the copyright notice(s) included</span>
+<span id="L11"><span class="lineNum">      11</span>              :  * herein (collectively, the &quot;Work&quot;) is made available, and may only be</span>
+<span id="L12"><span class="lineNum">      12</span>              :  * used, modified, and distributed under the FreeType Project License,</span>
+<span id="L13"><span class="lineNum">      13</span>              :  * LICENSE.TXT.  Additionally, subject to the terms and conditions of the</span>
+<span id="L14"><span class="lineNum">      14</span>              :  * FreeType Project License, each contributor to the Work hereby grants</span>
+<span id="L15"><span class="lineNum">      15</span>              :  * to any individual or legal entity exercising permissions granted by</span>
+<span id="L16"><span class="lineNum">      16</span>              :  * the FreeType Project License and this section (hereafter, &quot;You&quot; or</span>
+<span id="L17"><span class="lineNum">      17</span>              :  * &quot;Your&quot;) a perpetual, worldwide, non-exclusive, no-charge,</span>
+<span id="L18"><span class="lineNum">      18</span>              :  * royalty-free, irrevocable (except as stated in this section) patent</span>
+<span id="L19"><span class="lineNum">      19</span>              :  * license to make, have made, use, offer to sell, sell, import, and</span>
+<span id="L20"><span class="lineNum">      20</span>              :  * otherwise transfer the Work, where such license applies only to those</span>
+<span id="L21"><span class="lineNum">      21</span>              :  * patent claims licensable by such contributor that are necessarily</span>
+<span id="L22"><span class="lineNum">      22</span>              :  * infringed by their contribution(s) alone or by combination of their</span>
+<span id="L23"><span class="lineNum">      23</span>              :  * contribution(s) with the Work to which such contribution(s) was</span>
+<span id="L24"><span class="lineNum">      24</span>              :  * submitted.  If You institute patent litigation against any entity</span>
+<span id="L25"><span class="lineNum">      25</span>              :  * (including a cross-claim or counterclaim in a lawsuit) alleging that</span>
+<span id="L26"><span class="lineNum">      26</span>              :  * the Work or a contribution incorporated within the Work constitutes</span>
+<span id="L27"><span class="lineNum">      27</span>              :  * direct or contributory patent infringement, then any patent licenses</span>
+<span id="L28"><span class="lineNum">      28</span>              :  * granted to You under this License for that Work shall terminate as of</span>
+<span id="L29"><span class="lineNum">      29</span>              :  * the date such litigation is filed.</span>
+<span id="L30"><span class="lineNum">      30</span>              :  *</span>
+<span id="L31"><span class="lineNum">      31</span>              :  * By using, modifying, or distributing the Work you indicate that you</span>
+<span id="L32"><span class="lineNum">      32</span>              :  * have read and understood the terms and conditions of the</span>
+<span id="L33"><span class="lineNum">      33</span>              :  * FreeType Project License as well as those provided in this section,</span>
+<span id="L34"><span class="lineNum">      34</span>              :  * and you accept them fully.</span>
+<span id="L35"><span class="lineNum">      35</span>              :  *</span>
+<span id="L36"><span class="lineNum">      36</span>              :  */</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;psft.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;pserror.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              :   FT_LOCAL_DEF( void )</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :   cf2_setError( FT_Error*  error,</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :                 FT_Error   value )</span>
+<span id="L46"><span class="lineNum">      46</span>              :   {</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     if ( error &amp;&amp; !*error )</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :       *error = value;</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :   }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : /* END */</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

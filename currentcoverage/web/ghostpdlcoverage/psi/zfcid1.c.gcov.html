@@ -1,0 +1,695 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zfcid1.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zfcid1.c<span style="font-size: 80%;"> (source / <a href="zfcid1.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">6.7&nbsp;%</td>
+            <td class="headerCovTableEntry">312</td>
+            <td class="headerCovTableEntry">21</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">12.5&nbsp;%</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">2</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* CIDFontType 1 and 2 operators */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;oper.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gsmatrix.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gsccode.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gsgcache.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gsutil.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxfcid.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gxfcache.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;bfont.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;icid.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;idict.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;idparam.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;ifcid.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;ichar1.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;ifont42.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;store.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;stream.h&quot;</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;files.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* ---------------- CIDFontType 1 (FontType 10) ---------------- */</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : /* &lt;string|name&gt; &lt;font_dict&gt; .buildfont10 &lt;string|name&gt; &lt;font&gt; */</span>
+<span id="L42"><span class="lineNum">      42</span>              : static int</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           8 : zbuildfont10(i_ctx_t *i_ctx_p)</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : {</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           8 :     os_ptr op = osp;</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           8 :     build_proc_refs build;</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           8 :     int code;</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           8 :     gs_cid_system_info_t cidsi;</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           8 :     gs_font_base *pfont;</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           8 :     check_op(2);</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :     code = build_gs_font_procs(op, &amp;build);</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :     if (code &lt; 0)</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         return code;</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :     code = cid_font_system_info_param(&amp;cidsi, op);</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :         return code;</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     make_null(&amp;build.BuildChar);    /* only BuildGlyph */</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     code = build_gs_simple_font(i_ctx_p, op, &amp;pfont, ft_CID_user_defined,</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :                                 &amp;st_gs_font_cid1, &amp;build,</span>
+<span id="L61"><span class="lineNum">      61</span>              :                                 bf_Encoding_optional |</span>
+<span id="L62"><span class="lineNum">      62</span>              :                                 bf_UniqueID_ignored);</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         return code;</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     ((gs_font_cid1 *)pfont)-&gt;cidata.CIDSystemInfo = cidsi;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     return define_gs_font(i_ctx_p, (gs_font *)pfont);</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : }</span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : /* ---------------- CIDFontType 2 (FontType 11) ---------------- */</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : /* ------ Accessing ------ */</span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              : /* Map a glyph CID to a TrueType glyph number using the CIDMap. */</span>
+<span id="L74"><span class="lineNum">      74</span>              : static int</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : z11_CIDMap_proc(gs_font_cid2 *pfont, gs_glyph glyph)</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : {</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     const ref *pcidmap = &amp;pfont_data(pfont)-&gt;u.type42.CIDMap;</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     ulong cid = glyph - GS_MIN_CID_GLYPH;</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     int gdbytes = pfont-&gt;cidata.common.GDBytes;</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     int gnum = 0;</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :     const byte *data;</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     int i, code = -1;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     ref rcid;</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     ref *prgnum;</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :     ref *p, *fdict = pfont_dict(pfont);</span></span>
+<span id="L86"><span class="lineNum">      86</span>              : </span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     if (r_has_type(fdict, t_dictionary) &amp;&amp; dict_find_string(fdict, &quot;Path&quot;, &amp;p)) {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         ref *Decoding = NULL, *TT_cmap = NULL, *SubstNWP = NULL, src_type, dst_type;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         uint c;</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : </span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         code = dict_find_string(fdict, &quot;Decoding&quot;, &amp;Decoding);</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         if (code &gt; 0)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :             code = dict_find_string(fdict, &quot;TT_cmap&quot;, &amp;TT_cmap);</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         if (code &gt; 0)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :             code = dict_find_string(fdict, &quot;SubstNWP&quot;, &amp;SubstNWP);</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         if (code &gt; 0) {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :             code = cid_to_TT_charcode(pfont-&gt;memory, Decoding, TT_cmap, SubstNWP, cid, &amp;c, &amp;src_type, &amp;dst_type);</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :             if (code &gt;= 0)</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 gnum = c;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :         }</span>
+<span id="L101"><span class="lineNum">     101</span>              :     }</span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :     if (code &lt; 0) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         switch (r_type(pcidmap)) {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         case t_string:</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :             if (cid &gt;= r_size(pcidmap) / gdbytes)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                 return_error(gs_error_rangecheck);</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :             data = pcidmap-&gt;value.const_bytes + cid * gdbytes;</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         case t_integer:</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :             return cid + pcidmap-&gt;value.intval;</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         case t_dictionary:</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :             make_int(&amp;rcid, cid);</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :             code = dict_find(pcidmap, &amp;rcid, &amp;prgnum);</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :             if (code &lt;= 0)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 return (code &lt; 0 ? code : gs_note_error(gs_error_undefined));</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :             if (!r_has_type(prgnum, t_integer))</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :                 return_error(gs_error_typecheck);</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :             return prgnum-&gt;value.intval;</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         default:                        /* array type */</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :             code = string_array_access_proc(pfont-&gt;memory, pcidmap, 1, cid * gdbytes,</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :                                             gdbytes, NULL, NULL, &amp;data);</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L125"><span class="lineNum">     125</span>              :                 return code;</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :             if ( code &gt; 0 )</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :                 return_error(gs_error_invalidfont);</span>
+<span id="L128"><span class="lineNum">     128</span>              :         }</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; gdbytes; ++i)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :             gnum = (gnum &lt;&lt; 8) + data[i];</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :     }</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :     if (gnum &gt;= pfont-&gt;data.trueNumGlyphs)</span></span>
+<span id="L133"><span class="lineNum">     133</span>              :         return_error(gs_error_invalidfont);</span>
+<span id="L134"><span class="lineNum">     134</span>              :     return gnum;</span>
+<span id="L135"><span class="lineNum">     135</span>              : }</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              : /* Handle MetricsCount when accessing outline or metrics information. */</span>
+<span id="L138"><span class="lineNum">     138</span>              : static int</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 : z11_get_outline(gs_font_type42 * pfont, uint glyph_index,</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :                 gs_glyph_data_t *pgd)</span>
+<span id="L141"><span class="lineNum">     141</span>              : {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     gs_font_cid2 *const pfcid = (gs_font_cid2 *)pfont;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     int skip = pfcid-&gt;cidata.MetricsCount &lt;&lt; 1;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     int code = pfcid-&gt;cidata.orig_procs.get_outline(pfont, glyph_index, pgd);</span></span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :     if (code &gt;= 0) {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         uint size = pgd-&gt;bits.size;</span></span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         if (size &lt;= skip) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :             gs_glyph_data_free(pgd, &quot;z11_get_outline&quot;);</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :             gs_glyph_data_from_null(pgd);</span></span>
+<span id="L152"><span class="lineNum">     152</span>              :         } else {</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :             gs_glyph_data_substring(pgd, skip, size - skip);</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :         }</span>
+<span id="L155"><span class="lineNum">     155</span>              :     }</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : #define GET_U16_MSB(p) (((uint)((p)[0]) &lt;&lt; 8) + (p)[1])</span>
+<span id="L160"><span class="lineNum">     160</span>              : #define GET_S16_MSB(p) (int)((GET_U16_MSB(p) ^ 0x8000) - 0x8000)</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : static int</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 : z11_get_metrics(gs_font_type42 * pfont, uint glyph_index,</span></span>
+<span id="L164"><span class="lineNum">     164</span>              :                 gs_type42_metrics_options_t options, float sbw[4])</span>
+<span id="L165"><span class="lineNum">     165</span>              : {</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     gs_font_cid2 *const pfcid = (gs_font_cid2 *)pfont;</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     int skip = pfcid-&gt;cidata.MetricsCount &lt;&lt; 1;</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     gs_glyph_data_t gdata;</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :     const byte *pmetrics;</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :     int lsb, width;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     int wmode = gs_type42_metrics_options_wmode(options);</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     gdata.memory = pfont-&gt;memory;</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     if (wmode &gt;= skip &gt;&gt; 2 ||</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         (code = pfcid-&gt;cidata.orig_procs.get_outline(pfont, glyph_index, &amp;gdata)) &lt; 0 ||</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         gdata.bits.size &lt; skip</span></span>
+<span id="L178"><span class="lineNum">     178</span>              :         )</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         return pfcid-&gt;cidata.orig_procs.get_metrics(pfont, glyph_index, options, sbw);</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :     if(gs_type42_metrics_options_bbox_requested(options)) {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         code = pfcid-&gt;cidata.orig_procs.get_metrics(pfont, glyph_index,</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                         gs_type42_metrics_options_BBOX, sbw);;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :             return code;</span>
+<span id="L185"><span class="lineNum">     185</span>              :     }</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :     if (gs_type42_metrics_options_sbw_requested(options)) {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         pmetrics = gdata.bits.data + skip - 4 - (wmode &lt;&lt; 2);</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         lsb = GET_S16_MSB(pmetrics + 2);</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         width = GET_U16_MSB(pmetrics + 0);</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :         {</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :             double factor = 1.0 / pfont-&gt;data.unitsPerEm;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :             if (wmode) {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 sbw[0] = 0, sbw[1] = -lsb * factor;</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 sbw[2] = 0, sbw[3] = -width * factor;</span></span>
+<span id="L196"><span class="lineNum">     196</span>              :             } else {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 sbw[0] = lsb * factor, sbw[1] = 0;</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 sbw[2] = width * factor, sbw[3] = 0;</span></span>
+<span id="L199"><span class="lineNum">     199</span>              :             }</span>
+<span id="L200"><span class="lineNum">     200</span>              :         }</span>
+<span id="L201"><span class="lineNum">     201</span>              :     }</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     gs_glyph_data_free(&amp;gdata, &quot;z11_get_metrics&quot;);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L204"><span class="lineNum">     204</span>              : }</span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span>              : static int</span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 : z11_glyph_info_aux(gs_font *font, gs_glyph glyph, const gs_matrix *pmat,</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :                      int members, gs_glyph_info_t *info)</span>
+<span id="L209"><span class="lineNum">     209</span>              : {</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     gs_font_cid2 *fontCID2 = (gs_font_cid2 *)font;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     uint glyph_index;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     int code = (glyph &gt; GS_MIN_GLYPH_INDEX</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :             ? glyph - GS_MIN_GLYPH_INDEX</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :             : fontCID2-&gt;cidata.CIDMap_proc(fontCID2, glyph));</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :     if(code &lt; 0)</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :         return code;</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :     glyph_index = (uint)code;</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :     return gs_type42_glyph_info_by_gid(font, glyph, pmat, members, info, glyph_index);</span></span>
+<span id="L220"><span class="lineNum">     220</span>              : }</span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span>              : static int</span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 : z11_glyph_info(gs_font *font, gs_glyph glyph, const gs_matrix *pmat,</span></span>
+<span id="L224"><span class="lineNum">     224</span>              :                      int members, gs_glyph_info_t *info)</span>
+<span id="L225"><span class="lineNum">     225</span>              : {</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :     int wmode = (members &amp; GLYPH_INFO_WIDTH0 ? 0 : 1);</span></span>
+<span id="L227"><span class="lineNum">     227</span>              : </span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :     return z1_glyph_info_generic(font, glyph, pmat, members, info,</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :                                     &amp;z11_glyph_info_aux, wmode);</span>
+<span id="L230"><span class="lineNum">     230</span>              : }</span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span>              : /* Enumerate glyphs (keys) from GlyphDirectory instead of loca / glyf. */</span>
+<span id="L233"><span class="lineNum">     233</span>              : static int</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 : z11_enumerate_glyph(gs_font *font, int *pindex,</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :                          gs_glyph_space_t glyph_space, gs_glyph *pglyph)</span>
+<span id="L236"><span class="lineNum">     236</span>              : {</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     gs_font_cid2 *pfont = (gs_font_cid2 *)font;</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     int code0 = z11_CIDMap_proc(pfont, GS_MIN_CID_GLYPH);</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :     if(*pindex &gt; pfont-&gt;cidata.common.CIDCount)</span></span>
+<span id="L242"><span class="lineNum">     242</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :     for (;;) {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         code = z11_CIDMap_proc(pfont, GS_MIN_CID_GLYPH + *pindex);</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         if (code &lt; 0) {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :             *pindex = 0;</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :             return 0;</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :         }</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         (*pindex)++;</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         if (*pindex == 1 || code != code0)</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :             break;</span>
+<span id="L254"><span class="lineNum">     254</span>              :         /* else skip an underfined glyph */</span>
+<span id="L255"><span class="lineNum">     255</span>              :     }</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     if (glyph_space == GLYPH_SPACE_INDEX)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         *pglyph = GS_MIN_GLYPH_INDEX + (uint)code;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :     else</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         *pglyph = GS_MIN_CID_GLYPH + (uint)(*pindex - 1);</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :     return 0;</span>
+<span id="L261"><span class="lineNum">     261</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span>              : static uint</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 : z11_get_glyph_index(gs_font_type42 *pfont, gs_glyph glyph)</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : {</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     int code = z11_CIDMap_proc((gs_font_cid2 *)pfont, glyph);</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     return (code &lt; 0 ? 0 /* notdef */: (uint)code);</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : }</span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              : static int</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 : z11_glyph_outline(gs_font *font, int WMode, gs_glyph glyph, const gs_matrix *pmat,</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :                   gx_path *ppath, double sbw[4])</span>
+<span id="L274"><span class="lineNum">     274</span>              : {</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :     return gs_type42_glyph_outline(font, WMode,</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :             z11_get_glyph_index((gs_font_type42 *)font, glyph) + GS_MIN_GLYPH_INDEX,</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :                                    pmat, ppath, sbw);</span>
+<span id="L278"><span class="lineNum">     278</span>              : }</span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span>              : static int</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 : get_subst_CID_on_WMode(gs_subst_CID_on_WMode_t *subst, ref *t, int WMode)</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : {</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :     ref r, *a, e;;</span></span>
+<span id="L284"><span class="lineNum">     284</span>              : </span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :     make_int(&amp;r, WMode);</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :     if (dict_find(t, &amp;r, &amp;a) &gt; 0 &amp;&amp; r_type(a) == t_array) {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         int n = r_size(a), i;</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         uint *s;</span></span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         s = (uint *)gs_alloc_byte_array(subst-&gt;rc.memory, n, sizeof(int), &quot;zbuildfont11&quot;);</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         if (s == NULL)</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; n; i++) {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :             array_get(subst-&gt;rc.memory, a, (long)i, &amp;e);</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :             if (r_type(&amp;e) != t_integer)</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :                 return_error(gs_error_invalidfont);</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :             s[i] = e.value.intval;</span></span>
+<span id="L298"><span class="lineNum">     298</span>              :         }</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         subst-&gt;data[WMode] = s;</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         subst-&gt;size[WMode] = n;</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :     }</span>
+<span id="L302"><span class="lineNum">     302</span>              :     return 0;</span>
+<span id="L303"><span class="lineNum">     303</span>              : }</span>
+<span id="L304"><span class="lineNum">     304</span>              : </span>
+<span id="L305"><span class="lineNum">     305</span>              : static GS_NOTIFY_PROC(release_subst_CID_on_WMode);</span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span>              : static int</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 : release_subst_CID_on_WMode(void *data, void *event)</span></span>
+<span id="L309"><span class="lineNum">     309</span>              : {</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :     gs_font_cid2 *pfcid = (gs_font_cid2 *)data;</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     gs_subst_CID_on_WMode_t *subst = pfcid-&gt;subst_CID_on_WMode;</span></span>
+<span id="L312"><span class="lineNum">     312</span>              : </span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :     gs_font_notify_unregister((gs_font *)pfcid, release_subst_CID_on_WMode, data);</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :     pfcid-&gt;subst_CID_on_WMode = NULL;</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     rc_adjust(subst, -2, &quot;release_subst_CID_on_WMode&quot;);</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L317"><span class="lineNum">     317</span>              : }</span>
+<span id="L318"><span class="lineNum">     318</span>              : </span>
+<span id="L319"><span class="lineNum">     319</span>              : static uint</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 : font11_substitute_glyph_index_vertical(gs_font_type42 *pfont, uint glyph_index,</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :                                           int WMode, gs_glyph glyph)</span>
+<span id="L322"><span class="lineNum">     322</span>              : {</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :     gs_font_cid2 *pfcid = (gs_font_cid2 *)pfont;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :     uint cid = (glyph &gt;= GS_MIN_CID_GLYPH ? glyph - GS_MIN_CID_GLYPH : glyph);</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :     int WMode1 = !WMode;\</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :     gs_subst_CID_on_WMode_t *s = pfcid-&gt;subst_CID_on_WMode;</span></span>
+<span id="L327"><span class="lineNum">     327</span>              : </span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     if (s != NULL) {</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         uint *subst = s-&gt;data[WMode1];</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         int bi, ei, i;</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span>              :         /* Binary search for cid in subst (2-int elements) : */</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         bi = 0;</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         ei = pfcid-&gt;subst_CID_on_WMode-&gt;size[WMode1];</span></span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         if (ei &gt; 0) {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :             for (;;) {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 i = ((bi + ei) / 2) &amp; ~1;</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 if (subst[i] == cid) {</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                     WMode = WMode1;</span>
+<span id="L341"><span class="lineNum">     341</span>              :                     break;</span>
+<span id="L342"><span class="lineNum">     342</span>              :                 }</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 if (bi + 2 &gt;= ei)</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :                     break;</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 if (subst[i] &gt; cid)</span></span>
+<span id="L346"><span class="lineNum">     346</span>              :                     ei = i;</span>
+<span id="L347"><span class="lineNum">     347</span>              :                 else</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                     bi = i;</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :             }</span>
+<span id="L350"><span class="lineNum">     350</span>              :         }</span>
+<span id="L351"><span class="lineNum">     351</span>              :     }</span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :     return gs_type42_substitute_glyph_index_vertical(pfont, glyph_index, WMode, glyph);</span></span>
+<span id="L353"><span class="lineNum">     353</span>              : }</span>
+<span id="L354"><span class="lineNum">     354</span>              : </span>
+<span id="L355"><span class="lineNum">     355</span>              : /* ------ Defining ------ */</span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              : extern_st(st_subst_CID_on_WMode);</span>
+<span id="L358"><span class="lineNum">     358</span>              : </span>
+<span id="L359"><span class="lineNum">     359</span>              : /* &lt;string|name&gt; &lt;font_dict&gt; .buildfont11 &lt;string|name&gt; &lt;font&gt; */</span>
+<span id="L360"><span class="lineNum">     360</span>              : static int</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC tlaBgGNC">           6 : zbuildfont11(i_ctx_t *i_ctx_p)</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : {</span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           6 :     os_ptr op = osp;</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           6 :     gs_font_cid_data common;</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           6 :     gs_font_type42 *pfont;</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           6 :     gs_font_cid2 *pfcid;</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           6 :     int MetricsCount;</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           6 :     ref rcidmap, ignore_gdir, file, *pfile, cfnstr, *pCIDFontName, CIDFontName, *t;</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           6 :     ulong loca_glyph_pos[2][2];</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           6 :     int code;</span></span>
+<span id="L371"><span class="lineNum">     371</span>              : </span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           6 :     check_op(2);</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           4 :     code = cid_font_data_param(op, &amp;common, &amp;ignore_gdir);</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           4 :     if (code &lt; 0)</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :         return code;</span>
+<span id="L376"><span class="lineNum">     376</span>              : </span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC tlaBgUNC">           0 :     code = dict_find_string(op, &quot;CIDFontName&quot;, &amp;pCIDFontName);</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :     if (code &lt;= 0) {</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         if (code == 0)</span></span>
+<span id="L380"><span class="lineNum">     380</span>              :             return_error(gs_error_undefined);</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :     }</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :     code = dict_int_param(op, &quot;MetricsCount&quot;, 0, 4, 0, &amp;MetricsCount);</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L385"><span class="lineNum">     385</span>              :         return code;</span>
+<span id="L386"><span class="lineNum">     386</span>              :     /*</span>
+<span id="L387"><span class="lineNum">     387</span>              :      * Since build_gs_simple_font may resize the dictionary and cause</span>
+<span id="L388"><span class="lineNum">     388</span>              :      * pointers to become invalid, save CIDFontName</span>
+<span id="L389"><span class="lineNum">     389</span>              :      */</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :     CIDFontName = *pCIDFontName;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :     if (MetricsCount &amp; 1)   /* only allowable values are 0, 2, 4 */</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :     code = dict_find_string(op, &quot;File&quot;, &amp;pfile);</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :     if (code &lt; 0 &amp;&amp; code != gs_error_undefined)</span></span>
+<span id="L395"><span class="lineNum">     395</span>              :         return code;</span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :     if (code &gt; 0) {</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         ref *file_table_pos, *a, v;</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         const char *name[2] = {&quot;loca&quot;, &quot;glyf&quot;};</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         int i, j;</span></span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span>              :         /*</span>
+<span id="L402"><span class="lineNum">     402</span>              :          * Since build_gs_simple_font may resize the dictionary and cause</span>
+<span id="L403"><span class="lineNum">     403</span>              :          * pointers to become invalid, save File and CIDFontName</span>
+<span id="L404"><span class="lineNum">     404</span>              :          */</span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :         file = *pfile;</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         check_read_type(file, t_file);</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         code = dict_find_string(op, &quot;file_table_pos&quot;, &amp;file_table_pos);</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         if (code &lt;= 0 || r_type(file_table_pos) != t_dictionary)</span></span>
+<span id="L409"><span class="lineNum">     409</span>              :             return_error(gs_error_invalidfont);</span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; 2; i++) {</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :             code = dict_find_string(file_table_pos, name[i], &amp;a);</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :             if (code &lt;= 0 || r_type(a) != t_array)</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :                 return_error(gs_error_invalidfont);</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :             for (j = 0; j &lt; 2; j++) {</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :                 code = array_get(imemory, a, j, &amp;v);</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                 if (code &lt; 0 || r_type(&amp;v) != t_integer)</span></span>
+<span id="L417"><span class="lineNum">     417</span>              :                     return_error(gs_error_invalidfont);</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 loca_glyph_pos[i][j] = v.value.intval;</span></span>
+<span id="L419"><span class="lineNum">     419</span>              :             }</span>
+<span id="L420"><span class="lineNum">     420</span>              :         }</span>
+<span id="L421"><span class="lineNum">     421</span>              :     } else</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         pfile = NULL;</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :     code = font_string_array_param(imemory, op, &quot;CIDMap&quot;, &amp;rcidmap);</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :     switch (code) {</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :     case 0:                     /* in PLRM3 */</span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :     gdb:</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :         /* GDBytes is required for indexing a string or string array. */</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :         if (common.GDBytes == 0)</span></span>
+<span id="L429"><span class="lineNum">     429</span>              :             return_error(gs_error_rangecheck);</span>
+<span id="L430"><span class="lineNum">     430</span>              :         break;</span>
+<span id="L431"><span class="lineNum">     431</span>              :     default:</span>
+<span id="L432"><span class="lineNum">     432</span>              :         return code;</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :     case gs_error_typecheck:</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         switch (r_type(&amp;rcidmap)) {</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :         case t_string:          /* in PLRM3 */</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :             goto gdb;</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :         case t_dictionary:      /* added in 3011 */</span>
+<span id="L438"><span class="lineNum">     438</span>              :         case t_integer:         /* added in 3011 */</span>
+<span id="L439"><span class="lineNum">     439</span>              :             break;</span>
+<span id="L440"><span class="lineNum">     440</span>              :         default:</span>
+<span id="L441"><span class="lineNum">     441</span>              :             return code;</span>
+<span id="L442"><span class="lineNum">     442</span>              :         }</span>
+<span id="L443"><span class="lineNum">     443</span>              :         break;</span>
+<span id="L444"><span class="lineNum">     444</span>              :     }</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :     code = build_gs_TrueType_font(i_ctx_p, op, &amp;pfont, ft_CID_TrueType,</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :                                   &amp;st_gs_font_cid2,</span>
+<span id="L447"><span class="lineNum">     447</span>              :                                   (const char *)0, &quot;%Type11BuildGlyph&quot;,</span>
+<span id="L448"><span class="lineNum">     448</span>              :                                   bf_Encoding_optional |</span>
+<span id="L449"><span class="lineNum">     449</span>              :                                   bf_UniqueID_ignored |</span>
+<span id="L450"><span class="lineNum">     450</span>              :                                   bf_CharStrings_optional |</span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                                   (pfile != NULL ? bf_has_font_file : 0));</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L453"><span class="lineNum">     453</span>              :         return code;</span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :     pfcid = (gs_font_cid2 *)pfont;</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :     if (dict_find_string(op, &quot;subst_CID_on_WMode&quot;, &amp;t) &gt; 0 &amp;&amp; r_type(t) == t_dictionary) {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         gs_subst_CID_on_WMode_t *subst = NULL;</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         ref *o;</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         gs_font *font;</span></span>
+<span id="L459"><span class="lineNum">     459</span>              : </span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         if (dict_find_string(t, &quot;Ordering&quot;, &amp;o) &lt;= 0 || r_type(o) != t_string)</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :             return_error(gs_error_invalidfont);</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :         for (font = ifont_dir-&gt;orig_fonts; font != NULL; font = font-&gt;next) {</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :             if (font-&gt;FontType == ft_CID_TrueType) {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                 gs_font_cid2 *pfcid1 = (gs_font_cid2 *)font;</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 if (pfcid1-&gt;subst_CID_on_WMode != NULL &amp;&amp;</span></span>
+<span id="L466"><span class="lineNum">     466</span>              :                     /* We want the subst_CID_on_WMode to exist in same local/global</span>
+<span id="L467"><span class="lineNum">     467</span>              :                      * VM as the CIDFont object that will hold a reference to it</span>
+<span id="L468"><span class="lineNum">     468</span>              :                      */</span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                     pfcid1-&gt;memory == pfcid-&gt;memory &amp;&amp;</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                     bytes_compare(o-&gt;value.const_bytes, r_size(o),</span></span>
+<span id="L471"><span class="lineNum">     471</span>              :                             pfcid1-&gt;cidata.common.CIDSystemInfo.Ordering.data,</span>
+<span id="L472"><span class="lineNum">     472</span>              :                             pfcid1-&gt;cidata.common.CIDSystemInfo.Ordering.size)) {</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                     subst = pfcid1-&gt;subst_CID_on_WMode;</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                     break;</span></span>
+<span id="L475"><span class="lineNum">     475</span>              :                 }</span>
+<span id="L476"><span class="lineNum">     476</span>              :             }</span>
+<span id="L477"><span class="lineNum">     477</span>              :         }</span>
+<span id="L478"><span class="lineNum">     478</span>              : </span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         if (subst == NULL) {</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :             rc_alloc_struct_1(subst, gs_subst_CID_on_WMode_t, &amp;st_subst_CID_on_WMode,</span></span>
+<span id="L481"><span class="lineNum">     481</span>              :                             pfcid-&gt;memory, return_error(gs_error_VMerror), &quot;zbuildfont11&quot;);</span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :             subst-&gt;data[0] = subst-&gt;data[1] = 0;</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :             pfcid-&gt;subst_CID_on_WMode = subst;</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :             code = get_subst_CID_on_WMode(subst, t, 0);</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L486"><span class="lineNum">     486</span>              :                 return code;</span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :             code = get_subst_CID_on_WMode(subst, t, 1);</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L489"><span class="lineNum">     489</span>              :                 return code;</span>
+<span id="L490"><span class="lineNum">     490</span>              :         } else {</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :             pfcid-&gt;subst_CID_on_WMode = subst;</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :             rc_increment(subst);</span></span>
+<span id="L493"><span class="lineNum">     493</span>              :         }</span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :         code = gs_font_notify_register((gs_font *)pfcid, release_subst_CID_on_WMode, (void *)pfcid);</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L496"><span class="lineNum">     496</span>              :             return code;</span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         rc_increment(subst);</span></span>
+<span id="L498"><span class="lineNum">     498</span>              :    }</span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :     pfcid-&gt;cidata.common = common;</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :     pfcid-&gt;cidata.MetricsCount = MetricsCount;</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :     ref_assign(&amp;pfont_data(pfont)-&gt;u.type42.CIDMap, &amp;rcidmap);</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :     pfcid-&gt;cidata.CIDMap_proc = z11_CIDMap_proc;</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :     pfcid-&gt;data.substitute_glyph_index_vertical = font11_substitute_glyph_index_vertical;</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :     pfont-&gt;procs.enumerate_glyph = z11_enumerate_glyph;</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :     pfont-&gt;procs.glyph_info = z11_glyph_info;</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :     pfont-&gt;procs.glyph_outline = z11_glyph_outline;</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :     pfont-&gt;data.get_glyph_index = z11_get_glyph_index;</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :     if (pfcid-&gt;font_name.size == 0) {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :         get_font_name(imemory, &amp;cfnstr, &amp;CIDFontName);</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         copy_font_name(&amp;pfcid-&gt;font_name, &amp;cfnstr);</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :     }</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :     if (MetricsCount) {</span></span>
+<span id="L513"><span class="lineNum">     513</span>              :         /* &quot;Wrap&quot; the glyph accessor procedures. */</span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :         pfcid-&gt;cidata.orig_procs.get_outline = pfont-&gt;data.get_outline;</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :         pfont-&gt;data.get_outline = z11_get_outline;</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         pfcid-&gt;cidata.orig_procs.get_metrics = pfont-&gt;data.get_metrics;</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :         pfont-&gt;data.get_metrics = z11_get_metrics;</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :     } else if(pfile != NULL) {</span></span>
+<span id="L519"><span class="lineNum">     519</span>              :         /*</span>
+<span id="L520"><span class="lineNum">     520</span>              :          * We assume that disk fonts has no MetricsCount.</span>
+<span id="L521"><span class="lineNum">     521</span>              :          * We could do not, but the number of virtual function wariants increases.</span>
+<span id="L522"><span class="lineNum">     522</span>              :          */</span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :         stream *s;</span></span>
+<span id="L524"><span class="lineNum">     524</span>              : </span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         check_read_file(i_ctx_p, s, &amp;file);</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         pfont-&gt;data.loca = loca_glyph_pos[0][0];</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         pfont-&gt;data.glyf = loca_glyph_pos[1][0];</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         pfont-&gt;data.get_outline = gs_get_glyph_data_cached;</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         pfont-&gt;data.gdcache = gs_glyph_cache__alloc(pfont, s, gs_type42_get_outline_from_TT_file);</span></span>
+<span id="L530"><span class="lineNum">     530</span>              :     }</span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :     return define_gs_font(i_ctx_p, (gs_font *)pfont);</span></span>
+<span id="L532"><span class="lineNum">     532</span>              : }</span>
+<span id="L533"><span class="lineNum">     533</span>              : </span>
+<span id="L534"><span class="lineNum">     534</span>              : /* &lt;cid11font&gt; &lt;cid&gt; .type11mapcid &lt;glyph_index&gt; */</span>
+<span id="L535"><span class="lineNum">     535</span>              : static int</span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : ztype11mapcid(i_ctx_t *i_ctx_p)</span></span>
+<span id="L537"><span class="lineNum">     537</span>              : {</span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :     gs_font *pfont;</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L541"><span class="lineNum">     541</span>              : </span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :     code = font_param(op - 1, &amp;pfont);</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L545"><span class="lineNum">     545</span>              :         return code;</span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :     check_type(*op, t_integer);</span></span>
+<span id="L547"><span class="lineNum">     547</span>              : #if defined(TEST)</span>
+<span id="L548"><span class="lineNum">     548</span>              :     /* Allow a Type 42 font here, for testing .wrapfont. */</span>
+<span id="L549"><span class="lineNum">     549</span>              :     if (pfont-&gt;FontType == ft_TrueType) {</span>
+<span id="L550"><span class="lineNum">     550</span>              :         /* Use the CID as the glyph index. */</span>
+<span id="L551"><span class="lineNum">     551</span>              :         if (op-&gt;value.intval &lt; 0 ||</span>
+<span id="L552"><span class="lineNum">     552</span>              :             op-&gt;value.intval &gt;= ((gs_font_type42 *)pfont)-&gt;data.numGlyphs</span>
+<span id="L553"><span class="lineNum">     553</span>              :             )</span>
+<span id="L554"><span class="lineNum">     554</span>              :             return_error(gs_error_rangecheck);</span>
+<span id="L555"><span class="lineNum">     555</span>              :         code = (int)op-&gt;value.intval;</span>
+<span id="L556"><span class="lineNum">     556</span>              :     } else</span>
+<span id="L557"><span class="lineNum">     557</span>              : #endif</span>
+<span id="L558"><span class="lineNum">     558</span>              :     {</span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         if (pfont-&gt;FontType != ft_CID_TrueType)</span></span>
+<span id="L560"><span class="lineNum">     560</span>              :             return_error(gs_error_invalidfont);</span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         code = z11_CIDMap_proc((gs_font_cid2 *)pfont,</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                         (gs_glyph)(GS_MIN_CID_GLYPH + op-&gt;value.intval));</span></span>
+<span id="L563"><span class="lineNum">     563</span>              :     }</span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L565"><span class="lineNum">     565</span>              :         return code;</span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :     make_int(op - 1, code);</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :     pop(1);</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L569"><span class="lineNum">     569</span>              : }</span>
+<span id="L570"><span class="lineNum">     570</span>              : </span>
+<span id="L571"><span class="lineNum">     571</span>              : /* &lt;Decoding&gt; &lt;TT_cmap&gt; &lt;SubstNWP&gt; &lt;GDBytes&gt; &lt;CIDMap&gt; .fillCIDMap - */</span>
+<span id="L572"><span class="lineNum">     572</span>              : static int</span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 : zfillCIDMap(i_ctx_t *i_ctx_p)</span></span>
+<span id="L574"><span class="lineNum">     574</span>              : {</span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :     ref *Decoding = op - 4, *TT_cmap = op - 3, *SubstNWP = op - 2,</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :         *GDBytes = op - 1, *CIDMap = op;</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L579"><span class="lineNum">     579</span>              : </span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :     check_op(5);</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :     check_type(*Decoding, t_dictionary);</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :     check_type(*TT_cmap, t_dictionary);</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :     check_type(*SubstNWP, t_array);</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :     check_type(*GDBytes, t_integer);</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :     check_type(*CIDMap, t_array);</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :     code = cid_fill_CIDMap(imemory, Decoding, TT_cmap, SubstNWP, GDBytes-&gt;value.intval, CIDMap);</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :     pop(5);</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L589"><span class="lineNum">     589</span>              : }</span>
+<span id="L590"><span class="lineNum">     590</span>              : </span>
+<span id="L591"><span class="lineNum">     591</span>              : static int</span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaUNC">           0 : zfillIdentityCIDMap(i_ctx_t *i_ctx_p)</span></span>
+<span id="L593"><span class="lineNum">     593</span>              : {</span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L595"><span class="lineNum">     595</span>              :     /* ref *Decoding = op - 4; */</span>
+<span id="L596"><span class="lineNum">     596</span>              :     /* ref *TT_cmap  = op - 3; */</span>
+<span id="L597"><span class="lineNum">     597</span>              :     /* ref *SubstNWP = op - 2; */</span>
+<span id="L598"><span class="lineNum">     598</span>              :     /* ref *GDBytes  = op - 1; */</span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :     ref *CIDMap = op;</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L601"><span class="lineNum">     601</span>              : </span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC">           0 :     check_op(1);</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :     check_type(*CIDMap, t_array);</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :     code = cid_fill_Identity_CIDMap(imemory, CIDMap);</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :     pop(1);</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L607"><span class="lineNum">     607</span>              : }</span>
+<span id="L608"><span class="lineNum">     608</span>              : </span>
+<span id="L609"><span class="lineNum">     609</span>              : /* ------ Initialization procedure ------ */</span>
+<span id="L610"><span class="lineNum">     610</span>              : </span>
+<span id="L611"><span class="lineNum">     611</span>              : const op_def zfcid1_op_defs[] =</span>
+<span id="L612"><span class="lineNum">     612</span>              : {</span>
+<span id="L613"><span class="lineNum">     613</span>              :     {&quot;2.buildfont10&quot;, zbuildfont10},</span>
+<span id="L614"><span class="lineNum">     614</span>              :     {&quot;2.buildfont11&quot;, zbuildfont11},</span>
+<span id="L615"><span class="lineNum">     615</span>              :     {&quot;2.type11mapcid&quot;, ztype11mapcid},</span>
+<span id="L616"><span class="lineNum">     616</span>              :     {&quot;2.fillCIDMap&quot;, zfillCIDMap},</span>
+<span id="L617"><span class="lineNum">     617</span>              :     {&quot;2.fillIdentityCIDMap&quot;, zfillIdentityCIDMap},</span>
+<span id="L618"><span class="lineNum">     618</span>              :     op_def_end(0)</span>
+<span id="L619"><span class="lineNum">     619</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

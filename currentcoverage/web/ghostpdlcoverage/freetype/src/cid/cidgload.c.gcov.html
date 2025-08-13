@@ -1,0 +1,694 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/freetype/src/cid/cidgload.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/freetype/src/cid</a> - cidgload.c<span style="font-size: 80%;"> (source / <a href="cidgload.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">219</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /****************************************************************************</span>
+<span id="L2"><span class="lineNum">       2</span>              :  *</span>
+<span id="L3"><span class="lineNum">       3</span>              :  * cidgload.c</span>
+<span id="L4"><span class="lineNum">       4</span>              :  *</span>
+<span id="L5"><span class="lineNum">       5</span>              :  *   CID-keyed Type1 Glyph Loader (body).</span>
+<span id="L6"><span class="lineNum">       6</span>              :  *</span>
+<span id="L7"><span class="lineNum">       7</span>              :  * Copyright (C) 1996-2024 by</span>
+<span id="L8"><span class="lineNum">       8</span>              :  * David Turner, Robert Wilhelm, and Werner Lemberg.</span>
+<span id="L9"><span class="lineNum">       9</span>              :  *</span>
+<span id="L10"><span class="lineNum">      10</span>              :  * This file is part of the FreeType project, and may only be used,</span>
+<span id="L11"><span class="lineNum">      11</span>              :  * modified, and distributed under the terms of the FreeType project</span>
+<span id="L12"><span class="lineNum">      12</span>              :  * license, LICENSE.TXT.  By continuing to use, modify, or distribute</span>
+<span id="L13"><span class="lineNum">      13</span>              :  * this file you indicate that you have read the license and</span>
+<span id="L14"><span class="lineNum">      14</span>              :  * understand and accept it fully.</span>
+<span id="L15"><span class="lineNum">      15</span>              :  *</span>
+<span id="L16"><span class="lineNum">      16</span>              :  */</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;cidload.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;cidgload.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &lt;freetype/internal/ftdebug.h&gt;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &lt;freetype/internal/ftstream.h&gt;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &lt;freetype/ftoutln.h&gt;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &lt;freetype/internal/ftcalc.h&gt;</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &lt;freetype/internal/psaux.h&gt;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &lt;freetype/internal/cfftypes.h&gt;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &lt;freetype/ftdriver.h&gt;</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;ciderrs.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              :   /**************************************************************************</span>
+<span id="L34"><span class="lineNum">      34</span>              :    *</span>
+<span id="L35"><span class="lineNum">      35</span>              :    * The macro FT_COMPONENT is used in trace mode.  It is an implicit</span>
+<span id="L36"><span class="lineNum">      36</span>              :    * parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log</span>
+<span id="L37"><span class="lineNum">      37</span>              :    * messages during execution.</span>
+<span id="L38"><span class="lineNum">      38</span>              :    */</span>
+<span id="L39"><span class="lineNum">      39</span>              : #undef  FT_COMPONENT</span>
+<span id="L40"><span class="lineNum">      40</span>              : #define FT_COMPONENT  cidgload</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              :   /*</span>
+<span id="L44"><span class="lineNum">      44</span>              :    * A helper function to compute FD number (`fd_select`), the offset to the</span>
+<span id="L45"><span class="lineNum">      45</span>              :    * head of the glyph data (`off1`), and the offset to the and of the glyph</span>
+<span id="L46"><span class="lineNum">      46</span>              :    * data (`off2`).</span>
+<span id="L47"><span class="lineNum">      47</span>              :    *</span>
+<span id="L48"><span class="lineNum">      48</span>              :    * The number how many times `cid_get_offset` is invoked can be controlled</span>
+<span id="L49"><span class="lineNum">      49</span>              :    * by the number of non-NULL arguments.  If `fd_select` is non-NULL but</span>
+<span id="L50"><span class="lineNum">      50</span>              :    * `off1` and `off2` are NULL, `cid_get_offset` is invoked only for</span>
+<span id="L51"><span class="lineNum">      51</span>              :    * `fd_select`; `off1` and `off2` are not validated.</span>
+<span id="L52"><span class="lineNum">      52</span>              :    *</span>
+<span id="L53"><span class="lineNum">      53</span>              :    */</span>
+<span id="L54"><span class="lineNum">      54</span>              :   FT_LOCAL_DEF( FT_Error )</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :   cid_compute_fd_and_offsets( CID_Face   face,</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :                               FT_UInt    glyph_index,</span>
+<span id="L57"><span class="lineNum">      57</span>              :                               FT_ULong*  fd_select_p,</span>
+<span id="L58"><span class="lineNum">      58</span>              :                               FT_ULong*  off1_p,</span>
+<span id="L59"><span class="lineNum">      59</span>              :                               FT_ULong*  off2_p )</span>
+<span id="L60"><span class="lineNum">      60</span>              :   {</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     FT_Error  error = FT_Err_Ok;</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     CID_FaceInfo  cid       = &amp;face-&gt;cid;</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :     FT_Stream     stream    =  face-&gt;cid_stream;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     FT_UInt       entry_len = cid-&gt;fd_bytes + cid-&gt;gd_bytes;</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     FT_Byte*  p;</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     FT_Bool   need_frame_exit = 0;</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     FT_ULong  fd_select, off1, off2;</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span>              :     /* For ordinary fonts, read the CID font dictionary index */</span>
+<span id="L73"><span class="lineNum">      73</span>              :     /* and charstring offset from the CIDMap.                 */</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     if ( FT_STREAM_SEEK( cid-&gt;data_offset + cid-&gt;cidmap_offset +</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                          glyph_index * entry_len )               ||</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :          FT_FRAME_ENTER( 2 * entry_len )                         )</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :     need_frame_exit = 1;</span></span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     p         = (FT_Byte*)stream-&gt;cursor;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     fd_select = cid_get_offset( &amp;p, cid-&gt;fd_bytes );</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :     off1      = cid_get_offset( &amp;p, cid-&gt;gd_bytes );</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :     p    += cid-&gt;fd_bytes;</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     off2  = cid_get_offset( &amp;p, cid-&gt;gd_bytes );</span></span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     if ( fd_select_p )</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :       *fd_select_p = fd_select;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     if ( off1_p )</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :       *off1_p = off1;</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :     if ( off2_p )</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :       *off2_p = off2;</span></span>
+<span id="L95"><span class="lineNum">      95</span>              : </span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :     if ( fd_select &gt;= cid-&gt;num_dicts )</span></span>
+<span id="L97"><span class="lineNum">      97</span>              :     {</span>
+<span id="L98"><span class="lineNum">      98</span>              :       /*</span>
+<span id="L99"><span class="lineNum">      99</span>              :        * fd_select == 0xFF is often used to indicate that the CID</span>
+<span id="L100"><span class="lineNum">     100</span>              :        * has no charstring to be rendered, similar to GID = 0xFFFF</span>
+<span id="L101"><span class="lineNum">     101</span>              :        * in TrueType fonts.</span>
+<span id="L102"><span class="lineNum">     102</span>              :        */</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :       if ( ( cid-&gt;fd_bytes == 1 &amp;&amp; fd_select == 0xFFU   ) ||</span></span>
+<span id="L104"><span class="lineNum">     104</span>              :            ( cid-&gt;fd_bytes == 2 &amp;&amp; fd_select == 0xFFFFU ) )</span>
+<span id="L105"><span class="lineNum">     105</span>              :       {</span>
+<span id="L106"><span class="lineNum">     106</span>              :         FT_TRACE1(( &quot;cid_load_glyph: fail for glyph index %d:\n&quot;,</span>
+<span id="L107"><span class="lineNum">     107</span>              :                     glyph_index ));</span>
+<span id="L108"><span class="lineNum">     108</span>              :         FT_TRACE1(( &quot;                FD number %ld is the maximum\n&quot;,</span>
+<span id="L109"><span class="lineNum">     109</span>              :                     fd_select ));</span>
+<span id="L110"><span class="lineNum">     110</span>              :         FT_TRACE1(( &quot;                integer fitting into %d byte%s\n&quot;,</span>
+<span id="L111"><span class="lineNum">     111</span>              :                     cid-&gt;fd_bytes, cid-&gt;fd_bytes == 1 ? &quot;&quot; : &quot;s&quot; ));</span>
+<span id="L112"><span class="lineNum">     112</span>              :       }</span>
+<span id="L113"><span class="lineNum">     113</span>              :       else</span>
+<span id="L114"><span class="lineNum">     114</span>              :       {</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         FT_TRACE0(( &quot;cid_load_glyph: fail for glyph index %d:\n&quot;,</span></span>
+<span id="L116"><span class="lineNum">     116</span>              :                     glyph_index ));</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         FT_TRACE0(( &quot;                FD number %ld is larger\n&quot;,</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :                     fd_select ));</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         FT_TRACE0(( &quot;                than number of dictionaries (%d)\n&quot;,</span></span>
+<span id="L120"><span class="lineNum">     120</span>              :                     cid-&gt;num_dicts ));</span>
+<span id="L121"><span class="lineNum">     121</span>              :       }</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :       error = FT_THROW( Invalid_Offset );</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L125"><span class="lineNum">     125</span>              :     }</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :     else if ( off2 &gt; stream-&gt;size )</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :     {</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :       FT_TRACE0(( &quot;cid_load_glyph: fail for glyph index %d:\n&quot;,</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :                   glyph_index ));</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :       FT_TRACE0(( &quot;               end of the glyph data\n&quot; ));</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :       FT_TRACE0(( &quot;               is beyond the data stream\n&quot; ));</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :       error = FT_THROW( Invalid_Offset );</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :     }</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     else if ( off1 &gt; off2 )</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :     {</span>
+<span id="L138"><span class="lineNum">     138</span>              :       FT_TRACE0(( &quot;cid_load_glyph: fail for glyph index %d:\n&quot;,</span>
+<span id="L139"><span class="lineNum">     139</span>              :                   glyph_index ));</span>
+<span id="L140"><span class="lineNum">     140</span>              :       FT_TRACE0(( &quot;                the end position of glyph data\n&quot; ));</span>
+<span id="L141"><span class="lineNum">     141</span>              :       FT_TRACE0(( &quot;                is set before the start position\n&quot; ));</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              :       error = FT_THROW( Invalid_Offset );</span>
+<span id="L144"><span class="lineNum">     144</span>              :     }</span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :     Exit:</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :       if ( need_frame_exit )</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         FT_FRAME_EXIT();</span></span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     return error;</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :   }</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              :   FT_CALLBACK_DEF( FT_Error )</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :   cid_load_glyph( T1_Decoder  decoder,</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :                   FT_UInt     glyph_index )</span>
+<span id="L157"><span class="lineNum">     157</span>              :   {</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     CID_Face       face = (CID_Face)decoder-&gt;builder.face;</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     CID_FaceInfo   cid  = &amp;face-&gt;cid;</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     FT_Byte*       p;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     FT_ULong       fd_select;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :     FT_Stream      stream       = face-&gt;cid_stream;</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :     FT_Error       error        = FT_Err_Ok;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :     FT_Byte*       charstring   = NULL;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :     FT_Memory      memory       = face-&gt;root.memory;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     FT_ULong       glyph_length = 0;</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     PSAux_Service  psaux        = (PSAux_Service)face-&gt;psaux;</span></span>
+<span id="L168"><span class="lineNum">     168</span>              : </span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :     FT_Bool  force_scaling = FALSE;</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span>              : #ifdef FT_CONFIG_OPTION_INCREMENTAL</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     FT_Incremental_InterfaceRec  *inc =</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                                    face-&gt;root.internal-&gt;incremental_interface;</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : #endif</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     FT_TRACE1(( &quot;cid_load_glyph: glyph index %u\n&quot;, glyph_index ));</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : #ifdef FT_CONFIG_OPTION_INCREMENTAL</span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              :     /* For incremental fonts get the character data using */</span>
+<span id="L182"><span class="lineNum">     182</span>              :     /* the callback function.                             */</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     if ( inc )</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :     {</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :       FT_Data  glyph_data;</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span>              : </span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :       error = inc-&gt;funcs-&gt;get_glyph_data( inc-&gt;object,</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :                                           glyph_index, &amp;glyph_data );</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :       if ( error || glyph_data.length &lt; cid-&gt;fd_bytes )</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         goto Exit;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :       p         = (FT_Byte*)glyph_data.pointer;</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :       fd_select = cid_get_offset( &amp;p, cid-&gt;fd_bytes );</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :       glyph_length = glyph_data.length - cid-&gt;fd_bytes;</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :       if ( !FT_QALLOC( charstring, glyph_length ) )</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         FT_MEM_COPY( charstring, glyph_data.pointer + cid-&gt;fd_bytes,</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :                      glyph_length );</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :       inc-&gt;funcs-&gt;free_glyph_data( inc-&gt;object, &amp;glyph_data );</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :       if ( error )</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         goto Exit;</span></span>
+<span id="L206"><span class="lineNum">     206</span>              :     }</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span>              :     else</span>
+<span id="L209"><span class="lineNum">     209</span>              : </span>
+<span id="L210"><span class="lineNum">     210</span>              : #endif /* FT_CONFIG_OPTION_INCREMENTAL */</span>
+<span id="L211"><span class="lineNum">     211</span>              :     {</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :       FT_ULong  off1, off2;</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : </span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :       error = cid_compute_fd_and_offsets( face, glyph_index,</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :                                           &amp;fd_select, &amp;off1, &amp;off2 );</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :       if ( error )</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         goto Exit;</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :       glyph_length = off2 - off1;</span></span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :       if ( glyph_length == 0                             ||</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :            FT_QALLOC( charstring, glyph_length )         ||</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :            FT_STREAM_READ_AT( cid-&gt;data_offset + off1,</span></span>
+<span id="L225"><span class="lineNum">     225</span>              :                               charstring, glyph_length ) )</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         goto Exit;</span></span>
+<span id="L227"><span class="lineNum">     227</span>              :     }</span>
+<span id="L228"><span class="lineNum">     228</span>              : </span>
+<span id="L229"><span class="lineNum">     229</span>              :     /* Now set up the subrs array and parse the charstrings. */</span>
+<span id="L230"><span class="lineNum">     230</span>              :     {</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :       CID_FaceDict  dict;</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :       CID_Subrs     cid_subrs = face-&gt;subrs + fd_select;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :       FT_UInt       cs_offset;</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : </span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              :       /* Set up subrs */</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :       decoder-&gt;num_subrs  = cid_subrs-&gt;num_subrs;</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :       decoder-&gt;subrs      = cid_subrs-&gt;code;</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :       decoder-&gt;subrs_len  = 0;</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :       decoder-&gt;subrs_hash = NULL;</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              :       /* Set up font matrix */</span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :       dict                 = cid-&gt;font_dicts + fd_select;</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :       decoder-&gt;font_matrix = dict-&gt;font_matrix;</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :       decoder-&gt;font_offset = dict-&gt;font_offset;</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :       decoder-&gt;lenIV       = dict-&gt;private_dict.lenIV;</span></span>
+<span id="L248"><span class="lineNum">     248</span>              : </span>
+<span id="L249"><span class="lineNum">     249</span>              :       /* Decode the charstring. */</span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span>              :       /* Adjustment for seed bytes. */</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :       cs_offset = decoder-&gt;lenIV &gt;= 0 ? (FT_UInt)decoder-&gt;lenIV : 0;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :       if ( cs_offset &gt; glyph_length )</span></span>
+<span id="L254"><span class="lineNum">     254</span>              :       {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         FT_TRACE0(( &quot;cid_load_glyph: fail for glyph_index=%d, &quot;</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :                     &quot;offset to the charstring is beyond glyph length\n&quot;,</span>
+<span id="L257"><span class="lineNum">     257</span>              :                     glyph_index ));</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         error = FT_THROW( Invalid_Offset );</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         goto Exit;</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :       }</span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span>              :       /* Decrypt only if lenIV &gt;= 0. */</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :       if ( decoder-&gt;lenIV &gt;= 0 )</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         psaux-&gt;t1_decrypt( charstring, glyph_length, 4330 );</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : </span>
+<span id="L266"><span class="lineNum">     266</span>              :       /* choose which renderer to use */</span>
+<span id="L267"><span class="lineNum">     267</span>              : #ifdef T1_CONFIG_OPTION_OLD_ENGINE</span>
+<span id="L268"><span class="lineNum">     268</span>              :       if ( ( (PS_Driver)FT_FACE_DRIVER( face ) )-&gt;hinting_engine ==</span>
+<span id="L269"><span class="lineNum">     269</span>              :                FT_HINTING_FREETYPE                                  ||</span>
+<span id="L270"><span class="lineNum">     270</span>              :            decoder-&gt;builder.metrics_only                            )</span>
+<span id="L271"><span class="lineNum">     271</span>              :         error = psaux-&gt;t1_decoder_funcs-&gt;parse_charstrings_old(</span>
+<span id="L272"><span class="lineNum">     272</span>              :                   decoder,</span>
+<span id="L273"><span class="lineNum">     273</span>              :                   charstring + cs_offset,</span>
+<span id="L274"><span class="lineNum">     274</span>              :                   glyph_length - cs_offset );</span>
+<span id="L275"><span class="lineNum">     275</span>              : #else</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :       if ( decoder-&gt;builder.metrics_only )</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         error = psaux-&gt;t1_decoder_funcs-&gt;parse_metrics(</span></span>
+<span id="L278"><span class="lineNum">     278</span>              :                   decoder,</span>
+<span id="L279"><span class="lineNum">     279</span>              :                   charstring + cs_offset,</span>
+<span id="L280"><span class="lineNum">     280</span>              :                   glyph_length - cs_offset );</span>
+<span id="L281"><span class="lineNum">     281</span>              : #endif</span>
+<span id="L282"><span class="lineNum">     282</span>              :       else</span>
+<span id="L283"><span class="lineNum">     283</span>              :       {</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         PS_Decoder      psdecoder;</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         CFF_SubFontRec  subfont;</span></span>
+<span id="L286"><span class="lineNum">     286</span>              : </span>
+<span id="L287"><span class="lineNum">     287</span>              : </span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         psaux-&gt;ps_decoder_init( &amp;psdecoder, decoder, TRUE );</span></span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         psaux-&gt;t1_make_subfont( FT_FACE( face ),</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                                 &amp;dict-&gt;private_dict,</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :                                 &amp;subfont );</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         psdecoder.current_subfont = &amp;subfont;</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :         error = psaux-&gt;t1_decoder_funcs-&gt;parse_charstrings(</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :                   &amp;psdecoder,</span>
+<span id="L297"><span class="lineNum">     297</span>              :                   charstring + cs_offset,</span>
+<span id="L298"><span class="lineNum">     298</span>              :                   glyph_length - cs_offset );</span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span>              :         /* Adobe's engine uses 16.16 numbers everywhere;              */</span>
+<span id="L301"><span class="lineNum">     301</span>              :         /* as a consequence, glyphs larger than 2000ppem get rejected */</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         if ( FT_ERR_EQ( error, Glyph_Too_Big ) )</span></span>
+<span id="L303"><span class="lineNum">     303</span>              :         {</span>
+<span id="L304"><span class="lineNum">     304</span>              :           /* this time, we retry unhinted and scale up the glyph later on */</span>
+<span id="L305"><span class="lineNum">     305</span>              :           /* (the engine uses and sets the hardcoded value 0x10000 / 64 = */</span>
+<span id="L306"><span class="lineNum">     306</span>              :           /* 0x400 for both `x_scale' and `y_scale' in this case)         */</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :           ((CID_GlyphSlot)decoder-&gt;builder.glyph)-&gt;hint = FALSE;</span></span>
+<span id="L308"><span class="lineNum">     308</span>              : </span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :           force_scaling = TRUE;</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :           error = psaux-&gt;t1_decoder_funcs-&gt;parse_charstrings(</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                     &amp;psdecoder,</span>
+<span id="L313"><span class="lineNum">     313</span>              :                     charstring + cs_offset,</span>
+<span id="L314"><span class="lineNum">     314</span>              :                     glyph_length - cs_offset );</span>
+<span id="L315"><span class="lineNum">     315</span>              :         }</span>
+<span id="L316"><span class="lineNum">     316</span>              :       }</span>
+<span id="L317"><span class="lineNum">     317</span>              :     }</span>
+<span id="L318"><span class="lineNum">     318</span>              : </span>
+<span id="L319"><span class="lineNum">     319</span>              : #ifdef FT_CONFIG_OPTION_INCREMENTAL</span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span>              :     /* Incremental fonts can optionally override the metrics. */</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :     if ( !error &amp;&amp; inc &amp;&amp; inc-&gt;funcs-&gt;get_glyph_metrics )</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :     {</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :       FT_Incremental_MetricsRec  metrics;</span></span>
+<span id="L325"><span class="lineNum">     325</span>              : </span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :       metrics.bearing_x = FIXED_TO_INT( decoder-&gt;builder.left_bearing.x );</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :       metrics.bearing_y = 0;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :       metrics.advance   = FIXED_TO_INT( decoder-&gt;builder.advance.x );</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :       metrics.advance_v = FIXED_TO_INT( decoder-&gt;builder.advance.y );</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :       error = inc-&gt;funcs-&gt;get_glyph_metrics( inc-&gt;object,</span></span>
+<span id="L333"><span class="lineNum">     333</span>              :                                              glyph_index, FALSE, &amp;metrics );</span>
+<span id="L334"><span class="lineNum">     334</span>              : </span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :       decoder-&gt;builder.left_bearing.x = INT_TO_FIXED( metrics.bearing_x );</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :       decoder-&gt;builder.advance.x      = INT_TO_FIXED( metrics.advance );</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :       decoder-&gt;builder.advance.y      = INT_TO_FIXED( metrics.advance_v );</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :     }</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              : #endif /* FT_CONFIG_OPTION_INCREMENTAL */</span>
+<span id="L341"><span class="lineNum">     341</span>              : </span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :   Exit:</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :     FT_FREE( charstring );</span></span>
+<span id="L344"><span class="lineNum">     344</span>              : </span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :     ((CID_GlyphSlot)decoder-&gt;builder.glyph)-&gt;scaled = force_scaling;</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :     return error;</span></span>
+<span id="L348"><span class="lineNum">     348</span>              :   }</span>
+<span id="L349"><span class="lineNum">     349</span>              : </span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span>              : #if 0</span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span>              : </span>
+<span id="L354"><span class="lineNum">     354</span>              :   /*************************************************************************/</span>
+<span id="L355"><span class="lineNum">     355</span>              :   /*************************************************************************/</span>
+<span id="L356"><span class="lineNum">     356</span>              :   /*************************************************************************/</span>
+<span id="L357"><span class="lineNum">     357</span>              :   /**********                                                      *********/</span>
+<span id="L358"><span class="lineNum">     358</span>              :   /**********                                                      *********/</span>
+<span id="L359"><span class="lineNum">     359</span>              :   /**********            COMPUTE THE MAXIMUM ADVANCE WIDTH         *********/</span>
+<span id="L360"><span class="lineNum">     360</span>              :   /**********                                                      *********/</span>
+<span id="L361"><span class="lineNum">     361</span>              :   /**********    The following code is in charge of computing      *********/</span>
+<span id="L362"><span class="lineNum">     362</span>              :   /**********    the maximum advance width of the font.  It        *********/</span>
+<span id="L363"><span class="lineNum">     363</span>              :   /**********    quickly processes each glyph charstring to        *********/</span>
+<span id="L364"><span class="lineNum">     364</span>              :   /**********    extract the value from either a `sbw' or `seac'   *********/</span>
+<span id="L365"><span class="lineNum">     365</span>              :   /**********    operator.                                         *********/</span>
+<span id="L366"><span class="lineNum">     366</span>              :   /**********                                                      *********/</span>
+<span id="L367"><span class="lineNum">     367</span>              :   /*************************************************************************/</span>
+<span id="L368"><span class="lineNum">     368</span>              :   /*************************************************************************/</span>
+<span id="L369"><span class="lineNum">     369</span>              :   /*************************************************************************/</span>
+<span id="L370"><span class="lineNum">     370</span>              : </span>
+<span id="L371"><span class="lineNum">     371</span>              : </span>
+<span id="L372"><span class="lineNum">     372</span>              :   FT_LOCAL_DEF( FT_Error )</span>
+<span id="L373"><span class="lineNum">     373</span>              :   cid_face_compute_max_advance( CID_Face  face,</span>
+<span id="L374"><span class="lineNum">     374</span>              :                                 FT_Int*   max_advance )</span>
+<span id="L375"><span class="lineNum">     375</span>              :   {</span>
+<span id="L376"><span class="lineNum">     376</span>              :     FT_Error       error;</span>
+<span id="L377"><span class="lineNum">     377</span>              :     T1_DecoderRec  decoder;</span>
+<span id="L378"><span class="lineNum">     378</span>              :     FT_Int         glyph_index;</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span>              :     PSAux_Service  psaux = (PSAux_Service)face-&gt;psaux;</span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span>              : </span>
+<span id="L383"><span class="lineNum">     383</span>              :     *max_advance = 0;</span>
+<span id="L384"><span class="lineNum">     384</span>              : </span>
+<span id="L385"><span class="lineNum">     385</span>              :     /* Initialize load decoder */</span>
+<span id="L386"><span class="lineNum">     386</span>              :     error = psaux-&gt;t1_decoder_funcs-&gt;init( &amp;decoder,</span>
+<span id="L387"><span class="lineNum">     387</span>              :                                            (FT_Face)face,</span>
+<span id="L388"><span class="lineNum">     388</span>              :                                            0, /* size       */</span>
+<span id="L389"><span class="lineNum">     389</span>              :                                            0, /* glyph slot */</span>
+<span id="L390"><span class="lineNum">     390</span>              :                                            0, /* glyph names! XXX */</span>
+<span id="L391"><span class="lineNum">     391</span>              :                                            0, /* blend == 0 */</span>
+<span id="L392"><span class="lineNum">     392</span>              :                                            0, /* hinting == 0 */</span>
+<span id="L393"><span class="lineNum">     393</span>              :                                            cid_load_glyph );</span>
+<span id="L394"><span class="lineNum">     394</span>              :     if ( error )</span>
+<span id="L395"><span class="lineNum">     395</span>              :       return error;</span>
+<span id="L396"><span class="lineNum">     396</span>              : </span>
+<span id="L397"><span class="lineNum">     397</span>              :     /* TODO: initialize decoder.len_buildchar and decoder.buildchar */</span>
+<span id="L398"><span class="lineNum">     398</span>              :     /*       if we ever support CID-keyed multiple master fonts     */</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              :     decoder.builder.metrics_only = 1;</span>
+<span id="L401"><span class="lineNum">     401</span>              :     decoder.builder.load_points  = 0;</span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              :     /* for each glyph, parse the glyph charstring and extract */</span>
+<span id="L404"><span class="lineNum">     404</span>              :     /* the advance width                                      */</span>
+<span id="L405"><span class="lineNum">     405</span>              :     for ( glyph_index = 0; glyph_index &lt; face-&gt;root.num_glyphs;</span>
+<span id="L406"><span class="lineNum">     406</span>              :           glyph_index++ )</span>
+<span id="L407"><span class="lineNum">     407</span>              :     {</span>
+<span id="L408"><span class="lineNum">     408</span>              :       /* now get load the unscaled outline */</span>
+<span id="L409"><span class="lineNum">     409</span>              :       error = cid_load_glyph( &amp;decoder, glyph_index );</span>
+<span id="L410"><span class="lineNum">     410</span>              :       /* ignore the error if one occurred - skip to next glyph */</span>
+<span id="L411"><span class="lineNum">     411</span>              :     }</span>
+<span id="L412"><span class="lineNum">     412</span>              : </span>
+<span id="L413"><span class="lineNum">     413</span>              :     *max_advance = FIXED_TO_INT( decoder.builder.advance.x );</span>
+<span id="L414"><span class="lineNum">     414</span>              : </span>
+<span id="L415"><span class="lineNum">     415</span>              :     psaux-&gt;t1_decoder_funcs-&gt;done( &amp;decoder );</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              :     return FT_Err_Ok;</span>
+<span id="L418"><span class="lineNum">     418</span>              :   }</span>
+<span id="L419"><span class="lineNum">     419</span>              : </span>
+<span id="L420"><span class="lineNum">     420</span>              : </span>
+<span id="L421"><span class="lineNum">     421</span>              : #endif /* 0 */</span>
+<span id="L422"><span class="lineNum">     422</span>              : </span>
+<span id="L423"><span class="lineNum">     423</span>              : </span>
+<span id="L424"><span class="lineNum">     424</span>              :   FT_LOCAL_DEF( FT_Error )</span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :   cid_slot_load_glyph( FT_GlyphSlot  cidglyph,      /* CID_GlyphSlot */</span></span>
+<span id="L426"><span class="lineNum">     426</span>              :                        FT_Size       cidsize,       /* CID_Size      */</span>
+<span id="L427"><span class="lineNum">     427</span>              :                        FT_UInt       glyph_index,</span>
+<span id="L428"><span class="lineNum">     428</span>              :                        FT_Int32      load_flags )</span>
+<span id="L429"><span class="lineNum">     429</span>              :   {</span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :     CID_GlyphSlot  glyph = (CID_GlyphSlot)cidglyph;</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :     FT_Error       error;</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :     T1_DecoderRec  decoder;</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :     CID_Face       face = (CID_Face)cidglyph-&gt;face;</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :     FT_Bool        hinting;</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     FT_Bool        scaled;</span></span>
+<span id="L436"><span class="lineNum">     436</span>              : </span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :     PSAux_Service  psaux = (PSAux_Service)face-&gt;psaux;</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :     FT_Matrix      font_matrix;</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :     FT_Vector      font_offset;</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :     FT_Bool        must_finish_decoder = FALSE;</span></span>
+<span id="L441"><span class="lineNum">     441</span>              : </span>
+<span id="L442"><span class="lineNum">     442</span>              : </span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :     if ( glyph_index &gt;= (FT_UInt)face-&gt;root.num_glyphs )</span></span>
+<span id="L444"><span class="lineNum">     444</span>              :     {</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :       error = FT_THROW( Invalid_Argument );</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L447"><span class="lineNum">     447</span>              :     }</span>
+<span id="L448"><span class="lineNum">     448</span>              : </span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :     if ( load_flags &amp; FT_LOAD_NO_RECURSE )</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :       load_flags |= FT_LOAD_NO_SCALE | FT_LOAD_NO_HINTING;</span></span>
+<span id="L451"><span class="lineNum">     451</span>              : </span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :     glyph-&gt;x_scale = cidsize-&gt;metrics.x_scale;</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :     glyph-&gt;y_scale = cidsize-&gt;metrics.y_scale;</span></span>
+<span id="L454"><span class="lineNum">     454</span>              : </span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :     cidglyph-&gt;outline.n_points   = 0;</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :     cidglyph-&gt;outline.n_contours = 0;</span></span>
+<span id="L457"><span class="lineNum">     457</span>              : </span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :     hinting = FT_BOOL( ( load_flags &amp; FT_LOAD_NO_SCALE   ) == 0 &amp;&amp;</span></span>
+<span id="L459"><span class="lineNum">     459</span>              :                        ( load_flags &amp; FT_LOAD_NO_HINTING ) == 0 );</span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :     scaled  = FT_BOOL( ( load_flags &amp; FT_LOAD_NO_SCALE   ) == 0 );</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :     glyph-&gt;hint      = hinting;</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :     glyph-&gt;scaled    = scaled;</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :     cidglyph-&gt;format = FT_GLYPH_FORMAT_OUTLINE;</span></span>
+<span id="L465"><span class="lineNum">     465</span>              : </span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :     error = psaux-&gt;t1_decoder_funcs-&gt;init( &amp;decoder,</span></span>
+<span id="L467"><span class="lineNum">     467</span>              :                                            cidglyph-&gt;face,</span>
+<span id="L468"><span class="lineNum">     468</span>              :                                            cidsize,</span>
+<span id="L469"><span class="lineNum">     469</span>              :                                            cidglyph,</span>
+<span id="L470"><span class="lineNum">     470</span>              :                                            0, /* glyph names -- XXX */</span>
+<span id="L471"><span class="lineNum">     471</span>              :                                            0, /* blend == 0 */</span>
+<span id="L472"><span class="lineNum">     472</span>              :                                            hinting,</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                                            FT_LOAD_TARGET_MODE( load_flags ),</span></span>
+<span id="L474"><span class="lineNum">     474</span>              :                                            cid_load_glyph );</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :     if ( error )</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L477"><span class="lineNum">     477</span>              : </span>
+<span id="L478"><span class="lineNum">     478</span>              :     /* TODO: initialize decoder.len_buildchar and decoder.buildchar */</span>
+<span id="L479"><span class="lineNum">     479</span>              :     /*       if we ever support CID-keyed multiple master fonts     */</span>
+<span id="L480"><span class="lineNum">     480</span>              : </span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :     must_finish_decoder = TRUE;</span></span>
+<span id="L482"><span class="lineNum">     482</span>              : </span>
+<span id="L483"><span class="lineNum">     483</span>              :     /* set up the decoder */</span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :     decoder.builder.no_recurse = FT_BOOL( load_flags &amp; FT_LOAD_NO_RECURSE );</span></span>
+<span id="L485"><span class="lineNum">     485</span>              : </span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :     error = cid_load_glyph( &amp;decoder, glyph_index );</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :     if ( error )</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :       goto Exit;</span></span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              :     /* copy flags back for forced scaling */</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :     hinting = glyph-&gt;hint;</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :     scaled  = glyph-&gt;scaled;</span></span>
+<span id="L493"><span class="lineNum">     493</span>              : </span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :     font_matrix = decoder.font_matrix;</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :     font_offset = decoder.font_offset;</span></span>
+<span id="L496"><span class="lineNum">     496</span>              : </span>
+<span id="L497"><span class="lineNum">     497</span>              :     /* save new glyph tables */</span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :     psaux-&gt;t1_decoder_funcs-&gt;done( &amp;decoder );</span></span>
+<span id="L499"><span class="lineNum">     499</span>              : </span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :     must_finish_decoder = FALSE;</span></span>
+<span id="L501"><span class="lineNum">     501</span>              : </span>
+<span id="L502"><span class="lineNum">     502</span>              :     /* now set the metrics -- this is rather simple, as    */</span>
+<span id="L503"><span class="lineNum">     503</span>              :     /* the left side bearing is the xMin, and the top side */</span>
+<span id="L504"><span class="lineNum">     504</span>              :     /* bearing the yMax                                    */</span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :     cidglyph-&gt;outline.flags &amp;= FT_OUTLINE_OWNER;</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :     cidglyph-&gt;outline.flags |= FT_OUTLINE_REVERSE_FILL;</span></span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span>              :     /* for composite glyphs, return only left side bearing and */</span>
+<span id="L509"><span class="lineNum">     509</span>              :     /* advance width                                           */</span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :     if ( load_flags &amp; FT_LOAD_NO_RECURSE )</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :     {</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :       FT_Slot_Internal  internal = cidglyph-&gt;internal;</span></span>
+<span id="L513"><span class="lineNum">     513</span>              : </span>
+<span id="L514"><span class="lineNum">     514</span>              : </span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :       cidglyph-&gt;metrics.horiBearingX =</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         FIXED_TO_INT( decoder.builder.left_bearing.x );</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :       cidglyph-&gt;metrics.horiAdvance =</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         FIXED_TO_INT( decoder.builder.advance.x );</span></span>
+<span id="L519"><span class="lineNum">     519</span>              : </span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :       internal-&gt;glyph_matrix      = font_matrix;</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :       internal-&gt;glyph_delta       = font_offset;</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :       internal-&gt;glyph_transformed = 1;</span></span>
+<span id="L523"><span class="lineNum">     523</span>              :     }</span>
+<span id="L524"><span class="lineNum">     524</span>              :     else</span>
+<span id="L525"><span class="lineNum">     525</span>              :     {</span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :       FT_BBox            cbox;</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :       FT_Glyph_Metrics*  metrics = &amp;cidglyph-&gt;metrics;</span></span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span>              : </span>
+<span id="L530"><span class="lineNum">     530</span>              :       /* copy the _unscaled_ advance width */</span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :       metrics-&gt;horiAdvance =</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :         FIXED_TO_INT( decoder.builder.advance.x );</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :       cidglyph-&gt;linearHoriAdvance =</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         FIXED_TO_INT( decoder.builder.advance.x );</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :       cidglyph-&gt;internal-&gt;glyph_transformed = 0;</span></span>
+<span id="L536"><span class="lineNum">     536</span>              : </span>
+<span id="L537"><span class="lineNum">     537</span>              :       /* make up vertical ones */</span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :       metrics-&gt;vertAdvance        = ( face-&gt;cid.font_bbox.yMax -</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                                       face-&gt;cid.font_bbox.yMin ) &gt;&gt; 16;</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :       cidglyph-&gt;linearVertAdvance = metrics-&gt;vertAdvance;</span></span>
+<span id="L541"><span class="lineNum">     541</span>              : </span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :       cidglyph-&gt;format            = FT_GLYPH_FORMAT_OUTLINE;</span></span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :       if ( cidsize-&gt;metrics.y_ppem &lt; 24 )</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :         cidglyph-&gt;outline.flags |= FT_OUTLINE_HIGH_PRECISION;</span></span>
+<span id="L546"><span class="lineNum">     546</span>              : </span>
+<span id="L547"><span class="lineNum">     547</span>              :       /* apply the font matrix, if any */</span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :       if ( font_matrix.xx != 0x10000L || font_matrix.yy != 0x10000L ||</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :            font_matrix.xy != 0        || font_matrix.yx != 0        )</span></span>
+<span id="L550"><span class="lineNum">     550</span>              :       {</span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :         FT_Outline_Transform( &amp;cidglyph-&gt;outline, &amp;font_matrix );</span></span>
+<span id="L552"><span class="lineNum">     552</span>              : </span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         metrics-&gt;horiAdvance = FT_MulFix( metrics-&gt;horiAdvance,</span></span>
+<span id="L554"><span class="lineNum">     554</span>              :                                           font_matrix.xx );</span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :         metrics-&gt;vertAdvance = FT_MulFix( metrics-&gt;vertAdvance,</span></span>
+<span id="L556"><span class="lineNum">     556</span>              :                                           font_matrix.yy );</span>
+<span id="L557"><span class="lineNum">     557</span>              :       }</span>
+<span id="L558"><span class="lineNum">     558</span>              : </span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :       if ( font_offset.x || font_offset.y )</span></span>
+<span id="L560"><span class="lineNum">     560</span>              :       {</span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         FT_Outline_Translate( &amp;cidglyph-&gt;outline,</span></span>
+<span id="L562"><span class="lineNum">     562</span>              :                               font_offset.x,</span>
+<span id="L563"><span class="lineNum">     563</span>              :                               font_offset.y );</span>
+<span id="L564"><span class="lineNum">     564</span>              : </span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :         metrics-&gt;horiAdvance += font_offset.x;</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         metrics-&gt;vertAdvance += font_offset.y;</span></span>
+<span id="L567"><span class="lineNum">     567</span>              :       }</span>
+<span id="L568"><span class="lineNum">     568</span>              : </span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :       if ( ( load_flags &amp; FT_LOAD_NO_SCALE ) == 0 || scaled )</span></span>
+<span id="L570"><span class="lineNum">     570</span>              :       {</span>
+<span id="L571"><span class="lineNum">     571</span>              :         /* scale the outline and the metrics */</span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         FT_Int       n;</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         FT_Outline*  cur = decoder.builder.base;</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :         FT_Vector*   vec = cur-&gt;points;</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :         FT_Fixed     x_scale = glyph-&gt;x_scale;</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :         FT_Fixed     y_scale = glyph-&gt;y_scale;</span></span>
+<span id="L577"><span class="lineNum">     577</span>              : </span>
+<span id="L578"><span class="lineNum">     578</span>              : </span>
+<span id="L579"><span class="lineNum">     579</span>              :         /* First of all, scale the points */</span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :         if ( !hinting || !decoder.builder.hints_funcs )</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :           for ( n = cur-&gt;n_points; n &gt; 0; n--, vec++ )</span></span>
+<span id="L582"><span class="lineNum">     582</span>              :           {</span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :             vec-&gt;x = FT_MulFix( vec-&gt;x, x_scale );</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :             vec-&gt;y = FT_MulFix( vec-&gt;y, y_scale );</span></span>
+<span id="L585"><span class="lineNum">     585</span>              :           }</span>
+<span id="L586"><span class="lineNum">     586</span>              : </span>
+<span id="L587"><span class="lineNum">     587</span>              :         /* Then scale the metrics */</span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :         metrics-&gt;horiAdvance = FT_MulFix( metrics-&gt;horiAdvance, x_scale );</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 :         metrics-&gt;vertAdvance = FT_MulFix( metrics-&gt;vertAdvance, y_scale );</span></span>
+<span id="L590"><span class="lineNum">     590</span>              :       }</span>
+<span id="L591"><span class="lineNum">     591</span>              : </span>
+<span id="L592"><span class="lineNum">     592</span>              :       /* compute the other metrics */</span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 :       FT_Outline_Get_CBox( &amp;cidglyph-&gt;outline, &amp;cbox );</span></span>
+<span id="L594"><span class="lineNum">     594</span>              : </span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :       metrics-&gt;width  = cbox.xMax - cbox.xMin;</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC">           0 :       metrics-&gt;height = cbox.yMax - cbox.yMin;</span></span>
+<span id="L597"><span class="lineNum">     597</span>              : </span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :       metrics-&gt;horiBearingX = cbox.xMin;</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :       metrics-&gt;horiBearingY = cbox.yMax;</span></span>
+<span id="L600"><span class="lineNum">     600</span>              : </span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :       if ( load_flags &amp; FT_LOAD_VERTICAL_LAYOUT )</span></span>
+<span id="L602"><span class="lineNum">     602</span>              :       {</span>
+<span id="L603"><span class="lineNum">     603</span>              :         /* make up vertical ones */</span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :         ft_synthesize_vertical_metrics( metrics,</span></span>
+<span id="L605"><span class="lineNum">     605</span>              :                                         metrics-&gt;vertAdvance );</span>
+<span id="L606"><span class="lineNum">     606</span>              :       }</span>
+<span id="L607"><span class="lineNum">     607</span>              :     }</span>
+<span id="L608"><span class="lineNum">     608</span>              : </span>
+<span id="L609"><span class="lineNum">     609</span>              :   Exit:</span>
+<span id="L610"><span class="lineNum">     610</span>              : </span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :     if ( must_finish_decoder )</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :       psaux-&gt;t1_decoder_funcs-&gt;done( &amp;decoder );</span></span>
+<span id="L613"><span class="lineNum">     613</span>              : </span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaUNC">           0 :     return error;</span></span>
+<span id="L615"><span class="lineNum">     615</span>              :   }</span>
+<span id="L616"><span class="lineNum">     616</span>              : </span>
+<span id="L617"><span class="lineNum">     617</span>              : </span>
+<span id="L618"><span class="lineNum">     618</span>              : /* END */</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

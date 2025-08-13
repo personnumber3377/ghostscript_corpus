@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxsample.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxsample.c<span style="font-size: 80%;"> (source / <a href="gxsample.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Sample unpacking procedures */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;gx.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gxsample.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gxfixed.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gximage.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : /* #include &quot;gxsamplp.h&quot; Do not remove - this file is included below. */</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : /* ---------------- Lookup tables ---------------- */</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : /*</span>
+<span id="L27"><span class="lineNum">      27</span>              :  * Define standard tables for spreading 1-bit input data.</span>
+<span id="L28"><span class="lineNum">      28</span>              :  * Note that these depend on the end-orientation of the CPU.</span>
+<span id="L29"><span class="lineNum">      29</span>              :  * We can't simply define them as byte arrays, because</span>
+<span id="L30"><span class="lineNum">      30</span>              :  * they might not wind up properly long- or short-aligned.</span>
+<span id="L31"><span class="lineNum">      31</span>              :  */</span>
+<span id="L32"><span class="lineNum">      32</span>              : #define map4tox(z,a,b,c,d)\</span>
+<span id="L33"><span class="lineNum">      33</span>              :     z, z^a, z^b, z^(a+b),\</span>
+<span id="L34"><span class="lineNum">      34</span>              :     z^c, z^(a+c), z^(b+c), z^(a+b+c),\</span>
+<span id="L35"><span class="lineNum">      35</span>              :     z^d, z^(a+d), z^(b+d), z^(a+b+d),\</span>
+<span id="L36"><span class="lineNum">      36</span>              :     z^(c+d), z^(a+c+d), z^(b+c+d), z^(a+b+c+d)</span>
+<span id="L37"><span class="lineNum">      37</span>              : /* Work around warnings from really picky compilers. */</span>
+<span id="L38"><span class="lineNum">      38</span>              : #ifdef __STDC__</span>
+<span id="L39"><span class="lineNum">      39</span>              : #  define n0L 0xffffffffU</span>
+<span id="L40"><span class="lineNum">      40</span>              : #  define ffL8 0x0000ff00U</span>
+<span id="L41"><span class="lineNum">      41</span>              : #  define ffL16 0x00ff0000U</span>
+<span id="L42"><span class="lineNum">      42</span>              : #  define ffL24 0xff000000U</span>
+<span id="L43"><span class="lineNum">      43</span>              : #else</span>
+<span id="L44"><span class="lineNum">      44</span>              : #if ARCH_SIZEOF_LONG == 4</span>
+<span id="L45"><span class="lineNum">      45</span>              : /*</span>
+<span id="L46"><span class="lineNum">      46</span>              :  * The compiler evaluates long expressions mod 2^32.  Even very picky</span>
+<span id="L47"><span class="lineNum">      47</span>              :  * compilers allow assigning signed longs to unsigned longs, so we use</span>
+<span id="L48"><span class="lineNum">      48</span>              :  * signed constants.</span>
+<span id="L49"><span class="lineNum">      49</span>              :  */</span>
+<span id="L50"><span class="lineNum">      50</span>              : #  define n0L (-1)</span>
+<span id="L51"><span class="lineNum">      51</span>              : #  define ffL8 0x0000ff00</span>
+<span id="L52"><span class="lineNum">      52</span>              : #  define ffL16 0x00ff0000</span>
+<span id="L53"><span class="lineNum">      53</span>              : #  define ffL24 (-0x01000000)</span>
+<span id="L54"><span class="lineNum">      54</span>              : #else</span>
+<span id="L55"><span class="lineNum">      55</span>              : /*</span>
+<span id="L56"><span class="lineNum">      56</span>              :  * The compiler evaluates long expressions mod 2^64.</span>
+<span id="L57"><span class="lineNum">      57</span>              :  */</span>
+<span id="L58"><span class="lineNum">      58</span>              : #  define n0L 0xffffffffL</span>
+<span id="L59"><span class="lineNum">      59</span>              : #  define ffL8 0x0000ff00L</span>
+<span id="L60"><span class="lineNum">      60</span>              : #  define ffL16 0x00ff0000L</span>
+<span id="L61"><span class="lineNum">      61</span>              : #  define ffL24 0xff000000L</span>
+<span id="L62"><span class="lineNum">      62</span>              : #endif</span>
+<span id="L63"><span class="lineNum">      63</span>              : #endif</span>
+<span id="L64"><span class="lineNum">      64</span>              : #if ARCH_IS_BIG_ENDIAN</span>
+<span id="L65"><span class="lineNum">      65</span>              : const bits32 lookup4x1to32_identity[16] = {</span>
+<span id="L66"><span class="lineNum">      66</span>              :     map4tox(0, 0xff, ffL8, ffL16, ffL24)</span>
+<span id="L67"><span class="lineNum">      67</span>              : };</span>
+<span id="L68"><span class="lineNum">      68</span>              : const bits32 lookup4x1to32_inverted[16] = {</span>
+<span id="L69"><span class="lineNum">      69</span>              :     map4tox(n0L, 0xff, ffL8, ffL16, ffL24)</span>
+<span id="L70"><span class="lineNum">      70</span>              : };</span>
+<span id="L71"><span class="lineNum">      71</span>              : #else /* !ARCH_IS_BIG_ENDIAN */</span>
+<span id="L72"><span class="lineNum">      72</span>              : const bits32 lookup4x1to32_identity[16] = {</span>
+<span id="L73"><span class="lineNum">      73</span>              :     map4tox(0, ffL24, ffL16, ffL8, 0xff)</span>
+<span id="L74"><span class="lineNum">      74</span>              : };</span>
+<span id="L75"><span class="lineNum">      75</span>              : const bits32 lookup4x1to32_inverted[16] = {</span>
+<span id="L76"><span class="lineNum">      76</span>              :     map4tox(n0L, ffL24, ffL16, ffL8, 0xff)</span>
+<span id="L77"><span class="lineNum">      77</span>              : };</span>
+<span id="L78"><span class="lineNum">      78</span>              : #endif</span>
+<span id="L79"><span class="lineNum">      79</span>              : #undef n0L</span>
+<span id="L80"><span class="lineNum">      80</span>              : #undef ffL8</span>
+<span id="L81"><span class="lineNum">      81</span>              : #undef ffL16</span>
+<span id="L82"><span class="lineNum">      82</span>              : #undef ffL24</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : /* ---------------- Unpacking procedures ---------------- */</span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : const byte *</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 : sample_unpack_copy(byte * bptr, int *pdata_x, const byte * data, int data_x,</span></span>
+<span id="L88"><span class="lineNum">      88</span>              :                 uint dsize, const sample_map *ignore_smap, int spread,</span>
+<span id="L89"><span class="lineNum">      89</span>              :                 int ignore_num_components_per_plane)</span>
+<span id="L90"><span class="lineNum">      90</span>              : {                               /* We're going to use the data right away, so no copying is needed. */</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     *pdata_x = data_x;</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     return data;</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : }</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : #define MULTIPLE_MAPS 0</span>
+<span id="L96"><span class="lineNum">      96</span>              : #define TEMPLATE_sample_unpack_1 sample_unpack_1</span>
+<span id="L97"><span class="lineNum">      97</span>              : #define TEMPLATE_sample_unpack_2 sample_unpack_2</span>
+<span id="L98"><span class="lineNum">      98</span>              : #define TEMPLATE_sample_unpack_4 sample_unpack_4</span>
+<span id="L99"><span class="lineNum">      99</span>              : #define TEMPLATE_sample_unpack_8 sample_unpack_8</span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span>              : #include &quot;gxsamplp.h&quot;</span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              : #undef MULTIPLE_MAPS</span>
+<span id="L104"><span class="lineNum">     104</span>              : #undef TEMPLATE_sample_unpack_1</span>
+<span id="L105"><span class="lineNum">     105</span>              : #undef TEMPLATE_sample_unpack_2</span>
+<span id="L106"><span class="lineNum">     106</span>              : #undef TEMPLATE_sample_unpack_4</span>
+<span id="L107"><span class="lineNum">     107</span>              : #undef TEMPLATE_sample_unpack_8</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              : #define MULTIPLE_MAPS 1</span>
+<span id="L110"><span class="lineNum">     110</span>              : #define TEMPLATE_sample_unpack_1 sample_unpack_1_interleaved</span>
+<span id="L111"><span class="lineNum">     111</span>              : #define TEMPLATE_sample_unpack_2 sample_unpack_2_interleaved</span>
+<span id="L112"><span class="lineNum">     112</span>              : #define TEMPLATE_sample_unpack_4 sample_unpack_4_interleaved</span>
+<span id="L113"><span class="lineNum">     113</span>              : #define TEMPLATE_sample_unpack_8 sample_unpack_8_interleaved</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              : #include &quot;gxsamplp.h&quot;</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : #undef TEMPLATE_sample_unpack_1</span>
+<span id="L118"><span class="lineNum">     118</span>              : #undef TEMPLATE_sample_unpack_2</span>
+<span id="L119"><span class="lineNum">     119</span>              : #undef TEMPLATE_sample_unpack_4</span>
+<span id="L120"><span class="lineNum">     120</span>              : #undef TEMPLATE_sample_unpack_8</span>
+<span id="L121"><span class="lineNum">     121</span>              : #undef MULTIPLE_MAPS</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

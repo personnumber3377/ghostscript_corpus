@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/brotli/c/enc/write_bits.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/brotli/c/enc</a> - write_bits.h<span style="font-size: 80%;"> (source / <a href="write_bits.h.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright 2010 Google Inc. All Rights Reserved.</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              :    Distributed under MIT license.</span>
+<span id="L4"><span class="lineNum">       4</span>              :    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT</span>
+<span id="L5"><span class="lineNum">       5</span>              : */</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              : /* Write bits into a byte array. */</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : #ifndef BROTLI_ENC_WRITE_BITS_H_</span>
+<span id="L10"><span class="lineNum">      10</span>              : #define BROTLI_ENC_WRITE_BITS_H_</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : #include &lt;brotli/types.h&gt;</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : #include &quot;../common/platform.h&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : #if defined(__cplusplus) || defined(c_plusplus)</span>
+<span id="L17"><span class="lineNum">      17</span>              : extern &quot;C&quot; {</span>
+<span id="L18"><span class="lineNum">      18</span>              : #endif</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : /* This function writes bits into bytes in increasing addresses, and within</span>
+<span id="L21"><span class="lineNum">      21</span>              :    a byte least-significant-bit first.</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              :    The function can write up to 56 bits in one go with WriteBits</span>
+<span id="L24"><span class="lineNum">      24</span>              :    Example: let's assume that 3 bits (Rs below) have been written already:</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              :    BYTE-0     BYTE+1       BYTE+2</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              :    0000 0RRR    0000 0000    0000 0000</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              :    Now, we could write 5 or less bits in MSB by just shifting by 3</span>
+<span id="L31"><span class="lineNum">      31</span>              :    and OR'ing to BYTE-0.</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              :    For n bits, we take the last 5 bits, OR that with high bits in BYTE-0,</span>
+<span id="L34"><span class="lineNum">      34</span>              :    and locate the rest in BYTE+1, BYTE+2, etc. */</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 : static BROTLI_INLINE void BrotliWriteBits(size_t n_bits,</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :                                           uint64_t bits,</span>
+<span id="L37"><span class="lineNum">      37</span>              :                                           size_t* BROTLI_RESTRICT pos,</span>
+<span id="L38"><span class="lineNum">      38</span>              :                                           uint8_t* BROTLI_RESTRICT array) {</span>
+<span id="L39"><span class="lineNum">      39</span>              :   BROTLI_LOG((&quot;WriteBits  %2d  0x%08x%08x  %10d\n&quot;, (int)n_bits,</span>
+<span id="L40"><span class="lineNum">      40</span>              :       (uint32_t)(bits &gt;&gt; 32), (uint32_t)(bits &amp; 0xFFFFFFFF),</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :       (int)*pos));</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :   BROTLI_DCHECK((bits &gt;&gt; n_bits) == 0);</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :   BROTLI_DCHECK(n_bits &lt;= 56);</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : #if defined(BROTLI_LITTLE_ENDIAN)</span>
+<span id="L45"><span class="lineNum">      45</span>              :   /* This branch of the code can write up to 56 bits at a time,</span>
+<span id="L46"><span class="lineNum">      46</span>              :      7 bits are lost by being perhaps already in *p and at least</span>
+<span id="L47"><span class="lineNum">      47</span>              :      1 bit is needed to initialize the bit-stream ahead (i.e. if 7</span>
+<span id="L48"><span class="lineNum">      48</span>              :      bits are in *p and we write 57 bits, then the next write will</span>
+<span id="L49"><span class="lineNum">      49</span>              :      access a byte that was never initialized). */</span>
+<span id="L50"><span class="lineNum">      50</span>              :   {</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     uint8_t* p = &amp;array[*pos &gt;&gt; 3];</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     uint64_t v = (uint64_t)(*p);  /* Zero-extend 8 to 64 bits. */</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     v |= bits &lt;&lt; (*pos &amp; 7);</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     BROTLI_UNALIGNED_STORE64LE(p, v);  /* Set some bits. */</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :     *pos += n_bits;</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :   }</span>
+<span id="L57"><span class="lineNum">      57</span>              : #else</span>
+<span id="L58"><span class="lineNum">      58</span>              :   /* implicit &amp; 0xFF is assumed for uint8_t arithmetics */</span>
+<span id="L59"><span class="lineNum">      59</span>              :   {</span>
+<span id="L60"><span class="lineNum">      60</span>              :     uint8_t* array_pos = &amp;array[*pos &gt;&gt; 3];</span>
+<span id="L61"><span class="lineNum">      61</span>              :     const size_t bits_reserved_in_first_byte = (*pos &amp; 7);</span>
+<span id="L62"><span class="lineNum">      62</span>              :     size_t bits_left_to_write;</span>
+<span id="L63"><span class="lineNum">      63</span>              :     bits &lt;&lt;= bits_reserved_in_first_byte;</span>
+<span id="L64"><span class="lineNum">      64</span>              :     *array_pos++ |= (uint8_t)bits;</span>
+<span id="L65"><span class="lineNum">      65</span>              :     for (bits_left_to_write = n_bits + bits_reserved_in_first_byte;</span>
+<span id="L66"><span class="lineNum">      66</span>              :          bits_left_to_write &gt;= 9;</span>
+<span id="L67"><span class="lineNum">      67</span>              :          bits_left_to_write -= 8) {</span>
+<span id="L68"><span class="lineNum">      68</span>              :       bits &gt;&gt;= 8;</span>
+<span id="L69"><span class="lineNum">      69</span>              :       *array_pos++ = (uint8_t)bits;</span>
+<span id="L70"><span class="lineNum">      70</span>              :     }</span>
+<span id="L71"><span class="lineNum">      71</span>              :     *array_pos = 0;</span>
+<span id="L72"><span class="lineNum">      72</span>              :     *pos += n_bits;</span>
+<span id="L73"><span class="lineNum">      73</span>              :   }</span>
+<span id="L74"><span class="lineNum">      74</span>              : #endif</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void BrotliWriteBitsPrepareStorage(</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :     size_t pos, uint8_t* array) {</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :   BROTLI_LOG((&quot;WriteBitsPrepareStorage            %10d\n&quot;, (int)pos));</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :   BROTLI_DCHECK((pos &amp; 7) == 0);</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :   array[pos &gt;&gt; 3] = 0;</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : #if defined(__cplusplus) || defined(c_plusplus)</span>
+<span id="L85"><span class="lineNum">      85</span>              : }  /* extern &quot;C&quot; */</span>
+<span id="L86"><span class="lineNum">      86</span>              : #endif</span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span>              : #endif  /* BROTLI_ENC_WRITE_BITS_H_ */</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

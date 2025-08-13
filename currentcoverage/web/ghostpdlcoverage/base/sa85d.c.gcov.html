@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/sa85d.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - sa85d.c<span style="font-size: 80%;"> (source / <a href="sa85d.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">91</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* ASCII85Decode filter */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;std.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;strimpl.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;sa85d.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;scanchar.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : /* ------ ASCII85Decode ------ */</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : private_st_A85D_state();</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : /* Initialize the state */</span>
+<span id="L28"><span class="lineNum">      28</span>              : static int</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 : s_A85D_init(stream_state * st)</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :     stream_A85D_state *const ss = (stream_A85D_state *) st;</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :     s_A85D_init_inline(ss);</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : /* Process a buffer */</span>
+<span id="L38"><span class="lineNum">      38</span>              : static int a85d_finish(int, ulong, stream_cursor_write *);</span>
+<span id="L39"><span class="lineNum">      39</span>              : static int</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : s_A85D_process(stream_state * st, stream_cursor_read * pr,</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :                stream_cursor_write * pw, bool last)</span>
+<span id="L42"><span class="lineNum">      42</span>              : {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :     stream_A85D_state *const ss = (stream_A85D_state *) st;</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :     register const byte *p = pr-&gt;ptr;</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     register byte *q = pw-&gt;ptr;</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :     /* stop processing early unless the target is empty (last == true)  */</span>
+<span id="L47"><span class="lineNum">      47</span>              :     /* to make sure we consume the EOD marker correctly. The EOD marker */</span>
+<span id="L48"><span class="lineNum">      48</span>              :     /* might be as many as 6 characters after the last valid data char  */</span>
+<span id="L49"><span class="lineNum">      49</span>              :     /* D &lt;cr&gt; &lt;lf&gt; '~' &lt;cr&gt; &lt;lf&gt; '&gt;' where 'D' is a data character.     */</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :     const byte *rlimit = pr-&gt;limit - (last ? 0 : 7); /* max EOD len + 1 */</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     const byte *r = max(p, rlimit);</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     byte *wlimit = pw-&gt;limit;</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     int ccount = ss-&gt;odd;</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     ulong word = ss-&gt;word;</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :     int status = 0;</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              :     /* scan to make sure that an EOD isn't fully contained in the */</span>
+<span id="L58"><span class="lineNum">      58</span>              :     /* last part of the buffer (between rlimit and pr-&gt;limit).    */</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     while (r &lt; pr-&gt;limit) {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         if (*++r == '~')</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :             while (r &lt; pr-&gt;limit)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 if (*++r == '&gt;') {</span></span>
+<span id="L63"><span class="lineNum">      63</span>              :                     /* we have both characters of a complete EOD. */</span>
+<span id="L64"><span class="lineNum">      64</span>              :                     rlimit = pr-&gt;limit; /* go ahead and process everything */</span>
+<span id="L65"><span class="lineNum">      65</span>              :                     r = rlimit;         /* break out of the while loops */</span>
+<span id="L66"><span class="lineNum">      66</span>              :                     break;</span>
+<span id="L67"><span class="lineNum">      67</span>              :                 }</span>
+<span id="L68"><span class="lineNum">      68</span>              :     }</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     while (p &lt; rlimit) {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         int ch = *++p;</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         uint ccode = ch - '!';</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         if (ccode &lt; 85) {    /* catches ch &lt; '!' as well */</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :             if (ccount == 4) {</span></span>
+<span id="L75"><span class="lineNum">      75</span>              :                 /*</span>
+<span id="L76"><span class="lineNum">      76</span>              :                  * We've completed a 32-bit group.  Make sure we have</span>
+<span id="L77"><span class="lineNum">      77</span>              :                  * room for it in the output.</span>
+<span id="L78"><span class="lineNum">      78</span>              :                  */</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 if (wlimit - q &lt; 4) {</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :                     p--;</span>
+<span id="L81"><span class="lineNum">      81</span>              :                     status = 1;</span>
+<span id="L82"><span class="lineNum">      82</span>              :                     break;</span>
+<span id="L83"><span class="lineNum">      83</span>              :                 }</span>
+<span id="L84"><span class="lineNum">      84</span>              :                 /* Check for overflow condition, throw ioerror if so */</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                 if (word &gt;= 0x03030303 &amp;&amp; ccode &gt; 0) {</span></span>
+<span id="L86"><span class="lineNum">      86</span>              :                     status = ERRC;</span>
+<span id="L87"><span class="lineNum">      87</span>              :                     break;</span>
+<span id="L88"><span class="lineNum">      88</span>              :                 }</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 word = word * 85 + ccode;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 q[1] = (byte) (word &gt;&gt; 24);</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                 q[2] = (byte) (word &gt;&gt; 16);</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 q[3] = (byte) ((uint) word &gt;&gt; 8);</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 q[4] = (byte) word;</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 q += 4;</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 word = 0;</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 ccount = 0;</span></span>
+<span id="L97"><span class="lineNum">      97</span>              :             } else {</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 word = word * 85 + ccode;</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 ++ccount;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :             }</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         } else if (ch == 'z' &amp;&amp; ccount == 0) {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :             if (wlimit - q &lt; 4) {</span></span>
+<span id="L103"><span class="lineNum">     103</span>              :                 p--;</span>
+<span id="L104"><span class="lineNum">     104</span>              :                 status = 1;</span>
+<span id="L105"><span class="lineNum">     105</span>              :                 break;</span>
+<span id="L106"><span class="lineNum">     106</span>              :             }</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :             q[1] = q[2] = q[3] = q[4] = 0,</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 q += 4;</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         } else if (scan_char_decoder[ch] == ctype_space)</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :             DO_NOTHING;</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         else if (ch == '~') {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :             int i = 1;</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :             rlimit = pr-&gt;limit;              /* Here we use the real &quot;limit&quot; */</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :             /* Handle odd bytes. */</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :             if (p == rlimit) {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 if (!last)</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :                         p--;</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 else if (ss-&gt;pdf_rules)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                     goto finish;</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :                 else</span>
+<span id="L122"><span class="lineNum">     122</span>              :                     status = ERRC;</span>
+<span id="L123"><span class="lineNum">     123</span>              :                 break;</span>
+<span id="L124"><span class="lineNum">     124</span>              :             }</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :             if ((int)(wlimit - q) &lt; ccount - 1) {</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :                 status = 1;</span>
+<span id="L127"><span class="lineNum">     127</span>              :                 p--;</span>
+<span id="L128"><span class="lineNum">     128</span>              :                 break;</span>
+<span id="L129"><span class="lineNum">     129</span>              :             }</span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span>              :             /* According to PLRM 3rd, if the A85 filter encounters '~',</span>
+<span id="L132"><span class="lineNum">     132</span>              :              * the next character must be '&gt;'.</span>
+<span id="L133"><span class="lineNum">     133</span>              :              * And any other characters should raise an ioerror.</span>
+<span id="L134"><span class="lineNum">     134</span>              :              * But Adobe Acrobat allows CR/LF between ~ and &gt;.</span>
+<span id="L135"><span class="lineNum">     135</span>              :              * So we allow CR/LF between them. */</span>
+<span id="L136"><span class="lineNum">     136</span>              :             /* PDF further relaxes the requirements and accepts bare '~'.</span>
+<span id="L137"><span class="lineNum">     137</span>              :              */</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :             while ((p + i &lt;= rlimit) &amp;&amp; (p[i] == 13 || p[i] == 10))</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 i++;</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :             if (p + i &lt;= rlimit &amp;&amp; p[i] != '&gt;') {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 if (ss-&gt;pdf_rules) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                     if (p[i] == 13 || p[i] == 10) {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                         if (!last)</span></span>
+<span id="L144"><span class="lineNum">     144</span>              :                             break;</span>
+<span id="L145"><span class="lineNum">     145</span>              :                     } else {</span>
+<span id="L146"><span class="lineNum">     146</span>              :                         p--;</span>
+<span id="L147"><span class="lineNum">     147</span>              :                     }</span>
+<span id="L148"><span class="lineNum">     148</span>              :                 } else {</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                     if (p + i == rlimit) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                         if (last)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :                             status = ERRC;</span>
+<span id="L152"><span class="lineNum">     152</span>              :                         else</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                             p--;        /* we'll see the '~' after filling the buffer */</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :                     }</span>
+<span id="L155"><span class="lineNum">     155</span>              :                     break;</span>
+<span id="L156"><span class="lineNum">     156</span>              :                 }</span>
+<span id="L157"><span class="lineNum">     157</span>              :             }</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :           finish:</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :             if (p + i &lt;= rlimit)</span></span>
+<span id="L160"><span class="lineNum">     160</span>              :                 p += i;         /* advance to the '&gt;' */</span>
+<span id="L161"><span class="lineNum">     161</span>              :             else</span>
+<span id="L162"><span class="lineNum">     162</span>              :                 p = rlimit; /* Can happen if the '&gt;' is missing */</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :             pw-&gt;ptr = q;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :             status = a85d_finish(ccount, word, pw);</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :             q = pw-&gt;ptr;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L167"><span class="lineNum">     167</span>              :         } else {                /* syntax error or exception */</span>
+<span id="L168"><span class="lineNum">     168</span>              :             status = ERRC;</span>
+<span id="L169"><span class="lineNum">     169</span>              :             break;</span>
+<span id="L170"><span class="lineNum">     170</span>              :         }</span>
+<span id="L171"><span class="lineNum">     171</span>              :     }</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     pw-&gt;ptr = q;</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     if (status == 0 &amp;&amp; last) {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         if ((int)(wlimit - q) &lt; ccount - 1)</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :             status = 1;</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         else if (ss-&gt;require_eod)</span></span>
+<span id="L177"><span class="lineNum">     177</span>              :             status = ERRC;</span>
+<span id="L178"><span class="lineNum">     178</span>              :         else</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :             status = a85d_finish(ccount, word, pw);</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :     }</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     pr-&gt;ptr = p;</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :     ss-&gt;odd = ccount;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     ss-&gt;word = word;</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     return status;</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L186"><span class="lineNum">     186</span>              : /* Handle the end of input data. */</span>
+<span id="L187"><span class="lineNum">     187</span>              : static int</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 : a85d_finish(int ccount, ulong word, stream_cursor_write * pw)</span></span>
+<span id="L189"><span class="lineNum">     189</span>              : {</span>
+<span id="L190"><span class="lineNum">     190</span>              :     /* Assume there is enough room in the output buffer! */</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :     byte *q = pw-&gt;ptr;</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :     int status = EOFC;</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     switch (ccount) {</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :         case 0:</span>
+<span id="L196"><span class="lineNum">     196</span>              :             break;</span>
+<span id="L197"><span class="lineNum">     197</span>              :         case 1:         /* syntax error */</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :             status = ERRC;</span></span>
+<span id="L199"><span class="lineNum">     199</span>              :             break;</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         case 2:         /* 1 odd byte */</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :             word = word * (85L * 85 * 85) + 85L * 85 * 85 - 1L;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :             goto o1;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         case 3:         /* 2 odd bytes */</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :             word = word * (85L * 85) + 85L * 85L - 1L;</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :             goto o2;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         case 4:         /* 3 odd bytes */</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :             word = word * 85L + 84L;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :             q[3] = (byte) (word &gt;&gt; 8);</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 : o2:         q[2] = (byte) (word &gt;&gt; 16);</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 : o1:         q[1] = (byte) (word &gt;&gt; 24);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :             q += ccount - 1;</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :             pw-&gt;ptr = q;</span></span>
+<span id="L213"><span class="lineNum">     213</span>              :     }</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :     return status;</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : }</span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span>              : /* Stream template */</span>
+<span id="L218"><span class="lineNum">     218</span>              : const stream_template s_A85D_template = {</span>
+<span id="L219"><span class="lineNum">     219</span>              :     &amp;st_A85D_state, s_A85D_init, s_A85D_process, 2, 4</span>
+<span id="L220"><span class="lineNum">     220</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

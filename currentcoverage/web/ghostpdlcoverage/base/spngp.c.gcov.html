@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/spngp.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - spngp.c<span style="font-size: 80%;"> (source / <a href="spngp.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">163</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* PNG pixel prediction filters */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;strimpl.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;spngpx.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : /* ------ PNGPredictorEncode/Decode ------ */</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : private_st_PNGP_state();</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : /* Define values for case dispatch. */</span>
+<span id="L27"><span class="lineNum">      27</span>              : #define cNone 10</span>
+<span id="L28"><span class="lineNum">      28</span>              : #define cSub 11</span>
+<span id="L29"><span class="lineNum">      29</span>              : #define cUp 12</span>
+<span id="L30"><span class="lineNum">      30</span>              : #define cAverage 13</span>
+<span id="L31"><span class="lineNum">      31</span>              : #define cPaeth 14</span>
+<span id="L32"><span class="lineNum">      32</span>              : #define cOptimum 15</span>
+<span id="L33"><span class="lineNum">      33</span>              : #define cEncode -10</span>
+<span id="L34"><span class="lineNum">      34</span>              : #define cDecode -4</span>
+<span id="L35"><span class="lineNum">      35</span>              : static const byte pngp_case_needs_prev[] = {</span>
+<span id="L36"><span class="lineNum">      36</span>              :     0, 0, 1, 1, 1, 1</span>
+<span id="L37"><span class="lineNum">      37</span>              : };</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* Set defaults */</span>
+<span id="L40"><span class="lineNum">      40</span>              : static void</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 : s_PNGP_set_defaults(stream_state * st)</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     s_PNGP_set_defaults_inline(ss);</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : /* Common (re)initialization. */</span>
+<span id="L49"><span class="lineNum">      49</span>              : static int</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : s_PNGP_reinit(stream_state * st)</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     if (ss-&gt;prev_row != 0)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         memset(ss-&gt;prev_row + ss-&gt;bpp, 0, ss-&gt;row_count);</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     ss-&gt;row_left = 0;</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : /* Common initialization. */</span>
+<span id="L61"><span class="lineNum">      61</span>              : static int</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : s_pngp_init(stream_state * st, bool need_prev)</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : {</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     int bits_per_pixel = ss-&gt;Colors * ss-&gt;BitsPerComponent;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     long bits_per_row = (long)bits_per_pixel * ss-&gt;Columns;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     byte *prev_row = 0;</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : #if ARCH_SIZEOF_LONG &gt; ARCH_SIZEOF_INT</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :     if (bits_per_row &gt; max_uint * 7L)</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :         return ERRC;    /****** WRONG ******/</span>
+<span id="L72"><span class="lineNum">      72</span>              : #endif</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     ss-&gt;row_count = (uint) ((bits_per_row + 7) &gt;&gt; 3);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     ss-&gt;end_mask = (1 &lt;&lt; (-bits_per_row &amp; 7)) - 1;</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     if (ss-&gt;Colors &gt; s_PNG_max_Colors)</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         return ERRC; /* Too many colorants */</span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     if (bits_per_row &lt; 1)</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :         return ERRC;</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     ss-&gt;bpp = (bits_per_pixel + 7) &gt;&gt; 3;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     if (need_prev) {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         prev_row = gs_alloc_bytes(st-&gt;memory, ss-&gt;bpp + ss-&gt;row_count,</span></span>
+<span id="L85"><span class="lineNum">      85</span>              :                                   &quot;PNGPredictor prev row&quot;);</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         if (prev_row == 0)</span></span>
+<span id="L87"><span class="lineNum">      87</span>              :             return ERRC;        /****** WRONG ******/</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         memset(prev_row, 0, ss-&gt;bpp);</span></span>
+<span id="L89"><span class="lineNum">      89</span>              :     }</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     ss-&gt;prev_row = prev_row;</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :     /* case_index is only preset for encoding */</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     return s_PNGP_reinit(st);</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : }</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : /* Initialize PNGPredictorEncode filter. */</span>
+<span id="L96"><span class="lineNum">      96</span>              : static int</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 : s_PNGPE_init(stream_state * st)</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : {</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :     return s_pngp_init(st, pngp_case_needs_prev[ss-&gt;Predictor - cNone]);</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : }</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : /* Initialize PNGPredictorDecode filter. */</span>
+<span id="L105"><span class="lineNum">     105</span>              : static int</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 : s_PNGPD_init(stream_state * st)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : {</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :     return s_pngp_init(st, true);</span></span>
+<span id="L109"><span class="lineNum">     109</span>              : }</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : /* Release a PNGPredictor filter. */</span>
+<span id="L112"><span class="lineNum">     112</span>              : static void</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 : s_PNGP_release(stream_state *st)</span></span>
+<span id="L114"><span class="lineNum">     114</span>              : {</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :     if (ss-&gt;prev_row)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         gs_free_object(st-&gt;memory, ss-&gt;prev_row, &quot;PNGPredictor prev row&quot;);</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : /*</span>
+<span id="L122"><span class="lineNum">     122</span>              :  * Process a partial buffer.  We pass in current and previous pointers</span>
+<span id="L123"><span class="lineNum">     123</span>              :  * to both the current and preceding scan line.  Note that dprev is</span>
+<span id="L124"><span class="lineNum">     124</span>              :  * p - bpp for encoding, q - bpp for decoding; similarly, the 'up' row</span>
+<span id="L125"><span class="lineNum">     125</span>              :  * is the raw data for encoding, the filtered (encoded) data for decoding.</span>
+<span id="L126"><span class="lineNum">     126</span>              :  * Note also that the case_index cannot be cOptimum.</span>
+<span id="L127"><span class="lineNum">     127</span>              :  *</span>
+<span id="L128"><span class="lineNum">     128</span>              :  * Uses ss-&gt;case_index; uses and updates ss-&gt;row_left, pr-&gt;ptr, pw-&gt;ptr.</span>
+<span id="L129"><span class="lineNum">     129</span>              :  */</span>
+<span id="L130"><span class="lineNum">     130</span>              : static int</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : paeth_predictor(int a, int b, int c)</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : {</span>
+<span id="L133"><span class="lineNum">     133</span>              :     /* The definitions of ac and bc are correct, not a typo. */</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :     int ac = b - c, bc = a - c, abcc = ac + bc;</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     int pa = (ac &lt; 0 ? -ac : ac), pb = (bc &lt; 0 ? -bc : bc),</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         pc = (abcc &lt; 0 ? -abcc : abcc);</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :     return (pa &lt;= pb &amp;&amp; pa &lt;= pc ? a : pb &lt;= pc ? b : c);</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : static void</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 : s_pngp_process(stream_state * st, stream_cursor_write * pw,</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :                const byte * dprev, stream_cursor_read * pr,</span>
+<span id="L143"><span class="lineNum">     143</span>              :                const byte * upprev, const byte * up, uint count)</span>
+<span id="L144"><span class="lineNum">     144</span>              : {</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :     byte *q = pw-&gt;ptr + 1;</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     const byte *p = pr-&gt;ptr + 1;</span></span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :     pr-&gt;ptr += count;</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     pw-&gt;ptr += count;</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     ss-&gt;row_left -= count;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     switch (ss-&gt;case_index) {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         case cEncode + cNone:</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :         case cDecode + cNone:</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :             memcpy(q, p, count);</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :         case cEncode + cSub:</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++p, --count)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p - *dprev);</span></span>
+<span id="L160"><span class="lineNum">     160</span>              :             break;</span>
+<span id="L161"><span class="lineNum">     161</span>              :         case cDecode + cSub:</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++p, --count)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p + *dprev);</span></span>
+<span id="L164"><span class="lineNum">     164</span>              :             break;</span>
+<span id="L165"><span class="lineNum">     165</span>              :         case cEncode + cUp:</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++up, ++p, --count)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p - *up);</span></span>
+<span id="L168"><span class="lineNum">     168</span>              :             break;</span>
+<span id="L169"><span class="lineNum">     169</span>              :         case cDecode + cUp:</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++up, ++p, --count)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p + *up);</span></span>
+<span id="L172"><span class="lineNum">     172</span>              :             break;</span>
+<span id="L173"><span class="lineNum">     173</span>              :         case cEncode + cAverage:</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++up, ++p, --count)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p - arith_rshift_1((int)*dprev + (int)*up));</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :             break;</span>
+<span id="L177"><span class="lineNum">     177</span>              :         case cDecode + cAverage:</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++up, ++p, --count)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p + arith_rshift_1((int)*dprev + (int)*up));</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :             break;</span>
+<span id="L181"><span class="lineNum">     181</span>              :         case cEncode + cPaeth:</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++up, ++upprev, ++p, --count)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p - paeth_predictor(*dprev, *up, *upprev));</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :             break;</span>
+<span id="L185"><span class="lineNum">     185</span>              :         case cDecode + cPaeth:</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :             for (; count; ++q, ++dprev, ++up, ++upprev, ++p, --count)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 *q = (byte) (*p + paeth_predictor(*dprev, *up, *upprev));</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :             break;</span>
+<span id="L189"><span class="lineNum">     189</span>              :     }</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              : /* Calculate the number of bytes for the next processing step, */</span>
+<span id="L193"><span class="lineNum">     193</span>              : /* the min of (input data, output data, remaining row length). */</span>
+<span id="L194"><span class="lineNum">     194</span>              : static uint</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 : s_pngp_count(const stream_state * st_const, const stream_cursor_read * pr,</span></span>
+<span id="L196"><span class="lineNum">     196</span>              :              const stream_cursor_write * pw)</span>
+<span id="L197"><span class="lineNum">     197</span>              : {</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     const stream_PNGP_state *const ss_const =</span></span>
+<span id="L199"><span class="lineNum">     199</span>              :         (const stream_PNGP_state *)st_const;</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     uint rcount = pr-&gt;limit - pr-&gt;ptr;</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     uint wcount = pw-&gt;limit - pw-&gt;ptr;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     uint row_left = ss_const-&gt;row_left;</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :     if (rcount &lt; row_left)</span></span>
+<span id="L205"><span class="lineNum">     205</span>              :         row_left = rcount;</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     if (wcount &lt; row_left)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              :         row_left = wcount;</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     return row_left;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : }</span>
+<span id="L210"><span class="lineNum">     210</span>              : </span>
+<span id="L211"><span class="lineNum">     211</span>              : /*</span>
+<span id="L212"><span class="lineNum">     212</span>              :  * Encode a buffer.  Let N = ss-&gt;row_count, P = N - ss-&gt;row_left,</span>
+<span id="L213"><span class="lineNum">     213</span>              :  * and B = ss-&gt;bpp.  Consider that bytes [-B .. -1] of every row are zero.</span>
+<span id="L214"><span class="lineNum">     214</span>              :  * Then:</span>
+<span id="L215"><span class="lineNum">     215</span>              :  *      prev_row[0 .. P - 1] contain bytes -B .. P - B - 1</span>
+<span id="L216"><span class="lineNum">     216</span>              :  *        of the current input row.</span>
+<span id="L217"><span class="lineNum">     217</span>              :  *      ss-&gt;prev[0 .. B - 1] contain bytes P - B .. P - 1</span>
+<span id="L218"><span class="lineNum">     218</span>              :  *        of the current input row.</span>
+<span id="L219"><span class="lineNum">     219</span>              :  *      prev_row[P .. N + B - 1] contain bytes P - B .. N - 1</span>
+<span id="L220"><span class="lineNum">     220</span>              :  *        of the previous input row.</span>
+<span id="L221"><span class="lineNum">     221</span>              :  * We must handle the edges of each row specially, by clearing ss-&gt;prev at</span>
+<span id="L222"><span class="lineNum">     222</span>              :  * the beginning of each row, and copying trailing bytes from ss-&gt;prev (and</span>
+<span id="L223"><span class="lineNum">     223</span>              :  * possibly the input) to prev_row at the end of each row.</span>
+<span id="L224"><span class="lineNum">     224</span>              :  */</span>
+<span id="L225"><span class="lineNum">     225</span>              : static int</span>
+<span id="L226"><span class="lineNum">     226</span>              : optimum_predictor(const stream_state * st, const stream_cursor_read * pr)</span>
+<span id="L227"><span class="lineNum">     227</span>              : {</span>
+<span id="L228"><span class="lineNum">     228</span>              :     return cSub;</span>
+<span id="L229"><span class="lineNum">     229</span>              : }</span>
+<span id="L230"><span class="lineNum">     230</span>              : static int</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 : s_PNGPE_process(stream_state * st, stream_cursor_read * pr,</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :                 stream_cursor_write * pw, bool last)</span>
+<span id="L233"><span class="lineNum">     233</span>              : {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :     int bpp = ss-&gt;bpp;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     int status = 0;</span></span>
+<span id="L237"><span class="lineNum">     237</span>              : </span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     while (pr-&gt;ptr &lt; pr-&gt;limit) {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         uint count;</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         if (ss-&gt;row_left == 0) {</span></span>
+<span id="L242"><span class="lineNum">     242</span>              :             /* Beginning of row, write algorithm byte. */</span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :             int predictor;</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :             if (pw-&gt;ptr &gt;= pw-&gt;limit) {</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :                 status = 1;</span>
+<span id="L247"><span class="lineNum">     247</span>              :                 break;</span>
+<span id="L248"><span class="lineNum">     248</span>              :             }</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :             predictor =</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                 (ss-&gt;Predictor == cOptimum ?</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                  optimum_predictor(st, pr) :</span></span>
+<span id="L252"><span class="lineNum">     252</span>              :                  ss-&gt;Predictor);</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :             *++(pw-&gt;ptr) = (byte) predictor - cNone;</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :             ss-&gt;case_index = predictor + cEncode;</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :             ss-&gt;row_left = ss-&gt;row_count;</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :             memset(ss-&gt;prev, 0, bpp);</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :             continue;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :         }</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         count = s_pngp_count(st, pr, pw);</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         if (count == 0) {</span></span>
+<span id="L261"><span class="lineNum">     261</span>              :             /* We know we have input, so output must be full. */</span>
+<span id="L262"><span class="lineNum">     262</span>              :             status = 1;</span>
+<span id="L263"><span class="lineNum">     263</span>              :             break;</span>
+<span id="L264"><span class="lineNum">     264</span>              :         } {</span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :             byte *up = ss-&gt;prev_row + bpp + ss-&gt;row_count - ss-&gt;row_left;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :             uint n = min(count, bpp);</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span>              :             /* Process bytes whose predecessors are in prev. */</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :             s_pngp_process(st, pw, ss-&gt;prev, pr, up - bpp, up, n);</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :             if (ss-&gt;row_left == 0) {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 if (ss-&gt;prev_row) {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                     memcpy(up - bpp, ss-&gt;prev, bpp);</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                     memcpy(up, pr-&gt;ptr - (n - 1), n);</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :                 }</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 continue;</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :             }</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :             if (ss-&gt;prev_row)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 memcpy(up - bpp, ss-&gt;prev, n);</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :             if (n &lt; bpp) {</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :                 /*</span>
+<span id="L281"><span class="lineNum">     281</span>              :                  * We didn't have both enough input data and enough output</span>
+<span id="L282"><span class="lineNum">     282</span>              :                  * space to use up all of prev.  Shift more data into prev</span>
+<span id="L283"><span class="lineNum">     283</span>              :                  * and exit.</span>
+<span id="L284"><span class="lineNum">     284</span>              :                  */</span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 int prev_left = bpp - n;</span></span>
+<span id="L286"><span class="lineNum">     286</span>              : </span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 memmove(ss-&gt;prev, ss-&gt;prev + n, prev_left);</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 memcpy(ss-&gt;prev + prev_left, pr-&gt;ptr - (n - 1), n);</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 if (pw-&gt;ptr &gt;= pw-&gt;limit &amp;&amp; pr-&gt;ptr &lt; pr-&gt;limit)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                     status = 1;</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :                 break;</span>
+<span id="L292"><span class="lineNum">     292</span>              :             }</span>
+<span id="L293"><span class="lineNum">     293</span>              :             /* Process bytes whose predecessors are in the input. */</span>
+<span id="L294"><span class="lineNum">     294</span>              :             /* We know we have at least bpp input and output bytes, */</span>
+<span id="L295"><span class="lineNum">     295</span>              :             /* and that n = bpp. */</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :             count -= bpp;</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :             s_pngp_process(st, pw, pr-&gt;ptr - (bpp - 1), pr,</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                            up, up + bpp, count);</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :             memcpy(ss-&gt;prev, pr-&gt;ptr - (bpp - 1), bpp);</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :             if (ss-&gt;prev_row) {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 memcpy(up, pr-&gt;ptr - (bpp + count - 1), count);</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 if (ss-&gt;row_left == 0)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                     memcpy(up + count, ss-&gt;prev, bpp);</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :             }</span>
+<span id="L305"><span class="lineNum">     305</span>              :         }</span>
+<span id="L306"><span class="lineNum">     306</span>              :     }</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     return status;</span></span>
+<span id="L308"><span class="lineNum">     308</span>              : }</span>
+<span id="L309"><span class="lineNum">     309</span>              : </span>
+<span id="L310"><span class="lineNum">     310</span>              : /*</span>
+<span id="L311"><span class="lineNum">     311</span>              :  * Decode a buffer.  Let N = ss-&gt;row_count, P = N - ss-&gt;row_left,</span>
+<span id="L312"><span class="lineNum">     312</span>              :  * and B = ss-&gt;bpp.  Consider that bytes [-B .. -1] of every row are zero.</span>
+<span id="L313"><span class="lineNum">     313</span>              :  * Then:</span>
+<span id="L314"><span class="lineNum">     314</span>              :  *      prev_row[0 .. P - 1] contain bytes -B .. P - B - 1</span>
+<span id="L315"><span class="lineNum">     315</span>              :  *        of the current output row.</span>
+<span id="L316"><span class="lineNum">     316</span>              :  *      ss-&gt;prev[0 .. B - 1] contain bytes P - B .. P - 1</span>
+<span id="L317"><span class="lineNum">     317</span>              :  *        of the current output row.</span>
+<span id="L318"><span class="lineNum">     318</span>              :  *      prev_row[P .. N + B - 1] contain bytes P - B .. N - 1</span>
+<span id="L319"><span class="lineNum">     319</span>              :  *        of the previous output row.</span>
+<span id="L320"><span class="lineNum">     320</span>              :  * We must handle the edges of each row specially, by clearing ss-&gt;prev at</span>
+<span id="L321"><span class="lineNum">     321</span>              :  * the beginning of each row, and copying trailing bytes from ss-&gt;prev (and</span>
+<span id="L322"><span class="lineNum">     322</span>              :  * possibly the output) to prev_row at the end of each row.</span>
+<span id="L323"><span class="lineNum">     323</span>              :  */</span>
+<span id="L324"><span class="lineNum">     324</span>              : static int</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 : s_PNGPD_process(stream_state * st, stream_cursor_read * pr,</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :                 stream_cursor_write * pw, bool last)</span>
+<span id="L327"><span class="lineNum">     327</span>              : {</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :     stream_PNGP_state *const ss = (stream_PNGP_state *) st;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :     int bpp = ss-&gt;bpp;</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :     int status = 0;</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     while (pr-&gt;ptr &lt; pr-&gt;limit) {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         uint count;</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : </span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         if (ss-&gt;row_left == 0) {</span></span>
+<span id="L336"><span class="lineNum">     336</span>              :             /* Beginning of row, read algorithm byte. */</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :             int predictor = pr-&gt;ptr[1];</span></span>
+<span id="L338"><span class="lineNum">     338</span>              : </span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :             if (predictor &gt;= cOptimum - cNone) {</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                 status = ERRC;</span>
+<span id="L341"><span class="lineNum">     341</span>              :                 break;</span>
+<span id="L342"><span class="lineNum">     342</span>              :             }</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :             pr-&gt;ptr++;</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :             ss-&gt;case_index = predictor + cNone + cDecode;</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :             ss-&gt;row_left = ss-&gt;row_count;</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :             memset(ss-&gt;prev, 0, bpp);</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :             continue;</span></span>
+<span id="L348"><span class="lineNum">     348</span>              :         }</span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         count = s_pngp_count(st, pr, pw);</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         if (count == 0) {</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :             /* We know we have input, so output must be full. */</span>
+<span id="L352"><span class="lineNum">     352</span>              :             status = 1;</span>
+<span id="L353"><span class="lineNum">     353</span>              :             break;</span>
+<span id="L354"><span class="lineNum">     354</span>              :         } {</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :             byte *up = ss-&gt;prev_row + bpp + ss-&gt;row_count - ss-&gt;row_left;</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :             uint n = min(count, bpp);</span></span>
+<span id="L357"><span class="lineNum">     357</span>              : </span>
+<span id="L358"><span class="lineNum">     358</span>              :             /* Process bytes whose predecessors are in prev. */</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :             s_pngp_process(st, pw, ss-&gt;prev, pr, up - bpp, up, n);</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :             if (ss-&gt;row_left == 0) {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 if (ss-&gt;prev_row) {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                     memcpy(up - bpp, ss-&gt;prev, bpp);</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                     memcpy(up, pw-&gt;ptr - (n - 1), n);</span></span>
+<span id="L364"><span class="lineNum">     364</span>              :                 }</span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 continue;</span></span>
+<span id="L366"><span class="lineNum">     366</span>              :             }</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :             if (ss-&gt;prev_row)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 memcpy(up - bpp, ss-&gt;prev, n);</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :             if (n &lt; bpp) {</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :                 /*</span>
+<span id="L371"><span class="lineNum">     371</span>              :                  * We didn't have both enough input data and enough output</span>
+<span id="L372"><span class="lineNum">     372</span>              :                  * space to use up all of prev.  Shift more data into prev</span>
+<span id="L373"><span class="lineNum">     373</span>              :                  * and exit.</span>
+<span id="L374"><span class="lineNum">     374</span>              :                  */</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 int prev_left = bpp - n;</span></span>
+<span id="L376"><span class="lineNum">     376</span>              : </span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 memmove(ss-&gt;prev, ss-&gt;prev + n, prev_left);</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                 memcpy(ss-&gt;prev + prev_left, pw-&gt;ptr - (n - 1), n);</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 if (pw-&gt;ptr &gt;= pw-&gt;limit &amp;&amp; pr-&gt;ptr &lt; pr-&gt;limit)</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                     status = 1;</span></span>
+<span id="L381"><span class="lineNum">     381</span>              :                 break;</span>
+<span id="L382"><span class="lineNum">     382</span>              :             }</span>
+<span id="L383"><span class="lineNum">     383</span>              :             /* Process bytes whose predecessors are in the output. */</span>
+<span id="L384"><span class="lineNum">     384</span>              :             /* We know we have at least bpp input and output bytes, */</span>
+<span id="L385"><span class="lineNum">     385</span>              :             /* and that n = bpp. */</span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :             count -= bpp;</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :             s_pngp_process(st, pw, pw-&gt;ptr - (bpp - 1), pr,</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                            up, up + bpp, count);</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :             memcpy(ss-&gt;prev, pw-&gt;ptr - (bpp - 1), bpp);</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :             if (ss-&gt;prev_row) {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                 memcpy(up, pw-&gt;ptr - (bpp + count - 1), count);</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 if (ss-&gt;row_left == 0)</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                     memcpy(up + count, ss-&gt;prev, bpp);</span></span>
+<span id="L394"><span class="lineNum">     394</span>              :             }</span>
+<span id="L395"><span class="lineNum">     395</span>              :         }</span>
+<span id="L396"><span class="lineNum">     396</span>              :     }</span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :     return status;</span></span>
+<span id="L398"><span class="lineNum">     398</span>              : }</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              : /* Stream templates */</span>
+<span id="L401"><span class="lineNum">     401</span>              : const stream_template s_PNGPE_template = {</span>
+<span id="L402"><span class="lineNum">     402</span>              :     &amp;st_PNGP_state, s_PNGPE_init, s_PNGPE_process, 1, 1, s_PNGP_release,</span>
+<span id="L403"><span class="lineNum">     403</span>              :     s_PNGP_set_defaults, s_PNGP_reinit</span>
+<span id="L404"><span class="lineNum">     404</span>              : };</span>
+<span id="L405"><span class="lineNum">     405</span>              : const stream_template s_PNGPD_template = {</span>
+<span id="L406"><span class="lineNum">     406</span>              :     &amp;st_PNGP_state, s_PNGPD_init, s_PNGPD_process, 1, 1, s_PNGP_release,</span>
+<span id="L407"><span class="lineNum">     407</span>              :     s_PNGP_set_defaults, s_PNGP_reinit</span>
+<span id="L408"><span class="lineNum">     408</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

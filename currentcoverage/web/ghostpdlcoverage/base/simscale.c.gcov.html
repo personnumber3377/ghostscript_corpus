@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/simscale.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - simscale.c<span style="font-size: 80%;"> (source / <a href="simscale.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Image mask interpolation filter */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;strimpl.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;sisparam.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;simscale.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;simscale_foo.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : gs_private_st_ptrs2(st_imscale_state, stream_imscale_state,</span>
+<span id="L27"><span class="lineNum">      27</span>              :                     &quot;ImscaleDecode state&quot;,</span>
+<span id="L28"><span class="lineNum">      28</span>              :                     imscale_state_enum_ptrs, imscale_state_reloc_ptrs,</span>
+<span id="L29"><span class="lineNum">      29</span>              :                     window, dst);</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : static void</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 : s_imscale_release(stream_state *st)</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :     stream_imscale_state *const ss = (stream_imscale_state *) st;</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = ss-&gt;memory;</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     gs_free_object(mem, (void *)ss-&gt;window, &quot;imscale window&quot;);</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :     ss-&gt;window = 0;</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :     gs_free_object(mem, (void *)ss-&gt;dst, &quot;imscale dst&quot;);</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :     ss-&gt;dst = 0;</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : static int</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 : s_imscale_init(stream_state *st)</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :     stream_imscale_state *const ss = (stream_imscale_state *) st;</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     gs_memory_t *mem = ss-&gt;memory;</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :     int bytesin = (ss-&gt;params.WidthIn + 7) &gt;&gt; 3;</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :     int bytesout = (ss-&gt;params.WidthIn + 1) &gt;&gt; 1;</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     ss-&gt;src_y = 0;</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     ss-&gt;src_offset = 0;</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     ss-&gt;src_size = bytesin;</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     ss-&gt;src_line_padded = bytesin + 10;</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     ss-&gt;dst_line_padded = bytesout + 10; /* to compensate for overshoots in zoom() */</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :     ss-&gt;dst_line_size = bytesout;</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     ss-&gt;dst_size = bytesout*4;</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     ss-&gt;dst_offset = ss-&gt;dst_size;</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     ss-&gt;dst_togo = (long long)ss-&gt;dst_size * ss-&gt;params.HeightIn;</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     ss-&gt;window = (byte *)gs_alloc_byte_array(mem, ss-&gt;src_line_padded, 5, &quot;imscale window&quot;);</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :     ss-&gt;dst = (byte *)gs_alloc_bytes(mem, (size_t)ss-&gt;dst_line_padded * 4, &quot;imscale dst&quot;);</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     if (ss-&gt;window == NULL || ss-&gt;dst == NULL)</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     memset(ss-&gt;window, 0xff, ss-&gt;src_line_padded * 5);</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : }</span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : static void</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 : zoom_line(stream_imscale_state *ss) {</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :     /* src_y is 2 scan lines ahead of dst_y/4, although the latter counter is implicit.</span>
+<span id="L72"><span class="lineNum">      72</span>              :      * For instance, during the 1st call to this function, src_y == 2, dst_y == 0.</span>
+<span id="L73"><span class="lineNum">      73</span>              :      * (src_y + 3) % 5 == 0 and points to the beginning of the window.</span>
+<span id="L74"><span class="lineNum">      74</span>              :      * (src_y + 4) % 5 == 1 and points to the next line.</span>
+<span id="L75"><span class="lineNum">      75</span>              :      * (src_y    ) % 5 == 2 and points to the last scanned line.</span>
+<span id="L76"><span class="lineNum">      76</span>              :      * The next 2 lines in the window correspond to the blank lines above the first</span>
+<span id="L77"><span class="lineNum">      77</span>              :      * line of the image.</span>
+<span id="L78"><span class="lineNum">      78</span>              :      */</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         unsigned char * const p0 = ss-&gt;window + (ss-&gt;src_line_padded * ((ss-&gt;src_y + 1) % 5));</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         unsigned char * const p1 = ss-&gt;window + (ss-&gt;src_line_padded * ((ss-&gt;src_y + 2) % 5));</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         unsigned char * const p2 = ss-&gt;window + (ss-&gt;src_line_padded * ((ss-&gt;src_y + 3) % 5));</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         unsigned char * const p3 = ss-&gt;window + (ss-&gt;src_line_padded * ((ss-&gt;src_y + 4) % 5));</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         unsigned char * const p4 = ss-&gt;window + (ss-&gt;src_line_padded * ((ss-&gt;src_y    ) % 5));</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : </span>
+<span id="L85"><span class="lineNum">      85</span>              :         /* Pointers to the lines in the destination buffer. */</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         unsigned char * const dst0 = ss-&gt;dst;</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         unsigned char * const dst1 = ss-&gt;dst + ss-&gt;dst_line_padded;</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         unsigned char * const dst2 = ss-&gt;dst + 2*ss-&gt;dst_line_padded;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         unsigned char * const dst3 = ss-&gt;dst + 3*ss-&gt;dst_line_padded;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     unsigned int i;</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              :     /* r0..r4 are shift registers that contain 5x5 bit matrix and serve</span>
+<span id="L93"><span class="lineNum">      93</span>              :      * as buffers for byte-based access to memory. The registers have</span>
+<span id="L94"><span class="lineNum">      94</span>              :      * the following structure and initial content.</span>
+<span id="L95"><span class="lineNum">      95</span>              :      * r0: ........ ........ ......11 XXXxxxxx</span>
+<span id="L96"><span class="lineNum">      96</span>              :      * r1: ........ ........ .11XXXxx xxx00000</span>
+<span id="L97"><span class="lineNum">      97</span>              :      * r2: ........ ....11XX Xxxxxxyy yyyyyy00</span>
+<span id="L98"><span class="lineNum">      98</span>              :      * r3: .......1 1XXXxxxx xyyyyyyy y0000000</span>
+<span id="L99"><span class="lineNum">      99</span>              :      * r3: ..11XXXx xxxxyyyy yyyyzzzz zzzz0000</span>
+<span id="L100"><span class="lineNum">     100</span>              :      * where</span>
+<span id="L101"><span class="lineNum">     101</span>              :      * '.' denotes an unused bit</span>
+<span id="L102"><span class="lineNum">     102</span>              :      * '1' denotes the initial blank bits that precede leading bits of every line</span>
+<span id="L103"><span class="lineNum">     103</span>              :      * 'X' denotes leading bits of the 1st byte. '1' and 'X' belong to 5x5 bit matrix</span>
+<span id="L104"><span class="lineNum">     104</span>              :      * 'x' denotes remaining bits of the 1st byte</span>
+<span id="L105"><span class="lineNum">     105</span>              :      * 'y','z' denote the positions of the following bytes</span>
+<span id="L106"><span class="lineNum">     106</span>              :      * '0' denotes the initial empty bits</span>
+<span id="L107"><span class="lineNum">     107</span>              :      */</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :     uint32_t r0  = 0x300 | p0[0];</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     uint32_t r1  = 0x6000 | p1[0] &lt;&lt; 5;</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :     uint32_t r2  = 0xc0000 | p2[0] &lt;&lt; 10 | p2[1] &lt;&lt; 2;</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :     uint32_t r3  = 0x1800000 | p3[0] &lt;&lt; 15 | p3[1] &lt;&lt; 7;</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :     uint32_t r4  = 0x30000000 | p4[0] &lt;&lt; 20 | p4[1] &lt;&lt; 12 | p4[2] &lt;&lt; 4;</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span>              : #define ZOOM(r0, r1, r2, r3, r4) imscale_foo((r0 &amp; 0x3e0) | (r1 &amp; 0x7c00) | (r2 &amp; 0xf8000) | (r3 &amp; 0x1f00000) | (r4 &amp; 0x3e000000))</span>
+<span id="L115"><span class="lineNum">     115</span>              : #define SHIFT(r0, r1, r2, r3, r4) r0 &lt;&lt;= 1, r1 &lt;&lt;= 1, r2 &lt;&lt;= 1, r3 &lt;&lt;= 1, r4 &lt;&lt;= 1</span>
+<span id="L116"><span class="lineNum">     116</span>              : #define LOAD(n,i) r##n |= p##n[i]</span>
+<span id="L117"><span class="lineNum">     117</span>              : #define STORE(i)  dst0[i] = out, dst1[i] = out &gt;&gt; 8, dst2[i] = out &gt;&gt; 16, dst3[i] = out &gt;&gt; 24</span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span>              :     /* Possible improvement: buffer output in a 64-bit accumulator and write 16-bit chunks. */</span>
+<span id="L120"><span class="lineNum">     120</span>              :     /* Unfortunately in this case big- and little-endian systems need different code. */</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :     for (i=0; i &lt; ss-&gt;src_size; i++) {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         uint32_t out;                         /* 0 5 2 7 4 : number of empty bits in r0..r4 */</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         out = ZOOM(r0, r1, r2, r3, r4) &lt;&lt; 4;</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 1 6 3 8 5 : every counter increases by 1 */</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         LOAD(3, i+2);                         /* 1 6 3 0 5 : load r3 because it has 8 empty bits */</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         out |= ZOOM(r0, r1, r2, r3, r4);</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 2 7 4 1 6 : and so on */</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         STORE(4*i);</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         out = ZOOM(r0, r1, r2, r3, r4) &lt;&lt; 4;</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 3 8 5 2 7 */</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         LOAD(1, i+1);                         /* 3 0 5 2 7 */</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         out |= ZOOM(r0, r1, r2, r3, r4);</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 4 1 6 3 8 */</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         STORE(4*i+1);</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         LOAD(4, i+3);                         /* 4 1 6 3 0 */</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         out = ZOOM(r0, r1, r2, r3, r4) &lt;&lt; 4;</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 5 2 7 4 1 */</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         out |= ZOOM(r0, r1, r2, r3, r4);</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         STORE(4*i+2);</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 6 3 8 5 2 */</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         LOAD(2, i+2);                         /* 6 3 0 5 2 */</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         out = ZOOM(r0, r1, r2, r3, r4) &lt;&lt; 4;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 7 4 1 6 3 */</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         out |= ZOOM(r0, r1, r2, r3, r4);</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         STORE(4*i+3);</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         SHIFT(r0, r1, r2, r3, r4);            /* 8 5 2 7 4 */</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         LOAD(0, i+1);                         /* 0 5 2 7 4 */</span></span>
+<span id="L149"><span class="lineNum">     149</span>              :     }</span>
+<span id="L150"><span class="lineNum">     150</span>              : #undef ZOOM</span>
+<span id="L151"><span class="lineNum">     151</span>              : #undef SHIFT</span>
+<span id="L152"><span class="lineNum">     152</span>              : #undef LOAD</span>
+<span id="L153"><span class="lineNum">     153</span>              : #undef STORE</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : static int</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 : s_imscale_process(stream_state *st, stream_cursor_read *pr,</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :                 stream_cursor_write *pw, bool last)</span>
+<span id="L160"><span class="lineNum">     160</span>              : {</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     stream_imscale_state *const ss = (stream_imscale_state *) st;</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :     while (1) {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if (ss-&gt;dst_togo &lt;= 0)</span></span>
+<span id="L165"><span class="lineNum">     165</span>              :             return EOFC;</span>
+<span id="L166"><span class="lineNum">     166</span>              :         /* deliver data from dst buffer */</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         if (ss-&gt;dst_offset &lt; ss-&gt;dst_size) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :             uint ncopy = min(pw-&gt;limit - pw-&gt;ptr, ss-&gt;dst_size - ss-&gt;dst_offset);</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :             if (ncopy == 0)</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :                 return 1;</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :             ss-&gt;dst_togo -= ncopy;</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :             while (ncopy) {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 int line = ss-&gt;dst_offset / ss-&gt;dst_line_size;</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 int offset = ss-&gt;dst_offset % ss-&gt;dst_line_size;</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 int linecopy = min(ncopy, ss-&gt;dst_line_size - offset);</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 memcpy(pw-&gt;ptr + 1, (byte *)ss-&gt;dst + line * ss-&gt;dst_line_padded  + offset, linecopy);</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 pw-&gt;ptr += linecopy;</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 ss-&gt;dst_offset += linecopy;</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 ncopy -= linecopy;</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :             }</span>
+<span id="L184"><span class="lineNum">     184</span>              :         }</span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span>              :         /* output a row, if possible */</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         if (ss-&gt;dst_offset == ss-&gt;dst_size &amp;&amp;  /* dst is empty */</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                         ss-&gt;src_offset == ss-&gt;src_size) { /* src is full */</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 if (ss-&gt;src_y &gt;= 2) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                     zoom_line(ss);</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 ss-&gt;dst_offset = 0;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :                 }</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :             ss-&gt;src_offset = 0;</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :             ss-&gt;src_y += 1;</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :         }</span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span>              :         /* input into window */</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         if (ss-&gt;src_offset &lt; ss-&gt;src_size) {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :             uint rleft = pr-&gt;limit - pr-&gt;ptr;</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :             uint ncopy = min(rleft, ss-&gt;src_size - ss-&gt;src_offset);</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :             if (ss-&gt;src_y &gt;= ss-&gt;params.HeightIn) {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 last = true;</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 ncopy = 0;</span></span>
+<span id="L205"><span class="lineNum">     205</span>              :             }</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :             if (rleft == 0 &amp;&amp; !last)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              :                 return 0; /* need more input */</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :             if (ncopy) {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 memcpy(ss-&gt;window + ss-&gt;src_line_padded * (ss-&gt;src_y % 5) + ss-&gt;src_offset, pr-&gt;ptr + 1, ncopy);</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 ss-&gt;src_offset += ncopy;</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 pr-&gt;ptr += ncopy;</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :             } else {</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                 memset(ss-&gt;window + ss-&gt;src_line_padded * (ss-&gt;src_y % 5) + ss-&gt;src_offset, 0xff, ss-&gt;src_size - ss-&gt;src_offset);</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 ss-&gt;src_offset = ss-&gt;src_size;</span></span>
+<span id="L215"><span class="lineNum">     215</span>              :             }</span>
+<span id="L216"><span class="lineNum">     216</span>              :         }</span>
+<span id="L217"><span class="lineNum">     217</span>              :     }</span>
+<span id="L218"><span class="lineNum">     218</span>              : }</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : const stream_template s_imscale_template = {</span>
+<span id="L221"><span class="lineNum">     221</span>              :     &amp;st_imscale_state, s_imscale_init, s_imscale_process, 1, 1,</span>
+<span id="L222"><span class="lineNum">     222</span>              :     s_imscale_release</span>
+<span id="L223"><span class="lineNum">     223</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

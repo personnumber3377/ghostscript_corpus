@@ -1,0 +1,338 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/brotli/c/enc/hash_longest_match64_inc.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/brotli/c/enc</a> - hash_longest_match64_inc.h<span style="font-size: 80%;"> (source / <a href="hash_longest_match64_inc.h.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">119</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* NOLINT(build/header_guard) */</span>
+<span id="L2"><span class="lineNum">       2</span>              : /* Copyright 2010 Google Inc. All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    Distributed under MIT license.</span>
+<span id="L5"><span class="lineNum">       5</span>              :    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT</span>
+<span id="L6"><span class="lineNum">       6</span>              : */</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : /* template parameters: FN */</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : /* A (forgetful) hash table to the data seen by the compressor, to</span>
+<span id="L11"><span class="lineNum">      11</span>              :    help create backward references to previous data.</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              :    This is a hash map of fixed size (bucket_size_) to a ring buffer of</span>
+<span id="L14"><span class="lineNum">      14</span>              :    fixed size (block_size_). The ring buffer contains the last block_size_</span>
+<span id="L15"><span class="lineNum">      15</span>              :    index positions of the given hash key in the compressed data. */</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : #define HashLongestMatch HASHER()</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : static BROTLI_INLINE size_t FN(HashTypeLength)(void) { return 8; }</span>
+<span id="L20"><span class="lineNum">      20</span>              : static BROTLI_INLINE size_t FN(StoreLookahead)(void) { return 8; }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : /* HashBytes is the function that chooses the bucket to place the address in. */</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 : static BROTLI_INLINE size_t FN(HashBytes)(const uint8_t* BROTLI_RESTRICT data,</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :                                           uint64_t hash_mul) {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :   const uint64_t h = BROTLI_UNALIGNED_LOAD64LE(data) * hash_mul;</span></span>
+<span id="L26"><span class="lineNum">      26</span>              :   /* The higher bits contain more mixture from the multiplication,</span>
+<span id="L27"><span class="lineNum">      27</span>              :      so we take our results from there. */</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :   return (size_t)(h &gt;&gt; (64 - 15));</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : typedef struct HashLongestMatch {</span>
+<span id="L32"><span class="lineNum">      32</span>              :   /* Number of hash buckets. */</span>
+<span id="L33"><span class="lineNum">      33</span>              :   size_t bucket_size_;</span>
+<span id="L34"><span class="lineNum">      34</span>              :   /* Only block_size_ newest backward references are kept,</span>
+<span id="L35"><span class="lineNum">      35</span>              :      and the older are forgotten. */</span>
+<span id="L36"><span class="lineNum">      36</span>              :   size_t block_size_;</span>
+<span id="L37"><span class="lineNum">      37</span>              :   /* Hash multiplier tuned to match length. */</span>
+<span id="L38"><span class="lineNum">      38</span>              :   uint64_t hash_mul_;</span>
+<span id="L39"><span class="lineNum">      39</span>              :   /* Mask for accessing entries in a block (in a ring-buffer manner). */</span>
+<span id="L40"><span class="lineNum">      40</span>              :   uint32_t block_mask_;</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              :   int block_bits_;</span>
+<span id="L43"><span class="lineNum">      43</span>              :   int num_last_distances_to_check_;</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              :   /* Shortcuts. */</span>
+<span id="L46"><span class="lineNum">      46</span>              :   HasherCommon* common_;</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              :   /* --- Dynamic size members --- */</span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              :   /* Number of entries in a particular bucket. */</span>
+<span id="L51"><span class="lineNum">      51</span>              :   uint16_t* num_;  /* uint16_t[bucket_size]; */</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              :   /* Buckets containing block_size_ of backward references. */</span>
+<span id="L54"><span class="lineNum">      54</span>              :   uint32_t* buckets_;  /* uint32_t[bucket_size * block_size]; */</span>
+<span id="L55"><span class="lineNum">      55</span>              : } HashLongestMatch;</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 : static void FN(Initialize)(</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :     HasherCommon* common, HashLongestMatch* BROTLI_RESTRICT self,</span>
+<span id="L59"><span class="lineNum">      59</span>              :     const BrotliEncoderParams* params) {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :   self-&gt;common_ = common;</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :   BROTLI_UNUSED(params);</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :   self-&gt;hash_mul_ = kHashMul64 &lt;&lt; (64 - 5 * 8);</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :   BROTLI_DCHECK(common-&gt;params.bucket_bits == 15);</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :   self-&gt;bucket_size_ = (size_t)1 &lt;&lt; common-&gt;params.bucket_bits;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :   self-&gt;block_bits_ = common-&gt;params.block_bits;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :   self-&gt;block_size_ = (size_t)1 &lt;&lt; common-&gt;params.block_bits;</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :   self-&gt;block_mask_ = (uint32_t)(self-&gt;block_size_ - 1);</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :   self-&gt;num_last_distances_to_check_ =</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :       common-&gt;params.num_last_distances_to_check;</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :   self-&gt;num_ = (uint16_t*)common-&gt;extra[0];</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :   self-&gt;buckets_ = (uint32_t*)common-&gt;extra[1];</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : static void FN(Prepare)(</span></span>
+<span id="L76"><span class="lineNum">      76</span>              :     HashLongestMatch* BROTLI_RESTRICT self, BROTLI_BOOL one_shot,</span>
+<span id="L77"><span class="lineNum">      77</span>              :     size_t input_size, const uint8_t* BROTLI_RESTRICT data) {</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :   uint16_t* BROTLI_RESTRICT num = self-&gt;num_;</span></span>
+<span id="L79"><span class="lineNum">      79</span>              :   /* Partial preparation is 100 times slower (per socket). */</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :   size_t partial_prepare_threshold = self-&gt;bucket_size_ &gt;&gt; 6;</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :   if (one_shot &amp;&amp; input_size &lt;= partial_prepare_threshold) {</span></span>
+<span id="L82"><span class="lineNum">      82</span>              :     size_t i;</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; input_size; ++i) {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :       const size_t key = FN(HashBytes)(&amp;data[i], self-&gt;hash_mul_);</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :       num[key] = 0;</span></span>
+<span id="L86"><span class="lineNum">      86</span>              :     }</span>
+<span id="L87"><span class="lineNum">      87</span>              :   } else {</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     memset(num, 0, self-&gt;bucket_size_ * sizeof(num[0]));</span></span>
+<span id="L89"><span class="lineNum">      89</span>              :   }</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void FN(HashMemAllocInBytes)(</span></span>
+<span id="L93"><span class="lineNum">      93</span>              :     const BrotliEncoderParams* params, BROTLI_BOOL one_shot,</span>
+<span id="L94"><span class="lineNum">      94</span>              :     size_t input_size, size_t* alloc_size) {</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :   size_t bucket_size = (size_t)1 &lt;&lt; params-&gt;hasher.bucket_bits;</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :   size_t block_size = (size_t)1 &lt;&lt; params-&gt;hasher.block_bits;</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :   BROTLI_UNUSED(one_shot);</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :   BROTLI_UNUSED(input_size);</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :   alloc_size[0] = sizeof(uint16_t) * bucket_size;</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :   alloc_size[1] = sizeof(uint32_t) * bucket_size * block_size;</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              : /* Look at 4 bytes at &amp;data[ix &amp; mask].</span>
+<span id="L104"><span class="lineNum">     104</span>              :    Compute a hash from these, and store the value of ix at that position. */</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void FN(Store)(</span></span>
+<span id="L106"><span class="lineNum">     106</span>              :     HashLongestMatch* BROTLI_RESTRICT self, const uint8_t* BROTLI_RESTRICT data,</span>
+<span id="L107"><span class="lineNum">     107</span>              :     const size_t mask, const size_t ix) {</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :   uint16_t* BROTLI_RESTRICT num = self-&gt;num_;</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :   uint32_t* BROTLI_RESTRICT buckets = self-&gt;buckets_;</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :   const size_t key = FN(HashBytes)(&amp;data[ix &amp; mask], self-&gt;hash_mul_);</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :   const size_t minor_ix = num[key] &amp; self-&gt;block_mask_;</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :   const size_t offset = minor_ix + (key &lt;&lt; self-&gt;block_bits_);</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :   ++num[key];</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :   buckets[offset] = (uint32_t)ix;</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : static BROTLI_INLINE void FN(StoreRange)(HashLongestMatch* BROTLI_RESTRICT self,</span>
+<span id="L118"><span class="lineNum">     118</span>              :     const uint8_t* BROTLI_RESTRICT data, const size_t mask,</span>
+<span id="L119"><span class="lineNum">     119</span>              :     const size_t ix_start, const size_t ix_end) {</span>
+<span id="L120"><span class="lineNum">     120</span>              :   size_t i;</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :   for (i = ix_start; i &lt; ix_end; ++i) {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :     FN(Store)(self, data, mask, i);</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :   }</span>
+<span id="L124"><span class="lineNum">     124</span>              : }</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void FN(StitchToPreviousBlock)(</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :     HashLongestMatch* BROTLI_RESTRICT self,</span>
+<span id="L128"><span class="lineNum">     128</span>              :     size_t num_bytes, size_t position, const uint8_t* ringbuffer,</span>
+<span id="L129"><span class="lineNum">     129</span>              :     size_t ringbuffer_mask) {</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :   if (num_bytes &gt;= FN(HashTypeLength)() - 1 &amp;&amp; position &gt;= 3) {</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :     /* Prepare the hashes for three last bytes of the last write.</span>
+<span id="L132"><span class="lineNum">     132</span>              :        These could not be calculated before, since they require knowledge</span>
+<span id="L133"><span class="lineNum">     133</span>              :        of both the previous and the current block. */</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :     FN(Store)(self, ringbuffer, ringbuffer_mask, position - 3);</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     FN(Store)(self, ringbuffer, ringbuffer_mask, position - 2);</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     FN(Store)(self, ringbuffer, ringbuffer_mask, position - 1);</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :   }</span>
+<span id="L138"><span class="lineNum">     138</span>              : }</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void FN(PrepareDistanceCache)(</span></span>
+<span id="L141"><span class="lineNum">     141</span>              :     HashLongestMatch* BROTLI_RESTRICT self,</span>
+<span id="L142"><span class="lineNum">     142</span>              :     int* BROTLI_RESTRICT distance_cache) {</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :   PrepareDistanceCache(distance_cache, self-&gt;num_last_distances_to_check_);</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : }</span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span>              : /* Find a longest backward match of &amp;data[cur_ix] up to the length of</span>
+<span id="L147"><span class="lineNum">     147</span>              :    max_length and stores the position cur_ix in the hash table.</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              :    REQUIRES: FN(PrepareDistanceCache) must be invoked for current distance cache</span>
+<span id="L150"><span class="lineNum">     150</span>              :              values; if this method is invoked repeatedly with the same distance</span>
+<span id="L151"><span class="lineNum">     151</span>              :              cache values, it is enough to invoke FN(PrepareDistanceCache) once.</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              :    Does not look for matches longer than max_length.</span>
+<span id="L154"><span class="lineNum">     154</span>              :    Does not look for matches further away than max_backward.</span>
+<span id="L155"><span class="lineNum">     155</span>              :    Writes the best match into |out|.</span>
+<span id="L156"><span class="lineNum">     156</span>              :    |out|-&gt;score is updated only if a better match is found. */</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 : static BROTLI_INLINE void FN(FindLongestMatch)(</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :     HashLongestMatch* BROTLI_RESTRICT self,</span>
+<span id="L159"><span class="lineNum">     159</span>              :     const BrotliEncoderDictionary* dictionary,</span>
+<span id="L160"><span class="lineNum">     160</span>              :     const uint8_t* BROTLI_RESTRICT data, const size_t ring_buffer_mask,</span>
+<span id="L161"><span class="lineNum">     161</span>              :     const int* BROTLI_RESTRICT distance_cache, const size_t cur_ix,</span>
+<span id="L162"><span class="lineNum">     162</span>              :     const size_t max_length, const size_t max_backward,</span>
+<span id="L163"><span class="lineNum">     163</span>              :     const size_t dictionary_distance, const size_t max_distance,</span>
+<span id="L164"><span class="lineNum">     164</span>              :     HasherSearchResult* BROTLI_RESTRICT out) {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :   uint16_t* BROTLI_RESTRICT num = self-&gt;num_;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :   uint32_t* BROTLI_RESTRICT buckets = self-&gt;buckets_;</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :   const size_t cur_ix_masked = cur_ix &amp; ring_buffer_mask;</span></span>
+<span id="L168"><span class="lineNum">     168</span>              :   /* Don't accept a short copy from far away. */</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :   score_t min_score = out-&gt;score;</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :   score_t best_score = out-&gt;score;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :   size_t best_len = out-&gt;len;</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :   size_t i;</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :   out-&gt;len = 0;</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :   out-&gt;len_code_delta = 0;</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :   /* Try last distance first. */</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :   for (i = 0; i &lt; (size_t)self-&gt;num_last_distances_to_check_; ++i) {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     const size_t backward = (size_t)distance_cache[i];</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :     size_t prev_ix = (size_t)(cur_ix - backward);</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     if (prev_ix &gt;= cur_ix) {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :       continue;</span></span>
+<span id="L181"><span class="lineNum">     181</span>              :     }</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :     if (BROTLI_PREDICT_FALSE(backward &gt; max_backward)) {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :       continue;</span></span>
+<span id="L184"><span class="lineNum">     184</span>              :     }</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     prev_ix &amp;= ring_buffer_mask;</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :     if (cur_ix_masked + best_len &gt; ring_buffer_mask ||</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         prev_ix + best_len &gt; ring_buffer_mask ||</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         data[cur_ix_masked + best_len] != data[prev_ix + best_len]) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :       continue;</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :     }</span>
+<span id="L192"><span class="lineNum">     192</span>              :     {</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :       const size_t len = FindMatchLengthWithLimit(&amp;data[prev_ix],</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                                                   &amp;data[cur_ix_masked],</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :                                                   max_length);</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :       if (len &gt;= 3 || (len == 2 &amp;&amp; i &lt; 2)) {</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :         /* Comparing for &gt;= 2 does not change the semantics, but just saves for</span>
+<span id="L198"><span class="lineNum">     198</span>              :            a few unnecessary binary logarithms in backward reference score,</span>
+<span id="L199"><span class="lineNum">     199</span>              :            since we are not interested in such short matches. */</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         score_t score = BackwardReferenceScoreUsingLastDistance(len);</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         if (best_score &lt; score) {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :           if (i != 0) score -= BackwardReferencePenaltyUsingLastDistance(i);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :           if (best_score &lt; score) {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :             best_score = score;</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :             best_len = len;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :             out-&gt;len = best_len;</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :             out-&gt;distance = backward;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :             out-&gt;score = best_score;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :           }</span>
+<span id="L210"><span class="lineNum">     210</span>              :         }</span>
+<span id="L211"><span class="lineNum">     211</span>              :       }</span>
+<span id="L212"><span class="lineNum">     212</span>              :     }</span>
+<span id="L213"><span class="lineNum">     213</span>              :   }</span>
+<span id="L214"><span class="lineNum">     214</span>              :   {</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :     const size_t key = FN(HashBytes)(&amp;data[cur_ix_masked], self-&gt;hash_mul_);</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :     uint32_t* BROTLI_RESTRICT bucket = &amp;buckets[key &lt;&lt; self-&gt;block_bits_];</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :     const size_t down =</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         (num[key] &gt; self-&gt;block_size_) ?</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         (num[key] - self-&gt;block_size_) : 0u;</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :     const uint32_t first4 = BrotliUnalignedRead32(data + cur_ix_masked);</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     const size_t max_length_m4 = max_length - 4;</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :     i = num[key];</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :     for (; i &gt; down;) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :       size_t prev_ix = bucket[--i &amp; self-&gt;block_mask_];</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :       uint32_t current4;</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :       const size_t backward = cur_ix - prev_ix;</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :       if (BROTLI_PREDICT_FALSE(backward &gt; max_backward)) {</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :         break;</span>
+<span id="L229"><span class="lineNum">     229</span>              :       }</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :       prev_ix &amp;= ring_buffer_mask;</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :       if (cur_ix_masked + best_len &gt; ring_buffer_mask ||</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :           prev_ix + best_len &gt; ring_buffer_mask ||</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :           data[cur_ix_masked + best_len] != data[prev_ix + best_len]) {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         continue;</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :       }</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :       current4 = BrotliUnalignedRead32(data + prev_ix);</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :       if (first4 != current4) continue;</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :       {</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         const size_t len = FindMatchLengthWithLimit(&amp;data[prev_ix + 4],</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                                                     &amp;data[cur_ix_masked + 4],</span></span>
+<span id="L241"><span class="lineNum">     241</span>              :                                                     max_length_m4) + 4;</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         const score_t score = BackwardReferenceScore(len, backward);</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if (best_score &lt; score) {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :           best_score = score;</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :           best_len = len;</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :           out-&gt;len = best_len;</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :           out-&gt;distance = backward;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :           out-&gt;score = best_score;</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :         }</span>
+<span id="L250"><span class="lineNum">     250</span>              :       }</span>
+<span id="L251"><span class="lineNum">     251</span>              :     }</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     bucket[num[key] &amp; self-&gt;block_mask_] = (uint32_t)cur_ix;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :     ++num[key];</span></span>
+<span id="L254"><span class="lineNum">     254</span>              :   }</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :   if (min_score == out-&gt;score) {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     SearchInStaticDictionary(dictionary,</span></span>
+<span id="L257"><span class="lineNum">     257</span>              :         self-&gt;common_, &amp;data[cur_ix_masked], max_length, dictionary_distance,</span>
+<span id="L258"><span class="lineNum">     258</span>              :         max_distance, out, BROTLI_FALSE);</span>
+<span id="L259"><span class="lineNum">     259</span>              :   }</span>
+<span id="L260"><span class="lineNum">     260</span>              : }</span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span>              : #undef HashLongestMatch</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

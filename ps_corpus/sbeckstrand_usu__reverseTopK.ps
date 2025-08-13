@@ -1,0 +1,44 @@
+/reverseTopK {
+
+    % Create new dictionary to track assignments
+    1 dict begin
+
+        % Make sure at least one argument is provided
+        count 0 gt
+            {
+                % Assign the provided argument to a variable.
+                /input_number exch def
+
+                % If the number provided is greater than one, continue with logic. This also assumes if 0 (or lower) is provided, no logic is performed.
+                count 0 gt 
+                    {
+                        % Create an array that is the same size as the provided input number. Assingn the array to a variable. 
+                        input_number array
+                        /a exch def
+
+                        % Update our input number to be reduced by one so that we can iterate from 0 to (input number - 1). We are doing this because it makes relations to 0,...,n indexes easier. 
+                        input_number 1 sub
+                        /updated_number exch def
+
+                        % Iterate from 1 -> provided number. For each iteration, take the top value in our stack, and place it in the array, starting with the last slot and moving to the first. 
+                        0 1 updated_number 
+                            {
+                                /current_index exch def
+                                /current_value exch def
+                                a current_index current_value put
+                            } 
+                        for
+
+                        % With the built array, iterate through each item and add it back to the stack. This will add it in the opposite order it was originally in. 
+                        a
+                            {
+                                /current_array_value exch def
+                                current_array_value
+                            }
+                        forall
+                    }
+                if  
+            }
+        if
+    end
+} def

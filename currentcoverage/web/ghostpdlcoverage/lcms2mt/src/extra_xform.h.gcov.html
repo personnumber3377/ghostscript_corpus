@@ -1,0 +1,600 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/lcms2mt/src/extra_xform.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/lcms2mt/src</a> - extra_xform.h<span style="font-size: 80%;"> (source / <a href="extra_xform.h.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">50</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">4.6&nbsp;%</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">3</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : //</span>
+<span id="L2"><span class="lineNum">       2</span>              : // Little cms</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              : // Chameleonic header file to instantiate different versions of the</span>
+<span id="L5"><span class="lineNum">       5</span>              : // transform routines.</span>
+<span id="L6"><span class="lineNum">       6</span>              : //</span>
+<span id="L7"><span class="lineNum">       7</span>              : // As a bare minimum the following must be defined on entry:</span>
+<span id="L8"><span class="lineNum">       8</span>              : //   FUNCTION_NAME             the name of the function</span>
+<span id="L9"><span class="lineNum">       9</span>              : //</span>
+<span id="L10"><span class="lineNum">      10</span>              : // In addition, a range of other symbols can be optionally defined on entry</span>
+<span id="L11"><span class="lineNum">      11</span>              : // to make the generated code more efficient. All these symbols (and</span>
+<span id="L12"><span class="lineNum">      12</span>              : // FUNCTION_NAME) will be automatically undefined at the end of the file so</span>
+<span id="L13"><span class="lineNum">      13</span>              : // that repeated #includes of this file are made simple.</span>
+<span id="L14"><span class="lineNum">      14</span>              : //</span>
+<span id="L15"><span class="lineNum">      15</span>              : // If caching is wanted, define CACHED.</span>
+<span id="L16"><span class="lineNum">      16</span>              : //</span>
+<span id="L17"><span class="lineNum">      17</span>              : // If the representation/calculations are to be done using floating point</span>
+<span id="L18"><span class="lineNum">      18</span>              : // define XFORM_FLOAT. In the absence of this it is assumed that the</span>
+<span id="L19"><span class="lineNum">      19</span>              : // calculations will be done in 16 bit with appropriate unpacking/repacking.</span>
+<span id="L20"><span class="lineNum">      20</span>              : //</span>
+<span id="L21"><span class="lineNum">      21</span>              : // If you know the number of input/output channels, define NUMINCHANNELS and</span>
+<span id="L22"><span class="lineNum">      22</span>              : // NUMOUTCHANNELS.</span>
+<span id="L23"><span class="lineNum">      23</span>              : //</span>
+<span id="L24"><span class="lineNum">      24</span>              : // If you know the number of bytes used for the packed version of input and/or</span>
+<span id="L25"><span class="lineNum">      25</span>              : // output, define INPACKEDSAMPLESIZE and OUTPACKEDSAMPLESIZE.</span>
+<span id="L26"><span class="lineNum">      26</span>              : //</span>
+<span id="L27"><span class="lineNum">      27</span>              : // If you do not know the number of channels and/or the sample size, but you</span>
+<span id="L28"><span class="lineNum">      28</span>              : // do know a maximum bound on the number of bytes used to represent the</span>
+<span id="L29"><span class="lineNum">      29</span>              : // unpacked samples, then operation with CACHE can be accelerated by defining</span>
+<span id="L30"><span class="lineNum">      30</span>              : // CMPBYTES to the number of bytes that should be compared to the cached result.</span>
+<span id="L31"><span class="lineNum">      31</span>              : // Usually that is calculated from NUMINCHANNELS and INPACKEDSAMPLESIZE, so</span>
+<span id="L32"><span class="lineNum">      32</span>              : // specifying it directly is only useful if either (or both) of those is not</span>
+<span id="L33"><span class="lineNum">      33</span>              : // known in advance.</span>
+<span id="L34"><span class="lineNum">      34</span>              : //</span>
+<span id="L35"><span class="lineNum">      35</span>              : // For Premultiplied Alpha modes, you must define PREMULT. We only support</span>
+<span id="L36"><span class="lineNum">      36</span>              : // premultiplied alpha where the alpha is the last 'extra' channel, and</span>
+<span id="L37"><span class="lineNum">      37</span>              : // where both source and destination are packed in the same way.</span>
+<span id="L38"><span class="lineNum">      38</span>              : //</span>
+<span id="L39"><span class="lineNum">      39</span>              : // If you know the code to be used to unpack (or pack, or both) data to/from</span>
+<span id="L40"><span class="lineNum">      40</span>              : // the simple 16 bit transform input/output format, then you can choose</span>
+<span id="L41"><span class="lineNum">      41</span>              : // to this directly by defining UNPACK/PACK macros as follows:</span>
+<span id="L42"><span class="lineNum">      42</span>              : //   UNPACK(T,TO,FROM,SIZE,AL) (Opt)   code to unpack input data (T = Transform</span>
+<span id="L43"><span class="lineNum">      43</span>              : //                                     TO = buffer to unpack into, FROM = data,</span>
+<span id="L44"><span class="lineNum">      44</span>              : //                                     SIZE = size of data, AL = Alpha)</span>
+<span id="L45"><span class="lineNum">      45</span>              : //   PACK(T,FROM,TO,SIZE,AL)   (Opt)   code to pack transformed input data</span>
+<span id="L46"><span class="lineNum">      46</span>              : //                                    (T = Transform, FROM = transformed data,</span>
+<span id="L47"><span class="lineNum">      47</span>              : //                                    TO = output buffer to pack into,</span>
+<span id="L48"><span class="lineNum">      48</span>              : //                                    SIZE = size of data, AL = Alpha)</span>
+<span id="L49"><span class="lineNum">      49</span>              : //</span>
+<span id="L50"><span class="lineNum">      50</span>              : // Ignore AL unless PREMULT is defined, in which case it will be in the packed</span>
+<span id="L51"><span class="lineNum">      51</span>              : // format. AL is guaranteed to be non-zero.</span>
+<span id="L52"><span class="lineNum">      52</span>              : //</span>
+<span id="L53"><span class="lineNum">      53</span>              : // If UNPACKINCLUDESPREALPHA is defined, then UNPACK should undo the</span>
+<span id="L54"><span class="lineNum">      54</span>              : // premultiplication by AL (i.e. divide by AL). Otherwise AL should be ignored</span>
+<span id="L55"><span class="lineNum">      55</span>              : // and this routine will do it for you.</span>
+<span id="L56"><span class="lineNum">      56</span>              : //</span>
+<span id="L57"><span class="lineNum">      57</span>              : // If PACKINCLUDESPREALPHA is defined, then PACK should apply AL (i.e. multiply</span>
+<span id="L58"><span class="lineNum">      58</span>              : // by AL). Otherwise AL should be ignored and this routine will do it for you.</span>
+<span id="L59"><span class="lineNum">      59</span>              : //</span>
+<span id="L60"><span class="lineNum">      60</span>              : // As an alternative to the above, if you know the function name that would</span>
+<span id="L61"><span class="lineNum">      61</span>              : // be called, supply that in UNPACKFN and PACKFN and inlining compilers</span>
+<span id="L62"><span class="lineNum">      62</span>              : // should hopefully do the hard work for you.</span>
+<span id="L63"><span class="lineNum">      63</span>              : //   UNPACKFN          (Opt)   function to unpack input data</span>
+<span id="L64"><span class="lineNum">      64</span>              : //   PACKFN            (Opt)   function to pack input data</span>
+<span id="L65"><span class="lineNum">      65</span>              : //</span>
+<span id="L66"><span class="lineNum">      66</span>              : // If the data happens to be in the correct input format anyway, we can skip</span>
+<span id="L67"><span class="lineNum">      67</span>              : // unpacking it entirely and just use it direct.</span>
+<span id="L68"><span class="lineNum">      68</span>              : //   NO_UNPACK         (Opt)   if defined, transform direct from the input</span>
+<span id="L69"><span class="lineNum">      69</span>              : //                             data.</span>
+<span id="L70"><span class="lineNum">      70</span>              : //</span>
+<span id="L71"><span class="lineNum">      71</span>              : // UNPACK/PACK/UNPACKFN/PACKFN/NO_UNPACK are all expected to update their</span>
+<span id="L72"><span class="lineNum">      72</span>              : // TO pointer to point to the next pixels data. This means for cases where</span>
+<span id="L73"><span class="lineNum">      73</span>              : // we have extra bytes, they should skip the extra bytes too!</span>
+<span id="L74"><span class="lineNum">      74</span>              : //</span>
+<span id="L75"><span class="lineNum">      75</span>              : // If the data happens to be in the correct output format anyway, we can skip</span>
+<span id="L76"><span class="lineNum">      76</span>              : // packing it entirely and just transform it direct into the buffer.</span>
+<span id="L77"><span class="lineNum">      77</span>              : //   NO_PACK           (Opt)   if defined, transform direct to the output</span>
+<span id="L78"><span class="lineNum">      78</span>              : //                             data.</span>
+<span id="L79"><span class="lineNum">      79</span>              : //   COPY_MATCHED(FROM,TO)(Opt)if defined, copy output values from FROM to</span>
+<span id="L80"><span class="lineNum">      80</span>              : //                             TO. Used in the case CACHED case where the</span>
+<span id="L81"><span class="lineNum">      81</span>              : //                             cache matches and we have to copy forwards.</span>
+<span id="L82"><span class="lineNum">      82</span>              : //</span>
+<span id="L83"><span class="lineNum">      83</span>              : // GAMUTCHECK can be predefined if a gamut check needs to be done.</span>
+<span id="L84"><span class="lineNum">      84</span>              : //</span>
+<span id="L85"><span class="lineNum">      85</span>              : // If there are a known number of extra bytes to be dealt with, define EXTRABYTES</span>
+<span id="L86"><span class="lineNum">      86</span>              : // to that number (such as 0 for none).</span>
+<span id="L87"><span class="lineNum">      87</span>              : // If you want to provide your own code for copying from input to output, define</span>
+<span id="L88"><span class="lineNum">      88</span>              : // COPY_EXTRAS(TRANS,FROM,TO) to do so.</span>
+<span id="L89"><span class="lineNum">      89</span>              : // If none of these are defined, we call cmsHandleExtraChannels.</span>
+<span id="L90"><span class="lineNum">      90</span>              : </span>
+<span id="L91"><span class="lineNum">      91</span>              : #ifndef CMPBYTES</span>
+<span id="L92"><span class="lineNum">      92</span>              : #ifdef NUMINCHANNELS</span>
+<span id="L93"><span class="lineNum">      93</span>              : #ifdef XFORM_FLOAT</span>
+<span id="L94"><span class="lineNum">      94</span>              : #define CMPBYTES (NUMINCHANNELS*4)</span>
+<span id="L95"><span class="lineNum">      95</span>              : #else</span>
+<span id="L96"><span class="lineNum">      96</span>              : #define CMPBYTES (NUMINCHANNELS*2)</span>
+<span id="L97"><span class="lineNum">      97</span>              : #endif</span>
+<span id="L98"><span class="lineNum">      98</span>              : #endif</span>
+<span id="L99"><span class="lineNum">      99</span>              : #endif</span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span>              : #ifdef CMPBYTES</span>
+<span id="L102"><span class="lineNum">     102</span>              :  // Previously, we've attempted to do 'int' based checks here, but this falls</span>
+<span id="L103"><span class="lineNum">     103</span>              :  // foul of some compilers with their strict pointer aliasing. We have the</span>
+<span id="L104"><span class="lineNum">     104</span>              :  // choice of calling memcmp (which tests using chars, so is safe), or of</span>
+<span id="L105"><span class="lineNum">     105</span>              :  // testing using the actual type.</span>
+<span id="L106"><span class="lineNum">     106</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L107"><span class="lineNum">     107</span>              :   #if CMPBYTES == 4</span>
+<span id="L108"><span class="lineNum">     108</span>              :    #define COMPARE(A,B) ((A)[0] != (B)[0])</span>
+<span id="L109"><span class="lineNum">     109</span>              :   #elif CMPBYTES == 8</span>
+<span id="L110"><span class="lineNum">     110</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]))</span>
+<span id="L111"><span class="lineNum">     111</span>              :   #elif CMPBYTES == 12</span>
+<span id="L112"><span class="lineNum">     112</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]) || ((A)[2] != (B)[2]))</span>
+<span id="L113"><span class="lineNum">     113</span>              :   #elif CMPBYTES == 16</span>
+<span id="L114"><span class="lineNum">     114</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]) || ((A)[2] != (B)[2]) || ((A)[3] != (B)[3]))</span>
+<span id="L115"><span class="lineNum">     115</span>              :   #endif</span>
+<span id="L116"><span class="lineNum">     116</span>              :  #else</span>
+<span id="L117"><span class="lineNum">     117</span>              :   #if CMPBYTES == 2</span>
+<span id="L118"><span class="lineNum">     118</span>              :    #define COMPARE(A,B) ((A)[0] != (B)[0])</span>
+<span id="L119"><span class="lineNum">     119</span>              :   #elif CMPBYTES == 4</span>
+<span id="L120"><span class="lineNum">     120</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]))</span>
+<span id="L121"><span class="lineNum">     121</span>              :   #elif CMPBYTES == 6</span>
+<span id="L122"><span class="lineNum">     122</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]) || ((A)[2] != (B)[2]))</span>
+<span id="L123"><span class="lineNum">     123</span>              :   #elif CMPBYTES == 8</span>
+<span id="L124"><span class="lineNum">     124</span>              :    #define COMPARE(A,B) (((A)[0] != (B)[0]) || ((A)[1] != (B)[1]) || ((A)[2] != (B)[2]) || ((A)[3] != (B)[3]))</span>
+<span id="L125"><span class="lineNum">     125</span>              :   #endif</span>
+<span id="L126"><span class="lineNum">     126</span>              :  #endif</span>
+<span id="L127"><span class="lineNum">     127</span>              : #else</span>
+<span id="L128"><span class="lineNum">     128</span>              :  // Otherwise, set INBYTES to be the maximum size it could possibly be.</span>
+<span id="L129"><span class="lineNum">     129</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L130"><span class="lineNum">     130</span>              :   #define CMPBYTES (sizeof(cmsFloat32Number)*cmsMAXCHANNELS)</span>
+<span id="L131"><span class="lineNum">     131</span>              :  #else</span>
+<span id="L132"><span class="lineNum">     132</span>              :   #define CMPBYTES (sizeof(cmsUInt16Number)*cmsMAXCHANNELS)</span>
+<span id="L133"><span class="lineNum">     133</span>              :  #endif</span>
+<span id="L134"><span class="lineNum">     134</span>              : #endif</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              : #ifndef COMPARE</span>
+<span id="L137"><span class="lineNum">     137</span>              :  #define COMPARE(A,B) memcmp((A),(B), CMPBYTES)</span>
+<span id="L138"><span class="lineNum">     138</span>              : #endif</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              : #if   defined(UNPACK)</span>
+<span id="L141"><span class="lineNum">     141</span>              :  // Nothing to do, UNPACK is already defined</span>
+<span id="L142"><span class="lineNum">     142</span>              : #elif defined(NO_UNPACK)</span>
+<span id="L143"><span class="lineNum">     143</span>              :  #define UNPACK(CTX,T,TO,FROM,STRIDE,AL) do { } while (0)</span>
+<span id="L144"><span class="lineNum">     144</span>              : #elif defined(UNPACKFN)</span>
+<span id="L145"><span class="lineNum">     145</span>              :  #define UNPACK(CTX,T,TO,FROM,STRIDE,AL) \</span>
+<span id="L146"><span class="lineNum">     146</span>              :     do { (FROM) = UNPACKFN((CTX),(T),(TO),(FROM),(STRIDE),(AL)); } while (0)</span>
+<span id="L147"><span class="lineNum">     147</span>              : #elif defined(XFORM_FLOAT)</span>
+<span id="L148"><span class="lineNum">     148</span>              :  #define UNPACK(CTX,T,TO,FROM,STRIDE,AL) \</span>
+<span id="L149"><span class="lineNum">     149</span>              :     do { (FROM) = (T)-&gt;FromInputFloat((CTX),(T),(TO),(FROM),(STRIDE)); } while (0)</span>
+<span id="L150"><span class="lineNum">     150</span>              : #else</span>
+<span id="L151"><span class="lineNum">     151</span>              :  #define UNPACK(CTX,T,TO,FROM,STRIDE,AL) \</span>
+<span id="L152"><span class="lineNum">     152</span>              :     do { (FROM) = (T)-&gt;FromInput((CTX),(T),(TO),(FROM),(STRIDE)); } while (0)</span>
+<span id="L153"><span class="lineNum">     153</span>              : #endif</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              : #if defined(PACK)</span>
+<span id="L156"><span class="lineNum">     156</span>              :  // Nothing to do, PACK is already defined</span>
+<span id="L157"><span class="lineNum">     157</span>              : #elif defined(NO_PACK)</span>
+<span id="L158"><span class="lineNum">     158</span>              :  #define PACK(CTX,T,FROM,TO,STRIDE,AL) \</span>
+<span id="L159"><span class="lineNum">     159</span>              :      do { (FROM) += (totaloutbytes/sizeof(XFORM_TYPE)); } while (0)</span>
+<span id="L160"><span class="lineNum">     160</span>              : #elif defined(PACKFN)</span>
+<span id="L161"><span class="lineNum">     161</span>              :  #define PACK(CTX,T,FROM,TO,STRIDE,AL) \</span>
+<span id="L162"><span class="lineNum">     162</span>              :      do { (TO) = PACKFN((CTX),(T),(FROM),(TO),(STRIDE)); } while (0)</span>
+<span id="L163"><span class="lineNum">     163</span>              : #elif defined(XFORM_FLOAT)</span>
+<span id="L164"><span class="lineNum">     164</span>              :  #define PACK(CTX,T,FROM,TO,STRIDE,AL) \</span>
+<span id="L165"><span class="lineNum">     165</span>              :      do { (TO) = (T)-&gt;ToOutputFloat((CTX),(T),(FROM),(TO),(STRIDE)); } while (0)</span>
+<span id="L166"><span class="lineNum">     166</span>              : #else</span>
+<span id="L167"><span class="lineNum">     167</span>              :  #define PACK(CTX,T,FROM,TO,STRIDE,AL) \</span>
+<span id="L168"><span class="lineNum">     168</span>              :      do { (TO) = (T)-&gt;ToOutput((CTX),(T),(FROM),(TO),(STRIDE)); } while (0)</span>
+<span id="L169"><span class="lineNum">     169</span>              : #endif</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span>              : #ifndef ZEROPACK</span>
+<span id="L172"><span class="lineNum">     172</span>              : /* The 'default' definition of ZEROPACK only works when</span>
+<span id="L173"><span class="lineNum">     173</span>              :  * inpackedsamplesize == outpackedsamplesize. */</span>
+<span id="L174"><span class="lineNum">     174</span>              : #define ZEROPACK(CTX,T,TO,FROM) do { \</span>
+<span id="L175"><span class="lineNum">     175</span>              :     memset((TO),0,numoutchannels*outpackedsamplesize);\</span>
+<span id="L176"><span class="lineNum">     176</span>              :     if (numextras != 0) memcpy((TO)+numoutchannels*outpackedsamplesize,\</span>
+<span id="L177"><span class="lineNum">     177</span>              :                                (FROM)+numinchannels*inpackedsamplesize,\</span>
+<span id="L178"><span class="lineNum">     178</span>              :                                numextras*outpackedsamplesize);\</span>
+<span id="L179"><span class="lineNum">     179</span>              :     (TO)+=(1+prealphaindexout)*outpackedsamplesize; } while (0)</span>
+<span id="L180"><span class="lineNum">     180</span>              : #endif</span>
+<span id="L181"><span class="lineNum">     181</span>              : </span>
+<span id="L182"><span class="lineNum">     182</span>              : #ifndef UNPRE</span>
+<span id="L183"><span class="lineNum">     183</span>              : #ifdef PREALPHA</span>
+<span id="L184"><span class="lineNum">     184</span>              : #else</span>
+<span id="L185"><span class="lineNum">     185</span>              : #define UNPRE(CTX,T,S,A) do {} while (0)</span>
+<span id="L186"><span class="lineNum">     186</span>              : #endif</span>
+<span id="L187"><span class="lineNum">     187</span>              : #endif</span>
+<span id="L188"><span class="lineNum">     188</span>              : </span>
+<span id="L189"><span class="lineNum">     189</span>              : #ifndef REPRE</span>
+<span id="L190"><span class="lineNum">     190</span>              : #ifdef PREALPHA</span>
+<span id="L191"><span class="lineNum">     191</span>              : #define REPRE(CTX,T,S,A) do { int i; for (i = 0; i &lt; numoutchannels; i++) \</span>
+<span id="L192"><span class="lineNum">     192</span>              :                                           (S)[i] = mul65535((S)[i],A); } while (0)</span>
+<span id="L193"><span class="lineNum">     193</span>              : #else</span>
+<span id="L194"><span class="lineNum">     194</span>              : #define REPRE(CTX,T,S,A) do {} while (0)</span>
+<span id="L195"><span class="lineNum">     195</span>              : #endif</span>
+<span id="L196"><span class="lineNum">     196</span>              : #endif</span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : #ifndef XFORMVARS</span>
+<span id="L199"><span class="lineNum">     199</span>              : #define XFORMVARS(p) do { } while (0)</span>
+<span id="L200"><span class="lineNum">     200</span>              : #endif</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              : #if defined(NUMOUTCHANNELS)</span>
+<span id="L203"><span class="lineNum">     203</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L204"><span class="lineNum">     204</span>              :   #define OUTBYTES (sizeof(cmsFloat32Number)*NUMOUTCHANNELS)</span>
+<span id="L205"><span class="lineNum">     205</span>              :  #else</span>
+<span id="L206"><span class="lineNum">     206</span>              :   #define OUTBYTES (sizeof(cmsUInt16Number)*NUMOUTCHANNELS)</span>
+<span id="L207"><span class="lineNum">     207</span>              :  #endif</span>
+<span id="L208"><span class="lineNum">     208</span>              : #endif</span>
+<span id="L209"><span class="lineNum">     209</span>              : </span>
+<span id="L210"><span class="lineNum">     210</span>              : #if defined(NO_PACK) &amp;&amp; !defined(COPY_MATCHED) &amp;&amp; defined(OUTBYTES)</span>
+<span id="L211"><span class="lineNum">     211</span>              :  #if (defined(XFORM_FLOAT) &amp;&amp; OUTBYTES == 4) || OUTBYTES == 2</span>
+<span id="L212"><span class="lineNum">     212</span>              :   #define COPY_MATCHED(FROM,TO) ((TO)[0] = (FROM)[0])</span>
+<span id="L213"><span class="lineNum">     213</span>              :  #elif (defined(XFORM_FLOAT) &amp;&amp; OUTBYTES == 8) || OUTBYTES == 4</span>
+<span id="L214"><span class="lineNum">     214</span>              :   #define COPY_MATCHED(FROM,TO) ((TO)[0] = (FROM)[0],(TO)[1] = (FROM)[1])</span>
+<span id="L215"><span class="lineNum">     215</span>              :  #elif (defined(XFORM_FLOAT) &amp;&amp; OUTBYTES == 12) || OUTBYTES == 6</span>
+<span id="L216"><span class="lineNum">     216</span>              :   #define COPY_MATCHED(FROM,TO) ((TO)[0] = (FROM)[0],(TO)[1] = (FROM)[1],(TO)[2] = (FROM)[2])</span>
+<span id="L217"><span class="lineNum">     217</span>              :  #elif (defined(XFORM_FLOAT) &amp;&amp; OUTBYTES == 16) || OUTBYTES == 8</span>
+<span id="L218"><span class="lineNum">     218</span>              :   #define COPY_MATCHED(FROM,TO) ((TO)[0] = (FROM)[0],(TO)[1] = (FROM)[1],(TO)[2] = (FROM)[2],(TO)[3] = (FROM)[3])</span>
+<span id="L219"><span class="lineNum">     219</span>              :  #else</span>
+<span id="L220"><span class="lineNum">     220</span>              :   #define COPY_MATCHED(FROM,TO) memcpy((TO),(FROM),(OUTBYTES))</span>
+<span id="L221"><span class="lineNum">     221</span>              :  #endif</span>
+<span id="L222"><span class="lineNum">     222</span>              : #endif</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : #ifdef XFORM_FLOAT</span>
+<span id="L225"><span class="lineNum">     225</span>              :  #define XFORM_TYPE cmsFloat32Number</span>
+<span id="L226"><span class="lineNum">     226</span>              : #else</span>
+<span id="L227"><span class="lineNum">     227</span>              :  #define XFORM_TYPE cmsUInt16Number</span>
+<span id="L228"><span class="lineNum">     228</span>              : #endif</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span>              : #ifndef COPY_EXTRAS</span>
+<span id="L231"><span class="lineNum">     231</span>              :  #ifdef NUMEXTRAS</span>
+<span id="L232"><span class="lineNum">     232</span>              :   #if NUMEXTRAS == 0</span>
+<span id="L233"><span class="lineNum">     233</span>              :    #define COPY_EXTRAS(TRANS,FROM,TO) do { } while (0)</span>
+<span id="L234"><span class="lineNum">     234</span>              :   #else</span>
+<span id="L235"><span class="lineNum">     235</span>              :    #define COPY_EXTRAS(TRANS,FROM,TO) \</span>
+<span id="L236"><span class="lineNum">     236</span>              :        do { memcpy((TO),(FROM),(NUMEXTRAS)*inpackedsamplesize); \</span>
+<span id="L237"><span class="lineNum">     237</span>              :             (TO) += (NUMEXTRAS)*inpackedsamplesize; \</span>
+<span id="L238"><span class="lineNum">     238</span>              :             (FROM) += (NUMEXTRAS)*inpackedsamplesize; \</span>
+<span id="L239"><span class="lineNum">     239</span>              :        } while (0)</span>
+<span id="L240"><span class="lineNum">     240</span>              :   #endif</span>
+<span id="L241"><span class="lineNum">     241</span>              :  #else</span>
+<span id="L242"><span class="lineNum">     242</span>              :   #define BULK_COPY_EXTRAS</span>
+<span id="L243"><span class="lineNum">     243</span>              :   #define COPY_EXTRAS(TRANS,FROM,TO) do { } while (0)</span>
+<span id="L244"><span class="lineNum">     244</span>              :  #endif</span>
+<span id="L245"><span class="lineNum">     245</span>              : #endif</span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span>              : static</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">       23994 : void FUNCTION_NAME(cmsContext ContextID,</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :                    _cmsTRANSFORM* p,</span>
+<span id="L250"><span class="lineNum">     250</span>              :                    const void* in,</span>
+<span id="L251"><span class="lineNum">     251</span>              :                    void* out,</span>
+<span id="L252"><span class="lineNum">     252</span>              :                    cmsUInt32Number PixelsPerLine,</span>
+<span id="L253"><span class="lineNum">     253</span>              :                    cmsUInt32Number LineCount,</span>
+<span id="L254"><span class="lineNum">     254</span>              :                    const cmsStride* Stride)</span>
+<span id="L255"><span class="lineNum">     255</span>              : {</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">       23994 :     _cmsTRANSFORMCORE *core = p-&gt;core;</span></span>
+<span id="L257"><span class="lineNum">     257</span>              : #ifndef NO_UNPACK</span>
+<span id="L258"><span class="lineNum">     258</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L259"><span class="lineNum">     259</span>              :     cmsFloat32Number wIn[cmsMAXCHANNELS*2];</span>
+<span id="L260"><span class="lineNum">     260</span>              :  #else</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">       23994 :     cmsUInt16Number wIn[cmsMAXCHANNELS*2];</span></span>
+<span id="L262"><span class="lineNum">     262</span>              :  #endif</span>
+<span id="L263"><span class="lineNum">     263</span>              :  #define wIn0 (&amp;wIn[0])</span>
+<span id="L264"><span class="lineNum">     264</span>              :  #define wIn1 (&amp;wIn[cmsMAXCHANNELS])</span>
+<span id="L265"><span class="lineNum">     265</span>              : #endif</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">       23994 :     XFORM_TYPE *currIn;</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : #ifdef CACHED</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">        4022 :     XFORM_TYPE *prevIn;</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : #endif /* CACHED */</span>
+<span id="L270"><span class="lineNum">     270</span>              : #ifdef NO_PACK</span>
+<span id="L271"><span class="lineNum">     271</span>              :     XFORM_TYPE *wOut = (XFORM_TYPE *)out;</span>
+<span id="L272"><span class="lineNum">     272</span>              :     XFORM_TYPE *prevOut = (XFORM_TYPE *)p-&gt;Cache.CacheOut;</span>
+<span id="L273"><span class="lineNum">     273</span>              : #else</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">       23994 :     XFORM_TYPE wOut[cmsMAXCHANNELS];</span></span>
+<span id="L275"><span class="lineNum">     275</span>              : #endif</span>
+<span id="L276"><span class="lineNum">     276</span>              : #if defined(PREALPHA) &amp;&amp; !defined(PACKINCLUDESPREALPHA)</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC tlaBgUNC">           0 :     XFORM_TYPE wScaled[cmsMAXCHANNELS];</span></span>
+<span id="L278"><span class="lineNum">     278</span>              : #endif</span>
+<span id="L279"><span class="lineNum">     279</span>              : #ifdef GAMUTCHECK</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :     _cmsPipelineEval16Fn evalGamut = core-&gt;GamutCheck-&gt;Eval16Fn;</span></span>
+<span id="L281"><span class="lineNum">     281</span>              : #endif /* GAMUTCHECK */</span>
+<span id="L282"><span class="lineNum">     282</span>              : #ifdef XFORM_FLOAT</span>
+<span id="L283"><span class="lineNum">     283</span>              :     _cmsPipelineEvalFloatFn eval = core-&gt;Lut-&gt;EvalFloatFn;</span>
+<span id="L284"><span class="lineNum">     284</span>              :     const cmsPipeline *data = core-&gt;Lut;</span>
+<span id="L285"><span class="lineNum">     285</span>              : #else</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">       23994 :     _cmsPipelineEval16Fn eval = core-&gt;Lut-&gt;Eval16Fn;</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">       23994 :     void *data = core-&gt;Lut-&gt;Data;</span></span>
+<span id="L288"><span class="lineNum">     288</span>              : #endif</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">       23994 :     cmsUInt32Number bppi = Stride-&gt;BytesPerPlaneIn;</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">       23994 :     cmsUInt32Number bppo = Stride-&gt;BytesPerPlaneOut;</span></span>
+<span id="L291"><span class="lineNum">     291</span>              : #ifdef NUMINCHANNELS</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">        4022 :     int numinchannels = NUMINCHANNELS;</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : #else</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">       19972 :     int numinchannels = T_CHANNELS(p-&gt;InputFormat);</span></span>
+<span id="L295"><span class="lineNum">     295</span>              : #endif</span>
+<span id="L296"><span class="lineNum">     296</span>              : #ifdef NUMOUTCHANNELS</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">        4022 :     int numoutchannels = NUMOUTCHANNELS;</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : #else</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">       19972 :     int numoutchannels = T_CHANNELS(p-&gt;OutputFormat);</span></span>
+<span id="L300"><span class="lineNum">     300</span>              : #endif</span>
+<span id="L301"><span class="lineNum">     301</span>              : #ifdef NUMEXTRAS</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">        4022 :     int numextras = NUMEXTRAS;</span></span>
+<span id="L303"><span class="lineNum">     303</span>              : #else</span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">       19972 :     int numextras = T_EXTRA(p-&gt;InputFormat);</span></span>
+<span id="L305"><span class="lineNum">     305</span>              : #endif</span>
+<span id="L306"><span class="lineNum">     306</span>              : #ifdef INPACKEDSAMPLESIZE</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">        4022 :     int inpackedsamplesize = INPACKEDSAMPLESIZE;</span></span>
+<span id="L308"><span class="lineNum">     308</span>              : #else</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">       19972 :     int inpackedsamplesize = T_BYTES(p-&gt;InputFormat);</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : #endif</span>
+<span id="L311"><span class="lineNum">     311</span>              : #ifdef OUTPACKEDSAMPLESIZE</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">        4022 :     int outpackedsamplesize = OUTPACKEDSAMPLESIZE;</span></span>
+<span id="L313"><span class="lineNum">     313</span>              : #else</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">       19972 :     int outpackedsamplesize = T_BYTES(p-&gt;OutputFormat);</span></span>
+<span id="L315"><span class="lineNum">     315</span>              : #endif</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">       23994 :     int prealphaindexin = numinchannels + numextras - 1;</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">       23994 :     int prealphaindexout = numoutchannels + numextras - 1;</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">       23994 :     int totalinbytes = (numinchannels + numextras)*inpackedsamplesize;</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">       23994 :     int totaloutbytes = (numoutchannels + numextras)*outpackedsamplesize;</span></span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span>              :     /* Silence some warnings */</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">       23994 :     (void)bppi;</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">       23994 :     (void)bppo;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">       23994 :     (void)prealphaindexin;</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">       23994 :     (void)numextras;</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">       23994 :     (void)prealphaindexout;</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">       23994 :     (void)inpackedsamplesize;</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">       23994 :     (void)outpackedsamplesize;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">       23994 :     (void)totalinbytes;</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">       23994 :     (void)totaloutbytes;</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span>              : #ifdef BULK_COPY_EXTRAS</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">       19972 :     if (core-&gt;dwOriginalFlags &amp; cmsFLAGS_COPY_ALPHA)</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC tlaBgUNC">           0 :         _cmsHandleExtraChannels(ContextID, p, in, out, PixelsPerLine, LineCount, Stride);</span></span>
+<span id="L335"><span class="lineNum">     335</span>              : #endif</span>
+<span id="L336"><span class="lineNum">     336</span>              : </span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC tlaBgGNC">       23994 :     if (PixelsPerLine == 0)</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC tlaBgUNC">           0 :         return;</span></span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              : #ifdef NO_UNPACK</span>
+<span id="L341"><span class="lineNum">     341</span>              :     prevIn = (XFORM_TYPE *)p-&gt;Cache.CacheIn;</span>
+<span id="L342"><span class="lineNum">     342</span>              : #else</span>
+<span id="L343"><span class="lineNum">     343</span>              :  #ifdef CACHED</span>
+<span id="L344"><span class="lineNum">     344</span>              :     // Empty buffers for quick memcmp</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC tlaBgGNC">        4022 :     memset(wIn1, 0, sizeof(XFORM_TYPE) * cmsMAXCHANNELS);</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span>              :     // Get copy of zero cache</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">        4022 :     memcpy(wIn0, p-&gt;Cache.CacheIn,  sizeof(XFORM_TYPE) * cmsMAXCHANNELS);</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">        4022 :     memcpy(wOut, p-&gt;Cache.CacheOut, sizeof(XFORM_TYPE) * cmsMAXCHANNELS);</span></span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span>              :     // The caller guarantees us that the cache is always valid on entry; if</span>
+<span id="L352"><span class="lineNum">     352</span>              :     // the representation is changed, the cache is reset.</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">        4022 :     prevIn = wIn0;</span></span>
+<span id="L354"><span class="lineNum">     354</span>              :  #endif /* CACHED */</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">        4022 :     currIn = wIn1;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : #endif</span>
+<span id="L357"><span class="lineNum">     357</span>              : </span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">       47988 :     while (LineCount-- &gt; 0)</span></span>
+<span id="L359"><span class="lineNum">     359</span>              :     {</span>
+<span id="L360"><span class="lineNum">     360</span>              :         cmsUInt32Number n = PixelsPerLine;</span>
+<span id="L361"><span class="lineNum">     361</span>              :         cmsUInt8Number* accum  = (cmsUInt8Number*) in;</span>
+<span id="L362"><span class="lineNum">     362</span>              :         cmsUInt8Number* output = (cmsUInt8Number*) out;</span>
+<span id="L363"><span class="lineNum">     363</span>              : #ifdef NO_UNPACK</span>
+<span id="L364"><span class="lineNum">     364</span>              :         currIn = (XFORM_TYPE *)accum;</span>
+<span id="L365"><span class="lineNum">     365</span>              : #endif</span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">       93378 :         while (n-- &gt; 0) { // prevIn == CacheIn, wOut = CacheOut</span></span>
+<span id="L367"><span class="lineNum">     367</span>              : #ifdef PREALPHA</span>
+<span id="L368"><span class="lineNum">     368</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L369"><span class="lineNum">     369</span>              :             cmsFloat32Number alpha = ((cmsFloat32Number *)accum)[prealphaindexin];</span>
+<span id="L370"><span class="lineNum">     370</span>              :  #else</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC tlaBgUNC">           0 :             cmsUInt32Number alpha = inpackedsamplesize == 2 ?</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                                      ((cmsUInt16Number *)accum)[prealphaindexin] :</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                                      (accum[prealphaindexin]);</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :  #endif</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :             if (alpha == 0) {</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                 ZEROPACK(ContextID,p,output,accum);</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 accum += inpackedsamplesize*(prealphaindexin+1);</span></span>
+<span id="L378"><span class="lineNum">     378</span>              :             } else {</span>
+<span id="L379"><span class="lineNum">     379</span>              : #endif</span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC tlaBgGNC">       69384 :                 UNPACK(ContextID,p,currIn,accum,bppi,alpha);</span></span>
+<span id="L381"><span class="lineNum">     381</span>              : #ifdef PREALPHA</span>
+<span id="L382"><span class="lineNum">     382</span>              :  #ifndef UNPACKINCLUDESPREALPHA</span>
+<span id="L383"><span class="lineNum">     383</span>              :   #ifdef XFORM_FLOAT</span>
+<span id="L384"><span class="lineNum">     384</span>              :                 {</span>
+<span id="L385"><span class="lineNum">     385</span>              :                     int i;</span>
+<span id="L386"><span class="lineNum">     386</span>              :                     cmsFloat32Number inva = 1.0f / alpha;</span>
+<span id="L387"><span class="lineNum">     387</span>              :                     for (i = 0; i &lt; numinchannels; i++)</span>
+<span id="L388"><span class="lineNum">     388</span>              :                         currIn[i] *= inva;</span>
+<span id="L389"><span class="lineNum">     389</span>              :                 }</span>
+<span id="L390"><span class="lineNum">     390</span>              :   #else</span>
+<span id="L391"><span class="lineNum">     391</span>              :                 {</span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC tlaBgUNC">           0 :                     int i;</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                     cmsUInt32Number al = inpackedsamplesize == 1 ? alpha*0x101 : alpha;</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                     cmsUInt32Number inva = 0xffff0000U / al;</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                     for (i = 0; i &lt; numinchannels; i++)</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                         currIn[i] = ((currIn[i] * inva)&gt;&gt;16);</span></span>
+<span id="L397"><span class="lineNum">     397</span>              :                 }</span>
+<span id="L398"><span class="lineNum">     398</span>              :   #endif</span>
+<span id="L399"><span class="lineNum">     399</span>              :  #endif</span>
+<span id="L400"><span class="lineNum">     400</span>              : #endif</span>
+<span id="L401"><span class="lineNum">     401</span>              : #ifdef CACHED</span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC tlaBgGNC">        4022 :                 if (COMPARE(currIn, prevIn))</span></span>
+<span id="L403"><span class="lineNum">     403</span>              : #endif /* CACHED */</span>
+<span id="L404"><span class="lineNum">     404</span>              :                 {</span>
+<span id="L405"><span class="lineNum">     405</span>              : #ifdef GAMUTCHECK</span>
+<span id="L406"><span class="lineNum">     406</span>              :  #ifdef XFORM_FLOAT</span>
+<span id="L407"><span class="lineNum">     407</span>              :                     cmsFloat32Number OutOfGamut;</span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span>              :                     // Evaluate gamut marker.</span>
+<span id="L410"><span class="lineNum">     410</span>              :                     cmsPipelineEvalFloat(currIn, &amp;OutOfGamut, core-&gt;GamutCheck);</span>
+<span id="L411"><span class="lineNum">     411</span>              : </span>
+<span id="L412"><span class="lineNum">     412</span>              :                     // Is current color out of gamut?</span>
+<span id="L413"><span class="lineNum">     413</span>              :                     if (OutOfGamut &gt; 0.0)</span>
+<span id="L414"><span class="lineNum">     414</span>              :                         // Certainly, out of gamut</span>
+<span id="L415"><span class="lineNum">     415</span>              :                         for (j=0; j &lt; cmsMAXCHANNELS; j++)</span>
+<span id="L416"><span class="lineNum">     416</span>              :                             fOut[j] = -1.0;</span>
+<span id="L417"><span class="lineNum">     417</span>              :                     else</span>
+<span id="L418"><span class="lineNum">     418</span>              :  #else</span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC tlaBgUNC">           0 :                     cmsUInt16Number wOutOfGamut;</span></span>
+<span id="L420"><span class="lineNum">     420</span>              : </span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                     evalGamut(ContextID, currIn, &amp;wOutOfGamut, core-&gt;GamutCheck-&gt;Data);</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                     if (wOutOfGamut &gt;= 1)</span></span>
+<span id="L423"><span class="lineNum">     423</span>              :                         /* RJW: Could be faster? copy once to a local buffer? */</span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                         cmsGetAlarmCodes(ContextID, wOut);</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :                     else</span>
+<span id="L426"><span class="lineNum">     426</span>              :  #endif /* FLOAT_XFORM */</span>
+<span id="L427"><span class="lineNum">     427</span>              : #endif /* GAMUTCHECK */</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC tlaBgGNC">       67772 :                         eval(ContextID, currIn, wOut, data);</span></span>
+<span id="L429"><span class="lineNum">     429</span>              : #ifdef NO_UNPACK</span>
+<span id="L430"><span class="lineNum">     430</span>              :  #ifdef CACHED</span>
+<span id="L431"><span class="lineNum">     431</span>              :                     prevIn = currIn;</span>
+<span id="L432"><span class="lineNum">     432</span>              :  #endif</span>
+<span id="L433"><span class="lineNum">     433</span>              :                     currIn = (XFORM_TYPE *)(((char *)currIn) + totalinbytes);</span>
+<span id="L434"><span class="lineNum">     434</span>              : #else</span>
+<span id="L435"><span class="lineNum">     435</span>              :  #ifdef CACHED</span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">        2410 :                     {XFORM_TYPE *tmp = currIn; currIn = prevIn; prevIn = tmp;} // SWAP</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :  #endif /* CACHED */</span>
+<span id="L438"><span class="lineNum">     438</span>              : #endif /* NO_UNPACK */</span>
+<span id="L439"><span class="lineNum">     439</span>              :                 }</span>
+<span id="L440"><span class="lineNum">     440</span>              : #ifdef NO_PACK</span>
+<span id="L441"><span class="lineNum">     441</span>              :                 else</span>
+<span id="L442"><span class="lineNum">     442</span>              :                     COPY_MATCHED(prevOut,wOut);</span>
+<span id="L443"><span class="lineNum">     443</span>              :                 prevOut = wOut;</span>
+<span id="L444"><span class="lineNum">     444</span>              : #endif</span>
+<span id="L445"><span class="lineNum">     445</span>              : #ifdef PREALPHA</span>
+<span id="L446"><span class="lineNum">     446</span>              :  #ifndef PACKINCLUDESPREALPHA</span>
+<span id="L447"><span class="lineNum">     447</span>              :   #ifdef XFORM_FLOAT</span>
+<span id="L448"><span class="lineNum">     448</span>              :                 {</span>
+<span id="L449"><span class="lineNum">     449</span>              :                     int i;</span>
+<span id="L450"><span class="lineNum">     450</span>              :                     for (i = 0; i &lt; numoutchannels; i++)</span>
+<span id="L451"><span class="lineNum">     451</span>              :                         wScaled = wOut[i] * alpha;</span>
+<span id="L452"><span class="lineNum">     452</span>              :                 }</span>
+<span id="L453"><span class="lineNum">     453</span>              :   #else</span>
+<span id="L454"><span class="lineNum">     454</span>              :                 {</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC tlaBgUNC">           0 :                     int i;</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :                     cmsUInt32Number al = inpackedsamplesize == 1 ? alpha*0x101 : alpha;</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :                     for (i = 0; i &lt; numoutchannels; i++)</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :                         wScaled[i] = mul65535(wOut[i],al);</span></span>
+<span id="L459"><span class="lineNum">     459</span>              :                 }</span>
+<span id="L460"><span class="lineNum">     460</span>              :   #endif</span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :                 PACK(ContextID,p,wScaled,output,bppo,alpha);</span></span>
+<span id="L462"><span class="lineNum">     462</span>              :  #else</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :                 PACK(ContextID,p,wOut,output,bppo,alpha);</span></span>
+<span id="L464"><span class="lineNum">     464</span>              :  #endif</span>
+<span id="L465"><span class="lineNum">     465</span>              : #else</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC tlaBgGNC">       69384 :                 PACK(ContextID,p,wOut,output,bppo,alpha);</span></span>
+<span id="L467"><span class="lineNum">     467</span>              : #endif</span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">       93378 :                 COPY_EXTRAS(p,accum,output);</span></span>
+<span id="L469"><span class="lineNum">     469</span>              : #ifdef PREALPHA</span>
+<span id="L470"><span class="lineNum">     470</span>              :             }</span>
+<span id="L471"><span class="lineNum">     471</span>              : #endif</span>
+<span id="L472"><span class="lineNum">     472</span>              :         } /* End x loop */</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">       23994 :         in = (void *)((cmsUInt8Number *)in + Stride-&gt;BytesPerLineIn);</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">       23994 :         out = (void *)((cmsUInt8Number *)out + Stride-&gt;BytesPerLineOut);</span></span>
+<span id="L475"><span class="lineNum">     475</span>              :     } /* End y loop */</span>
+<span id="L476"><span class="lineNum">     476</span>              :     /* The following code is only safe if we know that a given transform is</span>
+<span id="L477"><span class="lineNum">     477</span>              :      * called on one thread a time. */</span>
+<span id="L478"><span class="lineNum">     478</span>              : #if 0</span>
+<span id="L479"><span class="lineNum">     479</span>              : #ifdef CACHED</span>
+<span id="L480"><span class="lineNum">     480</span>              : #ifdef NO_UNPACK</span>
+<span id="L481"><span class="lineNum">     481</span>              :     memcpy(p-&gt;Cache.CacheIn,prevIn, CMPBYTES);</span>
+<span id="L482"><span class="lineNum">     482</span>              : #else</span>
+<span id="L483"><span class="lineNum">     483</span>              :     memcpy(p-&gt;Cache.CacheIn, prevIn, sizeof(XFORM_TYPE) * cmsMAXCHANNELS);</span>
+<span id="L484"><span class="lineNum">     484</span>              : #endif</span>
+<span id="L485"><span class="lineNum">     485</span>              : #ifdef NO_PACK</span>
+<span id="L486"><span class="lineNum">     486</span>              :     COPY_MATCHED(prevOut,p-&gt;Cache.CacheOut);</span>
+<span id="L487"><span class="lineNum">     487</span>              : #else</span>
+<span id="L488"><span class="lineNum">     488</span>              :     memcpy(p-&gt;Cache.CacheOut, wOut, sizeof(XFORM_TYPE) * cmsMAXCHANNELS);</span>
+<span id="L489"><span class="lineNum">     489</span>              : #endif /* NO_PACK */</span>
+<span id="L490"><span class="lineNum">     490</span>              : #endif /* CACHED */</span>
+<span id="L491"><span class="lineNum">     491</span>              : #endif</span>
+<span id="L492"><span class="lineNum">     492</span>              : }</span>
+<span id="L493"><span class="lineNum">     493</span>              : </span>
+<span id="L494"><span class="lineNum">     494</span>              : #undef wIn0</span>
+<span id="L495"><span class="lineNum">     495</span>              : #undef wIn1</span>
+<span id="L496"><span class="lineNum">     496</span>              : #undef XFORM_TYPE</span>
+<span id="L497"><span class="lineNum">     497</span>              : #undef XFORM_FLOAT</span>
+<span id="L498"><span class="lineNum">     498</span>              : </span>
+<span id="L499"><span class="lineNum">     499</span>              : #undef FUNCTION_NAME</span>
+<span id="L500"><span class="lineNum">     500</span>              : #undef COMPARE</span>
+<span id="L501"><span class="lineNum">     501</span>              : #undef CMPBYTES</span>
+<span id="L502"><span class="lineNum">     502</span>              : #undef OUTBYTES</span>
+<span id="L503"><span class="lineNum">     503</span>              : #undef UNPACK</span>
+<span id="L504"><span class="lineNum">     504</span>              : #undef NO_UNPACK</span>
+<span id="L505"><span class="lineNum">     505</span>              : #undef PACK</span>
+<span id="L506"><span class="lineNum">     506</span>              : #undef NO_PACK</span>
+<span id="L507"><span class="lineNum">     507</span>              : #undef UNPACKFN</span>
+<span id="L508"><span class="lineNum">     508</span>              : #undef PACKFN</span>
+<span id="L509"><span class="lineNum">     509</span>              : #undef GAMUTCHECK</span>
+<span id="L510"><span class="lineNum">     510</span>              : #undef CACHED</span>
+<span id="L511"><span class="lineNum">     511</span>              : #undef COPY_MATCHED</span>
+<span id="L512"><span class="lineNum">     512</span>              : #undef EXTRABYTES</span>
+<span id="L513"><span class="lineNum">     513</span>              : #undef COPY_EXTRAS</span>
+<span id="L514"><span class="lineNum">     514</span>              : #undef BULK_COPY_EXTRAS</span>
+<span id="L515"><span class="lineNum">     515</span>              : #undef PREALPHA</span>
+<span id="L516"><span class="lineNum">     516</span>              : #undef ZEROPACK</span>
+<span id="L517"><span class="lineNum">     517</span>              : #undef XFORMVARS</span>
+<span id="L518"><span class="lineNum">     518</span>              : #undef UNPRE</span>
+<span id="L519"><span class="lineNum">     519</span>              : #undef REPRE</span>
+<span id="L520"><span class="lineNum">     520</span>              : #undef INPACKEDSAMPLESIZE</span>
+<span id="L521"><span class="lineNum">     521</span>              : #undef OUTPACKEDSAMPLESIZE</span>
+<span id="L522"><span class="lineNum">     522</span>              : #undef NUMINCHANNELS</span>
+<span id="L523"><span class="lineNum">     523</span>              : #undef NUMOUTCHANNELS</span>
+<span id="L524"><span class="lineNum">     524</span>              : #undef NUMEXTRAS</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

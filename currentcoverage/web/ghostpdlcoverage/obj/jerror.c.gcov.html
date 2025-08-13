@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/obj/jerror.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/obj</a> - jerror.c<span style="font-size: 80%;"> (source / <a href="jerror.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /*</span>
+<span id="L2"><span class="lineNum">       2</span>              :  * jerror.c</span>
+<span id="L3"><span class="lineNum">       3</span>              :  *</span>
+<span id="L4"><span class="lineNum">       4</span>              :  * Copyright (C) 1991-1998, Thomas G. Lane.</span>
+<span id="L5"><span class="lineNum">       5</span>              :  * Modified 2012-2015 by Guido Vollbeding.</span>
+<span id="L6"><span class="lineNum">       6</span>              :  * This file is part of the Independent JPEG Group's software.</span>
+<span id="L7"><span class="lineNum">       7</span>              :  * For conditions of distribution and use, see the accompanying README file.</span>
+<span id="L8"><span class="lineNum">       8</span>              :  *</span>
+<span id="L9"><span class="lineNum">       9</span>              :  * This file contains simple error-reporting and trace-message routines.</span>
+<span id="L10"><span class="lineNum">      10</span>              :  * These are suitable for Unix-like systems and others where writing to</span>
+<span id="L11"><span class="lineNum">      11</span>              :  * stderr is the right thing to do.  Many applications will want to replace</span>
+<span id="L12"><span class="lineNum">      12</span>              :  * some or all of these routines.</span>
+<span id="L13"><span class="lineNum">      13</span>              :  *</span>
+<span id="L14"><span class="lineNum">      14</span>              :  * If you define USE_WINDOWS_MESSAGEBOX in jconfig.h or in the makefile,</span>
+<span id="L15"><span class="lineNum">      15</span>              :  * you get a Windows-specific hack to display error messages in a dialog box.</span>
+<span id="L16"><span class="lineNum">      16</span>              :  * It ain't much, but it beats dropping error messages into the bit bucket,</span>
+<span id="L17"><span class="lineNum">      17</span>              :  * which is what happens to output to stderr under most Windows C compilers.</span>
+<span id="L18"><span class="lineNum">      18</span>              :  *</span>
+<span id="L19"><span class="lineNum">      19</span>              :  * These routines are used by both the compression and decompression code.</span>
+<span id="L20"><span class="lineNum">      20</span>              :  */</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : #ifdef USE_WINDOWS_MESSAGEBOX</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &lt;windows.h&gt;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #endif</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : /* this is not a core library module, so it doesn't define JPEG_INTERNALS */</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;jinclude.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;jpeglib.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;jversion.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;jerror.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : #ifndef EXIT_FAILURE            /* define exit() codes if not provided */</span>
+<span id="L33"><span class="lineNum">      33</span>              : #define EXIT_FAILURE  1</span>
+<span id="L34"><span class="lineNum">      34</span>              : #endif</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : /*</span>
+<span id="L38"><span class="lineNum">      38</span>              :  * Create the message string table.</span>
+<span id="L39"><span class="lineNum">      39</span>              :  * We do this from the master message list in jerror.h by re-reading</span>
+<span id="L40"><span class="lineNum">      40</span>              :  * jerror.h with a suitable definition for macro JMESSAGE.</span>
+<span id="L41"><span class="lineNum">      41</span>              :  * The message table is made an external symbol just in case any applications</span>
+<span id="L42"><span class="lineNum">      42</span>              :  * want to refer to it directly.</span>
+<span id="L43"><span class="lineNum">      43</span>              :  */</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : #ifdef NEED_SHORT_EXTERNAL_NAMES</span>
+<span id="L46"><span class="lineNum">      46</span>              : #define jpeg_std_message_table  jMsgTable</span>
+<span id="L47"><span class="lineNum">      47</span>              : #endif</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : #define JMESSAGE(code,string)   string ,</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : const char * const jpeg_std_message_table[] = {</span>
+<span id="L52"><span class="lineNum">      52</span>              : #include &quot;jerror.h&quot;</span>
+<span id="L53"><span class="lineNum">      53</span>              :   NULL</span>
+<span id="L54"><span class="lineNum">      54</span>              : };</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /*</span>
+<span id="L58"><span class="lineNum">      58</span>              :  * Error exit handler: must not return to caller.</span>
+<span id="L59"><span class="lineNum">      59</span>              :  *</span>
+<span id="L60"><span class="lineNum">      60</span>              :  * Applications may override this if they want to get control back after</span>
+<span id="L61"><span class="lineNum">      61</span>              :  * an error.  Typically one would longjmp somewhere instead of exiting.</span>
+<span id="L62"><span class="lineNum">      62</span>              :  * The setjmp buffer can be made a private field within an expanded error</span>
+<span id="L63"><span class="lineNum">      63</span>              :  * handler object.  Note that the info needed to generate an error message</span>
+<span id="L64"><span class="lineNum">      64</span>              :  * is stored in the error object, so you can generate the message now or</span>
+<span id="L65"><span class="lineNum">      65</span>              :  * later, at your convenience.</span>
+<span id="L66"><span class="lineNum">      66</span>              :  * You should make sure that the JPEG object is cleaned up (with jpeg_abort</span>
+<span id="L67"><span class="lineNum">      67</span>              :  * or jpeg_destroy) at some point.</span>
+<span id="L68"><span class="lineNum">      68</span>              :  */</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : METHODDEF(noreturn_t)</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 : error_exit (j_common_ptr cinfo)</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : {</span>
+<span id="L73"><span class="lineNum">      73</span>              :   /* Always display the message */</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :   (*cinfo-&gt;err-&gt;output_message) (cinfo);</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              :   /* Let the memory manager delete any temp files before we die */</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :   jpeg_destroy(cinfo);</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :   exit(EXIT_FAILURE);</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : </span>
+<span id="L83"><span class="lineNum">      83</span>              : /*</span>
+<span id="L84"><span class="lineNum">      84</span>              :  * Actual output of an error or trace message.</span>
+<span id="L85"><span class="lineNum">      85</span>              :  * Applications may override this method to send JPEG messages somewhere</span>
+<span id="L86"><span class="lineNum">      86</span>              :  * other than stderr.</span>
+<span id="L87"><span class="lineNum">      87</span>              :  *</span>
+<span id="L88"><span class="lineNum">      88</span>              :  * On Windows, printing to stderr is generally completely useless,</span>
+<span id="L89"><span class="lineNum">      89</span>              :  * so we provide optional code to produce an error-dialog popup.</span>
+<span id="L90"><span class="lineNum">      90</span>              :  * Most Windows applications will still prefer to override this routine,</span>
+<span id="L91"><span class="lineNum">      91</span>              :  * but if they don't, it'll do something at least marginally useful.</span>
+<span id="L92"><span class="lineNum">      92</span>              :  *</span>
+<span id="L93"><span class="lineNum">      93</span>              :  * NOTE: to use the library in an environment that doesn't support the</span>
+<span id="L94"><span class="lineNum">      94</span>              :  * C stdio library, you may have to delete the call to fprintf() entirely,</span>
+<span id="L95"><span class="lineNum">      95</span>              :  * not just not use this routine.</span>
+<span id="L96"><span class="lineNum">      96</span>              :  */</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : METHODDEF(void)</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 : output_message (j_common_ptr cinfo)</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : {</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :   char buffer[JMSG_LENGTH_MAX];</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              :   /* Create the message */</span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :   (*cinfo-&gt;err-&gt;format_message) (cinfo, buffer);</span></span>
+<span id="L105"><span class="lineNum">     105</span>              : </span>
+<span id="L106"><span class="lineNum">     106</span>              : #ifdef USE_WINDOWS_MESSAGEBOX</span>
+<span id="L107"><span class="lineNum">     107</span>              :   /* Display it in a message dialog box */</span>
+<span id="L108"><span class="lineNum">     108</span>              :   MessageBox(GetActiveWindow(), buffer, &quot;JPEG Library Error&quot;,</span>
+<span id="L109"><span class="lineNum">     109</span>              :              MB_OK | MB_ICONERROR);</span>
+<span id="L110"><span class="lineNum">     110</span>              : #else</span>
+<span id="L111"><span class="lineNum">     111</span>              :   /* Send it to stderr, adding a newline */</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :   fprintf(stderr, &quot;%s\n&quot;, buffer);</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : #endif</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L115"><span class="lineNum">     115</span>              : </span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : /*</span>
+<span id="L118"><span class="lineNum">     118</span>              :  * Decide whether to emit a trace or warning message.</span>
+<span id="L119"><span class="lineNum">     119</span>              :  * msg_level is one of:</span>
+<span id="L120"><span class="lineNum">     120</span>              :  *   -1: recoverable corrupt-data warning, may want to abort.</span>
+<span id="L121"><span class="lineNum">     121</span>              :  *    0: important advisory messages (always display to user).</span>
+<span id="L122"><span class="lineNum">     122</span>              :  *    1: first level of tracing detail.</span>
+<span id="L123"><span class="lineNum">     123</span>              :  *    2,3,...: successively more detailed tracing messages.</span>
+<span id="L124"><span class="lineNum">     124</span>              :  * An application might override this method if it wanted to abort on warnings</span>
+<span id="L125"><span class="lineNum">     125</span>              :  * or change the policy about which messages to display.</span>
+<span id="L126"><span class="lineNum">     126</span>              :  */</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : METHODDEF(void)</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 : emit_message (j_common_ptr cinfo, int msg_level)</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : {</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :   struct jpeg_error_mgr * err = cinfo-&gt;err;</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :   if (msg_level &lt; 0) {</span></span>
+<span id="L134"><span class="lineNum">     134</span>              :     /* It's a warning message.  Since corrupt files may generate many warnings,</span>
+<span id="L135"><span class="lineNum">     135</span>              :      * the policy implemented here is to show only the first warning,</span>
+<span id="L136"><span class="lineNum">     136</span>              :      * unless trace_level &gt;= 3.</span>
+<span id="L137"><span class="lineNum">     137</span>              :      */</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :     if (err-&gt;num_warnings == 0 || err-&gt;trace_level &gt;= 3)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :       (*err-&gt;output_message) (cinfo);</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :     /* Always count warnings in num_warnings. */</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :     err-&gt;num_warnings++;</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :   } else {</span>
+<span id="L143"><span class="lineNum">     143</span>              :     /* It's a trace message.  Show it if trace_level &gt;= msg_level. */</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     if (err-&gt;trace_level &gt;= msg_level)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :       (*err-&gt;output_message) (cinfo);</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :   }</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              : /*</span>
+<span id="L151"><span class="lineNum">     151</span>              :  * Format a message string for the most recent JPEG error or message.</span>
+<span id="L152"><span class="lineNum">     152</span>              :  * The message is stored into buffer, which should be at least JMSG_LENGTH_MAX</span>
+<span id="L153"><span class="lineNum">     153</span>              :  * characters.  Note that no '\n' character is added to the string.</span>
+<span id="L154"><span class="lineNum">     154</span>              :  * Few applications should need to override this method.</span>
+<span id="L155"><span class="lineNum">     155</span>              :  */</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : METHODDEF(void)</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 : format_message (j_common_ptr cinfo, char * buffer)</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : {</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :   struct jpeg_error_mgr * err = cinfo-&gt;err;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :   int msg_code = err-&gt;msg_code;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :   const char * msgtext = NULL;</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :   const char * msgptr;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :   char ch;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :   boolean isstring;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span>              :   /* Look up message string in proper table */</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :   if (msg_code &gt; 0 &amp;&amp; msg_code &lt;= err-&gt;last_jpeg_message) {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :     msgtext = err-&gt;jpeg_message_table[msg_code];</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :   } else if (err-&gt;addon_message_table != NULL &amp;&amp;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :              msg_code &gt;= err-&gt;first_addon_message &amp;&amp;</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :              msg_code &lt;= err-&gt;last_addon_message) {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     msgtext = err-&gt;addon_message_table[msg_code - err-&gt;first_addon_message];</span></span>
+<span id="L174"><span class="lineNum">     174</span>              :   }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              :   /* Defend against bogus message number */</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :   if (msgtext == NULL) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :     err-&gt;msg_parm.i[0] = msg_code;</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     msgtext = err-&gt;jpeg_message_table[0];</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :   }</span>
+<span id="L181"><span class="lineNum">     181</span>              : </span>
+<span id="L182"><span class="lineNum">     182</span>              :   /* Check for string parameter, as indicated by %s in the message text */</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :   isstring = FALSE;</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :   msgptr = msgtext;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :   while ((ch = *msgptr++) != '\0') {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :     if (ch == '%') {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :       if (*msgptr == 's') isstring = TRUE;</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :       break;</span>
+<span id="L189"><span class="lineNum">     189</span>              :     }</span>
+<span id="L190"><span class="lineNum">     190</span>              :   }</span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              :   /* Format the message into the passed buffer */</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :   if (isstring)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     sprintf(buffer, msgtext, err-&gt;msg_parm.s);</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :   else</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     sprintf(buffer, msgtext,</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :             err-&gt;msg_parm.i[0], err-&gt;msg_parm.i[1],</span>
+<span id="L198"><span class="lineNum">     198</span>              :             err-&gt;msg_parm.i[2], err-&gt;msg_parm.i[3],</span>
+<span id="L199"><span class="lineNum">     199</span>              :             err-&gt;msg_parm.i[4], err-&gt;msg_parm.i[5],</span>
+<span id="L200"><span class="lineNum">     200</span>              :             err-&gt;msg_parm.i[6], err-&gt;msg_parm.i[7]);</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L202"><span class="lineNum">     202</span>              : </span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span>              : /*</span>
+<span id="L205"><span class="lineNum">     205</span>              :  * Reset error state variables at start of a new image.</span>
+<span id="L206"><span class="lineNum">     206</span>              :  * This is called during compression startup to reset trace/error</span>
+<span id="L207"><span class="lineNum">     207</span>              :  * processing to default state, without losing any application-specific</span>
+<span id="L208"><span class="lineNum">     208</span>              :  * method pointers.  An application might possibly want to override</span>
+<span id="L209"><span class="lineNum">     209</span>              :  * this method if it has additional error processing state.</span>
+<span id="L210"><span class="lineNum">     210</span>              :  */</span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span>              : METHODDEF(void)</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 : reset_error_mgr (j_common_ptr cinfo)</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : {</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :   cinfo-&gt;err-&gt;num_warnings = 0;</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :   /* trace_level is not reset since it is an application-supplied parameter */</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :   cinfo-&gt;err-&gt;msg_code = 0;       /* may be useful as a flag for &quot;no error&quot; */</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span>              : /*</span>
+<span id="L222"><span class="lineNum">     222</span>              :  * Fill in the standard error-handling methods in a jpeg_error_mgr object.</span>
+<span id="L223"><span class="lineNum">     223</span>              :  * Typical call is:</span>
+<span id="L224"><span class="lineNum">     224</span>              :  *      struct jpeg_compress_struct cinfo;</span>
+<span id="L225"><span class="lineNum">     225</span>              :  *      struct jpeg_error_mgr err;</span>
+<span id="L226"><span class="lineNum">     226</span>              :  *</span>
+<span id="L227"><span class="lineNum">     227</span>              :  *      cinfo.err = jpeg_std_error(&amp;err);</span>
+<span id="L228"><span class="lineNum">     228</span>              :  * after which the application may override some of the methods.</span>
+<span id="L229"><span class="lineNum">     229</span>              :  */</span>
+<span id="L230"><span class="lineNum">     230</span>              : </span>
+<span id="L231"><span class="lineNum">     231</span>              : GLOBAL(struct jpeg_error_mgr *)</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : jpeg_std_error (struct jpeg_error_mgr * err)</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :   err-&gt;error_exit = error_exit;</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :   err-&gt;emit_message = emit_message;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :   err-&gt;output_message = output_message;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :   err-&gt;format_message = format_message;</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :   err-&gt;reset_error_mgr = reset_error_mgr;</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :   err-&gt;trace_level = 0;              /* default = no tracing */</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :   err-&gt;num_warnings = 0;     /* no warnings emitted yet */</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :   err-&gt;msg_code = 0;         /* may be useful as a flag for &quot;no error&quot; */</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              :   /* Initialize message table pointers */</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :   err-&gt;jpeg_message_table = jpeg_std_message_table;</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :   err-&gt;last_jpeg_message = (int) JMSG_LASTMSGCODE - 1;</span></span>
+<span id="L247"><span class="lineNum">     247</span>              : </span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :   err-&gt;addon_message_table = NULL;</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :   err-&gt;first_addon_message = 0;      /* for safety */</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :   err-&gt;last_addon_message = 0;</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : </span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :   return err;</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

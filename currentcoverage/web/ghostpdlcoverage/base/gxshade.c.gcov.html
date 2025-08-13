@@ -1,0 +1,556 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gxshade.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gxshade.c<span style="font-size: 80%;"> (source / <a href="gxshade.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">221</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Shading rendering support */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;math_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;gx.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;gsrect.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gxcspace.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gscindex.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gscie.h&quot;            /* requires gscspace.h */</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gxdevcli.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gxgstate.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gxdht.h&quot;            /* for computing # of different colors */</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gxpaint.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gxshade.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gxshade4.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gsicc.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;gsicc_cache.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;gxcdevn.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;gximage.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : /* Define a maximum smoothness value. */</span>
+<span id="L37"><span class="lineNum">      37</span>              : /* smoothness &gt; 0.2 produces severely blocky output. */</span>
+<span id="L38"><span class="lineNum">      38</span>              : #define MAX_SMOOTHNESS 0.2</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : /* ================ Packed coordinate streams ================ */</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : /* Forward references */</span>
+<span id="L43"><span class="lineNum">      43</span>              : static int cs_next_packed_value(shade_coord_stream_t *, int, uint *);</span>
+<span id="L44"><span class="lineNum">      44</span>              : static int cs_next_array_value(shade_coord_stream_t *, int, uint *);</span>
+<span id="L45"><span class="lineNum">      45</span>              : static int cs_next_packed_decoded(shade_coord_stream_t *, int,</span>
+<span id="L46"><span class="lineNum">      46</span>              :                                    const float[2], float *);</span>
+<span id="L47"><span class="lineNum">      47</span>              : static int cs_next_array_decoded(shade_coord_stream_t *, int,</span>
+<span id="L48"><span class="lineNum">      48</span>              :                                   const float[2], float *);</span>
+<span id="L49"><span class="lineNum">      49</span>              : static void cs_packed_align(shade_coord_stream_t *cs, int radix);</span>
+<span id="L50"><span class="lineNum">      50</span>              : static void cs_array_align(shade_coord_stream_t *cs, int radix);</span>
+<span id="L51"><span class="lineNum">      51</span>              : static bool cs_eod(const shade_coord_stream_t * cs);</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : /* Initialize a packed value stream. */</span>
+<span id="L54"><span class="lineNum">      54</span>              : void</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 : shade_next_init(shade_coord_stream_t * cs,</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :                 const gs_shading_mesh_params_t * params,</span>
+<span id="L57"><span class="lineNum">      57</span>              :                 const gs_gstate * pgs)</span>
+<span id="L58"><span class="lineNum">      58</span>              : {</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     cs-&gt;params = params;</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     cs-&gt;pctm = &amp;pgs-&gt;ctm;</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     if (data_source_is_stream(params-&gt;DataSource)) {</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         /*</span>
+<span id="L63"><span class="lineNum">      63</span>              :          * Rewind the data stream iff it is reusable -- either a reusable</span>
+<span id="L64"><span class="lineNum">      64</span>              :          * file or a reusable string.</span>
+<span id="L65"><span class="lineNum">      65</span>              :          */</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         stream *s = cs-&gt;s = params-&gt;DataSource.data.strm;</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         if ((s-&gt;file != 0 &amp;&amp; s-&gt;file_limit != max_long) ||</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :             (s-&gt;file == 0 &amp;&amp; s-&gt;strm == 0)</span></span>
+<span id="L70"><span class="lineNum">      70</span>              :             )</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :             sseek(s, 0);</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :     } else {</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         s_init(&amp;cs-&gt;ds, NULL);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         sread_string(&amp;cs-&gt;ds, params-&gt;DataSource.data.str.data,</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                      params-&gt;DataSource.data.str.size);</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         cs-&gt;s = &amp;cs-&gt;ds;</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :     }</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     if (data_source_is_array(params-&gt;DataSource)) {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         cs-&gt;get_value = cs_next_array_value;</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         cs-&gt;get_decoded = cs_next_array_decoded;</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         cs-&gt;align = cs_array_align;</span></span>
+<span id="L82"><span class="lineNum">      82</span>              :     } else {</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         cs-&gt;get_value = cs_next_packed_value;</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         cs-&gt;get_decoded = cs_next_packed_decoded;</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         cs-&gt;align = cs_packed_align;</span></span>
+<span id="L86"><span class="lineNum">      86</span>              :     }</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     cs-&gt;is_eod = cs_eod;</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     cs-&gt;left = 0;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :     cs-&gt;ds_EOF = false;</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     cs-&gt;first_patch = 1;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span>              : /* Check for the End-Of-Data state form a stream. */</span>
+<span id="L94"><span class="lineNum">      94</span>              : static bool</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 : cs_eod(const shade_coord_stream_t * cs)</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : {</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :     return cs-&gt;ds_EOF;</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : }</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : /* Get the next (integer) value from a packed value stream. */</span>
+<span id="L101"><span class="lineNum">     101</span>              : /* 1 &lt;= num_bits &lt;= sizeof(uint) * 8. */</span>
+<span id="L102"><span class="lineNum">     102</span>              : static int</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 : cs_next_packed_value(shade_coord_stream_t * cs, int num_bits, uint * pvalue)</span></span>
+<span id="L104"><span class="lineNum">     104</span>              : {</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :     uint bits = cs-&gt;bits;</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :     int left = cs-&gt;left;</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :     if (left &gt;= num_bits) {</span></span>
+<span id="L109"><span class="lineNum">     109</span>              :         /* We can satisfy this request with the current buffered bits. */</span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         cs-&gt;left = left -= num_bits;</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         *pvalue = (bits &gt;&gt; left) &amp; ((1 &lt;&lt; num_bits) - 1);</span></span>
+<span id="L112"><span class="lineNum">     112</span>              :     } else {</span>
+<span id="L113"><span class="lineNum">     113</span>              :         /* We need more bits. */</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         int needed = num_bits - left;</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         uint value = bits &amp; ((1 &lt;&lt; left) - 1);        /* all the remaining bits */</span></span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         for (; needed &gt;= 8; needed -= 8) {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :             int b = sgetc(cs-&gt;s);</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : </span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :             if (b &lt; 0) {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 cs-&gt;ds_EOF = true;</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 return_error(gs_error_rangecheck);</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :             }</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :             value = (value &lt;&lt; 8) + b;</span></span>
+<span id="L125"><span class="lineNum">     125</span>              :         }</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         if (needed == 0) {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :             cs-&gt;left = 0;</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :             *pvalue = value;</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :         } else {</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :             int b = sgetc(cs-&gt;s);</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :             if (b &lt; 0) {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 cs-&gt;ds_EOF = true;</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return_error(gs_error_rangecheck);</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :             }</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :             cs-&gt;bits = b;</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :             cs-&gt;left = left = 8 - needed;</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :             *pvalue = (value &lt;&lt; needed) + (b &gt;&gt; left);</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         }</span>
+<span id="L140"><span class="lineNum">     140</span>              :     }</span>
+<span id="L141"><span class="lineNum">     141</span>              :     return 0;</span>
+<span id="L142"><span class="lineNum">     142</span>              : }</span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              : /*</span>
+<span id="L145"><span class="lineNum">     145</span>              :  * Get the next (integer) value from an unpacked array.  Note that</span>
+<span id="L146"><span class="lineNum">     146</span>              :  * num_bits may be 0 if we are reading a coordinate or color value.</span>
+<span id="L147"><span class="lineNum">     147</span>              :  */</span>
+<span id="L148"><span class="lineNum">     148</span>              : static int</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 : cs_next_array_value(shade_coord_stream_t * cs, int num_bits, uint * pvalue)</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : {</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     float value;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     uint read;</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :     if (sgets(cs-&gt;s, (byte *)&amp;value, sizeof(float), &amp;read) &lt; 0 ||</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         read != sizeof(float)) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         cs-&gt;ds_EOF = true;</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         return_error(gs_error_rangecheck);</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :     }</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :     if (value &lt; 0 || (num_bits != 0 &amp;&amp; num_bits &lt; sizeof(uint) * 8 &amp;&amp;</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :          value &gt;= (1 &lt;&lt; num_bits)) ||</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         value != (uint)value</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         )</span>
+<span id="L163"><span class="lineNum">     163</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :     *pvalue = (uint) value;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : /* Get the next decoded floating point value. */</span>
+<span id="L169"><span class="lineNum">     169</span>              : static int</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 : cs_next_packed_decoded(shade_coord_stream_t * cs, int num_bits,</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :                        const float decode[2], float *pvalue)</span>
+<span id="L172"><span class="lineNum">     172</span>              : {</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     uint value;</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     int code = cs-&gt;get_value(cs, num_bits, &amp;value);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     double max_value = (double)(uint)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         (num_bits == sizeof(uint) * 8 ? ~0 : ((1 &lt;&lt; num_bits) - 1));</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     double dvalue = (double)value;</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :         return code;</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     *pvalue =</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         (decode == 0 ? dvalue / max_value :</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :          decode[0] + dvalue * (decode[1] - decode[0]) / max_value);</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span>              : /* Get the next floating point value from an array, without decoding. */</span>
+<span id="L188"><span class="lineNum">     188</span>              : static int</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 : cs_next_array_decoded(shade_coord_stream_t * cs, int num_bits,</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :                       const float decode[2], float *pvalue)</span>
+<span id="L191"><span class="lineNum">     191</span>              : {</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :     float value;</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :     uint read;</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     if (sgets(cs-&gt;s, (byte *)&amp;value, sizeof(float), &amp;read) &lt; 0 ||</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         read != sizeof(float)</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :     ) {</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         cs-&gt;ds_EOF = true;</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         return_error(gs_error_rangecheck);</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :     }</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     *pvalue = value;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : }</span>
+<span id="L204"><span class="lineNum">     204</span>              : </span>
+<span id="L205"><span class="lineNum">     205</span>              : static void</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 : cs_packed_align(shade_coord_stream_t *cs, int radix)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : {</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     cs-&gt;left = cs-&gt;left / radix * radix;</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L210"><span class="lineNum">     210</span>              : </span>
+<span id="L211"><span class="lineNum">     211</span>              : static void</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 : cs_array_align(shade_coord_stream_t *cs, int radix)</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : {</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : /* Get the next flag value. */</span>
+<span id="L217"><span class="lineNum">     217</span>              : /* Note that this always starts a new data byte. */</span>
+<span id="L218"><span class="lineNum">     218</span>              : int</span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 : shade_next_flag(shade_coord_stream_t * cs, int BitsPerFlag)</span></span>
+<span id="L220"><span class="lineNum">     220</span>              : {</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     uint flag;</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :     cs-&gt;left = 0;            /* start a new byte if packed */</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :     code = cs-&gt;get_value(cs, BitsPerFlag, &amp;flag);</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :     return (code &lt; 0 ? code : flag);</span></span>
+<span id="L227"><span class="lineNum">     227</span>              : }</span>
+<span id="L228"><span class="lineNum">     228</span>              : </span>
+<span id="L229"><span class="lineNum">     229</span>              : /* Get one or more coordinate pairs. */</span>
+<span id="L230"><span class="lineNum">     230</span>              : int</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 : shade_next_coords(shade_coord_stream_t * cs, gs_fixed_point * ppt,</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :                   int num_points)</span>
+<span id="L233"><span class="lineNum">     233</span>              : {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     int num_bits = cs-&gt;params-&gt;BitsPerCoordinate;</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :     const float *decode = cs-&gt;params-&gt;Decode;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     int i;</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     for (i = 0; i &lt; num_points; ++i) {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         float x, y;</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         if ((code = cs-&gt;get_decoded(cs, num_bits, decode, &amp;x)) &lt; 0 ||</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :             (code = cs-&gt;get_decoded(cs, num_bits, decode + 2, &amp;y)) &lt; 0 ||</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :             (code = gs_point_transform2fixed(cs-&gt;pctm, x, y, &amp;ppt[i])) &lt; 0</span></span>
+<span id="L245"><span class="lineNum">     245</span>              :             )</span>
+<span id="L246"><span class="lineNum">     246</span>              :             break;</span>
+<span id="L247"><span class="lineNum">     247</span>              :     }</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : }</span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span>              : /* Get a color.  Currently all this does is look up Indexed colors. */</span>
+<span id="L252"><span class="lineNum">     252</span>              : int</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 : shade_next_color(shade_coord_stream_t * cs, float *pc)</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :     const float *decode = cs-&gt;params-&gt;Decode + 4; /* skip coord decode */</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     const gs_color_space *pcs = cs-&gt;params-&gt;ColorSpace;</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :     gs_color_space_index index = gs_color_space_get_index(pcs);</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :     int num_bits = cs-&gt;params-&gt;BitsPerComponent;</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :     if (index == gs_color_space_index_Indexed) {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         int ncomp = gs_color_space_num_components(gs_cspace_base_space(pcs));</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         int ci;</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         float cf;</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         int code = cs-&gt;get_decoded(cs, num_bits, decode, &amp;cf);</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         gs_client_color cc;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         int i;</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         if (cf &lt; 0)</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :             return_error(gs_error_rangecheck);</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         ci = (int)cf;</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         if (ci &gt;= gs_cspace_indexed_num_entries(pcs))</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :             return_error(gs_error_rangecheck);</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         code = gs_cspace_indexed_lookup(pcs, ci, &amp;cc);</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :             return code;</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; ncomp; ++i)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :             pc[i] = cc.paint.values[i];</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :     } else {</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         int i, code;</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         int ncomp = (cs-&gt;params-&gt;Function != 0 ? 1 :</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                      gs_color_space_num_components(pcs));</span></span>
+<span id="L284"><span class="lineNum">     284</span>              : </span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; ncomp; ++i) {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :             if ((code = cs-&gt;get_decoded(cs, num_bits, decode + i * 2, &amp;pc[i])) &lt; 0)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 return code;</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :             if (cs-&gt;params-&gt;Function) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 gs_function_params_t *params = &amp;cs-&gt;params-&gt;Function-&gt;params;</span></span>
+<span id="L290"><span class="lineNum">     290</span>              : </span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 if (pc[i] &lt; params-&gt;Domain[i + i])</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                     pc[i] = params-&gt;Domain[i + i];</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 else if (pc[i] &gt; params-&gt;Domain[i + i + 1])</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                     pc[i] = params-&gt;Domain[i + i + 1];</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :             }</span>
+<span id="L296"><span class="lineNum">     296</span>              :         }</span>
+<span id="L297"><span class="lineNum">     297</span>              :     }</span>
+<span id="L298"><span class="lineNum">     298</span>              :     return 0;</span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : /* Get the next vertex for a mesh element. */</span>
+<span id="L302"><span class="lineNum">     302</span>              : int</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 : shade_next_vertex(shade_coord_stream_t * cs, shading_vertex_t * vertex, patch_color_t *c)</span></span>
+<span id="L304"><span class="lineNum">     304</span>              : {   /* Assuming p-&gt;c == c, provides a non-const access. */</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :     int code = shade_next_coords(cs, &amp;vertex-&gt;p, 1);</span></span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     if (code &gt;= 0)</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         code = shade_next_color(cs, c-&gt;cc.paint.values);</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :     if (code &gt;= 0)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         cs-&gt;align(cs, 8); /* CET 09-47J.PS SpecialTestI04Test01. */</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L312"><span class="lineNum">     312</span>              : }</span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span>              : /* ================ Shading rendering ================ */</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span>              : /* Initialize the common parts of the recursion state. */</span>
+<span id="L317"><span class="lineNum">     317</span>              : int</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 : shade_init_fill_state(shading_fill_state_t * pfs, const gs_shading_t * psh,</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :                       gx_device * dev, gs_gstate * pgs)</span>
+<span id="L320"><span class="lineNum">     320</span>              : {</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :     const gs_color_space *pcs = psh-&gt;params.ColorSpace;</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :     float max_error = min(pgs-&gt;smoothness, MAX_SMOOTHNESS);</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :     bool is_lab;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :     bool cs_lin_test;</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span>              :     /*</span>
+<span id="L328"><span class="lineNum">     328</span>              :      * There's no point in trying to achieve smoothness beyond what</span>
+<span id="L329"><span class="lineNum">     329</span>              :      * the device can implement, i.e., the number of representable</span>
+<span id="L330"><span class="lineNum">     330</span>              :      * colors times the number of halftone levels.</span>
+<span id="L331"><span class="lineNum">     331</span>              :      */</span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :     long num_colors =</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         max(dev-&gt;color_info.max_gray, dev-&gt;color_info.max_color) + 1;</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :     const gs_range *ranges = 0;</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :     int ci;</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :     gsicc_rendering_param_t rendering_params;</span></span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :     pfs-&gt;cs_always_linear = false;</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :     pfs-&gt;dev = dev;</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :     pfs-&gt;pgs = pgs;</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 : top:</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :     pfs-&gt;direct_space = pcs;</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :     pfs-&gt;num_components = gs_color_space_num_components(pcs);</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :     switch ( gs_color_space_get_index(pcs) )</span></span>
+<span id="L345"><span class="lineNum">     345</span>              :         {</span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         case gs_color_space_index_Indexed:</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :             pcs = gs_cspace_base_space(pcs);</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :             goto top;</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         case gs_color_space_index_CIEDEFG:</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :             ranges = pcs-&gt;params.defg-&gt;RangeDEFG.ranges;</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         case gs_color_space_index_CIEDEF:</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :             ranges = pcs-&gt;params.def-&gt;RangeDEF.ranges;</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         case gs_color_space_index_CIEABC:</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :             ranges = pcs-&gt;params.abc-&gt;RangeABC.ranges;</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         case gs_color_space_index_CIEA:</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :             ranges = &amp;pcs-&gt;params.a-&gt;RangeA;</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         case gs_color_space_index_ICC:</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :             ranges = pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges;</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L364"><span class="lineNum">     364</span>              :         default:</span>
+<span id="L365"><span class="lineNum">     365</span>              :             break;</span>
+<span id="L366"><span class="lineNum">     366</span>              :         }</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :     if (num_colors &lt;= 32) {</span></span>
+<span id="L368"><span class="lineNum">     368</span>              :         /****** WRONG FOR MULTI-PLANE HALFTONES ******/</span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :         num_colors *= pgs-&gt;dev_ht[HT_OBJTYPE_DEFAULT]-&gt;components[0].corder.num_levels;</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :     }</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :     if (psh-&gt;head.type == 2 || psh-&gt;head.type == 3) {</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         max_error *= 0.25;</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         num_colors *= 2;</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :     }</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :     if (max_error &lt; 1.0 / num_colors)</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         max_error = 1.0 / num_colors;</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :     for (ci = 0; ci &lt; pfs-&gt;num_components; ++ci)</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         pfs-&gt;cc_max_error[ci] =</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :             (ranges == 0 ? max_error :</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :              max_error * (ranges[ci].rmax - ranges[ci].rmin));</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :     if (pgs-&gt;has_transparency &amp;&amp; pgs-&gt;trans_device != NULL) {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         pfs-&gt;trans_device = pgs-&gt;trans_device;</span></span>
+<span id="L383"><span class="lineNum">     383</span>              :     } else {</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         pfs-&gt;trans_device = dev;</span></span>
+<span id="L385"><span class="lineNum">     385</span>              :     }</span>
+<span id="L386"><span class="lineNum">     386</span>              :     /* If the CS is PS based and we have not yet converted to the ICC form</span>
+<span id="L387"><span class="lineNum">     387</span>              :        then go ahead and do that now */</span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :     if (gs_color_space_is_PSCIE(pcs) &amp;&amp; pcs-&gt;icc_equivalent == NULL) {</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         code = gs_colorspace_set_icc_equivalent((gs_color_space *)pcs, &amp;(is_lab), pgs-&gt;memory);</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L391"><span class="lineNum">     391</span>              :             return code;</span>
+<span id="L392"><span class="lineNum">     392</span>              :     }</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :     rendering_params.black_point_comp = pgs-&gt;blackptcomp;</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :     rendering_params.graphics_type_tag = GS_VECTOR_TAG;</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :     rendering_params.override_icc = false;</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :     rendering_params.preserve_black = gsBKPRESNOTSPECIFIED;</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :     rendering_params.rendering_intent = pgs-&gt;renderingintent;</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :     rendering_params.cmm = gsCMM_DEFAULT;</span></span>
+<span id="L399"><span class="lineNum">     399</span>              :     /* Grab the icc link transform that we need now */</span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :     if (pcs-&gt;cmm_icc_profile_data != NULL) {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         pfs-&gt;icclink = gsicc_get_link(pgs, pgs-&gt;trans_device, pcs, NULL,</span></span>
+<span id="L402"><span class="lineNum">     402</span>              :                                       &amp;rendering_params, pgs-&gt;memory);</span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         if (pfs-&gt;icclink == NULL)</span></span>
+<span id="L404"><span class="lineNum">     404</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L405"><span class="lineNum">     405</span>              :     } else {</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         if (pcs-&gt;icc_equivalent != NULL ) {</span></span>
+<span id="L407"><span class="lineNum">     407</span>              :             /* We have a PS equivalent ICC profile.  We may need to go</span>
+<span id="L408"><span class="lineNum">     408</span>              :                through special range adjustments in this case */</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :             pfs-&gt;icclink = gsicc_get_link(pgs, pgs-&gt;trans_device,</span></span>
+<span id="L410"><span class="lineNum">     410</span>              :                                           pcs-&gt;icc_equivalent, NULL,</span>
+<span id="L411"><span class="lineNum">     411</span>              :                                           &amp;rendering_params, pgs-&gt;memory);</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :             if (pfs-&gt;icclink == NULL)</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :                 return_error(gs_error_VMerror);</span>
+<span id="L414"><span class="lineNum">     414</span>              :         } else {</span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :             pfs-&gt;icclink = NULL;</span></span>
+<span id="L416"><span class="lineNum">     416</span>              :         }</span>
+<span id="L417"><span class="lineNum">     417</span>              :     }</span>
+<span id="L418"><span class="lineNum">     418</span>              :     /* Two possible cases of interest here for performance.  One is that the</span>
+<span id="L419"><span class="lineNum">     419</span>              :     * icclink is NULL, which could occur if the source space were DeviceN or</span>
+<span id="L420"><span class="lineNum">     420</span>              :     * a separation color space, while at the same time, the output device</span>
+<span id="L421"><span class="lineNum">     421</span>              :     * supports these colorants (e.g. a separation device).   The other case is</span>
+<span id="L422"><span class="lineNum">     422</span>              :     * that the icclink is the identity.  This could happen for example if the</span>
+<span id="L423"><span class="lineNum">     423</span>              :     * source space were CMYK and we are going out to a CMYK device. For both</span>
+<span id="L424"><span class="lineNum">     424</span>              :     * of these cases we can avoid going through the standard</span>
+<span id="L425"><span class="lineNum">     425</span>              :     * color mappings to determine linearity. This is true, provided that the</span>
+<span id="L426"><span class="lineNum">     426</span>              :     * transfer function is linear.  It is likely that we can improve</span>
+<span id="L427"><span class="lineNum">     427</span>              :     * things even in cases where the transfer function is nonlinear, but for</span>
+<span id="L428"><span class="lineNum">     428</span>              :     * now, we will punt on those and let them go through the longer processing</span>
+<span id="L429"><span class="lineNum">     429</span>              :     * steps */</span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :     if (pfs-&gt;icclink == NULL)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :             cs_lin_test = !(using_alt_color_space((gs_gstate*)pgs));</span></span>
+<span id="L432"><span class="lineNum">     432</span>              :     else</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         cs_lin_test = pfs-&gt;icclink-&gt;is_identity;</span></span>
+<span id="L434"><span class="lineNum">     434</span>              : </span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     if (cs_lin_test &amp;&amp; !gx_has_transfer(pgs, dev-&gt;color_info.num_components)) {</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         pfs-&gt;cs_always_linear = true;</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :     }</span>
+<span id="L438"><span class="lineNum">     438</span>              : </span>
+<span id="L439"><span class="lineNum">     439</span>              : #ifdef IGNORE_SPEC_MATCH_ADOBE_SHADINGS</span>
+<span id="L440"><span class="lineNum">     440</span>              :     /* Per the spec. If the source space is DeviceN or Separation and the</span>
+<span id="L441"><span class="lineNum">     441</span>              :        colorants are not supported (i.e. if we are using the alternate tint</span>
+<span id="L442"><span class="lineNum">     442</span>              :        transform) the interpolation should occur in the source space to</span>
+<span id="L443"><span class="lineNum">     443</span>              :        accommodate non-linear tint transform functions.</span>
+<span id="L444"><span class="lineNum">     444</span>              :        e.g. We had a case where the transform function</span>
+<span id="L445"><span class="lineNum">     445</span>              :        was an increasing staircase. Including that function in the</span>
+<span id="L446"><span class="lineNum">     446</span>              :        gradient smoothness calculation gave us severe quantization. AR on</span>
+<span id="L447"><span class="lineNum">     447</span>              :        the other hand is doing the interpolation in device color space</span>
+<span id="L448"><span class="lineNum">     448</span>              :        and has a smooth result for that case. So AR is not following the spec. The</span>
+<span id="L449"><span class="lineNum">     449</span>              :        bit below solves the issues for Type 4 and Type 5 shadings as</span>
+<span id="L450"><span class="lineNum">     450</span>              :        this will avoid interpolations in source space. Type 6 and Type 7 will still</span>
+<span id="L451"><span class="lineNum">     451</span>              :        have interpolations in the source space even if pfs-&gt;cs_always_linear == true.</span>
+<span id="L452"><span class="lineNum">     452</span>              :        So the approach below does not solve those issues. To do that</span>
+<span id="L453"><span class="lineNum">     453</span>              :        without changing the shading code, we could make a linear</span>
+<span id="L454"><span class="lineNum">     454</span>              :        approximation to the alternate tint transform, which would</span>
+<span id="L455"><span class="lineNum">     455</span>              :        ensure smoothness like what AR provides.</span>
+<span id="L456"><span class="lineNum">     456</span>              :     */</span>
+<span id="L457"><span class="lineNum">     457</span>              :     if ((gs_color_space_get_index(pcs) == gs_color_space_index_DeviceN ||</span>
+<span id="L458"><span class="lineNum">     458</span>              :         gs_color_space_get_index(pcs) == gs_color_space_index_Separation) &amp;&amp;</span>
+<span id="L459"><span class="lineNum">     459</span>              :         using_alt_color_space((gs_gstate*)pgs) &amp;&amp; (psh-&gt;head.type == 4 ||</span>
+<span id="L460"><span class="lineNum">     460</span>              :         psh-&gt;head.type == 5)) {</span>
+<span id="L461"><span class="lineNum">     461</span>              :         pfs-&gt;cs_always_linear = true;</span>
+<span id="L462"><span class="lineNum">     462</span>              :     }</span>
+<span id="L463"><span class="lineNum">     463</span>              : #endif</span>
+<span id="L464"><span class="lineNum">     464</span>              : </span>
+<span id="L465"><span class="lineNum">     465</span>              :     return 0;</span>
+<span id="L466"><span class="lineNum">     466</span>              : }</span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span>              : /* Fill one piece of a shading. */</span>
+<span id="L469"><span class="lineNum">     469</span>              : int</span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 : shade_fill_path(const shading_fill_state_t * pfs, gx_path * ppath,</span></span>
+<span id="L471"><span class="lineNum">     471</span>              :                 gx_device_color * pdevc, const gs_fixed_point *fill_adjust)</span>
+<span id="L472"><span class="lineNum">     472</span>              : {</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :     gx_fill_params params;</span></span>
+<span id="L474"><span class="lineNum">     474</span>              : </span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :     params.rule = -1;           /* irrelevant */</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :     params.adjust = *fill_adjust;</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :     params.flatness = 0;        /* irrelevant */</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :     return (*dev_proc(pfs-&gt;dev, fill_path)) (pfs-&gt;dev, pfs-&gt;pgs, ppath,</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :                                              &amp;params, pdevc, NULL);</span>
+<span id="L480"><span class="lineNum">     480</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

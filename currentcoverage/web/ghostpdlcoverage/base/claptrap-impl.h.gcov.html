@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/claptrap-impl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - claptrap-impl.h<span style="font-size: 80%;"> (source / <a href="claptrap-impl.h.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : #ifndef CLAPTRAP_IMPL_H</span>
+<span id="L17"><span class="lineNum">      17</span>              : #define CLAPTRAP_IMPL_H</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;claptrap.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : /* The API for this is that the caller requests trapped scanlines.</span>
+<span id="L22"><span class="lineNum">      22</span>              :  * We rely on being able to request untrapped scanlines from a source.</span>
+<span id="L23"><span class="lineNum">      23</span>              :  * Because we need to look ahead (and behind) of the current position</span>
+<span id="L24"><span class="lineNum">      24</span>              :  * to calculate whether trapping is needed at a given point, we use a</span>
+<span id="L25"><span class="lineNum">      25</span>              :  * rolling buffer to hold several scanlines.</span>
+<span id="L26"><span class="lineNum">      26</span>              :  *</span>
+<span id="L27"><span class="lineNum">      27</span>              :  * First we examine the buffered data to calculate a 'process map'.</span>
+<span id="L28"><span class="lineNum">      28</span>              :  * The process map says whether we need to consider 'smearing'</span>
+<span id="L29"><span class="lineNum">      29</span>              :  * component i at position(x, y). If we ever consider trapping</span>
+<span id="L30"><span class="lineNum">      30</span>              :  * component i, we will also consider trapping component i+1.</span>
+<span id="L31"><span class="lineNum">      31</span>              :  *</span>
+<span id="L32"><span class="lineNum">      32</span>              :  * We need to have processed line y+max_y_offset in order to be</span>
+<span id="L33"><span class="lineNum">      33</span>              :  * sure that the process map for line y is complete.</span>
+<span id="L34"><span class="lineNum">      34</span>              :  */</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : struct ClapTrap</span>
+<span id="L37"><span class="lineNum">      37</span>              : {</span>
+<span id="L38"><span class="lineNum">      38</span>              :     ClapTrap_LineFn *get_line;</span>
+<span id="L39"><span class="lineNum">      39</span>              :     void            *get_line_arg;</span>
+<span id="L40"><span class="lineNum">      40</span>              :     int              width;</span>
+<span id="L41"><span class="lineNum">      41</span>              :     int              height;</span>
+<span id="L42"><span class="lineNum">      42</span>              :     int              num_comps;</span>
+<span id="L43"><span class="lineNum">      43</span>              :     const int       *comp_order;</span>
+<span id="L44"><span class="lineNum">      44</span>              :     int              max_x_offset;</span>
+<span id="L45"><span class="lineNum">      45</span>              :     int              max_y_offset;</span>
+<span id="L46"><span class="lineNum">      46</span>              :     int              lines_in_buf; /* How many lines we can store in linebuf (2*max_y_offset+1) */</span>
+<span id="L47"><span class="lineNum">      47</span>              :     unsigned char   *linebuf;</span>
+<span id="L48"><span class="lineNum">      48</span>              :     int              lines_read; /* How many lines we have read into linebuf so far */</span>
+<span id="L49"><span class="lineNum">      49</span>              :     int              y; /* Which output line we are on */</span>
+<span id="L50"><span class="lineNum">      50</span>              :     int              span;</span>
+<span id="L51"><span class="lineNum">      51</span>              :     unsigned char   *process;</span>
+<span id="L52"><span class="lineNum">      52</span>              : };</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : /* Evaluate whether a given component should 'shadow' components</span>
+<span id="L55"><span class="lineNum">      55</span>              :  * under it (i.e. if the component plane 'comp' was printed</span>
+<span id="L56"><span class="lineNum">      56</span>              :  * offset, would it noticably change the amount of the colours</span>
+<span id="L57"><span class="lineNum">      57</span>              :  * under it that could be seen) */</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 : inline static int shadow_here(int v, int min_v, int comp)</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     return (min_v &lt; 0.8 * v &amp;&amp; min_v &lt; v - 16);</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              : /* Given that component comp might be exposed by a higher</span>
+<span id="L64"><span class="lineNum">      64</span>              :  * plane being offset, would the value exposed here be</span>
+<span id="L65"><span class="lineNum">      65</span>              :  * noticably different from the values around it? */</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 : inline static int trap_here(int v, int max_v, int comp)</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : {</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     return (v &lt; 0.8 * max_v);</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : }</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : #endif /* CLAPTRAP_IMPL_H */</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

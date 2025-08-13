@@ -1,0 +1,400 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/pdf/pdf_font3.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/pdf</a> - pdf_font3.c<span style="font-size: 80%;"> (source / <a href="pdf_font3.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">196</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2019-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /* code for type 3 font handling */</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;pdf_int.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;pdf_stack.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;pdf_array.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;pdf_dict.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;pdf_font_types.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;pdf_gstate.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;pdf_font.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;pdf_font3.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;pdf_deref.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gscencs.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gscedata.h&quot;       /* For the encoding arrays */</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gsccode.h&quot;        /* For the Encoding indices */</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gsuid.h&quot;          /* For no_UniqueID */</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;gsutil.h&quot;        /* For gs_next_ids() */</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : static int</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 : pdfi_type3_build_char(gs_show_enum * penum, gs_gstate * pgs, gs_font * pfont,</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :                      gs_char chr, gs_glyph glyph)</span>
+<span id="L36"><span class="lineNum">      36</span>              : {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :     pdf_font_type3 *font;</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :     pdf_name *GlyphName = NULL;</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :     pdf_stream *CharProc = NULL;</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :     int SavedTextBlockDepth = 0;</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :     char Notdef[8] = {&quot;.notdef&quot;};</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :     font = (pdf_font_type3 *)pfont-&gt;client_data;</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :     SavedTextBlockDepth = OBJ_CTX(font)-&gt;text.BlockDepth;</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     code = pdfi_array_get(OBJ_CTX(font), font-&gt;Encoding, (uint64_t)chr, (pdf_obj **)&amp;GlyphName);</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         return code;</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     code = pdfi_dict_get_by_key(OBJ_CTX(font), font-&gt;CharProcs, GlyphName, (pdf_obj **)&amp;CharProc);</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     if (code == gs_error_undefined) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         byte *Key = NULL;</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         /* Can't find the named glyph, try to find a /.notdef as a substitute */</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         Key = gs_alloc_bytes(OBJ_MEMORY(font), 8, &quot;working buffer for BuildChar&quot;);</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         if (Key == NULL)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :             goto build_char_error;</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         memset(Key, 0x00, 8);</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :         memcpy(Key, Notdef, 8);</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         code = pdfi_dict_get(OBJ_CTX(font), font-&gt;CharProcs, (const char *)Key, (pdf_obj **)&amp;CharProc);</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         gs_free_object(OBJ_MEMORY(font), Key, &quot;working buffer for BuildChar&quot;);</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         if (code == gs_error_undefined) {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :             code = 0;</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :             goto build_char_error;</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span>              :     }</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         goto build_char_error;</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     if (pdfi_type_of(CharProc) != PDF_STREAM) {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         code = gs_note_error(gs_error_typecheck);</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         goto build_char_error;</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :     }</span>
+<span id="L73"><span class="lineNum">      73</span>              : </span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.BlockDepth = 0;</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.inside_CharProc = true;</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.CharProc_d_type = pdf_type3_d_none;</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : </span>
+<span id="L78"><span class="lineNum">      78</span>              :     /* We used to have code here to emulate some Acrobat behaviour, but it interferes with getting</span>
+<span id="L79"><span class="lineNum">      79</span>              :      * the result of /tests/pdf/safedocs/ContentStreamNoCycleType3insideType3.pdf because for that</span>
+<span id="L80"><span class="lineNum">      80</span>              :      * file the nested type 3 font CharProc must inherit the stroke colour from the outer type 3</span>
+<span id="L81"><span class="lineNum">      81</span>              :      * font CharProc graphics state at the time the glyph is drawn. So the code was removed. The</span>
+<span id="L82"><span class="lineNum">      82</span>              :      * Acrobat behaviour is not mentioned in the spec and Acrobat is completely incapable of</span>
+<span id="L83"><span class="lineNum">      83</span>              :      * getting Patterns right, per the spec, when they are 'inside' multiple levels of content</span>
+<span id="L84"><span class="lineNum">      84</span>              :      * streams.</span>
+<span id="L85"><span class="lineNum">      85</span>              :      * The old comment began :</span>
+<span id="L86"><span class="lineNum">      86</span>              :      *</span>
+<span id="L87"><span class="lineNum">      87</span>              :      *    * It turns out that if a type 3 font uses a stroke to draw, and does not</span>
+<span id="L88"><span class="lineNum">      88</span>              :      *    * acrually set the stroke colour, then we must use the fill colour instead.</span>
+<span id="L89"><span class="lineNum">      89</span>              :      *    * In effect we start a type 3 BuildChar with stroke colour = fill colour.</span>
+<span id="L90"><span class="lineNum">      90</span>              :      */</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :     code = pdfi_gsave(OBJ_CTX(font));</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :     if (code &gt;= 0) {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         code = pdfi_run_context(OBJ_CTX(font), CharProc, font-&gt;PDF_font, true, &quot;CharProc&quot;);</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         (void)pdfi_grestore(OBJ_CTX(font));</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :     }</span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.inside_CharProc = false;</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.CharProc_d_type = pdf_type3_d_none;</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :     OBJ_CTX(font)-&gt;text.BlockDepth = SavedTextBlockDepth;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 : build_char_error:</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :     pdfi_countdown(GlyphName);</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :     pdfi_countdown(CharProc);</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L105"><span class="lineNum">     105</span>              : }</span>
+<span id="L106"><span class="lineNum">     106</span>              : </span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 : static int alloc_type3_font(pdf_context *ctx, pdf_font_type3 **font)</span></span>
+<span id="L108"><span class="lineNum">     108</span>              : {</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :     pdf_font_type3 *t3font = NULL;</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :     t3font = (pdf_font_type3 *)gs_alloc_bytes(ctx-&gt;memory, sizeof(pdf_font_type3), &quot;pdfi_alloc_type3_font&quot;);</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :     if (t3font == NULL)</span></span>
+<span id="L113"><span class="lineNum">     113</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :     memset(t3font, 0x00, sizeof(pdf_font_type3));</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :     (t3font)-&gt;ctx = ctx;</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :     (t3font)-&gt;type = PDF_FONT;</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span>              : #if REFCNT_DEBUG</span>
+<span id="L120"><span class="lineNum">     120</span>              :     (t3font)-&gt;UID = ctx-&gt;UID++;</span>
+<span id="L121"><span class="lineNum">     121</span>              :     outprintf(ctx-&gt;memory, &quot;Allocated object of type %c with UID %&quot;PRIi64&quot;\n&quot;, t3font-&gt;type, t3font-&gt;UID);</span>
+<span id="L122"><span class="lineNum">     122</span>              : #endif</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :     pdfi_countup(t3font);</span></span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont = gs_alloc_struct(ctx-&gt;memory, gs_font_base, &amp;st_gs_font_base,</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :                             &quot;pdfi (type 3 font)&quot;);</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :     if (t3font-&gt;pfont == NULL) {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         pdfi_countdown(t3font);</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         return_error(gs_error_VMerror);</span></span>
+<span id="L132"><span class="lineNum">     132</span>              :     }</span>
+<span id="L133"><span class="lineNum">     133</span>              : </span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :     memset(t3font-&gt;pfont, 0x00, sizeof(gs_font_base));</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :     t3font-&gt;ctx = ctx;</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     t3font-&gt;pdfi_font_type = e_pdf_font_type3;</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :     gs_make_identity(&amp;t3font-&gt;pfont-&gt;orig_FontMatrix);</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :     gs_make_identity(&amp;t3font-&gt;pfont-&gt;FontMatrix);</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;next = t3font-&gt;pfont-&gt;prev = 0;</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;memory = ctx-&gt;memory;</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;dir = ctx-&gt;font_dir;</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;is_resource = false;</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :     gs_notify_init(&amp;t3font-&gt;pfont-&gt;notify_list, ctx-&gt;memory);</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;base = (gs_font *) t3font-&gt;pfont;</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;client_data = t3font;</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;WMode = 0;</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;PaintType = 0;</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;StrokeWidth = 0;</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;is_cached = 0;</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.init_fstack = gs_default_init_fstack;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.next_char_glyph = gs_default_next_char_glyph;</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;FAPI = NULL;</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;FAPI_font_data = NULL;</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.glyph_name = ctx-&gt;get_glyph_name;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.decode_glyph = pdfi_decode_glyph;</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.define_font = gs_no_define_font;</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.make_font = gs_no_make_font;</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :     t3font-&gt;default_font_info = gs_default_font_info;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.font_info = pdfi_default_font_info;</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.glyph_info = gs_default_glyph_info;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.glyph_outline = gs_no_glyph_outline;</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.encode_char = pdfi_encode_char;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.build_char = pdfi_type3_build_char;</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.same_font = gs_default_same_font;</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;procs.enumerate_glyph = gs_no_enumerate_glyph;</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;FontType = ft_PDF_user_defined;</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :     /* outlines ? Bitmaps ? */</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;ExactSize = fbit_use_bitmaps;</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;InBetweenSize = fbit_use_bitmaps;</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;TransformedChar = fbit_transform_bitmaps;</span></span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;encoding_index = ENCODING_INDEX_UNKNOWN;</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;nearest_encoding_index = ENCODING_INDEX_UNKNOWN;</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;client_data = (void *)t3font;</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :     t3font-&gt;pfont-&gt;id = gs_next_ids(ctx-&gt;memory, 1);</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     uid_set_UniqueID(&amp;t3font-&gt;pfont-&gt;UID, no_UniqueID);</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : </span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     *font = (pdf_font_type3 *)t3font;</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : int pdfi_free_font_type3(pdf_obj *font)</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : {</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     pdf_font_type3 *t3font = (pdf_font_type3 *)font;</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :     if (t3font-&gt;pfont)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         gs_free_object(OBJ_MEMORY(t3font), t3font-&gt;pfont, &quot;Free type 3 font&quot;);</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     if (t3font-&gt;Widths)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         gs_free_object(OBJ_MEMORY(t3font), t3font-&gt;Widths, &quot;Free type 3 font Widths array&quot;);</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;PDF_font);</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;FontDescriptor);</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;CharProcs);</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;Encoding);</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;ToUnicode);</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;filename); /* Should never exist, but just in case */</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;copyright);</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;notice);</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;fullname);</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     pdfi_countdown(t3font-&gt;familyname);</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     gs_free_object(OBJ_MEMORY(font), font, &quot;Free type 3 font&quot;);</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L210"><span class="lineNum">     210</span>              : }</span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span>              : </span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 : int pdfi_read_type3_font(pdf_context *ctx, pdf_dict *font_dict, pdf_dict *stream_dict, pdf_dict *page_dict, pdf_font **ppdffont)</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : {</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :     int code = 0;</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :     pdf_font_type3 *font = NULL;</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :     pdf_obj *obj = NULL;</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :     pdf_obj *tounicode = NULL;</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :     *ppdffont = NULL;</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     code = alloc_type3_font(ctx, &amp;font);</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L223"><span class="lineNum">     223</span>              :         return code;</span>
+<span id="L224"><span class="lineNum">     224</span>              : </span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :     font-&gt;object_num = font_dict-&gt;object_num;</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :     font-&gt;generation_num = font_dict-&gt;generation_num;</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :     font-&gt;indirect_num = font_dict-&gt;indirect_num;</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :     font-&gt;indirect_gen = font_dict-&gt;indirect_gen;</span></span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :     code = pdfi_dict_get_type(ctx, font_dict, &quot;FontBBox&quot;, PDF_ARRAY, &amp;obj);</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :     code = pdfi_array_to_gs_rect(ctx, (pdf_array *)obj, &amp;font-&gt;pfont-&gt;FontBBox);</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     pdfi_countdown(obj);</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     obj = NULL;</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     code = pdfi_dict_get_type(ctx, font_dict, &quot;FontMatrix&quot;, PDF_ARRAY, &amp;obj);</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :     code = pdfi_array_to_gs_matrix(ctx, (pdf_array *)obj, &amp;font-&gt;pfont-&gt;orig_FontMatrix);</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     code = pdfi_array_to_gs_matrix(ctx, (pdf_array *)obj, &amp;font-&gt;pfont-&gt;FontMatrix);</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :     pdfi_countdown(obj);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :     obj = NULL;</span></span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :     code = pdfi_dict_get(ctx, font_dict, &quot;CharProcs&quot;, (pdf_obj **)&amp;font-&gt;CharProcs);</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span>              : </span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     code = pdfi_dict_knownget_type(ctx, font_dict, &quot;FontDescriptor&quot;, PDF_DICT, (pdf_obj **)&amp;font-&gt;FontDescriptor);</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :     if (font-&gt;FontDescriptor != NULL) {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         pdf_obj *Name = NULL;</span></span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         code = pdfi_dict_get_type(ctx, (pdf_dict *) font-&gt;FontDescriptor, &quot;FontName&quot;, PDF_NAME, (pdf_obj**)&amp;Name);</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :             pdfi_set_warning(ctx, 0, NULL, W_PDF_FDESC_BAD_FONTNAME, &quot;pdfi_load_font&quot;, &quot;&quot;);</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         pdfi_countdown(Name);</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :     }</span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :     pdfi_font_set_first_last_char(ctx, font_dict, (pdf_font *)font);</span></span>
+<span id="L270"><span class="lineNum">     270</span>              :     /* ignore errors with widths... for now */</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :     (void)pdfi_font_create_widths(ctx, font_dict, (pdf_font*)font, 1.0);</span></span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :     code = pdfi_dict_get(ctx, font_dict, &quot;Encoding&quot;, &amp;obj);</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :     code = pdfi_create_Encoding(ctx, (pdf_font *)font, obj, NULL, (pdf_obj **)&amp;font-&gt;Encoding);</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :     pdfi_countdown(obj);</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :     font-&gt;PDF_font = font_dict;</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :     pdfi_countup(font_dict);</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :     if (ctx-&gt;args.ignoretounicode != true) {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         code = pdfi_dict_get(ctx, font_dict, &quot;ToUnicode&quot;, (pdf_obj **)&amp;tounicode);</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if (code &gt;= 0 &amp;&amp; pdfi_type_of(tounicode) == PDF_STREAM) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :             pdf_cmap *tu = NULL;</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :             code = pdfi_read_cmap(ctx, tounicode, &amp;tu);</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :             pdfi_countdown(tounicode);</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :             tounicode = (pdf_obj *)tu;</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :         }</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :         if (code &lt; 0 || (tounicode != NULL &amp;&amp; pdfi_type_of(tounicode) != PDF_CMAP)) {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :             pdfi_countdown(tounicode);</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :             tounicode = NULL;</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :             code = 0;</span></span>
+<span id="L298"><span class="lineNum">     298</span>              :         }</span>
+<span id="L299"><span class="lineNum">     299</span>              :     }</span>
+<span id="L300"><span class="lineNum">     300</span>              :     else {</span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         tounicode = NULL;</span></span>
+<span id="L302"><span class="lineNum">     302</span>              :     }</span>
+<span id="L303"><span class="lineNum">     303</span>              : </span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :     font-&gt;ToUnicode = tounicode;</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :     tounicode = NULL;</span></span>
+<span id="L306"><span class="lineNum">     306</span>              : </span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :     code = replace_cache_entry(ctx, (pdf_obj *)font);</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :     pdfi_font_set_orig_fonttype(ctx, (pdf_font *)font);</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     code = gs_definefont(ctx-&gt;font_dir, (gs_font *)font-&gt;pfont);</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :         goto font3_error;</span></span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :     *ppdffont = (pdf_font *)font;</span></span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 : font3_error:</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :     pdfi_countdown(obj);</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :     pdfi_countdown(font);</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

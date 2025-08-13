@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zncdummy.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zncdummy.c<span style="font-size: 80%;"> (source / <a href="zncdummy.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /* Sample implementation for client custom processing of color spaces. */</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : /*</span>
+<span id="L19"><span class="lineNum">      19</span>              :  * This module has been created to demonstrate how to add support for the use</span>
+<span id="L20"><span class="lineNum">      20</span>              :  * of custom color handling to the Ghostscript graphics library via a custom color</span>
+<span id="L21"><span class="lineNum">      21</span>              :  * callback mechanism.</span>
+<span id="L22"><span class="lineNum">      22</span>              :  *</span>
+<span id="L23"><span class="lineNum">      23</span>              :  * See the comments at the start of src/gsncdummy.c for more information.</span>
+<span id="L24"><span class="lineNum">      24</span>              :  */</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;math_.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gx.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gscdefs.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gsnamecl.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;malloc_.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;oper.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;gsncdummy.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : /*</span>
+<span id="L37"><span class="lineNum">      37</span>              :  * This procedure is here to simplify debugging.  Normally one would expect the</span>
+<span id="L38"><span class="lineNum">      38</span>              :  * custom color callback structure to be set up by a calling application.</span>
+<span id="L39"><span class="lineNum">      39</span>              :  * Since I do not have a calling application, I need a simple way to setup the</span>
+<span id="L40"><span class="lineNum">      40</span>              :  * callback parameter.  The callback parameter is passed as a string value.</span>
+<span id="L41"><span class="lineNum">      41</span>              :  * This routine puts the address of our demo callback structure into the</span>
+<span id="L42"><span class="lineNum">      42</span>              :  * provided string.</span>
+<span id="L43"><span class="lineNum">      43</span>              :  *</span>
+<span id="L44"><span class="lineNum">      44</span>              :  * This routine allows the demo version of the PANTONE logic to be enabled</span>
+<span id="L45"><span class="lineNum">      45</span>              :  * by adding the following to the command line:</span>
+<span id="L46"><span class="lineNum">      46</span>              :  *  -c &quot;&lt;&lt; /CustomColorCallback 32 string .pantonecallback &gt;&gt; setsystemparams&quot; -f</span>
+<span id="L47"><span class="lineNum">      47</span>              :  */</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : /* &lt;string&gt; .pantonecallback &lt;string&gt; */</span>
+<span id="L50"><span class="lineNum">      50</span>              : static int</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC tlaBgUNC">           0 : zpantonecallback(i_ctx_t *i_ctx_p)</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : {</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : }</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : /* ------ Initialization procedure ------ */</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : const op_def pantone_op_defs[] =</span>
+<span id="L59"><span class="lineNum">      59</span>              : {</span>
+<span id="L60"><span class="lineNum">      60</span>              :     {&quot;1.pantonecallback&quot;, zpantonecallback},</span>
+<span id="L61"><span class="lineNum">      61</span>              :     op_def_end(0)</span>
+<span id="L62"><span class="lineNum">      62</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

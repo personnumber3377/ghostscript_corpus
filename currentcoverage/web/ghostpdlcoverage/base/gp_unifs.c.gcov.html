@@ -1,0 +1,735 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gp_unifs.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gp_unifs.c<span style="font-size: 80%;"> (source / <a href="gp_unifs.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">56.9&nbsp;%</td>
+            <td class="headerCovTableEntry">209</td>
+            <td class="headerCovTableEntry">119</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">52.9&nbsp;%</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">9</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* &quot;Unix-like&quot; file system platform routines for Ghostscript */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : /* prevent gp.h from defining fopen */</span>
+<span id="L20"><span class="lineNum">      20</span>              : #define fopen fopen</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;stdio_.h&quot;             /* for FILENAME_MAX */</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;string_.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;gx.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gp.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gpmisc.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gsutil.h&quot;             /* for string_match */</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;stat_.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;dirent_.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;unistd_.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &lt;stdlib.h&gt;             /* for mkstemp/mktemp */</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : #if !defined(HAVE_FSEEKO)</span>
+<span id="L37"><span class="lineNum">      37</span>              : #define ftello ftell</span>
+<span id="L38"><span class="lineNum">      38</span>              : #define fseeko fseek</span>
+<span id="L39"><span class="lineNum">      39</span>              : #define ftello64 ftell</span>
+<span id="L40"><span class="lineNum">      40</span>              : #define fseeko64 fseek</span>
+<span id="L41"><span class="lineNum">      41</span>              : #endif</span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : /* Provide a definition of the maximum path length in case the system</span>
+<span id="L44"><span class="lineNum">      44</span>              :  * headers don't define it. This should be gp_file_name_sizeof from</span>
+<span id="L45"><span class="lineNum">      45</span>              :  * gp.h once that value is properly sent in a system-dependent way.</span>
+<span id="L46"><span class="lineNum">      46</span>              :  * HP-UX 11i 11.11 incorrectly defines FILENAME_MAX as 14.</span>
+<span id="L47"><span class="lineNum">      47</span>              :  */</span>
+<span id="L48"><span class="lineNum">      48</span>              : #ifdef FILENAME_MAX</span>
+<span id="L49"><span class="lineNum">      49</span>              : #  if FILENAME_MAX &lt; 80  /* arbitrary */</span>
+<span id="L50"><span class="lineNum">      50</span>              : #    undef FILENAME_MAX</span>
+<span id="L51"><span class="lineNum">      51</span>              : #  endif</span>
+<span id="L52"><span class="lineNum">      52</span>              : #endif</span>
+<span id="L53"><span class="lineNum">      53</span>              : #ifndef FILENAME_MAX</span>
+<span id="L54"><span class="lineNum">      54</span>              : #  define FILENAME_MAX 1024</span>
+<span id="L55"><span class="lineNum">      55</span>              : #endif</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : /* Library routines not declared in a standard header */</span>
+<span id="L58"><span class="lineNum">      58</span>              : extern char *mktemp(char *);</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : /* ------ File naming and accessing ------ */</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : /* Define the default scratch file name prefix. */</span>
+<span id="L63"><span class="lineNum">      63</span>              : const char gp_scratch_file_name_prefix[] = &quot;gs_&quot;;</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              : /* Define the name of the null output file. */</span>
+<span id="L66"><span class="lineNum">      66</span>              : const char gp_null_file_name[] = &quot;/dev/null&quot;;</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : /* Define the name that designates the current directory. */</span>
+<span id="L69"><span class="lineNum">      69</span>              : const char gp_current_directory_name[] = &quot;.&quot;;</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : /* Create and open a scratch file with a given name prefix. */</span>
+<span id="L72"><span class="lineNum">      72</span>              : /* Write the actual file name at fname. */</span>
+<span id="L73"><span class="lineNum">      73</span>              : FILE *</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">         910 : gp_open_scratch_file_impl(const gs_memory_t *mem,</span></span>
+<span id="L75"><span class="lineNum">      75</span>              :                           const char        *prefix,</span>
+<span id="L76"><span class="lineNum">      76</span>              :                                 char         fname[gp_file_name_sizeof],</span>
+<span id="L77"><span class="lineNum">      77</span>              :                           const char        *mode,</span>
+<span id="L78"><span class="lineNum">      78</span>              :                                 int          remove)</span>
+<span id="L79"><span class="lineNum">      79</span>              : {       /* The -8 is for XXXXXX plus a possible final / and -. */</span>
+<span id="L80"><span class="lineNum">      80</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L81"><span class="lineNum">      81</span>              :     return NULL;</span>
+<span id="L82"><span class="lineNum">      82</span>              : #else</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">         910 :     int prefix_length = strlen(prefix);</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">         910 :     int len = gp_file_name_sizeof - prefix_length - 8;</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">         910 :     FILE *fp;</span></span>
+<span id="L86"><span class="lineNum">      86</span>              : </span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">         910 :     if (gp_file_name_is_absolute(prefix, prefix_length))</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC tlaBgUNC">           0 :         *fname = 0;</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC tlaBgGNC">         910 :     else if (gp_gettmpdir(fname, &amp;len) != 0)</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">         910 :         strcpy(fname, &quot;/tmp/&quot;);</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :     else {</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC tlaBgUNC">           0 :         if (strlen(fname) != 0 &amp;&amp; fname[strlen(fname) - 1] != '/')</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :             strcat(fname, &quot;/&quot;);</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :     }</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">         910 :     if (strlen(fname) + prefix_length + 8 &gt;= gp_file_name_sizeof)</span></span>
+<span id="L96"><span class="lineNum">      96</span>              :         return 0;               /* file name too long */</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">         910 :     strcat(fname, prefix);</span></span>
+<span id="L98"><span class="lineNum">      98</span>              :     /* Prevent trailing X's in path from being converted by mktemp. */</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">         910 :     if (*fname != 0 &amp;&amp; fname[strlen(fname) - 1] == 'X')</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           6 :         strcat(fname, &quot;-&quot;);</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">         910 :     strcat(fname, &quot;XXXXXX&quot;);</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              : #ifdef HAVE_MKSTEMP</span>
+<span id="L104"><span class="lineNum">     104</span>              :     {</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">         910 :         int file;</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">         910 :         char ofname[gp_file_name_sizeof];</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              :         /* save the old filename template in case mkstemp fails */</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">         910 :         memcpy(ofname, fname, gp_file_name_sizeof);</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : #  ifdef HAVE_MKSTEMP64</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">         910 :         file = mkstemp64(fname);</span></span>
+<span id="L112"><span class="lineNum">     112</span>              : #  else</span>
+<span id="L113"><span class="lineNum">     113</span>              :         file = mkstemp(fname);</span>
+<span id="L114"><span class="lineNum">     114</span>              : #  endif</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">         910 :         if (file &lt; 0) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC tlaBgUNC">           0 :             emprintf1(mem, &quot;**** Could not open temporary file %s\n&quot;, ofname);</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :             return NULL;</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :         }</span>
+<span id="L119"><span class="lineNum">     119</span>              : #  if defined(O_LARGEFILE) &amp;&amp; defined(__hpux)</span>
+<span id="L120"><span class="lineNum">     120</span>              :         fcntl(file, F_SETFD, fcntl(file, F_GETFD) | O_LARGEFILE);</span>
+<span id="L121"><span class="lineNum">     121</span>              : #  else</span>
+<span id="L122"><span class="lineNum">     122</span>              :         /* Fixme : what to do with b64 and 32-bit mkstemp? Unimplemented. */</span>
+<span id="L123"><span class="lineNum">     123</span>              : #  endif</span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC tlaBgGNC">         910 :         fp = fdopen(file, mode);</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">         910 :         if (fp == NULL) {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :             close(file);</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :         }</span>
+<span id="L129"><span class="lineNum">     129</span>              :     }</span>
+<span id="L130"><span class="lineNum">     130</span>              : #else</span>
+<span id="L131"><span class="lineNum">     131</span>              :     /* Coverity thinks that any use of mktemp() is insecure. But if we</span>
+<span id="L132"><span class="lineNum">     132</span>              :     reach here then there is no mkstemp() alternative available, so there's</span>
+<span id="L133"><span class="lineNum">     133</span>              :     not much we can do. Haven't been able to disable this - e.g. '//</span>
+<span id="L134"><span class="lineNum">     134</span>              :     coverity[SECURE_TEMP]' doesn't have any affect. */</span>
+<span id="L135"><span class="lineNum">     135</span>              :     mktemp(fname);</span>
+<span id="L136"><span class="lineNum">     136</span>              :     fp = gp_fopentemp(fname, mode);</span>
+<span id="L137"><span class="lineNum">     137</span>              : #endif</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">         910 :     if (fp == NULL)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :         emprintf1(mem, &quot;**** Could not open temporary file %s\n&quot;, fname);</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC tlaBgGNC">         910 :     if (remove)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :         unlink(fname); /* unlink, not gp_unlink here. */</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              :     return fp;</span>
+<span id="L145"><span class="lineNum">     145</span>              : #endif</span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : /* Open a file with the given name, as a stream of uninterpreted bytes. */</span>
+<span id="L149"><span class="lineNum">     149</span>              : FILE *</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">      749706 : gp_fopen_impl(gs_memory_t *mem, const char *fname, const char *mode)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : {</span>
+<span id="L152"><span class="lineNum">     152</span>              : #if defined(HAVE_FILE64)</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">      749706 :     return fopen64(fname, mode);</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : #else</span>
+<span id="L155"><span class="lineNum">     155</span>              :     return fopen(fname, mode);</span>
+<span id="L156"><span class="lineNum">     156</span>              : #endif</span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : int</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">         910 : gp_unlink_impl(gs_memory_t *mem, const char *fname)</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : {</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">         910 :     return unlink(fname);</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : int</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 : gp_rename_impl(gs_memory_t *mem, const char *from, const char *to)</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : {</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     return rename(from, to);</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : int gp_stat_impl(const gs_memory_t *mem, const char *path, struct stat *buf)</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : {</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     return stat(path, buf);</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : int gp_can_share_fdesc(void)</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : {</span>
+<span id="L178"><span class="lineNum">     178</span>              : #if defined(HAVE_PREAD_PWRITE) &amp;&amp; HAVE_PREAD_PWRITE == 1</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     return 1;</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : #else</span>
+<span id="L181"><span class="lineNum">     181</span>              :     return 0;   /* can't share FILE * descriptors w/o pread due to seek..read..seek */</span>
+<span id="L182"><span class="lineNum">     182</span>              : #endif</span>
+<span id="L183"><span class="lineNum">     183</span>              : }</span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : FILE *gp_fdup_impl(FILE *f, const char *mode)</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : {</span>
+<span id="L187"><span class="lineNum">     187</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L188"><span class="lineNum">     188</span>              :     return NULL;</span>
+<span id="L189"><span class="lineNum">     189</span>              : #else</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :     int fd = fileno(f);</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :     if (fd &lt; 0)</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :         return NULL;</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :     fd = dup(fd);</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     if (fd &lt; 0)</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :         return NULL;</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     return fdopen(fd, mode);</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : #endif</span>
+<span id="L198"><span class="lineNum">     198</span>              : }</span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 : int gp_pread_impl(char *buf, size_t count, gs_offset_t offset, FILE *f)</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : {</span>
+<span id="L202"><span class="lineNum">     202</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L203"><span class="lineNum">     203</span>              :     return 0;</span>
+<span id="L204"><span class="lineNum">     204</span>              : #elif defined(HAVE_PREAD_PWRITE) &amp;&amp; HAVE_PREAD_PWRITE == 1</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :     return pread(fileno(f), buf, count, offset);</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : #else</span>
+<span id="L207"><span class="lineNum">     207</span>              :     int c;</span>
+<span id="L208"><span class="lineNum">     208</span>              :     int64_t os, curroff = gp_ftell_impl(f);</span>
+<span id="L209"><span class="lineNum">     209</span>              :     if (curroff &lt; 0) return curroff;</span>
+<span id="L210"><span class="lineNum">     210</span>              : </span>
+<span id="L211"><span class="lineNum">     211</span>              :     os = gp_fseek_impl(f, offset, 0);</span>
+<span id="L212"><span class="lineNum">     212</span>              :     if (os &lt; 0) return os;</span>
+<span id="L213"><span class="lineNum">     213</span>              : </span>
+<span id="L214"><span class="lineNum">     214</span>              :     c = fread(buf, 1, count, f);</span>
+<span id="L215"><span class="lineNum">     215</span>              :     if (c &lt; 0) return c;</span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span>              :     os = gp_fseek_impl(f, curroff, 0);</span>
+<span id="L218"><span class="lineNum">     218</span>              :     if (os &lt; 0) return os;</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              :     return c;</span>
+<span id="L221"><span class="lineNum">     221</span>              : #endif</span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 : int gp_pwrite_impl(const char *buf, size_t count, gs_offset_t offset, FILE *f)</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : {</span>
+<span id="L226"><span class="lineNum">     226</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L227"><span class="lineNum">     227</span>              :     return 0;</span>
+<span id="L228"><span class="lineNum">     228</span>              : #elif defined(HAVE_PREAD_PWRITE) &amp;&amp; HAVE_PREAD_PWRITE == 1</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :     return pwrite(fileno(f), buf, count, offset);</span></span>
+<span id="L230"><span class="lineNum">     230</span>              : #else</span>
+<span id="L231"><span class="lineNum">     231</span>              :     int c;</span>
+<span id="L232"><span class="lineNum">     232</span>              :     int64_t os, curroff = gp_ftell_impl(f);</span>
+<span id="L233"><span class="lineNum">     233</span>              :     if (curroff &lt; 0) return curroff;</span>
+<span id="L234"><span class="lineNum">     234</span>              : </span>
+<span id="L235"><span class="lineNum">     235</span>              :     os = gp_fseek_impl(f, offset, 0);</span>
+<span id="L236"><span class="lineNum">     236</span>              :     if (os &lt; 0) return os;</span>
+<span id="L237"><span class="lineNum">     237</span>              : </span>
+<span id="L238"><span class="lineNum">     238</span>              :     c = fwrite(buf, 1, count, f);</span>
+<span id="L239"><span class="lineNum">     239</span>              :     if (c &lt; 0) return c;</span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span>              :     os = gp_fseek_impl(f, curroff, 0);</span>
+<span id="L242"><span class="lineNum">     242</span>              :     if (os &lt; 0) return os;</span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              :     return c;</span>
+<span id="L245"><span class="lineNum">     245</span>              : #endif</span>
+<span id="L246"><span class="lineNum">     246</span>              : }</span>
+<span id="L247"><span class="lineNum">     247</span>              : </span>
+<span id="L248"><span class="lineNum">     248</span>              : /* Set a file into binary or text mode. */</span>
+<span id="L249"><span class="lineNum">     249</span>              : int</span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 : gp_setmode_binary_impl(FILE * pfile, bool mode) /* lgtm [cpp/useless-expression] */</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : {</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     return 0;                   /* Noop under Unix */</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : }</span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span>              : /* ------ File enumeration ------ */</span>
+<span id="L256"><span class="lineNum">     256</span>              : </span>
+<span id="L257"><span class="lineNum">     257</span>              : /* Thanks to Fritz Elfert (Fritz_Elfert@wue.maus.de) for */</span>
+<span id="L258"><span class="lineNum">     258</span>              : /* the original version of the following code, and Richard Mlynarik */</span>
+<span id="L259"><span class="lineNum">     259</span>              : /* (mly@adoc.xerox.com) for an improved version. */</span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L262"><span class="lineNum">     262</span>              : struct file_enum_s {</span>
+<span id="L263"><span class="lineNum">     263</span>              :     int dummy;</span>
+<span id="L264"><span class="lineNum">     264</span>              : };</span>
+<span id="L265"><span class="lineNum">     265</span>              : </span>
+<span id="L266"><span class="lineNum">     266</span>              : static file_enum dummy_enum;</span>
+<span id="L267"><span class="lineNum">     267</span>              : #else</span>
+<span id="L268"><span class="lineNum">     268</span>              : typedef struct dirstack_s dirstack;</span>
+<span id="L269"><span class="lineNum">     269</span>              : struct dirstack_s {</span>
+<span id="L270"><span class="lineNum">     270</span>              :     dirstack *next;</span>
+<span id="L271"><span class="lineNum">     271</span>              :     DIR *entry;</span>
+<span id="L272"><span class="lineNum">     272</span>              : };</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              : gs_private_st_ptrs1(st_dirstack, dirstack, &quot;dirstack&quot;,</span>
+<span id="L275"><span class="lineNum">     275</span>              :                     dirstack_enum_ptrs, dirstack_reloc_ptrs, next);</span>
+<span id="L276"><span class="lineNum">     276</span>              : </span>
+<span id="L277"><span class="lineNum">     277</span>              : struct file_enum_s {</span>
+<span id="L278"><span class="lineNum">     278</span>              :     DIR *dirp;                  /* pointer to current open directory   */</span>
+<span id="L279"><span class="lineNum">     279</span>              :     char *pattern;              /* original pattern                    */</span>
+<span id="L280"><span class="lineNum">     280</span>              :     char *work;                 /* current path                        */</span>
+<span id="L281"><span class="lineNum">     281</span>              :     int worklen;                /* strlen (work)                       */</span>
+<span id="L282"><span class="lineNum">     282</span>              :     dirstack *dstack;           /* directory stack                     */</span>
+<span id="L283"><span class="lineNum">     283</span>              :     int patlen;</span>
+<span id="L284"><span class="lineNum">     284</span>              :     int pathead;                /* how much of pattern to consider</span>
+<span id="L285"><span class="lineNum">     285</span>              :                                  *  when listing files in current directory */</span>
+<span id="L286"><span class="lineNum">     286</span>              :     bool first_time;</span>
+<span id="L287"><span class="lineNum">     287</span>              :     gs_memory_t *memory;</span>
+<span id="L288"><span class="lineNum">     288</span>              : };</span>
+<span id="L289"><span class="lineNum">     289</span>              : gs_private_st_ptrs3(st_file_enum, struct file_enum_s, &quot;file_enum&quot;,</span>
+<span id="L290"><span class="lineNum">     290</span>              :           file_enum_enum_ptrs, file_enum_reloc_ptrs, pattern, work, dstack);</span>
+<span id="L291"><span class="lineNum">     291</span>              : </span>
+<span id="L292"><span class="lineNum">     292</span>              : /* Private procedures */</span>
+<span id="L293"><span class="lineNum">     293</span>              : </span>
+<span id="L294"><span class="lineNum">     294</span>              : /* Do a wild-card match. */</span>
+<span id="L295"><span class="lineNum">     295</span>              : #ifdef DEBUG</span>
+<span id="L296"><span class="lineNum">     296</span>              : static bool</span>
+<span id="L297"><span class="lineNum">     297</span>              : wmatch(const byte * str, uint len, const byte * pstr, uint plen,</span>
+<span id="L298"><span class="lineNum">     298</span>              :        const gs_memory_t *mem)</span>
+<span id="L299"><span class="lineNum">     299</span>              : {</span>
+<span id="L300"><span class="lineNum">     300</span>              :     bool match = string_match(str, len, pstr, plen, NULL);</span>
+<span id="L301"><span class="lineNum">     301</span>              : </span>
+<span id="L302"><span class="lineNum">     302</span>              :     if (gs_debug_c('e')) {</span>
+<span id="L303"><span class="lineNum">     303</span>              :         int i;</span>
+<span id="L304"><span class="lineNum">     304</span>              :         dmlputs(mem, &quot;[e]string_match(\&quot;&quot;);</span>
+<span id="L305"><span class="lineNum">     305</span>              :         for (i=0; i&lt;len; i++)</span>
+<span id="L306"><span class="lineNum">     306</span>              :             errprintf(mem, &quot;%c&quot;, str[i]);</span>
+<span id="L307"><span class="lineNum">     307</span>              :         dmputs(mem, &quot;\&quot;, \&quot;&quot;);</span>
+<span id="L308"><span class="lineNum">     308</span>              :         for (i=0; i&lt;plen; i++)</span>
+<span id="L309"><span class="lineNum">     309</span>              :             errprintf(mem, &quot;%c&quot;, pstr[i]);</span>
+<span id="L310"><span class="lineNum">     310</span>              :         dmprintf1(mem, &quot;\&quot;) = %s\n&quot;, (match ? &quot;TRUE&quot; : &quot;false&quot;));</span>
+<span id="L311"><span class="lineNum">     311</span>              :     }</span>
+<span id="L312"><span class="lineNum">     312</span>              :     return match;</span>
+<span id="L313"><span class="lineNum">     313</span>              : }</span>
+<span id="L314"><span class="lineNum">     314</span>              : #else</span>
+<span id="L315"><span class="lineNum">     315</span>              : #define wmatch(S,L,PS,PL,M) string_match(S,L,PS,PL,NULL)</span>
+<span id="L316"><span class="lineNum">     316</span>              : #endif</span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span>              : /* Search a string backward for a character. */</span>
+<span id="L319"><span class="lineNum">     319</span>              : /* (This substitutes for strrchr, which some systems don't provide.) */</span>
+<span id="L320"><span class="lineNum">     320</span>              : static char *</span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC tlaBgGNC">      105531 : rchr(char *str, char ch, int len)</span></span>
+<span id="L322"><span class="lineNum">     322</span>              : {</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">      105531 :     register char *p = str + len;</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">      211110 :     while (p &gt; str)</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">      211102 :         if (*--p == ch)</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :             return p;</span>
+<span id="L328"><span class="lineNum">     328</span>              :     return 0;</span>
+<span id="L329"><span class="lineNum">     329</span>              : }</span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span>              : /* Pop a directory from the enumeration stack. */</span>
+<span id="L332"><span class="lineNum">     332</span>              : static bool</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">      105531 : popdir(file_enum * pfen)</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : {</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">      105531 :     dirstack *d = pfen-&gt;dstack;</span></span>
+<span id="L336"><span class="lineNum">     336</span>              : </span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">      105531 :     if (d == 0)</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :         return false;</span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC tlaBgUNC">           0 :     pfen-&gt;dirp = d-&gt;entry;</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :     pfen-&gt;dstack = d-&gt;next;</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :     gs_free_object(pfen-&gt;memory, d, &quot;gp_enumerate_files(popdir)&quot;);</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :     return true;</span>
+<span id="L343"><span class="lineNum">     343</span>              : }</span>
+<span id="L344"><span class="lineNum">     344</span>              : #endif</span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span>              : /* Initialize an enumeration. */</span>
+<span id="L347"><span class="lineNum">     347</span>              : file_enum *</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC tlaBgGNC">      105527 : gp_enumerate_files_init_impl(gs_memory_t * mem, const char *pat, uint patlen)</span></span>
+<span id="L349"><span class="lineNum">     349</span>              : {</span>
+<span id="L350"><span class="lineNum">     350</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L351"><span class="lineNum">     351</span>              :     return &amp;dummy_enum;</span>
+<span id="L352"><span class="lineNum">     352</span>              : #else</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">      105527 :     file_enum *pfen;</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">      105527 :     char *p;</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">      105527 :     char *work;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              :     /* Reject attempts to enumerate paths longer than the */</span>
+<span id="L358"><span class="lineNum">     358</span>              :     /* system-dependent limit. */</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">      105527 :     if (patlen &gt; FILENAME_MAX)</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :         return 0;</span>
+<span id="L361"><span class="lineNum">     361</span>              : </span>
+<span id="L362"><span class="lineNum">     362</span>              :     /* Reject attempts to enumerate with a pattern containing zeroes. */</span>
+<span id="L363"><span class="lineNum">     363</span>              :     {</span>
+<span id="L364"><span class="lineNum">     364</span>              :         const char *p1;</span>
+<span id="L365"><span class="lineNum">     365</span>              : </span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">     5141908 :         for (p1 = pat; p1 &lt; pat + patlen; p1++)</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">     5036381 :             if (*p1 == 0)</span></span>
+<span id="L368"><span class="lineNum">     368</span>              :                 return 0;</span>
+<span id="L369"><span class="lineNum">     369</span>              :     }</span>
+<span id="L370"><span class="lineNum">     370</span>              :     /* &gt;&gt;&gt; Should crunch strings of repeated &quot;/&quot;'s in pat to a single &quot;/&quot;</span>
+<span id="L371"><span class="lineNum">     371</span>              :      * &gt;&gt;&gt;  to match stupid unix filesystem &quot;conventions&quot; */</span>
+<span id="L372"><span class="lineNum">     372</span>              : </span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">      105527 :     pfen = gs_alloc_struct(mem, file_enum, &amp;st_file_enum,</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :                            &quot;gp_enumerate_files&quot;);</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">      105527 :     if (pfen == 0)</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :         return 0;</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              :     /* pattern and work could be allocated as strings, */</span>
+<span id="L379"><span class="lineNum">     379</span>              :     /* but it's simpler for GC and freeing to allocate them as bytes. */</span>
+<span id="L380"><span class="lineNum">     380</span>              : </span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">      105527 :     pfen-&gt;memory = mem;</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">      105527 :     pfen-&gt;dstack = 0;</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">      105527 :     pfen-&gt;first_time = true;</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">      105527 :     pfen-&gt;patlen = patlen;</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">      105527 :     pfen-&gt;work = 0;</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">      211054 :     pfen-&gt;pattern =</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">      105527 :         (char *)gs_alloc_bytes(mem, patlen + 1,</span></span>
+<span id="L388"><span class="lineNum">     388</span>              :                                &quot;gp_enumerate_files(pattern)&quot;);</span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">      105527 :     if (pfen-&gt;pattern == 0)</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC tlaBgUNC">           0 :         goto fail1;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC tlaBgGNC">      105527 :     memcpy(pfen-&gt;pattern, pat, patlen);</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">      105527 :     pfen-&gt;pattern[patlen] = 0;</span></span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">      105527 :     work = (char *)gs_alloc_bytes(mem, FILENAME_MAX + 1,</span></span>
+<span id="L395"><span class="lineNum">     395</span>              :                                   &quot;gp_enumerate_files(work)&quot;);</span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">      105527 :     if (work == 0)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC tlaBgUNC">           0 :         goto fail2;</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC tlaBgGNC">      105527 :     pfen-&gt;work = work;</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">      105527 :     p = work;</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">      105527 :     memcpy(p, pat, patlen);</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">      105527 :     p += patlen;</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">      105527 :     *p = 0;</span></span>
+<span id="L404"><span class="lineNum">     404</span>              : </span>
+<span id="L405"><span class="lineNum">     405</span>              :     /* Remove directory specifications beyond the first wild card. */</span>
+<span id="L406"><span class="lineNum">     406</span>              :     /* Some systems don't have strpbrk, so we code it open. */</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">      105527 :     p = pfen-&gt;work;</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">     5036385 :     while (*p != '*' &amp;&amp; *p != '?' &amp;&amp; *p != 0)</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">     4930858 :         p++;</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">      211050 :     while (*p != '/' &amp;&amp; *p != 0)</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">      105523 :         p++;</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">      105527 :     if (*p == '/')</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC tlaBgUNC">           0 :         *p = 0;</span></span>
+<span id="L414"><span class="lineNum">     414</span>              :     /* Substring for first wildcard match */</span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC tlaBgGNC">      105527 :     pfen-&gt;pathead = p - work;</span></span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              :     /* Select the next higher directory-level. */</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">      105527 :     p = rchr(work, '/', p - work);</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">      105527 :     if (!p) {                   /* No directory specification */</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           4 :         work[0] = 0;</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           4 :         pfen-&gt;worklen = 0;</span></span>
+<span id="L422"><span class="lineNum">     422</span>              :     } else {</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">      105523 :         if (p == work) {        /* Root directory -- don't turn &quot;/&quot; into &quot;&quot; */</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC tlaBgUNC">           0 :             p++;</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :         }</span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC tlaBgGNC">      105523 :         *p = 0;</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">      105523 :         pfen-&gt;worklen = p - work;</span></span>
+<span id="L428"><span class="lineNum">     428</span>              :     }</span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span>              :     return pfen;</span>
+<span id="L431"><span class="lineNum">     431</span>              : </span>
+<span id="L432"><span class="lineNum">     432</span>              : fail2:</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC tlaBgUNC">           0 :     gs_free_object(mem, pfen-&gt;pattern, &quot;gp_enumerate_files(pattern)&quot;);</span></span>
+<span id="L434"><span class="lineNum">     434</span>              : fail1:</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     gs_free_object(mem, pfen, &quot;gp_enumerate_files&quot;);</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :     return NULL;</span></span>
+<span id="L437"><span class="lineNum">     437</span>              : #endif</span>
+<span id="L438"><span class="lineNum">     438</span>              : }</span>
+<span id="L439"><span class="lineNum">     439</span>              : </span>
+<span id="L440"><span class="lineNum">     440</span>              : /* Enumerate the next file. */</span>
+<span id="L441"><span class="lineNum">     441</span>              : uint</span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC tlaBgGNC">      105527 : gp_enumerate_files_next_impl(gs_memory_t * mem, file_enum * pfen, char *ptr, uint maxlen)</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : {</span>
+<span id="L444"><span class="lineNum">     444</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L445"><span class="lineNum">     445</span>              :     return ~(uint)0;</span>
+<span id="L446"><span class="lineNum">     446</span>              : #else</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">      105527 :     const dir_entry *de;</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">      105527 :     char *work = pfen-&gt;work;</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">      105527 :     int worklen = pfen-&gt;worklen;</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">      105527 :     char *pattern = pfen-&gt;pattern;</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">      105527 :     int pathead = pfen-&gt;pathead;</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">      105527 :     int len;</span></span>
+<span id="L453"><span class="lineNum">     453</span>              : </span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">      105527 :     if (pfen-&gt;first_time) {</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">      105527 :         pfen-&gt;dirp = ((worklen == 0) ? opendir(&quot;.&quot;) : opendir(work));</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">      105527 :         if_debug1m('e', pfen-&gt;memory, &quot;[e]file_enum:First-Open '%s'\n&quot;, work);</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">      105527 :         pfen-&gt;first_time = false;</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">      105527 :         if (pfen-&gt;dirp == 0) {  /* first opendir failed */</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">      105523 :             gp_enumerate_files_close(mem, pfen);</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">      105523 :             return ~(uint) 0;</span></span>
+<span id="L461"><span class="lineNum">     461</span>              :         }</span>
+<span id="L462"><span class="lineNum">     462</span>              :     }</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">         310 :   top:de = readdir(pfen-&gt;dirp);</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">         306 :     if (de == 0) {              /* No more entries in this directory */</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           4 :         char *p;</span></span>
+<span id="L466"><span class="lineNum">     466</span>              : </span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           4 :         if_debug0m('e', pfen-&gt;memory, &quot;[e]file_enum:Closedir\n&quot;);</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           4 :         closedir(pfen-&gt;dirp);</span></span>
+<span id="L469"><span class="lineNum">     469</span>              :         /* Back working directory and matching pattern up one level */</span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           4 :         p = rchr(work, '/', worklen);</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           4 :         if (p != 0) {</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC tlaBgUNC">           0 :             if (p == work)</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                 p++;</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :             *p = 0;</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :             worklen = p - work;</span></span>
+<span id="L476"><span class="lineNum">     476</span>              :         } else</span>
+<span id="L477"><span class="lineNum">     477</span>              :             worklen = 0;</span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC tlaBgGNC">           4 :         if (pathead != pfen-&gt;patlen) {</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC tlaBgUNC">           0 :             p = rchr(pattern, '/', pathead);</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :             if (p != 0)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 pathead = p - pattern;</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :             else</span>
+<span id="L483"><span class="lineNum">     483</span>              :                 pathead = 0;</span>
+<span id="L484"><span class="lineNum">     484</span>              :         }</span>
+<span id="L485"><span class="lineNum">     485</span>              : </span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC tlaBgGNC">           4 :         if (popdir(pfen)) {     /* Back up the directory tree. */</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC tlaBgUNC">           0 :             if_debug1m('e', pfen-&gt;memory, &quot;[e]file_enum:Dir popped '%s'\n&quot;, work);</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :             goto top;</span></span>
+<span id="L489"><span class="lineNum">     489</span>              :         } else {</span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC tlaBgGNC">           4 :             if_debug0m('e', pfen-&gt;memory, &quot;[e]file_enum:Dirstack empty\n&quot;);</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           4 :             gp_enumerate_files_close(mem, pfen);</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           4 :             return ~(uint) 0;</span></span>
+<span id="L493"><span class="lineNum">     493</span>              :         }</span>
+<span id="L494"><span class="lineNum">     494</span>              :     }</span>
+<span id="L495"><span class="lineNum">     495</span>              :     /* Skip . and .. */</span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">         302 :     len = strlen(de-&gt;d_name);</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">         302 :     if (len &lt;= 2 &amp;&amp; (!strcmp(de-&gt;d_name, &quot;.&quot;) || !strcmp(de-&gt;d_name, &quot;..&quot;)))</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           8 :         goto top;</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">         294 :     if (len + worklen + 1 &gt; FILENAME_MAX)</span></span>
+<span id="L500"><span class="lineNum">     500</span>              :         /* Should be an error, I suppose */</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC tlaBgUNC">           0 :         goto top;</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC tlaBgGNC">         294 :     if (worklen == 0) {         /* &quot;Current&quot; directory (evil un*x kludge) */</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">         294 :         memcpy(work, de-&gt;d_name, len + 1);</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC tlaBgUNC">           0 :     } else if (worklen == 1 &amp;&amp; work[0] == '/') {        /* Root directory */</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :         memcpy(work + 1, de-&gt;d_name, len + 1);</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         len = len + 1;</span></span>
+<span id="L507"><span class="lineNum">     507</span>              :     } else {</span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         work[worklen] = '/';</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :         memcpy(work + worklen + 1, de-&gt;d_name, len + 1);</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         len = worklen + 1 + len;</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :     }</span>
+<span id="L512"><span class="lineNum">     512</span>              : </span>
+<span id="L513"><span class="lineNum">     513</span>              :     /* Test for a match at this directory level */</span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC tlaBgGNC">         294 :     if (!wmatch((byte *) work, len, (byte *) pattern, pathead, pfen-&gt;memory))</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">         294 :         goto top;</span></span>
+<span id="L516"><span class="lineNum">     516</span>              : </span>
+<span id="L517"><span class="lineNum">     517</span>              :     /* Perhaps descend into subdirectories */</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC tlaBgUNC">           0 :     if (pathead &lt; maxlen) {</span></span>
+<span id="L519"><span class="lineNum">     519</span>              :         /* Using stat() to decide whether this item is a directory then opening</span>
+<span id="L520"><span class="lineNum">     520</span>              :         using opendir(), results in Coverity complaining about races. Se</span>
+<span id="L521"><span class="lineNum">     521</span>              :         instead we simple call opendir() immediately and look at whether it</span>
+<span id="L522"><span class="lineNum">     522</span>              :         succeeded. */</span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :         DIR *dp = opendir(work);</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         if (!dp) {</span></span>
+<span id="L525"><span class="lineNum">     525</span>              :             /* Not a directory. */</span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :             goto winner;</span></span>
+<span id="L527"><span class="lineNum">     527</span>              :         }</span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         if (pfen-&gt;patlen == pathead + 1) {      /* Listing &quot;foo/?/&quot; -- return this entry */</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :             closedir(dp);</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :             work[len++] = '/';</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :             goto winner;</span></span>
+<span id="L533"><span class="lineNum">     533</span>              :         }</span>
+<span id="L534"><span class="lineNum">     534</span>              : </span>
+<span id="L535"><span class="lineNum">     535</span>              :         /* &gt;&gt;&gt; Should optimise the case in which the next level */</span>
+<span id="L536"><span class="lineNum">     536</span>              :         /* &gt;&gt;&gt; of directory has no wildcards. */</span>
+<span id="L537"><span class="lineNum">     537</span>              : #ifdef DEBUG</span>
+<span id="L538"><span class="lineNum">     538</span>              :         {</span>
+<span id="L539"><span class="lineNum">     539</span>              :             char save_end = pattern[pathead];</span>
+<span id="L540"><span class="lineNum">     540</span>              : </span>
+<span id="L541"><span class="lineNum">     541</span>              :             pattern[pathead] = 0;</span>
+<span id="L542"><span class="lineNum">     542</span>              :             if_debug2m('e', pfen-&gt;memory, &quot;[e]file_enum:fname='%s', p='%s'\n&quot;,</span>
+<span id="L543"><span class="lineNum">     543</span>              :                        work, pattern);</span>
+<span id="L544"><span class="lineNum">     544</span>              :             pattern[pathead] = save_end;</span>
+<span id="L545"><span class="lineNum">     545</span>              :         }</span>
+<span id="L546"><span class="lineNum">     546</span>              : #endif /* DEBUG */</span>
+<span id="L547"><span class="lineNum">     547</span>              :         {                  /* Advance to the next directory-delimiter */</span>
+<span id="L548"><span class="lineNum">     548</span>              :             /* in pattern */</span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :             char *p;</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :             dirstack *d;</span></span>
+<span id="L551"><span class="lineNum">     551</span>              : </span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :             if (pattern[pathead] == 0) {</span></span>
+<span id="L553"><span class="lineNum">     553</span>              :                 pathead = pfen-&gt;patlen;</span>
+<span id="L554"><span class="lineNum">     554</span>              :             } else {</span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :                 for (p = pattern + pathead + 1;; p++) {</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :                     if (*p == 0) {  /* No more subdirectories to match */</span></span>
+<span id="L557"><span class="lineNum">     557</span>              :                         pathead = pfen-&gt;patlen;</span>
+<span id="L558"><span class="lineNum">     558</span>              :                         break;</span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :                     } else if (*p == '/') {</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :                         pathead = p - pattern;</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                         break;</span></span>
+<span id="L562"><span class="lineNum">     562</span>              :                     }</span>
+<span id="L563"><span class="lineNum">     563</span>              :                 }</span>
+<span id="L564"><span class="lineNum">     564</span>              :             }</span>
+<span id="L565"><span class="lineNum">     565</span>              : </span>
+<span id="L566"><span class="lineNum">     566</span>              :             /* Push a directory onto the enumeration stack. */</span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :             d = gs_alloc_struct(pfen-&gt;memory, dirstack,</span></span>
+<span id="L568"><span class="lineNum">     568</span>              :                                 &amp;st_dirstack,</span>
+<span id="L569"><span class="lineNum">     569</span>              :                                 &quot;gp_enumerate_files(pushdir)&quot;);</span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :             if (d != 0) {</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 d-&gt;next = pfen-&gt;dstack;</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 d-&gt;entry = pfen-&gt;dirp;</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                 pfen-&gt;dstack = d;</span></span>
+<span id="L574"><span class="lineNum">     574</span>              :             } else</span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                 DO_NOTHING;     /* &gt;&gt;&gt; gs_error_VMerror!!! */</span></span>
+<span id="L576"><span class="lineNum">     576</span>              : </span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :             if_debug1m('e', pfen-&gt;memory, &quot;[e]file_enum:Dir pushed '%s'\n&quot;,</span></span>
+<span id="L578"><span class="lineNum">     578</span>              :                        work);</span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :             worklen = len;</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :             pfen-&gt;dirp = dp;</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :             goto top;</span></span>
+<span id="L582"><span class="lineNum">     582</span>              :         }</span>
+<span id="L583"><span class="lineNum">     583</span>              :     }</span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :   winner:</span></span>
+<span id="L585"><span class="lineNum">     585</span>              :     /* We have a winner! */</span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :     pfen-&gt;worklen = worklen;</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :     pfen-&gt;pathead = pathead;</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :     memcpy(ptr, work, len &gt; maxlen ? maxlen : len);</span></span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :     return len;</span></span>
+<span id="L591"><span class="lineNum">     591</span>              : #endif</span>
+<span id="L592"><span class="lineNum">     592</span>              : }</span>
+<span id="L593"><span class="lineNum">     593</span>              : </span>
+<span id="L594"><span class="lineNum">     594</span>              : /* Clean up the file enumeration. */</span>
+<span id="L595"><span class="lineNum">     595</span>              : void</span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC tlaBgGNC">      105527 : gp_enumerate_files_close_impl(gs_memory_t * mem, file_enum * pfen)</span></span>
+<span id="L597"><span class="lineNum">     597</span>              : {</span>
+<span id="L598"><span class="lineNum">     598</span>              : #ifdef GS_NO_FILESYSTEM</span>
+<span id="L599"><span class="lineNum">     599</span>              :     /* No cleanup necessary */</span>
+<span id="L600"><span class="lineNum">     600</span>              : #else</span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">      105527 :     gs_memory_t *mem2 = pfen-&gt;memory;</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">      105527 :     (void)mem;</span></span>
+<span id="L603"><span class="lineNum">     603</span>              : </span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">      105527 :     if_debug0m('e', mem2, &quot;[e]file_enum:Cleanup\n&quot;);</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">      105527 :     while (popdir(pfen))        /* clear directory stack */</span></span>
+<span id="L606"><span class="lineNum">     606</span>              :         DO_NOTHING;</span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">      105527 :     gs_free_object(mem2, (byte *) pfen-&gt;work,</span></span>
+<span id="L608"><span class="lineNum">     608</span>              :                    &quot;gp_enumerate_close(work)&quot;);</span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">      105527 :     gs_free_object(mem2, (byte *) pfen-&gt;pattern,</span></span>
+<span id="L610"><span class="lineNum">     610</span>              :                    &quot;gp_enumerate_files_close(pattern)&quot;);</span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">      105527 :     gs_free_object(mem2, pfen, &quot;gp_enumerate_files_close&quot;);</span></span>
+<span id="L612"><span class="lineNum">     612</span>              : #endif</span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">      105527 : }</span></span>
+<span id="L614"><span class="lineNum">     614</span>              : </span>
+<span id="L615"><span class="lineNum">     615</span>              : /* Test-cases:</span>
+<span id="L616"><span class="lineNum">     616</span>              :    (../?*r*?/?*.ps) {==} 100 string filenameforall</span>
+<span id="L617"><span class="lineNum">     617</span>              :    (../?*r*?/?*.ps*) {==} 100 string filenameforall</span>
+<span id="L618"><span class="lineNum">     618</span>              :    (../?*r*?/) {==} 100 string filenameforall</span>
+<span id="L619"><span class="lineNum">     619</span>              :    (/t*?/?*.ps) {==} 100 string filenameforall</span>
+<span id="L620"><span class="lineNum">     620</span>              :  */</span>
+<span id="L621"><span class="lineNum">     621</span>              : </span>
+<span id="L622"><span class="lineNum">     622</span>              : /* --------- 64 bit file access ----------- */</span>
+<span id="L623"><span class="lineNum">     623</span>              : </span>
+<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">          20 : gs_offset_t gp_ftell_impl(FILE *strm)</span></span>
+<span id="L625"><span class="lineNum">     625</span>              : {</span>
+<span id="L626"><span class="lineNum">     626</span>              : #if defined(HAVE_FILE64)</span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">          20 :     return ftello64(strm);</span></span>
+<span id="L628"><span class="lineNum">     628</span>              : #else</span>
+<span id="L629"><span class="lineNum">     629</span>              :     return ftello(strm);</span>
+<span id="L630"><span class="lineNum">     630</span>              : #endif</span>
+<span id="L631"><span class="lineNum">     631</span>              : }</span>
+<span id="L632"><span class="lineNum">     632</span>              : </span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">          20 : int gp_fseek_impl(FILE *strm, gs_offset_t offset, int origin)</span></span>
+<span id="L634"><span class="lineNum">     634</span>              : {</span>
+<span id="L635"><span class="lineNum">     635</span>              : #if defined(HAVE_FILE64)</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">          20 :     return fseeko64(strm, offset, origin);</span></span>
+<span id="L637"><span class="lineNum">     637</span>              : #else</span>
+<span id="L638"><span class="lineNum">     638</span>              :     off_t offset1 = (off_t)offset;</span>
+<span id="L639"><span class="lineNum">     639</span>              : </span>
+<span id="L640"><span class="lineNum">     640</span>              :     if (offset != offset1)</span>
+<span id="L641"><span class="lineNum">     641</span>              :         return -1;</span>
+<span id="L642"><span class="lineNum">     642</span>              :     return fseeko(strm, offset1, origin);</span>
+<span id="L643"><span class="lineNum">     643</span>              : #endif</span>
+<span id="L644"><span class="lineNum">     644</span>              : }</span>
+<span id="L645"><span class="lineNum">     645</span>              : </span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaUNC tlaBgUNC">           0 : bool gp_fseekable_impl(FILE *f)</span></span>
+<span id="L647"><span class="lineNum">     647</span>              : {</span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaUNC">           0 :     struct stat s;</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaUNC">           0 :     int fno;</span></span>
+<span id="L650"><span class="lineNum">     650</span>              : </span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaUNC">           0 :     fno = fileno(f);</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaUNC">           0 :     if (fno &lt; 0)</span></span>
+<span id="L653"><span class="lineNum">     653</span>              :         return(false);</span>
+<span id="L654"><span class="lineNum">     654</span>              : </span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaUNC">           0 :     if (fstat(fno, &amp;s) &lt; 0)</span></span>
+<span id="L656"><span class="lineNum">     656</span>              :         return(false);</span>
+<span id="L657"><span class="lineNum">     657</span>              : </span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaUNC">           0 :     return((bool)S_ISREG(s.st_mode));</span></span>
+<span id="L659"><span class="lineNum">     659</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

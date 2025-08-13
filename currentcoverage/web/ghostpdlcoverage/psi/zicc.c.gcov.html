@@ -1,0 +1,669 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zicc.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zicc.c<span style="font-size: 80%;"> (source / <a href="zicc.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">270</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* ICCBased color operators */</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;math_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;oper.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gxcspace.h&quot;         /* gscolor2.h requires gscspace.h */</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;stream.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;files.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gscolor2.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gsicc.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;estack.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;idict.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;idparam.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;igstate.h&quot;</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;icie.h&quot;</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;ialloc.h&quot;</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;store.h&quot;</span>
+<span id="L36"><span class="lineNum">      36</span>              : #include &quot;zicc.h&quot;</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;gsicc_manage.h&quot;</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;gx.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;gxgstate.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;gsicc_create.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : #include &quot;gsicc_profilecache.h&quot;</span>
+<span id="L42"><span class="lineNum">      42</span>              : #include &quot;gxdevice.h&quot;  /* for output intent setting */</span>
+<span id="L43"><span class="lineNum">      43</span>              : #include &quot;gsicc_cache.h&quot;</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 : int seticc(i_ctx_t * i_ctx_p, int ncomps, ref *ICCdict, float *range_buff)</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : {</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     int                     code, k;</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :     gs_color_space *        pcs;</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :     ref *                   pstrmval;</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :     ref *                   phashval = NULL;</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     stream *                s = 0L;</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     cmm_profile_t           *picc_profile = NULL;</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :     int                     i, expected = 0;</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     ref *                   pnameval;</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :     static const char *const icc_std_profile_names[] = {</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :             GSICC_STANDARD_PROFILES</span>
+<span id="L57"><span class="lineNum">      57</span>              :         };</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     static const char *const icc_std_profile_keys[] = {</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :             GSICC_STANDARD_PROFILES_KEYS</span>
+<span id="L60"><span class="lineNum">      60</span>              :         };</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              :     /* If we are override ICC mode, we won't use the profile */</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     if (!gs_currentoverrideicc(igs) &amp;&amp;</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         dict_find_string(ICCdict, &quot;.hash&quot;, &amp;phashval) == 1 &amp;&amp;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         r_has_type(phashval, t_integer)) {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         pcs = gsicc_find_cs(phashval-&gt;value.intval, igs);</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         if (pcs != NULL &amp;&amp; gs_color_space_num_components(pcs) == ncomps) {</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :             /* Set the color space.  We are done. */</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :             code = gs_setcolorspace(igs, pcs);</span></span>
+<span id="L70"><span class="lineNum">      70</span>              :             /* Remove the ICC dict from the stack */</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :             ref_stack_pop(&amp;o_stack, 1);</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :             return code;</span></span>
+<span id="L73"><span class="lineNum">      73</span>              :         }</span>
+<span id="L74"><span class="lineNum">      74</span>              :     }</span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              :     /* verify the DataSource entry */</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     if (dict_find_string(ICCdict, &quot;DataSource&quot;, &amp;pstrmval) &lt;= 0)</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :         return_error(gs_error_undefined);</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :     check_read_file(i_ctx_p, s, pstrmval);</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              :     /* build the color space object */</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     code = gs_cspace_build_ICC(&amp;pcs, NULL, gs_gstate_memory(igs)-&gt;stable_memory);</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         return gs_rethrow(code, &quot;building color space object&quot;);</span></span>
+<span id="L85"><span class="lineNum">      85</span>              :     /*  For now, dump the profile into a buffer</span>
+<span id="L86"><span class="lineNum">      86</span>              :         and obtain handle from the buffer when we need it.</span>
+<span id="L87"><span class="lineNum">      87</span>              :         We may want to change this later.</span>
+<span id="L88"><span class="lineNum">      88</span>              :         This depends to some degree on what the CMS is capable of doing.</span>
+<span id="L89"><span class="lineNum">      89</span>              :         I don't want to get bogged down on stream I/O at this point.</span>
+<span id="L90"><span class="lineNum">      90</span>              :         Note also, if we are going to be putting these into the clist we will</span>
+<span id="L91"><span class="lineNum">      91</span>              :         want to have this buffer. */</span>
+<span id="L92"><span class="lineNum">      92</span>              :     /* Check if we have the /Name entry.  This is used to associate with</span>
+<span id="L93"><span class="lineNum">      93</span>              :        specs that have enumerated types to indicate sRGB sGray etc */</span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :     if (dict_find_string(ICCdict, &quot;Name&quot;, &amp;pnameval) &gt; 0 &amp;&amp; r_has_type(pnameval, t_string)){</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         const char *str = (const char *)pnameval-&gt;value.bytes;</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         size_t size = r_size(pnameval);</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              :         /* Compare this to the standard profile names */</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :         for (k = 0; k &lt; GSICC_NUMBER_STANDARD_PROFILES; k++) {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :             if ( strlen(icc_std_profile_keys[k]) == size &amp;&amp;</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                  memcmp(icc_std_profile_keys[k], str, size) == 0)  {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 picc_profile = gsicc_get_profile_handle_file(icc_std_profile_names[k],</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                     strlen(icc_std_profile_names[k]), gs_gstate_memory(igs));</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L105"><span class="lineNum">     105</span>              :             }</span>
+<span id="L106"><span class="lineNum">     106</span>              :         }</span>
+<span id="L107"><span class="lineNum">     107</span>              :     } else {</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         picc_profile = gsicc_profile_new(s, gs_gstate_memory(igs), NULL, 0);</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         if (picc_profile == NULL)</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :             return gs_throw(gs_error_VMerror, &quot;Creation of ICC profile failed&quot;);</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :         /* We have to get the profile handle due to the fact that we need to know</span>
+<span id="L112"><span class="lineNum">     112</span>              :            if it has a data space that is CIELAB */</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         picc_profile-&gt;profile_handle =</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :             gsicc_get_profile_handle_buffer(picc_profile-&gt;buffer,</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :                                             picc_profile-&gt;buffer_size,</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                                             gs_gstate_memory(igs));</span></span>
+<span id="L117"><span class="lineNum">     117</span>              :     }</span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :     if (picc_profile == NULL || picc_profile-&gt;profile_handle == NULL) {</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :         /* Free up everything, the profile is not valid. We will end up going</span>
+<span id="L120"><span class="lineNum">     120</span>              :            ahead and using a default based upon the number of components */</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;seticc&quot;);</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         rc_decrement(pcs,&quot;seticc&quot;);</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         return -1;</span></span>
+<span id="L124"><span class="lineNum">     124</span>              :     }</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :     code = gsicc_set_gscs_profile(pcs, picc_profile, gs_gstate_memory(igs));</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :     if (code &lt; 0) {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;seticc&quot;);</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         rc_decrement(pcs,&quot;seticc&quot;);</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :     }</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :     picc_profile-&gt;num_comps = ncomps;</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :     picc_profile-&gt;data_cs =</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         gscms_get_profile_data_space(picc_profile-&gt;profile_handle,</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :             picc_profile-&gt;memory);</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :     switch (picc_profile-&gt;data_cs) {</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :         case gsCIEXYZ:</span>
+<span id="L138"><span class="lineNum">     138</span>              :         case gsCIELAB:</span>
+<span id="L139"><span class="lineNum">     139</span>              :         case gsRGB:</span>
+<span id="L140"><span class="lineNum">     140</span>              :             expected = 3;</span>
+<span id="L141"><span class="lineNum">     141</span>              :             break;</span>
+<span id="L142"><span class="lineNum">     142</span>              :         case gsGRAY:</span>
+<span id="L143"><span class="lineNum">     143</span>              :             expected = 1;</span>
+<span id="L144"><span class="lineNum">     144</span>              :             break;</span>
+<span id="L145"><span class="lineNum">     145</span>              :         case gsCMYK:</span>
+<span id="L146"><span class="lineNum">     146</span>              :             expected = 4;</span>
+<span id="L147"><span class="lineNum">     147</span>              :             break;</span>
+<span id="L148"><span class="lineNum">     148</span>              :         case gsNCHANNEL:</span>
+<span id="L149"><span class="lineNum">     149</span>              :         case gsNAMED:            /* Silence warnings */</span>
+<span id="L150"><span class="lineNum">     150</span>              :         case gsUNDEFINED:        /* Silence warnings */</span>
+<span id="L151"><span class="lineNum">     151</span>              :             break;</span>
+<span id="L152"><span class="lineNum">     152</span>              :     }</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :     if (!expected || ncomps != expected) {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;seticc&quot;);</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         rc_decrement(pcs,&quot;seticc&quot;);</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         return_error(gs_error_rangecheck);</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :     }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              :     /* Lets go ahead and get the hash code and check if we match one of the default spaces */</span>
+<span id="L160"><span class="lineNum">     160</span>              :     /* Later we may want to delay this, but for now lets go ahead and do it */</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     gsicc_init_hash_cs(picc_profile, igs);</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              :     /* Set the range according to the data type that is associated with the</span>
+<span id="L164"><span class="lineNum">     164</span>              :        ICC input color type.  Occasionally, we will run into CIELAB to CIELAB</span>
+<span id="L165"><span class="lineNum">     165</span>              :        profiles for spot colors in PDF documents. These spot colors are typically described</span>
+<span id="L166"><span class="lineNum">     166</span>              :        as separation colors with tint transforms that go from a tint value</span>
+<span id="L167"><span class="lineNum">     167</span>              :        to a linear mapping between the CIELAB white point and the CIELAB tint</span>
+<span id="L168"><span class="lineNum">     168</span>              :        color.  This results in a CIELAB value that we need to use to fill.  We</span>
+<span id="L169"><span class="lineNum">     169</span>              :        need to detect this to make sure we do the proper scaling of the data.  For</span>
+<span id="L170"><span class="lineNum">     170</span>              :        CIELAB images in PDF, the source is always normal 8 or 16 bit encoded data</span>
+<span id="L171"><span class="lineNum">     171</span>              :        in the range from 0 to 255 or 0 to 65535.  In that case, there should not</span>
+<span id="L172"><span class="lineNum">     172</span>              :        be any encoding and decoding to CIELAB.  The PDF content will not include</span>
+<span id="L173"><span class="lineNum">     173</span>              :        an ICC profile but will set the color space to \Lab.  In this case, we use</span>
+<span id="L174"><span class="lineNum">     174</span>              :        our seticc_lab operation to install the LAB to LAB profile, but we detect</span>
+<span id="L175"><span class="lineNum">     175</span>              :        that we did that through the use of the is_lab flag in the profile descriptor.</span>
+<span id="L176"><span class="lineNum">     176</span>              :        When then avoid the CIELAB encode and decode */</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :     if (picc_profile-&gt;data_cs == gsCIELAB) {</span></span>
+<span id="L178"><span class="lineNum">     178</span>              :     /* If the input space to this profile is CIELAB, then we need to adjust the limits */</span>
+<span id="L179"><span class="lineNum">     179</span>              :         /* See ICC spec ICC.1:2004-10 Section 6.3.4.2 and 6.4.  I don't believe we need to</span>
+<span id="L180"><span class="lineNum">     180</span>              :            worry about CIEXYZ profiles or any of the other odds ones.  Need to check that though</span>
+<span id="L181"><span class="lineNum">     181</span>              :            at some point. */</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[0].rmin = 0.0;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[0].rmax = 100.0;</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[1].rmin = -128.0;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[1].rmax = 127.0;</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[2].rmin = -128.0;</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         picc_profile-&gt;Range.ranges[2].rmax = 127.0;</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         picc_profile-&gt;islab = true;</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :     } else {</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; ncomps; i++) {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :             picc_profile-&gt;Range.ranges[i].rmin = range_buff[2 * i];</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :             picc_profile-&gt;Range.ranges[i].rmax = range_buff[2 * i + 1];</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :         }</span>
+<span id="L194"><span class="lineNum">     194</span>              :     }</span>
+<span id="L195"><span class="lineNum">     195</span>              :     /* Now see if we are in an overide situation.  We have to wait until now</span>
+<span id="L196"><span class="lineNum">     196</span>              :        in case this is an LAB profile which we will not overide */</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     if (gs_currentoverrideicc(igs) &amp;&amp; picc_profile-&gt;data_cs != gsCIELAB) {</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :         /* Free up the profile structure */</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         switch( picc_profile-&gt;data_cs ) {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :             case gsRGB:</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 pcs-&gt;cmm_icc_profile_data = igs-&gt;icc_manager-&gt;default_rgb;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :             case gsGRAY:</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 pcs-&gt;cmm_icc_profile_data = igs-&gt;icc_manager-&gt;default_gray;</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :             case gsCMYK:</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 pcs-&gt;cmm_icc_profile_data = igs-&gt;icc_manager-&gt;default_cmyk;</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :             default:</span>
+<span id="L210"><span class="lineNum">     210</span>              :                 break;</span>
+<span id="L211"><span class="lineNum">     211</span>              :         }</span>
+<span id="L212"><span class="lineNum">     212</span>              :         /* Have one increment from the color space.  Having these tied</span>
+<span id="L213"><span class="lineNum">     213</span>              :            together is not really correct.  Need to fix that.  ToDo.  MJV */</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         rc_adjust(picc_profile, -2, &quot;seticc&quot;);        /* NB: May free the profile and set picc_profile to 0 */</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         rc_increment(pcs-&gt;cmm_icc_profile_data);</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :     }</span>
+<span id="L217"><span class="lineNum">     217</span>              :     /* Set the color space.  We are done. */</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :     code = gs_setcolorspace(igs, pcs);</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :     /* The context has taken a reference to the colorspace. We no longer need</span>
+<span id="L220"><span class="lineNum">     220</span>              :      * ours, so drop it. */</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :     rc_decrement_only(pcs, &quot;seticc&quot;);</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :     if (picc_profile != NULL) {</span></span>
+<span id="L223"><span class="lineNum">     223</span>              :         /* In this case, we already have a ref count of 2 on the icc profile</span>
+<span id="L224"><span class="lineNum">     224</span>              :            one for when it was created and one for when it was set.  We really</span>
+<span id="L225"><span class="lineNum">     225</span>              :            only want one here so adjust */</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;seticc&quot;);</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         if (code &gt;= 0) {</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :             /* Save this colorspace in the iccprofile_cache */</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :             code = gsicc_add_cs(igs, pcs, picc_profile-&gt;hashcode);</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :             if (code &gt;= 0) {</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :                 /* should be an integer, but if for some reason it isn't, don't update */</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 if (phashval &amp;&amp; r_has_type(phashval, t_integer))</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                     phashval-&gt;value.intval = picc_profile-&gt;hashcode;</span></span>
+<span id="L234"><span class="lineNum">     234</span>              :             }</span>
+<span id="L235"><span class="lineNum">     235</span>              :         }</span>
+<span id="L236"><span class="lineNum">     236</span>              :     }</span>
+<span id="L237"><span class="lineNum">     237</span>              :     /* Remove the ICC dict from the stack */</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     ref_stack_pop(&amp;o_stack, 1);</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : }</span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              : /*</span>
+<span id="L243"><span class="lineNum">     243</span>              :  *   &lt;dict&gt;  .set_outputintent  -</span>
+<span id="L244"><span class="lineNum">     244</span>              :  *</span>
+<span id="L245"><span class="lineNum">     245</span>              :  * Set and use the specified output intent.</span>
+<span id="L246"><span class="lineNum">     246</span>              :  *</span>
+<span id="L247"><span class="lineNum">     247</span>              :  */</span>
+<span id="L248"><span class="lineNum">     248</span>              : static int</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 : zset_outputintent(i_ctx_t * i_ctx_p)</span></span>
+<span id="L250"><span class="lineNum">     250</span>              : {</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :     os_ptr                  op = osp;</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :     int                     code = 0;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :     gx_device *dev = gs_currentdevice(igs);</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :     cmm_dev_profile_t       *dev_profile;</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :     stream *                s = 0L;</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     ref *                   pnval;</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :     ref *                   pstrmval;</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :     int                     ncomps, dev_comps;</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :     cmm_profile_t           *picc_profile;</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :     int                     expected = 0;</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :     gs_color_space_index    index;</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :     gsicc_manager_t         *icc_manager = igs-&gt;icc_manager;</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :     cmm_profile_t           *source_profile = NULL;</span></span>
+<span id="L264"><span class="lineNum">     264</span>              : </span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :     check_op(1);</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     check_type(*op, t_dictionary);</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :     check_dict_read(*op);</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] Using OutputIntent\n&quot;);</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : </span>
+<span id="L270"><span class="lineNum">     270</span>              :     /* Get the device structure */</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :     code = dev_proc(dev, get_profile)(dev,  &amp;dev_profile);</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :         return code;</span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :     if (dev_profile == NULL) {</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         code = gsicc_init_device_profile_struct(dev, NULL, 0);</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L278"><span class="lineNum">     278</span>              :             return code;</span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         code = dev_proc(dev, get_profile)(dev,  &amp;dev_profile);</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L281"><span class="lineNum">     281</span>              :             return code;</span>
+<span id="L282"><span class="lineNum">     282</span>              :     }</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :     if (dev_profile-&gt;oi_profile != NULL) {</span></span>
+<span id="L284"><span class="lineNum">     284</span>              :         return 0;  /* Allow only one setting of this object */</span>
+<span id="L285"><span class="lineNum">     285</span>              :     }</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :     code = dict_find_string(op, &quot;N&quot;, &amp;pnval);</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L288"><span class="lineNum">     288</span>              :         return code;</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :     if (code == 0)</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :         return_error(gs_error_undefined);</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :     if (r_type(pnval) != t_integer)</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :         return gs_note_error(gs_error_typecheck);</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :     ncomps = pnval-&gt;value.intval;</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              :     /* verify the DataSource entry. Creat profile from stream */</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :     if (dict_find_string(op, &quot;DataSource&quot;, &amp;pstrmval) &lt;= 0)</span></span>
+<span id="L297"><span class="lineNum">     297</span>              :         return_error(gs_error_undefined);</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :     check_read_file(i_ctx_p, s, pstrmval);</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :     picc_profile = gsicc_profile_new(s, gs_gstate_memory(igs), NULL, 0);</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :     if (picc_profile == NULL)</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         return gs_throw(gs_error_VMerror, &quot;Creation of ICC profile failed&quot;);</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :     picc_profile-&gt;num_comps = ncomps;</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :     picc_profile-&gt;profile_handle =</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         gsicc_get_profile_handle_buffer(picc_profile-&gt;buffer,</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                                         picc_profile-&gt;buffer_size,</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                                         gs_gstate_memory(igs));</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :     if (picc_profile-&gt;profile_handle == NULL) {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;zset_outputintent&quot;);</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         return -1;</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :     }</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :     picc_profile-&gt;data_cs =</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :         gscms_get_profile_data_space(picc_profile-&gt;profile_handle,</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :             picc_profile-&gt;memory);</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :     switch (picc_profile-&gt;data_cs) {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         case gsCIEXYZ:</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :         case gsCIELAB:</span>
+<span id="L318"><span class="lineNum">     318</span>              :         case gsRGB:</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :             expected = 3;</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :             source_profile = icc_manager-&gt;default_rgb;</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :         case gsGRAY:</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :             expected = 1;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :             source_profile = icc_manager-&gt;default_gray;</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         case gsCMYK:</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :             expected = 4;</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :             source_profile = icc_manager-&gt;default_cmyk;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :             break;</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :         case gsNCHANNEL:</span>
+<span id="L331"><span class="lineNum">     331</span>              :             expected = 0;</span>
+<span id="L332"><span class="lineNum">     332</span>              :             break;</span>
+<span id="L333"><span class="lineNum">     333</span>              :         case gsNAMED:</span>
+<span id="L334"><span class="lineNum">     334</span>              :         case gsUNDEFINED:</span>
+<span id="L335"><span class="lineNum">     335</span>              :             break;</span>
+<span id="L336"><span class="lineNum">     336</span>              :     }</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :     if (expected &amp;&amp; ncomps != expected) {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;zset_outputintent&quot;);</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         return_error(gs_error_rangecheck);</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :     }</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :     gsicc_init_hash_cs(picc_profile, igs);</span></span>
+<span id="L342"><span class="lineNum">     342</span>              : </span>
+<span id="L343"><span class="lineNum">     343</span>              :     /* All is well with the profile.  Lets set the stuff that needs to be set */</span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :     dev_profile-&gt;oi_profile = picc_profile;</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :     picc_profile-&gt;name = (char *) gs_alloc_bytes(picc_profile-&gt;memory,</span></span>
+<span id="L346"><span class="lineNum">     346</span>              :                                                  MAX_DEFAULT_ICC_LENGTH,</span>
+<span id="L347"><span class="lineNum">     347</span>              :                                                  &quot;zset_outputintent&quot;);</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :     if (picc_profile-&gt;name == NULL) {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;zset_outputintent&quot;);</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         return_error(gs_error_VMerror);</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :     }</span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :     strncpy(picc_profile-&gt;name, OI_PROFILE, strlen(OI_PROFILE));</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :     picc_profile-&gt;name[strlen(OI_PROFILE)] = 0;</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :     picc_profile-&gt;name_length = strlen(OI_PROFILE);</span></span>
+<span id="L355"><span class="lineNum">     355</span>              :     /* Set the range of the profile */</span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :     gsicc_set_icc_range(&amp;picc_profile);</span></span>
+<span id="L357"><span class="lineNum">     357</span>              : </span>
+<span id="L358"><span class="lineNum">     358</span>              :     /* If the output device has a different number of componenets, then we are</span>
+<span id="L359"><span class="lineNum">     359</span>              :        going to set the output intent as the proofing profile, unless the</span>
+<span id="L360"><span class="lineNum">     360</span>              :        proofing profile has already been set.</span>
+<span id="L361"><span class="lineNum">     361</span>              : </span>
+<span id="L362"><span class="lineNum">     362</span>              :        If the device has the same number of components (and color model) then as</span>
+<span id="L363"><span class="lineNum">     363</span>              :        the profile we will use this as the output profile, unless someone has</span>
+<span id="L364"><span class="lineNum">     364</span>              :        explicitly set the output profile.</span>
+<span id="L365"><span class="lineNum">     365</span>              : </span>
+<span id="L366"><span class="lineNum">     366</span>              :        Finally, we will use the output intent profile for the default profile</span>
+<span id="L367"><span class="lineNum">     367</span>              :        of the proper Device profile in the icc manager, again, unless someone</span>
+<span id="L368"><span class="lineNum">     368</span>              :        has explicitly set this default profile. */</span>
+<span id="L369"><span class="lineNum">     369</span>              : </span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :     dev_comps = dev_profile-&gt;device_profile[GS_DEFAULT_DEVICE_PROFILE]-&gt;num_comps;</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :     index = gsicc_get_default_type(dev_profile-&gt;device_profile[GS_DEFAULT_DEVICE_PROFILE]);</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :     if (ncomps == dev_comps &amp;&amp; index &lt; gs_color_space_index_DevicePixel) {</span></span>
+<span id="L373"><span class="lineNum">     373</span>              :         /* The OI profile is the same type as the profile for the device and a</span>
+<span id="L374"><span class="lineNum">     374</span>              :            &quot;default&quot; profile for the device was not externally set. So we go</span>
+<span id="L375"><span class="lineNum">     375</span>              :            ahead and use the OI profile as the device profile.  Care needs to be</span>
+<span id="L376"><span class="lineNum">     376</span>              :            taken here to keep from screwing up any device parameters.   We will</span>
+<span id="L377"><span class="lineNum">     377</span>              :            use a keyword of OIProfile for the user/device parameter to indicate</span>
+<span id="L378"><span class="lineNum">     378</span>              :            its usage.  Also, note conflicts if one is setting object dependent</span>
+<span id="L379"><span class="lineNum">     379</span>              :            color management */</span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         rc_assign(dev_profile-&gt;device_profile[GS_DEFAULT_DEVICE_PROFILE], picc_profile,</span></span>
+<span id="L381"><span class="lineNum">     381</span>              :                   &quot;zset_outputintent&quot;);</span>
+<span id="L382"><span class="lineNum">     382</span>              :         if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] OutputIntent used for device profile\n&quot;);</span>
+<span id="L383"><span class="lineNum">     383</span>              :     } else {</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         if (dev_profile-&gt;proof_profile == NULL) {</span></span>
+<span id="L385"><span class="lineNum">     385</span>              :             /* This means that we should use the OI profile as the proofing</span>
+<span id="L386"><span class="lineNum">     386</span>              :                profile.  Note that if someone already has specified a</span>
+<span id="L387"><span class="lineNum">     387</span>              :                proofing profile it is unclear what they are trying to do</span>
+<span id="L388"><span class="lineNum">     388</span>              :                with the output intent.  In this case, we will use it</span>
+<span id="L389"><span class="lineNum">     389</span>              :                just for the source data below */</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :             dev_profile-&gt;proof_profile = picc_profile;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :             rc_increment(picc_profile);</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :             if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] OutputIntent used for proof profile\n&quot;);</span></span>
+<span id="L393"><span class="lineNum">     393</span>              :         }</span>
+<span id="L394"><span class="lineNum">     394</span>              :     }</span>
+<span id="L395"><span class="lineNum">     395</span>              :     /* Now the source colors.  See which source color space needs to use the</span>
+<span id="L396"><span class="lineNum">     396</span>              :        output intent ICC profile */</span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :     index = gsicc_get_default_type(source_profile);</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :     if (index &lt; gs_color_space_index_DevicePixel) {</span></span>
+<span id="L399"><span class="lineNum">     399</span>              :         /* source_profile is currently the default.  Set it to the OI profile */</span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         switch (picc_profile-&gt;data_cs) {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :             case gsGRAY:</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :                 if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] OutputIntent used source Gray\n&quot;);</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                 rc_assign(icc_manager-&gt;default_gray, picc_profile,</span></span>
+<span id="L404"><span class="lineNum">     404</span>              :                           &quot;zset_outputintent&quot;);</span>
+<span id="L405"><span class="lineNum">     405</span>              :                 break;</span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :             case gsRGB:</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                 if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] OutputIntent used source RGB\n&quot;);</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                 rc_assign(icc_manager-&gt;default_rgb, picc_profile,</span></span>
+<span id="L409"><span class="lineNum">     409</span>              :                           &quot;zset_outputintent&quot;);</span>
+<span id="L410"><span class="lineNum">     410</span>              :                 break;</span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :             case gsCMYK:</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 if_debug0m(gs_debug_flag_icc, imemory, &quot;[icc] OutputIntent used source CMYK\n&quot;);</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 rc_assign(icc_manager-&gt;default_cmyk, picc_profile,</span></span>
+<span id="L414"><span class="lineNum">     414</span>              :                           &quot;zset_outputintent&quot;);</span>
+<span id="L415"><span class="lineNum">     415</span>              :                 break;</span>
+<span id="L416"><span class="lineNum">     416</span>              :             default:</span>
+<span id="L417"><span class="lineNum">     417</span>              :                 break;</span>
+<span id="L418"><span class="lineNum">     418</span>              :         }</span>
+<span id="L419"><span class="lineNum">     419</span>              :     }</span>
+<span id="L420"><span class="lineNum">     420</span>              :     /* Remove the output intent dict from the stack */</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :     pop(1);</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : }</span>
+<span id="L424"><span class="lineNum">     424</span>              : </span>
+<span id="L425"><span class="lineNum">     425</span>              : /* Install a ICC type color space and use the ICC LABLUT profile. */</span>
+<span id="L426"><span class="lineNum">     426</span>              : int</span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 : seticc_lab(i_ctx_t * i_ctx_p, float *white, float *black, float *range_buff)</span></span>
+<span id="L428"><span class="lineNum">     428</span>              : {</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :     int                     code;</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :     gs_color_space *        pcs;</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :     int                     i;</span></span>
+<span id="L432"><span class="lineNum">     432</span>              : </span>
+<span id="L433"><span class="lineNum">     433</span>              :     /* build the color space object */</span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :     code = gs_cspace_build_ICC(&amp;pcs, NULL, gs_gstate_memory(igs));</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         return gs_rethrow(code, &quot;building color space object&quot;);</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :     /* record the current space as the alternative color space */</span>
+<span id="L438"><span class="lineNum">     438</span>              :     /* Get the lab profile.  It may already be set in the icc manager.</span>
+<span id="L439"><span class="lineNum">     439</span>              :        If not then lets populate it.  */</span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :     if (igs-&gt;icc_manager-&gt;lab_profile == NULL ) {</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :         /* This can't happen as the profile</span>
+<span id="L442"><span class="lineNum">     442</span>              :            should be initialized during the</span>
+<span id="L443"><span class="lineNum">     443</span>              :            setting of the user params */</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         return gs_rethrow(code, &quot;cannot find lab icc profile&quot;);</span></span>
+<span id="L445"><span class="lineNum">     445</span>              :     }</span>
+<span id="L446"><span class="lineNum">     446</span>              :     /* Assign the LAB to LAB profile to this color space */</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :     code = gsicc_set_gscs_profile(pcs, igs-&gt;icc_manager-&gt;lab_profile, gs_gstate_memory(igs));</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :         return gs_rethrow(code, &quot;installing the lab profile&quot;);</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :     pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[0].rmin = 0.0;</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :     pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[0].rmax = 100.0;</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :     for (i = 1; i &lt; 3; i++) {</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[i].rmin =</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :             range_buff[2 * (i-1)];</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :         pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[i].rmax =</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :             range_buff[2 * (i-1) + 1];</span></span>
+<span id="L457"><span class="lineNum">     457</span>              :     }</span>
+<span id="L458"><span class="lineNum">     458</span>              :     /* Set the color space.  We are done.  */</span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :     code = gs_setcolorspace(igs, pcs);</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : }</span>
+<span id="L462"><span class="lineNum">     462</span>              : </span>
+<span id="L463"><span class="lineNum">     463</span>              : /* Install an ICC space from the PDF CalRGB or CalGray types */</span>
+<span id="L464"><span class="lineNum">     464</span>              : int</span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 : seticc_cal(i_ctx_t * i_ctx_p, float *white, float *black, float *gamma,</span></span>
+<span id="L466"><span class="lineNum">     466</span>              :            float *matrix, int num_colorants, ulong dictkey)</span>
+<span id="L467"><span class="lineNum">     467</span>              : {</span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :     int                     code;</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :     gs_color_space *        pcs;</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :     gs_memory_t             *mem = igs-&gt;memory;</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :     int                     i;</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :     cmm_profile_t           *cal_profile;</span></span>
+<span id="L473"><span class="lineNum">     473</span>              : </span>
+<span id="L474"><span class="lineNum">     474</span>              :     /* See if the color space is in the profile cache */</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :     pcs = gsicc_find_cs(dictkey, igs);</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :     if (pcs != NULL &amp;&amp; gs_color_space_num_components(pcs) != num_colorants) {</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :         pcs = NULL;</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         dictkey = 0;</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :     }</span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :     if (pcs == NULL ) {</span></span>
+<span id="L481"><span class="lineNum">     481</span>              :         /* build the color space object.  Since this is cached</span>
+<span id="L482"><span class="lineNum">     482</span>              :            in the profile cache which is a member variable</span>
+<span id="L483"><span class="lineNum">     483</span>              :            of the graphic state, we will want to use stable</span>
+<span id="L484"><span class="lineNum">     484</span>              :            memory here */</span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :         code = gs_cspace_build_ICC(&amp;pcs, NULL, mem-&gt;stable_memory);</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :             return gs_rethrow(code, &quot;building color space object&quot;);</span></span>
+<span id="L488"><span class="lineNum">     488</span>              :         /* There is no alternate for this.  Perhaps we should set DeviceRGB? */</span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :         pcs-&gt;base_space = NULL;</span></span>
+<span id="L490"><span class="lineNum">     490</span>              :         /* Create the ICC profile from the CalRGB or CalGray parameters */</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         cal_profile = gsicc_create_from_cal(white, black, gamma, matrix,</span></span>
+<span id="L492"><span class="lineNum">     492</span>              :                                             mem-&gt;stable_memory, num_colorants);</span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         if (cal_profile == NULL)</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :             return gs_rethrow(gs_error_VMerror, &quot;creating the cal profile failed&quot;);</span></span>
+<span id="L495"><span class="lineNum">     495</span>              :         /* Assign the profile to this color space */</span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :         code = gsicc_set_gscs_profile(pcs, cal_profile, mem-&gt;stable_memory);</span></span>
+<span id="L497"><span class="lineNum">     497</span>              :         /* profile is created with ref count of 1, gsicc_set_gscs_profile()</span>
+<span id="L498"><span class="lineNum">     498</span>              :          * increments the ref count, so we need to decrement it here.</span>
+<span id="L499"><span class="lineNum">     499</span>              :          */</span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :         rc_decrement(cal_profile, &quot;seticc_cal&quot;);</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :             return gs_rethrow(code, &quot;installing the cal profile&quot;);</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :         for (i = 0; i &lt; num_colorants; i++) {</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :             pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[i].rmin = 0;</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :             pcs-&gt;cmm_icc_profile_data-&gt;Range.ranges[i].rmax = 1;</span></span>
+<span id="L506"><span class="lineNum">     506</span>              :         }</span>
+<span id="L507"><span class="lineNum">     507</span>              :         /* Add the color space to the profile cache */</span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         code = gsicc_add_cs(igs, pcs,dictkey);</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :         if (code &lt; 0)</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :             return gs_rethrow(code, &quot;adding the colour space&quot;);</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :     }</span>
+<span id="L512"><span class="lineNum">     512</span>              :     /* Set the color space.  We are done.  */</span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :     code = gs_setcolorspace(igs, pcs);</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L515"><span class="lineNum">     515</span>              : }</span>
+<span id="L516"><span class="lineNum">     516</span>              : </span>
+<span id="L517"><span class="lineNum">     517</span>              : static int</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 : znumicc_components(i_ctx_t * i_ctx_p)</span></span>
+<span id="L519"><span class="lineNum">     519</span>              : {</span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :     ref *                   pnval;</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :     ref *                   pstrmval;</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :     stream *                s;</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :     int                     ncomps, expected = 0, code;</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :     cmm_profile_t           *picc_profile;</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :     os_ptr                  op = osp;</span></span>
+<span id="L526"><span class="lineNum">     526</span>              : </span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :     check_op(1);</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :     check_type(*op, t_dictionary);</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :     check_dict_read(*op);</span></span>
+<span id="L530"><span class="lineNum">     530</span>              : </span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :     code = dict_find_string(op, &quot;N&quot;, &amp;pnval);</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :     if (code &lt; 0)</span></span>
+<span id="L533"><span class="lineNum">     533</span>              :         return code;</span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :     if (code == 0)</span></span>
+<span id="L535"><span class="lineNum">     535</span>              :         return_error(gs_error_undefined);</span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :     if (r_type(pnval) != t_integer)</span></span>
+<span id="L537"><span class="lineNum">     537</span>              :         return gs_note_error(gs_error_typecheck);</span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :     ncomps = pnval-&gt;value.intval;</span></span>
+<span id="L539"><span class="lineNum">     539</span>              :     /* verify the DataSource entry. Create profile from stream */</span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :     if (dict_find_string(op, &quot;DataSource&quot;, &amp;pstrmval) &lt;= 0)</span></span>
+<span id="L541"><span class="lineNum">     541</span>              :         return_error(gs_error_undefined);</span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :     check_read_file(i_ctx_p, s, pstrmval);</span></span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :     picc_profile = gsicc_profile_new(s, gs_gstate_memory(igs), NULL, 0);</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :     if (picc_profile == NULL)</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :         return gs_throw(gs_error_VMerror, &quot;Creation of ICC profile failed&quot;);</span></span>
+<span id="L547"><span class="lineNum">     547</span>              : </span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :     picc_profile-&gt;num_comps = ncomps;</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :     picc_profile-&gt;profile_handle =</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         gsicc_get_profile_handle_buffer(picc_profile-&gt;buffer,</span></span>
+<span id="L551"><span class="lineNum">     551</span>              :                                         picc_profile-&gt;buffer_size,</span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                                         gs_gstate_memory(igs));</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :     if (picc_profile-&gt;profile_handle == NULL) {</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         rc_decrement(picc_profile,&quot;znumicc_components&quot;);</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :         make_int(op, expected);</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :         return 0;</span></span>
+<span id="L557"><span class="lineNum">     557</span>              :     }</span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :     picc_profile-&gt;data_cs =</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         gscms_get_profile_data_space(picc_profile-&gt;profile_handle,</span></span>
+<span id="L560"><span class="lineNum">     560</span>              :             picc_profile-&gt;memory);</span>
+<span id="L561"><span class="lineNum">     561</span>              : </span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :     switch (picc_profile-&gt;data_cs) {</span></span>
+<span id="L563"><span class="lineNum">     563</span>              :         case gsCIEXYZ:</span>
+<span id="L564"><span class="lineNum">     564</span>              :         case gsCIELAB:</span>
+<span id="L565"><span class="lineNum">     565</span>              :         case gsRGB:</span>
+<span id="L566"><span class="lineNum">     566</span>              :             expected = 3;</span>
+<span id="L567"><span class="lineNum">     567</span>              :             break;</span>
+<span id="L568"><span class="lineNum">     568</span>              :         case gsGRAY:</span>
+<span id="L569"><span class="lineNum">     569</span>              :             expected = 1;</span>
+<span id="L570"><span class="lineNum">     570</span>              :             break;</span>
+<span id="L571"><span class="lineNum">     571</span>              :         case gsCMYK:</span>
+<span id="L572"><span class="lineNum">     572</span>              :             expected = 4;</span>
+<span id="L573"><span class="lineNum">     573</span>              :             break;</span>
+<span id="L574"><span class="lineNum">     574</span>              :         case gsNCHANNEL:</span>
+<span id="L575"><span class="lineNum">     575</span>              :             expected = 0;</span>
+<span id="L576"><span class="lineNum">     576</span>              :             break;</span>
+<span id="L577"><span class="lineNum">     577</span>              :         case gsNAMED:</span>
+<span id="L578"><span class="lineNum">     578</span>              :         case gsUNDEFINED:</span>
+<span id="L579"><span class="lineNum">     579</span>              :             expected = -1;</span>
+<span id="L580"><span class="lineNum">     580</span>              :             break;</span>
+<span id="L581"><span class="lineNum">     581</span>              :     }</span>
+<span id="L582"><span class="lineNum">     582</span>              : </span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :     make_int(op, expected);</span></span>
+<span id="L584"><span class="lineNum">     584</span>              : </span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :     rc_decrement(picc_profile,&quot;zset_outputintent&quot;);</span></span>
+<span id="L586"><span class="lineNum">     586</span>              :     return 0;</span>
+<span id="L587"><span class="lineNum">     587</span>              : }</span>
+<span id="L588"><span class="lineNum">     588</span>              : </span>
+<span id="L589"><span class="lineNum">     589</span>              : const op_def    zicc_op_defs[] = {</span>
+<span id="L590"><span class="lineNum">     590</span>              :     { &quot;1.set_outputintent&quot;, zset_outputintent },</span>
+<span id="L591"><span class="lineNum">     591</span>              :     { &quot;1.numicc_components&quot;, znumicc_components },</span>
+<span id="L592"><span class="lineNum">     592</span>              :     op_def_end(0)</span>
+<span id="L593"><span class="lineNum">     593</span>              : };</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsroprun1.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsroprun1.h<span style="font-size: 80%;"> (source / <a href="gsroprun1.h.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* This file is repeatedly included by gsroprun.c to 'autogenerate' many</span>
+<span id="L18"><span class="lineNum">      18</span>              :  * different versions of roprun code. DO NOT USE THIS FILE EXCEPT FROM</span>
+<span id="L19"><span class="lineNum">      19</span>              :  * gsroprun.c.</span>
+<span id="L20"><span class="lineNum">      20</span>              :  */</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : /* Set the following defines as appropriate on entry:</span>
+<span id="L23"><span class="lineNum">      23</span>              :  *   TEMPLATE_NAME (Compulsory)  The name of the function to generate</span>
+<span id="L24"><span class="lineNum">      24</span>              :  *   SPECIFIC_ROP  (Optional)    If set, the function will base its decision</span>
+<span id="L25"><span class="lineNum">      25</span>              :  *                               about whether to provide S and T upon</span>
+<span id="L26"><span class="lineNum">      26</span>              :  *                               this value.</span>
+<span id="L27"><span class="lineNum">      27</span>              :  *   SPECIFIC_CODE (Optional)    If set, this should expand out to code to</span>
+<span id="L28"><span class="lineNum">      28</span>              :  *                               perform the rop. Will be invoked as:</span>
+<span id="L29"><span class="lineNum">      29</span>              :  *                               SPECIFIC_ROP(OUT,D,S,T)</span>
+<span id="L30"><span class="lineNum">      30</span>              :  *   S_CONST       (Optional)    If set, S will be taken to be constant, else</span>
+<span id="L31"><span class="lineNum">      31</span>              :  *                               S will be read from a pointer.</span>
+<span id="L32"><span class="lineNum">      32</span>              :  *   T_CONST       (Optional)    If set, T will be taken to be constant, else</span>
+<span id="L33"><span class="lineNum">      33</span>              :  *                               T will be read from a pointer.</span>
+<span id="L34"><span class="lineNum">      34</span>              :  */</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : #if defined(TEMPLATE_NAME)</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : #ifdef SPECIFIC_ROP</span>
+<span id="L39"><span class="lineNum">      39</span>              : #if rop3_uses_S(SPECIFIC_ROP)</span>
+<span id="L40"><span class="lineNum">      40</span>              : #define S_USED</span>
+<span id="L41"><span class="lineNum">      41</span>              : #endif</span>
+<span id="L42"><span class="lineNum">      42</span>              : #if rop3_uses_T(SPECIFIC_ROP)</span>
+<span id="L43"><span class="lineNum">      43</span>              : #define T_USED</span>
+<span id="L44"><span class="lineNum">      44</span>              : #endif</span>
+<span id="L45"><span class="lineNum">      45</span>              : #else /* !SPECIFIC_ROP */</span>
+<span id="L46"><span class="lineNum">      46</span>              : #define S_USED</span>
+<span id="L47"><span class="lineNum">      47</span>              : #define T_USED</span>
+<span id="L48"><span class="lineNum">      48</span>              : #endif /* SPECIFIC_ROP */</span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : /* We work in 'chunks' here; for bigendian machines, we can safely use</span>
+<span id="L51"><span class="lineNum">      51</span>              :  * chunks of 'int' size. For little endian machines where we have a cheap</span>
+<span id="L52"><span class="lineNum">      52</span>              :  * endian swap, we can do likewise. For others, we'll work at the byte</span>
+<span id="L53"><span class="lineNum">      53</span>              :  * level. */</span>
+<span id="L54"><span class="lineNum">      54</span>              : #if !ARCH_IS_BIG_ENDIAN &amp;&amp; !defined(ENDIAN_SWAP_INT)</span>
+<span id="L55"><span class="lineNum">      55</span>              : #define CHUNKSIZE 8</span>
+<span id="L56"><span class="lineNum">      56</span>              : #define CHUNK byte</span>
+<span id="L57"><span class="lineNum">      57</span>              : #define CHUNKONES 255</span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span>              : #define ADJUST_TO_CHUNK(d,dpos) do {} while (0)</span>
+<span id="L60"><span class="lineNum">      60</span>              : </span>
+<span id="L61"><span class="lineNum">      61</span>              : #else /* ARCH_IS_BIG_ENDIAN || defined(ENDIAN_SWAP_INT) */</span>
+<span id="L62"><span class="lineNum">      62</span>              : #if ARCH_LOG2_SIZEOF_INT == 2</span>
+<span id="L63"><span class="lineNum">      63</span>              : #define CHUNKSIZE 32</span>
+<span id="L64"><span class="lineNum">      64</span>              : #define CHUNK unsigned int</span>
+<span id="L65"><span class="lineNum">      65</span>              : #define CHUNKONES 0xFFFFFFFFU</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : #if ARCH_SIZEOF_PTR == (1&lt;&lt;ARCH_LOG2_SIZEOF_INT)</span>
+<span id="L68"><span class="lineNum">      68</span>              : #define ROP_PTRDIFF_T int</span>
+<span id="L69"><span class="lineNum">      69</span>              : #else</span>
+<span id="L70"><span class="lineNum">      70</span>              : #define ROP_PTRDIFF_T int64_t</span>
+<span id="L71"><span class="lineNum">      71</span>              : #endif</span>
+<span id="L72"><span class="lineNum">      72</span>              : #define ADJUST_TO_CHUNK(d, dpos)                      \</span>
+<span id="L73"><span class="lineNum">      73</span>              :     do { int offset = ((ROP_PTRDIFF_T)d) &amp; ((CHUNKSIZE&gt;&gt;3)-1);  \</span>
+<span id="L74"><span class="lineNum">      74</span>              :          d = (CHUNK *)(void *)(((byte *)(void *)d)-offset);   \</span>
+<span id="L75"><span class="lineNum">      75</span>              :          dpos += offset&lt;&lt;3;                           \</span>
+<span id="L76"><span class="lineNum">      76</span>              :      } while (0)</span>
+<span id="L77"><span class="lineNum">      77</span>              : #else</span>
+<span id="L78"><span class="lineNum">      78</span>              : /* FIXME: Write more code in here when we find an example. */</span>
+<span id="L79"><span class="lineNum">      79</span>              : #endif</span>
+<span id="L80"><span class="lineNum">      80</span>              : #endif /* ARCH_IS_BIG_ENDIAN || defined(ENDIAN_SWAP_INT) */</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : /* We define an 'RE' macro that reverses the endianness of a chunk, if we</span>
+<span id="L83"><span class="lineNum">      83</span>              :  * need it, and does nothing otherwise. */</span>
+<span id="L84"><span class="lineNum">      84</span>              : #if !ARCH_IS_BIG_ENDIAN &amp;&amp; defined(ENDIAN_SWAP_INT) &amp;&amp; (CHUNKSIZE != 8)</span>
+<span id="L85"><span class="lineNum">      85</span>              : #define RE(I) ((CHUNK)ENDIAN_SWAP_INT(I))</span>
+<span id="L86"><span class="lineNum">      86</span>              : #else /* ARCH_IS_BIG_ENDIAN || !defined(ENDIAN_SWAP_INT) || (CHUNKSIZE == 8) */</span>
+<span id="L87"><span class="lineNum">      87</span>              : #define RE(I) (I)</span>
+<span id="L88"><span class="lineNum">      88</span>              : #endif /* ARCH_IS_BIG_ENDIAN || !defined(ENDIAN_SWAP_INT) || (CHUNKSIZE == 8) */</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              : /* In some cases we will need to fetch values from a pointer, and 'skew'</span>
+<span id="L91"><span class="lineNum">      91</span>              :  * them. We need 2 variants of this macro. One that is 'SAFE' to use when</span>
+<span id="L92"><span class="lineNum">      92</span>              :  * SKEW might be 0, and one that can be faster, because we know that SKEW</span>
+<span id="L93"><span class="lineNum">      93</span>              :  * is non zero. */</span>
+<span id="L94"><span class="lineNum">      94</span>              : #define SKEW_FETCH(S,s,SKEW) \</span>
+<span id="L95"><span class="lineNum">      95</span>              :     do { S = RE((RE(s[0])&lt;&lt;SKEW) | (RE(s[1])&gt;&gt;(CHUNKSIZE-SKEW))); s++; } while (0)</span>
+<span id="L96"><span class="lineNum">      96</span>              : #define SAFE_SKEW_FETCH(S,s,SKEW,L,R)                                    \</span>
+<span id="L97"><span class="lineNum">      97</span>              :     do { S = RE(((L) ? 0 : (RE(s[0])&lt;&lt;SKEW)) | ((R) ? 0 : (RE(s[1])&gt;&gt;(CHUNKSIZE-SKEW)))); s++; } while (0)</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : #if defined(S_USED) &amp;&amp; !defined(S_CONST)</span>
+<span id="L100"><span class="lineNum">     100</span>              : #define S_SKEW</span>
+<span id="L101"><span class="lineNum">     101</span>              : #define FETCH_S           SKEW_FETCH(S,s,s_skew)</span>
+<span id="L102"><span class="lineNum">     102</span>              : #define SAFE_FETCH_S(L,R) SAFE_SKEW_FETCH(S,s,s_skew,L,R)</span>
+<span id="L103"><span class="lineNum">     103</span>              : #else /* !defined(S_USED) || defined(S_CONST) */</span>
+<span id="L104"><span class="lineNum">     104</span>              : #define FETCH_S</span>
+<span id="L105"><span class="lineNum">     105</span>              : #define SAFE_FETCH_S(L,R)</span>
+<span id="L106"><span class="lineNum">     106</span>              : #endif /* !defined(S_USED) || defined(S_CONST) */</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : #if defined(T_USED) &amp;&amp; !defined(T_CONST)</span>
+<span id="L109"><span class="lineNum">     109</span>              : #define T_SKEW</span>
+<span id="L110"><span class="lineNum">     110</span>              : #define FETCH_T           SKEW_FETCH(T,t,t_skew)</span>
+<span id="L111"><span class="lineNum">     111</span>              : #define SAFE_FETCH_T(L,R) SAFE_SKEW_FETCH(T,t,t_skew,L,R)</span>
+<span id="L112"><span class="lineNum">     112</span>              : #else /* !defined(T_USED) || defined(T_CONST) */</span>
+<span id="L113"><span class="lineNum">     113</span>              : #define FETCH_T</span>
+<span id="L114"><span class="lineNum">     114</span>              : #define SAFE_FETCH_T(L,R)</span>
+<span id="L115"><span class="lineNum">     115</span>              : #endif /* !defined(T_USED) || defined(T_CONST) */</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC tlaBgUNC">           0 : static void TEMPLATE_NAME(rop_run_op *op, byte *d_, int len)</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : {</span>
+<span id="L119"><span class="lineNum">     119</span>              : #ifndef SPECIFIC_CODE</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :     rop_proc     proc = rop_proc_table[op-&gt;rop];</span></span>
+<span id="L121"><span class="lineNum">     121</span>              : #define SPECIFIC_CODE(OUT_, D_,S_,T_) OUT_ = proc(D_,S_,T_)</span>
+<span id="L122"><span class="lineNum">     122</span>              : #endif /* !defined(SPECIFIC_CODE) */</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :     CHUNK        lmask, rmask;</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : #ifdef S_USED</span>
+<span id="L125"><span class="lineNum">     125</span>              : #ifdef S_CONST</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :     CHUNK        S = (CHUNK)op-&gt;s.c;</span></span>
+<span id="L127"><span class="lineNum">     127</span>              : #else /* !defined(S_CONST) */</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :     const CHUNK *s = (CHUNK *)(void *)op-&gt;s.b.ptr;</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :     CHUNK        S;</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :     int          s_skew;</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L132"><span class="lineNum">     132</span>              : #else /* !defined(S_USED) */</span>
+<span id="L133"><span class="lineNum">     133</span>              : #define S 0</span>
+<span id="L134"><span class="lineNum">     134</span>              : #undef S_CONST</span>
+<span id="L135"><span class="lineNum">     135</span>              : #endif /* !defined(S_USED) */</span>
+<span id="L136"><span class="lineNum">     136</span>              : #ifdef T_USED</span>
+<span id="L137"><span class="lineNum">     137</span>              : #ifdef T_CONST</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :     CHUNK        T = (CHUNK)op-&gt;t.c;</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : #else /* !defined(T_CONST) */</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :     const CHUNK *t = (CHUNK *)(void *)op-&gt;t.b.ptr;</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :     CHUNK        T;</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :     int          t_skew;</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L144"><span class="lineNum">     144</span>              : #else /* !defined(T_USED) */</span>
+<span id="L145"><span class="lineNum">     145</span>              : #define T 0</span>
+<span id="L146"><span class="lineNum">     146</span>              : #undef T_CONST</span>
+<span id="L147"><span class="lineNum">     147</span>              : #endif /* !defined(T_USED) */</span>
+<span id="L148"><span class="lineNum">     148</span>              : #if defined(S_SKEW) || defined(T_SKEW)</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :     int skewflags = 0;</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : #endif</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :     CHUNK        D;</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :     int          dpos = op-&gt;dpos;</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :     CHUNK       *d = (CHUNK *)(void *)d_;</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              :     /* Align d to CHUNKSIZE */</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :     ADJUST_TO_CHUNK(d,dpos);</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              :     /* On entry len = length in 'depth' chunks. Change it to be the length</span>
+<span id="L159"><span class="lineNum">     159</span>              :      * in bits, and add on the number of bits we skip at the start of the</span>
+<span id="L160"><span class="lineNum">     160</span>              :      * run. */</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :     len    = len * op-&gt;depth + dpos;</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              :     /* lmask = the set of bits to alter in the output bitmap on the left</span>
+<span id="L164"><span class="lineNum">     164</span>              :      * hand edge of the run. rmask = the set of bits NOT to alter in the</span>
+<span id="L165"><span class="lineNum">     165</span>              :      * output bitmap on the right hand edge of the run. */</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     lmask  = RE((CHUNKONES&gt;&gt;((CHUNKSIZE-1) &amp; dpos)));</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :     rmask  = RE((CHUNKONES&gt;&gt;((CHUNKSIZE-1) &amp; len)));</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :     if (rmask == CHUNKONES) rmask = 0;</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span>              : #if defined(S_CONST) || defined(T_CONST)</span>
+<span id="L171"><span class="lineNum">     171</span>              :     /* S and T should be supplied as 'depth' bits. Duplicate them up to be</span>
+<span id="L172"><span class="lineNum">     172</span>              :      * byte size (if they are supplied byte sized, that's fine too). */</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :     if (op-&gt;depth &amp; 1) {</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : #ifdef S_CONST</span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         S |= S&lt;&lt;1;</span></span>
+<span id="L176"><span class="lineNum">     176</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L177"><span class="lineNum">     177</span>              : #ifdef T_CONST</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         T |= T&lt;&lt;1;</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L180"><span class="lineNum">     180</span>              :     }</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     if (op-&gt;depth &amp; 3) {</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : #ifdef S_CONST</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         S |= S&lt;&lt;2;</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L185"><span class="lineNum">     185</span>              : #ifdef T_CONST</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         T |= T&lt;&lt;2;</span></span>
+<span id="L187"><span class="lineNum">     187</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L188"><span class="lineNum">     188</span>              :     }</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     if (op-&gt;depth &amp; 7) {</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : #ifdef S_CONST</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         S |= S&lt;&lt;4;</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L193"><span class="lineNum">     193</span>              : #ifdef T_CONST</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         T |= T&lt;&lt;4;</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L196"><span class="lineNum">     196</span>              :     }</span>
+<span id="L197"><span class="lineNum">     197</span>              : #if CHUNKSIZE &gt; 8</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     if (op-&gt;depth &amp; 15) {</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : #ifdef S_CONST</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         S |= S&lt;&lt;8;</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L202"><span class="lineNum">     202</span>              : #ifdef T_CONST</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         T |= T&lt;&lt;8;</span></span>
+<span id="L204"><span class="lineNum">     204</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L205"><span class="lineNum">     205</span>              :     }</span>
+<span id="L206"><span class="lineNum">     206</span>              : #endif /* CHUNKSIZE &gt; 8 */</span>
+<span id="L207"><span class="lineNum">     207</span>              : #if CHUNKSIZE &gt; 16</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     if (op-&gt;depth &amp; 31) {</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : #ifdef S_CONST</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         S |= S&lt;&lt;16;</span></span>
+<span id="L211"><span class="lineNum">     211</span>              : #endif /* !defined(S_CONST) */</span>
+<span id="L212"><span class="lineNum">     212</span>              : #ifdef T_CONST</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         T |= T&lt;&lt;16;</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : #endif /* !defined(T_CONST) */</span>
+<span id="L215"><span class="lineNum">     215</span>              :     }</span>
+<span id="L216"><span class="lineNum">     216</span>              : #endif /* CHUNKSIZE &gt; 16 */</span>
+<span id="L217"><span class="lineNum">     217</span>              : #endif /* defined(S_CONST) || defined(T_CONST) */</span>
+<span id="L218"><span class="lineNum">     218</span>              : </span>
+<span id="L219"><span class="lineNum">     219</span>              :     /* Note #1: This mirrors what the original code did, but I think it has</span>
+<span id="L220"><span class="lineNum">     220</span>              :      * the risk of moving s and t back beyond officially allocated space. We</span>
+<span id="L221"><span class="lineNum">     221</span>              :      * may be saved by the fact that all blocks have a word or two in front</span>
+<span id="L222"><span class="lineNum">     222</span>              :      * of them due to the allocator. If we ever get valgrind properly marking</span>
+<span id="L223"><span class="lineNum">     223</span>              :      * allocated blocks as readable etc, then this may throw some spurious</span>
+<span id="L224"><span class="lineNum">     224</span>              :      * errors. RJW. */</span>
+<span id="L225"><span class="lineNum">     225</span>              : #ifdef S_SKEW</span>
+<span id="L226"><span class="lineNum">     226</span>              :     {</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         int slen, slen2;</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         int spos = op-&gt;s.b.pos;</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         ADJUST_TO_CHUNK(s, spos);</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         s_skew = spos - dpos;</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         if (s_skew &lt; 0) {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :             s_skew += CHUNKSIZE;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :             s--;</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :             skewflags |= 1; /* Suppress reading off left edge */</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :         }</span>
+<span id="L236"><span class="lineNum">     236</span>              :         /* We are allowed to read all the data bits, so: len - dpos + tpos</span>
+<span id="L237"><span class="lineNum">     237</span>              :          * We're allowed to read in CHUNKS, so: CHUNKUP(len-dpos+tpos).</span>
+<span id="L238"><span class="lineNum">     238</span>              :          * This code will actually read CHUNKUP(len)+CHUNKSIZE bits. If</span>
+<span id="L239"><span class="lineNum">     239</span>              :          * This is larger, then suppress. */</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         slen  = (len + s_skew    + CHUNKSIZE-1) &amp; ~(CHUNKSIZE-1);</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         slen2 = (len + CHUNKSIZE + CHUNKSIZE-1) &amp; ~(CHUNKSIZE-1);</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         if ((s_skew == 0) || (slen &lt; slen2)) {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :             skewflags |= 4; /* Suppress reading off the right edge */</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :         }</span>
+<span id="L245"><span class="lineNum">     245</span>              :     }</span>
+<span id="L246"><span class="lineNum">     246</span>              : #endif /* !defined(S_SKEW) */</span>
+<span id="L247"><span class="lineNum">     247</span>              : #ifdef T_SKEW</span>
+<span id="L248"><span class="lineNum">     248</span>              :     {</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         int tlen, tlen2;</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         int tpos = op-&gt;t.b.pos;</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         ADJUST_TO_CHUNK(t, tpos);</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         t_skew = tpos - dpos;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         if (t_skew &lt; 0) {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :             t_skew += CHUNKSIZE;</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :             t--;</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :             skewflags |= 2; /* Suppress reading off left edge */</span></span>
+<span id="L257"><span class="lineNum">     257</span>              :         }</span>
+<span id="L258"><span class="lineNum">     258</span>              :         /* We are allowed to read all the data bits, so: len - dpos + tpos</span>
+<span id="L259"><span class="lineNum">     259</span>              :          * We're allowed to read in CHUNKS, so: CHUNKUP(len-dpos+tpos).</span>
+<span id="L260"><span class="lineNum">     260</span>              :          * This code will actually read CHUNKUP(len)+CHUNKSIZE bits. If</span>
+<span id="L261"><span class="lineNum">     261</span>              :          * This is larger, then suppress. */</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         tlen  = (len + t_skew    + CHUNKSIZE-1) &amp; ~(CHUNKSIZE-1);</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         tlen2 = (len + CHUNKSIZE + CHUNKSIZE-1) &amp; ~(CHUNKSIZE-1);</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         if ((t_skew == 0) || (tlen &lt; tlen2)) {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :             skewflags |= 8; /* Suppress reading off the right edge */</span></span>
+<span id="L266"><span class="lineNum">     266</span>              :         }</span>
+<span id="L267"><span class="lineNum">     267</span>              :     }</span>
+<span id="L268"><span class="lineNum">     268</span>              : #endif /* !defined(T_SKEW) */</span>
+<span id="L269"><span class="lineNum">     269</span>              : </span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :     len -= CHUNKSIZE; /* len = bytes to do - CHUNKSIZE */</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :     /* len &lt;= 0 means 1 word or less to do */</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :     if (len &lt;= 0) {</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :         /* Short case - starts and ends in the same chunk */</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         lmask &amp;= ~rmask; /* Combined mask = bits to alter */</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         SAFE_FETCH_S(skewflags &amp; 1,skewflags &amp; 4);</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         SAFE_FETCH_T(skewflags &amp; 2,skewflags &amp; 8);</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         SPECIFIC_CODE(D, *d, S, T);</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         *d = (*d &amp; ~lmask) | (D &amp; lmask);</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         return;</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :     }</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :     if ((lmask != CHUNKONES)</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : #if defined(S_SKEW) || defined(T_SKEW)</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         || (skewflags &amp; 3)</span></span>
+<span id="L284"><span class="lineNum">     284</span>              : #endif</span>
+<span id="L285"><span class="lineNum">     285</span>              :         ) {</span>
+<span id="L286"><span class="lineNum">     286</span>              :         /* Unaligned left hand case */</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         SAFE_FETCH_S(skewflags &amp; 1,s_skew == 0);</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         SAFE_FETCH_T(skewflags &amp; 2,t_skew == 0);</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         SPECIFIC_CODE(D, *d, S, T);</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         *d = (*d &amp; ~lmask) | (D &amp; lmask);</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         d++;</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         len -= CHUNKSIZE;</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :     }</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :     if (len &gt; 0) {</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :         /* Simple middle case (complete destination chunks). */</span>
+<span id="L296"><span class="lineNum">     296</span>              : #ifdef S_SKEW</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :         if (s_skew == 0) {</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : #ifdef T_SKEW</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :             if (t_skew == 0) {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                 do {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                     SPECIFIC_CODE(*d, *d, *s++, *t++);</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                     d++;</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                     len -= CHUNKSIZE;</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 } while (len &gt; 0);</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :             } else</span>
+<span id="L306"><span class="lineNum">     306</span>              : #endif /* !defined(T_SKEW) */</span>
+<span id="L307"><span class="lineNum">     307</span>              :             {</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 do {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                     FETCH_T;</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                     SPECIFIC_CODE(*d, *d, *s++, T);</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                     d++;</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                     len -= CHUNKSIZE;</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 } while (len &gt; 0);</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :             }</span>
+<span id="L315"><span class="lineNum">     315</span>              :         } else</span>
+<span id="L316"><span class="lineNum">     316</span>              : #endif /* !defined(S_SKEW) */</span>
+<span id="L317"><span class="lineNum">     317</span>              :         {</span>
+<span id="L318"><span class="lineNum">     318</span>              : #ifdef T_SKEW</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :             if (t_skew == 0) {</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 do {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                     FETCH_S;</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                     SPECIFIC_CODE(*d, *d, S, *t++);</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                     d++;</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                     len -= CHUNKSIZE;</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 } while (len &gt; 0);</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :             } else</span>
+<span id="L327"><span class="lineNum">     327</span>              : #endif /* !defined(T_SKEW) */</span>
+<span id="L328"><span class="lineNum">     328</span>              :             {</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 do {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                     FETCH_S;</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                     FETCH_T;</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                     SPECIFIC_CODE(*d, *d, S, T);</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                     d++;</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                     len -= CHUNKSIZE;</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 } while (len &gt; 0);</span></span>
+<span id="L336"><span class="lineNum">     336</span>              :             }</span>
+<span id="L337"><span class="lineNum">     337</span>              :         }</span>
+<span id="L338"><span class="lineNum">     338</span>              :     }</span>
+<span id="L339"><span class="lineNum">     339</span>              :     /* Unaligned right hand case */</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :     SAFE_FETCH_S(0,skewflags &amp; 4);</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :     SAFE_FETCH_T(0,skewflags &amp; 8);</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :     SPECIFIC_CODE(D, *d, S, T);</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :     *d = (*d &amp; rmask) | (D &amp; ~rmask);</span></span>
+<span id="L344"><span class="lineNum">     344</span>              : }</span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span>              : #undef ADJUST_TO_CHUNK</span>
+<span id="L347"><span class="lineNum">     347</span>              : #undef CHUNKSIZE</span>
+<span id="L348"><span class="lineNum">     348</span>              : #undef CHUNK</span>
+<span id="L349"><span class="lineNum">     349</span>              : #undef CHUNKONES</span>
+<span id="L350"><span class="lineNum">     350</span>              : #undef FETCH_S</span>
+<span id="L351"><span class="lineNum">     351</span>              : #undef FETCH_T</span>
+<span id="L352"><span class="lineNum">     352</span>              : #undef SAFE_FETCH_S</span>
+<span id="L353"><span class="lineNum">     353</span>              : #undef SAFE_FETCH_T</span>
+<span id="L354"><span class="lineNum">     354</span>              : #undef RE</span>
+<span id="L355"><span class="lineNum">     355</span>              : #undef S</span>
+<span id="L356"><span class="lineNum">     356</span>              : #undef S_USED</span>
+<span id="L357"><span class="lineNum">     357</span>              : #undef S_CONST</span>
+<span id="L358"><span class="lineNum">     358</span>              : #undef S_SKEW</span>
+<span id="L359"><span class="lineNum">     359</span>              : #undef SKEW_FETCH</span>
+<span id="L360"><span class="lineNum">     360</span>              : #undef SAFE_SKEW_FETCH</span>
+<span id="L361"><span class="lineNum">     361</span>              : #undef SPECIFIC_CODE</span>
+<span id="L362"><span class="lineNum">     362</span>              : #undef SPECIFIC_ROP</span>
+<span id="L363"><span class="lineNum">     363</span>              : #undef T</span>
+<span id="L364"><span class="lineNum">     364</span>              : #undef T_USED</span>
+<span id="L365"><span class="lineNum">     365</span>              : #undef T_CONST</span>
+<span id="L366"><span class="lineNum">     366</span>              : #undef T_SKEW</span>
+<span id="L367"><span class="lineNum">     367</span>              : #undef TEMPLATE_NAME</span>
+<span id="L368"><span class="lineNum">     368</span>              : #undef ROP_PTRDIFF_T</span>
+<span id="L369"><span class="lineNum">     369</span>              : </span>
+<span id="L370"><span class="lineNum">     370</span>              : #else</span>
+<span id="L371"><span class="lineNum">     371</span>              : int dummy;</span>
+<span id="L372"><span class="lineNum">     372</span>              : #endif</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

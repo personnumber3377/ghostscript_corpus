@@ -1,0 +1,275 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/base/gsicc_profilecache.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/base</a> - gsicc_profilecache.c<span style="font-size: 80%;"> (source / <a href="gsicc_profilecache.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">53.8&nbsp;%</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">35</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">3</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : /*  A cache for icc colorspaces that  were created from PS CIE color</span>
+<span id="L17"><span class="lineNum">      17</span>              :     spaces or from PDF cal color spaces.</span>
+<span id="L18"><span class="lineNum">      18</span>              : */</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;std.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;stdpre.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;gstypes.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;gsmemory.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;gsstruct.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;scommon.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;gx.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;gzstate.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;gscms.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;gsicc_profilecache.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;gserrors.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;assert_.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : #define ICC_CACHE_MAXPROFILE 50</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : /* Static prototypes */</span>
+<span id="L36"><span class="lineNum">      36</span>              : static void rc_gsicc_profile_cache_free(gs_memory_t * mem, void *ptr_in,</span>
+<span id="L37"><span class="lineNum">      37</span>              :                                         client_name_t cname);</span>
+<span id="L38"><span class="lineNum">      38</span>              : static void gsicc_remove_cs_entry(gsicc_profile_cache_t *profile_cache);</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : gs_private_st_ptrs2(st_profile_entry, gsicc_profile_entry_t,</span>
+<span id="L41"><span class="lineNum">      41</span>              :                     &quot;gsicc_profile_entry&quot;, profile_entry_enum_ptrs,</span>
+<span id="L42"><span class="lineNum">      42</span>              :                     profile_entry_reloc_ptrs, color_space, next);</span>
+<span id="L43"><span class="lineNum">      43</span>              : gs_private_st_ptrs1(st_profile_cache, gsicc_profile_cache_t,</span>
+<span id="L44"><span class="lineNum">      44</span>              :                     &quot;gsicc_profile_cache&quot;, profile_list_enum_ptrs,</span>
+<span id="L45"><span class="lineNum">      45</span>              :                     profile_list_reloc_ptrs, head);</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : /**</span>
+<span id="L48"><span class="lineNum">      48</span>              :  * gsicc_cache_new: Allocate a new ICC cache manager</span>
+<span id="L49"><span class="lineNum">      49</span>              :  * Return value: Pointer to allocated manager, or NULL on failure.</span>
+<span id="L50"><span class="lineNum">      50</span>              :  **/</span>
+<span id="L51"><span class="lineNum">      51</span>              : gsicc_profile_cache_t *</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">        9841 : gsicc_profilecache_new(gs_memory_t *memory)</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : {</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">        9841 :     gsicc_profile_cache_t *result;</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              :     /* We want this to be maintained in stable_memory.  It should not be effected by the</span>
+<span id="L57"><span class="lineNum">      57</span>              :        save and restores */</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">        9841 :     memory = memory-&gt;stable_memory;</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">        9841 :     result = gs_alloc_struct(memory, gsicc_profile_cache_t,</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :                              &amp;st_profile_cache, &quot;gsicc_profilecache_new&quot;);</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">        9841 :     if ( result == NULL )</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         return(NULL);</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">        9841 :     rc_init_free(result, memory, 1, rc_gsicc_profile_cache_free);</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">        9841 :     result-&gt;head = NULL;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">        9841 :     result-&gt;num_entries = 0;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">        9841 :     result-&gt;memory = memory;</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">        9841 :     return(result);</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : static void</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 : rc_gsicc_profile_cache_free(gs_memory_t * mem, void *ptr_in, client_name_t cname)</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : {</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :     gsicc_profile_cache_t *profile_cache = (gsicc_profile_cache_t * ) ptr_in;</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     gsicc_profile_entry_t *curr = profile_cache-&gt;head, *next;</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     assert(mem-&gt;stable_memory == profile_cache-&gt;memory);</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     while (curr != NULL ){</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         next = curr-&gt;next;</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         rc_decrement(curr-&gt;color_space, &quot;rc_gsicc_profile_cache_free&quot;);</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         gs_free_object(profile_cache-&gt;memory, curr,</span></span>
+<span id="L81"><span class="lineNum">      81</span>              :                        &quot;rc_gsicc_profile_cache_free&quot;);</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         profile_cache-&gt;num_entries--;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         curr = next;</span></span>
+<span id="L84"><span class="lineNum">      84</span>              :     }</span>
+<span id="L85"><span class="lineNum">      85</span>              : #ifdef DEBUG</span>
+<span id="L86"><span class="lineNum">      86</span>              :     if (profile_cache-&gt;num_entries != 0)</span>
+<span id="L87"><span class="lineNum">      87</span>              :         emprintf1(mem,&quot;gsicc_profile_cache_free, num_entries is %d (should be 0).\n&quot;,</span>
+<span id="L88"><span class="lineNum">      88</span>              :                   profile_cache-&gt;num_entries);</span>
+<span id="L89"><span class="lineNum">      89</span>              : #endif</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :     gs_free_object(profile_cache-&gt;memory, profile_cache,</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :                    &quot;rc_gsicc_profile_cache_free&quot;);</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : int</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">           4 : gsicc_add_cs(gs_gstate * pgs, gs_color_space * colorspace, uint64_t dictkey)</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : {</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           4 :     gsicc_profile_entry_t *result;</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           4 :     gsicc_profile_cache_t *profile_cache = pgs-&gt;icc_profile_cache;</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           4 :     gs_memory_t *memory =  profile_cache-&gt;memory;</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : </span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           4 :     if (dictkey == 0)</span></span>
+<span id="L102"><span class="lineNum">     102</span>              :         return 0;</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              :     /* The entry has to be added in stable memory. We want them</span>
+<span id="L105"><span class="lineNum">     105</span>              :        to be maintained across the gsave and grestore process */</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           4 :     result = gs_alloc_struct(memory, gsicc_profile_entry_t,</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                              &amp;st_profile_entry, &quot;gsicc_add_cs&quot;);</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           4 :     if (result == NULL)</span></span>
+<span id="L109"><span class="lineNum">     109</span>              :         return_error(gs_error_VMerror);</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              :     /* If needed, remove an entry (the last one) */</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           4 :     if (profile_cache-&gt;num_entries &gt;= ICC_CACHE_MAXPROFILE) {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 :         gsicc_remove_cs_entry(profile_cache);</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :     }</span>
+<span id="L115"><span class="lineNum">     115</span>              :     /* Add to the top of the list. That way we find the MRU enty right away.</span>
+<span id="L116"><span class="lineNum">     116</span>              :        Last entry stays the same. */</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           4 :     result-&gt;next = profile_cache-&gt;head;</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           4 :     profile_cache-&gt;head = result; /* MRU */</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           4 :     result-&gt;color_space = colorspace;</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           4 :     rc_increment(colorspace);</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           4 :     result-&gt;key = dictkey;</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           4 :     if_debug2m(gs_debug_flag_icc, memory,</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :                &quot;[icc] Add cs to cache = &quot;PRI_INTPTR&quot;, hash = %&quot;PRIu64&quot;\n&quot;,</span>
+<span id="L124"><span class="lineNum">     124</span>              :                (intptr_t)result-&gt;color_space, (uint64_t)result-&gt;key);</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           4 :     profile_cache-&gt;num_entries++;</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           4 :     return 0;</span></span>
+<span id="L127"><span class="lineNum">     127</span>              : }</span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              : gs_color_space*</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">         800 : gsicc_find_cs(uint64_t key_test, gs_gstate * pgs)</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : {</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">         800 :     gsicc_profile_cache_t *profile_cache = pgs-&gt;icc_profile_cache;</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">         800 :     gsicc_profile_entry_t *prev = NULL, *curr = profile_cache-&gt;head;</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         800 :     if (key_test == 0)</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :         return NULL;</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              :     /* Look through the cache for the key. If found, move to MRU */</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">         800 :     while (curr != NULL ){</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">         796 :         if (curr-&gt;key == key_test){</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">         796 :             if_debug2m(gs_debug_flag_icc, pgs-&gt;memory,</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :                        &quot;[icc] Found cs = &quot;PRI_INTPTR&quot;, hash = %&quot;PRIu64&quot;\n&quot;,</span>
+<span id="L143"><span class="lineNum">     143</span>              :                        (intptr_t)curr-&gt;color_space, (uint64_t)curr-&gt;key);</span>
+<span id="L144"><span class="lineNum">     144</span>              :             /* If not already at head of list, move this one there */</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">         796 :             if (curr != profile_cache-&gt;head) {</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :                 /* We need to move found one to the top of the list. */</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 prev-&gt;next = curr-&gt;next;</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 curr-&gt;next = profile_cache-&gt;head;</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 profile_cache-&gt;head = curr;</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :             }</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">         796 :             return(curr-&gt;color_space);</span></span>
+<span id="L152"><span class="lineNum">     152</span>              :         }</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC tlaBgUNC">           0 :         prev = curr;</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         curr = curr-&gt;next;</span></span>
+<span id="L155"><span class="lineNum">     155</span>              :     }</span>
+<span id="L156"><span class="lineNum">     156</span>              :     return(NULL);</span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : /* Remove the LRU entry, which ideally is at the bottom. Note that there</span>
+<span id="L160"><span class="lineNum">     160</span>              :    is no need to have a ref_count in this structure since the color</span>
+<span id="L161"><span class="lineNum">     161</span>              :    space objects that are the member variables are reference counted themselves */</span>
+<span id="L162"><span class="lineNum">     162</span>              : static void</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 : gsicc_remove_cs_entry(gsicc_profile_cache_t *profile_cache)</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :     gs_memory_t *memory = profile_cache-&gt;memory;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :     gsicc_profile_entry_t *prev = NULL, *curr = profile_cache-&gt;head;</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : #ifdef DEBUG</span>
+<span id="L169"><span class="lineNum">     169</span>              :     if (curr == NULL) {</span>
+<span id="L170"><span class="lineNum">     170</span>              :         emprintf(memory, &quot; attempt to remove from an empty profile cache.\n&quot;);</span>
+<span id="L171"><span class="lineNum">     171</span>              :         return; /* gs_abort(); */</span>
+<span id="L172"><span class="lineNum">     172</span>              :     }</span>
+<span id="L173"><span class="lineNum">     173</span>              : #endif</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     while (curr-&gt;next != NULL) {</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :         prev = curr;</span>
+<span id="L176"><span class="lineNum">     176</span>              :         curr = curr-&gt;next;</span>
+<span id="L177"><span class="lineNum">     177</span>              :     }</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :     profile_cache-&gt;num_entries--;</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :     if (prev == NULL) {</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :         /* No more entries */</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         profile_cache-&gt;head = NULL;</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : #ifdef DEBUG</span>
+<span id="L183"><span class="lineNum">     183</span>              :     if (profile_cache-&gt;num_entries != 0) {</span>
+<span id="L184"><span class="lineNum">     184</span>              :         emprintf1(memory, &quot;profile cache list empty, but list has num_entries=%d.\n&quot;,</span>
+<span id="L185"><span class="lineNum">     185</span>              :                   profile_cache-&gt;num_entries);</span>
+<span id="L186"><span class="lineNum">     186</span>              :     }</span>
+<span id="L187"><span class="lineNum">     187</span>              : #endif</span>
+<span id="L188"><span class="lineNum">     188</span>              :     } else {</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         prev-&gt;next = NULL;   /* new tail */</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :     }</span>
+<span id="L191"><span class="lineNum">     191</span>              :     /* Decremented, but someone could still be referencing this */</span>
+<span id="L192"><span class="lineNum">     192</span>              :     /* If found again in the source document, it will be regenerated</span>
+<span id="L193"><span class="lineNum">     193</span>              :        and added back into the cache. */</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :     if_debug2m(gs_debug_flag_icc, memory,</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :                &quot;[icc] Remove cs from cache = &quot;PRI_INTPTR&quot;, hash = %&quot;PRIu64&quot;\n&quot;,</span>
+<span id="L196"><span class="lineNum">     196</span>              :                (intptr_t)curr-&gt;color_space, (uint64_t)curr-&gt;key);</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     rc_decrement(curr-&gt;color_space, &quot;gsicc_remove_cs_entry&quot;);</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     gs_free_object(memory, curr, &quot;gsicc_remove_cs_entry&quot;);</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -1,0 +1,1192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/zcontrol.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - zcontrol.c<span style="font-size: 80%;"> (source / <a href="zcontrol.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">71.2&nbsp;%</td>
+            <td class="headerCovTableEntry">539</td>
+            <td class="headerCovTableEntry">384</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryLo">73.3&nbsp;%</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">33</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2025 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Control operators */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;string_.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;stream.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;oper.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;estack.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;files.h&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;ipacked.h&quot;</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;iutil.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;store.h&quot;</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;interp.h&quot;</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : /* Forward references */</span>
+<span id="L30"><span class="lineNum">      30</span>              : static int check_for_exec(const_os_ptr);</span>
+<span id="L31"><span class="lineNum">      31</span>              : static int no_cleanup(i_ctx_t *);</span>
+<span id="L32"><span class="lineNum">      32</span>              : static uint count_exec_stack(i_ctx_t *, bool);</span>
+<span id="L33"><span class="lineNum">      33</span>              : static uint count_to_stopped(i_ctx_t *, long);</span>
+<span id="L34"><span class="lineNum">      34</span>              : static int unmatched_exit(os_ptr, op_proc_t);</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : /* See the comment in opdef.h for an invariant which allows */</span>
+<span id="L37"><span class="lineNum">      37</span>              : /* more efficient implementation of for, loop, and repeat. */</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : /* &lt;[test0 body0 ...]&gt; .cond - */</span>
+<span id="L40"><span class="lineNum">      40</span>              : static int cond_continue(i_ctx_t *);</span>
+<span id="L41"><span class="lineNum">      41</span>              : static int</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 : zcond(i_ctx_t *i_ctx_p)</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : {</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     es_ptr ep = esp;</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     check_op(1);</span></span>
+<span id="L48"><span class="lineNum">      48</span>              :     /* Push the array on the e-stack and call the continuation. */</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :     if (!r_is_array(op))</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         return_op_typecheck(op);</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     check_execute(*op);</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     if ((r_size(op) &amp; 1) != 0)</span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :     if (r_size(op) == 0)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         return zpop(i_ctx_p);</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :     check_estack(3);</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :     esp = ep += 3;</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :     ref_assign(ep - 2, op);     /* the cond body */</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :     make_op_estack(ep - 1, cond_continue);</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :     array_get(imemory, op, 0L, ep);</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     esfile_check_cache();</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :     pop(1);</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     return o_push_estack;</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L65"><span class="lineNum">      65</span>              : static int</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 : cond_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : {</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :     es_ptr ep = esp;</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :     check_op(1);</span></span>
+<span id="L73"><span class="lineNum">      73</span>              :     /* The top element of the e-stack is the remaining tail of */</span>
+<span id="L74"><span class="lineNum">      74</span>              :     /* the cond body.  The top element of the o-stack should be */</span>
+<span id="L75"><span class="lineNum">      75</span>              :     /* the (boolean) result of the test that is the first element */</span>
+<span id="L76"><span class="lineNum">      76</span>              :     /* of the tail. */</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     check_type(*op, t_boolean);</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     if (op-&gt;value.boolval) { /* true */</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         array_get(imemory, ep, 1L, ep);</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         esfile_check_cache();</span></span>
+<span id="L81"><span class="lineNum">      81</span>              :         code = o_pop_estack;</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :     } else if (r_size(ep) &gt; 2) {     /* false */</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         const ref_packed *elts = ep-&gt;value.packed;</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : </span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         check_estack(2);</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         ep = esp;</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         r_dec_size(ep, 2);</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         elts = packed_next(elts);</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         elts = packed_next(elts);</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         ep-&gt;value.packed = elts;</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         array_get(imemory, ep, 0L, ep + 2);</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         make_op_estack(ep + 1, cond_continue);</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         esp = ep + 2;</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         esfile_check_cache();</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :         code = o_push_estack;</span>
+<span id="L96"><span class="lineNum">      96</span>              :     } else {                    /* fall off end of cond */</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :         esp = ep - 1;</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         code = o_pop_estack;</span></span>
+<span id="L99"><span class="lineNum">      99</span>              :     }</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :     pop(1);                     /* get rid of the boolean */</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : }</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : /* &lt;obj&gt; exec - */</span>
+<span id="L105"><span class="lineNum">     105</span>              : int</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC tlaBgGNC">   117381456 : zexec(i_ctx_t *i_ctx_p)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : {</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">   117381456 :     os_ptr op = osp;</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">   117381456 :     int code;</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">   117381456 :     check_op(1);</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">   117381444 :     code = check_for_exec(op);</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">   117381444 :     if (code &lt; 0) {</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :         return code;</span>
+<span id="L115"><span class="lineNum">     115</span>              :     }</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">   117381442 :     if (!r_has_attr(op, a_executable)) {</span></span>
+<span id="L117"><span class="lineNum">     117</span>              :         return 0;       /* shortcut, literal object just gets pushed back */</span>
+<span id="L118"><span class="lineNum">     118</span>              :     }</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">   116939923 :     check_estack(1);</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">   116939879 :     ++esp;</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">   116939879 :     ref_assign(esp, op);</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">   116939879 :     esfile_check_cache();</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">   116939879 :     pop(1);</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">   116939879 :     return o_push_estack;</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : }</span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              : /* &lt;obj1&gt; ... &lt;objn&gt; &lt;n&gt; .execn - */</span>
+<span id="L128"><span class="lineNum">     128</span>              : static int</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">      105688 : zexecn(i_ctx_t *i_ctx_p)</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : {</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">      105688 :     os_ptr op = osp;</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">      105688 :     uint n, i;</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">      105688 :     es_ptr esp_orig;</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">      105688 :     check_op(1);</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">      105688 :     check_int_leu(*op, max_uint - 1);</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">      105688 :     n = (uint) op-&gt;value.intval;</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">      105688 :     check_op(n + 1);</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">      105688 :     check_estack(n);</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">      105688 :     esp_orig = esp;</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">      460957 :     for (i = 0; i &lt; n; ++i) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">      355269 :         const ref *rp = ref_stack_index(&amp;o_stack, (long)(i + 1));</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">      355269 :         if (rp == NULL)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :             continue;</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : </span>
+<span id="L147"><span class="lineNum">     147</span>              :         /* Make sure this object is legal to execute. */</span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC tlaBgGNC">      355269 :         if (ref_type_uses_access(r_type(rp))) {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">      144051 :             if (!r_has_attr(rp, a_execute) &amp;&amp;</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :                 r_has_attr(rp, a_executable)</span>
+<span id="L151"><span class="lineNum">     151</span>              :                 ) {</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC tlaBgUNC">           0 :                 esp = esp_orig;</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 return_error(gs_error_invalidaccess);</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :             }</span>
+<span id="L155"><span class="lineNum">     155</span>              :         }</span>
+<span id="L156"><span class="lineNum">     156</span>              :         /* Executable nulls have a special meaning on the e-stack, */</span>
+<span id="L157"><span class="lineNum">     157</span>              :         /* so since they are no-ops, don't push them. */</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">      355269 :         if (!r_has_type_attrs(rp, t_null, a_executable)) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">      355269 :             ++esp;</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">      355269 :             ref_assign(esp, rp);</span></span>
+<span id="L161"><span class="lineNum">     161</span>              :         }</span>
+<span id="L162"><span class="lineNum">     162</span>              :     }</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">      105688 :     esfile_check_cache();</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">      105688 :     pop(n + 1);</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">      105688 :     return o_push_estack;</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : /* &lt;array&gt; &lt;executable&gt; .runandhide &lt;obj&gt;                             */</span>
+<span id="L169"><span class="lineNum">     169</span>              : /*      before executing  &lt;executable&gt;, &lt;array&gt; is been removed from        */</span>
+<span id="L170"><span class="lineNum">     170</span>              : /*      the operand stack and placed on the execstack with attributes   */</span>
+<span id="L171"><span class="lineNum">     171</span>              : /*      changed to 'noaccess'.                                          */</span>
+<span id="L172"><span class="lineNum">     172</span>              : /*      After execution, the array will be placed on  the top of the    */</span>
+<span id="L173"><span class="lineNum">     173</span>              : /*      operand stack (on top of any elemetns pushed by &lt;executable&gt;      */</span>
+<span id="L174"><span class="lineNum">     174</span>              : /*      for both the normal case and for the error case.                */</span>
+<span id="L175"><span class="lineNum">     175</span>              : static int end_runandhide(i_ctx_t *);</span>
+<span id="L176"><span class="lineNum">     176</span>              : static int err_end_runandhide(i_ctx_t *);</span>
+<span id="L177"><span class="lineNum">     177</span>              : static int</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 : zrunandhide(i_ctx_t *i_ctx_p)</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     es_ptr ep;</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : </span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :     if (!r_is_array(op - 1))</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         return_op_typecheck(op);</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :     if (!r_has_attr(op, a_executable))</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         return 0;               /* literal object just gets pushed back */</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :     check_estack(5);</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     ep = esp += 5;</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :     make_mark_estack(ep - 4, es_other, err_end_runandhide); /* error case */</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :     make_op_estack(ep - 1,  end_runandhide); /* normal case */</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :     ref_assign(ep, op);</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :     /* Store the object we are hiding  and it's current tas.type_attrs */</span>
+<span id="L194"><span class="lineNum">     194</span>              :     /* on the exec stack then change to 'noaccess' */</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     make_int(ep - 3, (int)op[-1].tas.type_attrs);</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :     ref_assign(ep - 2, op - 1);</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     r_clear_attrs(ep - 2, a_all);</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :     /* replace the array with a special kind of mark that has a_read access */</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :     esfile_check_cache();</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :     pop(2);</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     return o_push_estack;</span></span>
+<span id="L202"><span class="lineNum">     202</span>              : }</span>
+<span id="L203"><span class="lineNum">     203</span>              : static int</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 : runandhide_restore_hidden(i_ctx_t *i_ctx_p, ref *obj, ref *attrs)</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : {</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     push(1);</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :     /* restore the hidden_object and its type_attrs */</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     ref_assign(op, obj);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     r_clear_attrs(op, a_all);</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :     r_set_attrs(op, attrs-&gt;value.intval);</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : /* - %end_runandhide hiddenobject */</span>
+<span id="L217"><span class="lineNum">     217</span>              : static int</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 : end_runandhide(i_ctx_t *i_ctx_p)</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : {</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :     if ((code = runandhide_restore_hidden(i_ctx_p, esp, esp - 1)) &lt; 0) {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         esp -= 2;</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         return code;</span></span>
+<span id="L225"><span class="lineNum">     225</span>              :     }</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :     esp -= 2;           /* pop the hidden value and its atributes */</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :     return o_pop_estack;</span></span>
+<span id="L228"><span class="lineNum">     228</span>              : }</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span>              : /* restore hidden object for error returns */</span>
+<span id="L231"><span class="lineNum">     231</span>              : static int</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : err_end_runandhide(i_ctx_t *i_ctx_p)</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :     int code;</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :     if ((code = runandhide_restore_hidden(i_ctx_p, esp + 3, esp + 2)) &lt; 0)</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :         return code;</span>
+<span id="L238"><span class="lineNum">     238</span>              :     return 0;</span>
+<span id="L239"><span class="lineNum">     239</span>              : }</span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span>              : /* &lt;bool&gt; &lt;proc&gt; if - */</span>
+<span id="L242"><span class="lineNum">     242</span>              : int</span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 : zif(i_ctx_t *i_ctx_p)</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : {</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :     check_proc(*op);</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :     check_type(op[-1], t_boolean);</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :     if (op[-1].value.boolval) {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         check_estack(1);</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         ++esp;</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         ref_assign(esp, op);</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         esfile_check_cache();</span></span>
+<span id="L255"><span class="lineNum">     255</span>              :     }</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :     pop(2);</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :     return o_push_estack;</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : /* &lt;bool&gt; &lt;proc_true&gt; &lt;proc_false&gt; ifelse - */</span>
+<span id="L261"><span class="lineNum">     261</span>              : int</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 : zifelse(i_ctx_t *i_ctx_p)</span></span>
+<span id="L263"><span class="lineNum">     263</span>              : {</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : </span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :     check_op(3);</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :     check_proc(*op);</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :     check_proc(op[-1]);</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :     check_type(op[-2], t_boolean);</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :     check_estack(1);</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :     ++esp;</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :     if (op[-2].value.boolval) {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         ref_assign(esp, op - 1);</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :     } else {</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         ref_assign(esp, op);</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :     }</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :     esfile_check_cache();</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :     pop(3);</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :     return o_push_estack;</span></span>
+<span id="L280"><span class="lineNum">     280</span>              : }</span>
+<span id="L281"><span class="lineNum">     281</span>              : </span>
+<span id="L282"><span class="lineNum">     282</span>              : /* &lt;init&gt; &lt;step&gt; &lt;limit&gt; &lt;proc&gt; for - */</span>
+<span id="L283"><span class="lineNum">     283</span>              : static int</span>
+<span id="L284"><span class="lineNum">     284</span>              :     for_pos_int_continue(i_ctx_t *),</span>
+<span id="L285"><span class="lineNum">     285</span>              :     for_neg_int_continue(i_ctx_t *),</span>
+<span id="L286"><span class="lineNum">     286</span>              :     for_real_continue(i_ctx_t *);</span>
+<span id="L287"><span class="lineNum">     287</span>              : int</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">     1677186 : zfor(i_ctx_t *i_ctx_p)</span></span>
+<span id="L289"><span class="lineNum">     289</span>              : {</span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">     1677186 :     os_ptr op = osp;</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">     1677186 :     register es_ptr ep;</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">     1677186 :     int code;</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">     1677186 :     float params[3];</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">     1677186 :     check_op(4);</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :         /* Mostly undocumented, and somewhat bizarre Adobe behavior discovered  */</span>
+<span id="L297"><span class="lineNum">     297</span>              :         /* with the CET (28-05) and FTS (124-01) is that the proc is not run    */</span>
+<span id="L298"><span class="lineNum">     298</span>              :         /* if BOTH the initial value and increment are zero.                    */</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">     1677172 :     if ((code = float_params(op - 1, 3, params)) &lt; 0)</span></span>
+<span id="L300"><span class="lineNum">     300</span>              :         return code;</span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">     1677172 :     if ( params[0] == 0.0 &amp;&amp; params[1] == 0.0 ) {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         pop(4);         /* don't run the proc */</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           2 :         return 0;</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :     }</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">     1677170 :     check_estack(7);</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">     1677170 :     ep = esp + 6;</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">     1677170 :     check_proc(*op);</span></span>
+<span id="L308"><span class="lineNum">     308</span>              :     /* Push a mark, the control variable set to the initial value, */</span>
+<span id="L309"><span class="lineNum">     309</span>              :     /* the increment, the limit, and the procedure, */</span>
+<span id="L310"><span class="lineNum">     310</span>              :     /* and invoke the continuation operator. */</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">     1677168 :     if (r_has_type(op - 3, t_integer) &amp;&amp;</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">     1676090 :         r_has_type(op - 2, t_integer)</span></span>
+<span id="L313"><span class="lineNum">     313</span>              :         ) {</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">     1675222 :         make_int(ep - 4, op[-3].value.intval);</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">     1675222 :         make_int(ep - 3, op[-2].value.intval);</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">     1675222 :         switch (r_type(op - 1)) {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">     1673414 :             case t_integer:</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">     1673414 :                 make_int(ep - 2, op[-1].value.intval);</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">     1673414 :                 break;</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">        1808 :             case t_real:</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">        1808 :                 make_int(ep - 2, (ps_int)op[-1].value.realval);</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">        1808 :                 break;</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC tlaBgUNC">           0 :             default:</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 return_op_typecheck(op - 1);</span></span>
+<span id="L325"><span class="lineNum">     325</span>              :         }</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC tlaBgGNC">     1675222 :         if (ep[-3].value.intval &gt;= 0)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">      390794 :             make_op_estack(ep, for_pos_int_continue);</span></span>
+<span id="L328"><span class="lineNum">     328</span>              :         else</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">     1284428 :             make_op_estack(ep, for_neg_int_continue);</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :     } else {</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">        1946 :         make_real(ep - 4, params[0]);</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">        1946 :         make_real(ep - 3, params[1]);</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">        1946 :         make_real(ep - 2, params[2]);</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">        1946 :         make_op_estack(ep, for_real_continue);</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :     }</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">     1677168 :     make_mark_estack(ep - 5, es_for, no_cleanup);</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">     1677168 :     ref_assign(ep - 1, op);</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">     1677168 :     esp = ep;</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">     1677168 :     pop(4);</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">     1677168 :     return o_push_estack;</span></span>
+<span id="L341"><span class="lineNum">     341</span>              : }</span>
+<span id="L342"><span class="lineNum">     342</span>              : /* Continuation operators for for, separate for positive integer, */</span>
+<span id="L343"><span class="lineNum">     343</span>              : /* negative integer, and real. */</span>
+<span id="L344"><span class="lineNum">     344</span>              : /* Execution stack contains mark, control variable, increment, */</span>
+<span id="L345"><span class="lineNum">     345</span>              : /* limit, and procedure (procedure is topmost.) */</span>
+<span id="L346"><span class="lineNum">     346</span>              : /* Continuation operator for positive integers. */</span>
+<span id="L347"><span class="lineNum">     347</span>              : static int</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">    24648156 : for_pos_int_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L349"><span class="lineNum">     349</span>              : {</span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">    24648156 :     os_ptr op = osp;</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">    24648156 :     register es_ptr ep = esp;</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">    24648156 :     ps_int var = ep[-3].value.intval;</span></span>
+<span id="L353"><span class="lineNum">     353</span>              : </span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">    24648156 :     if (var &gt; ep[-1].value.intval) {</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">      384654 :         esp -= 5;               /* pop everything */</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">      384654 :         return o_pop_estack;</span></span>
+<span id="L357"><span class="lineNum">     357</span>              :     }</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">    24263502 :     push(1);</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">    24251636 :     make_int(op, var);</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">    24251636 :     ep[-3].value.intval = var + ep[-2].value.intval;</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">    24251636 :     ref_assign_inline(ep + 2, ep);      /* saved proc */</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">    24251636 :     esp = ep + 2;</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">    24251636 :     return o_push_estack;</span></span>
+<span id="L364"><span class="lineNum">     364</span>              : }</span>
+<span id="L365"><span class="lineNum">     365</span>              : /* Continuation operator for negative integers. */</span>
+<span id="L366"><span class="lineNum">     366</span>              : static int</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">    10765142 : for_neg_int_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L368"><span class="lineNum">     368</span>              : {</span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">    10765142 :     os_ptr op = osp;</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">    10765142 :     register es_ptr ep = esp;</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">    10765142 :     ps_int var = ep[-3].value.intval;</span></span>
+<span id="L372"><span class="lineNum">     372</span>              : </span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">    10765142 :     if (var &lt; ep[-1].value.intval) {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">     1272150 :         esp -= 5;               /* pop everything */</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">     1272150 :         return o_pop_estack;</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :     }</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">     9492992 :     push(1);</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">     9492514 :     make_int(op, var);</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">     9492514 :     ep[-3].value.intval = var + ep[-2].value.intval;</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">     9492514 :     ref_assign(ep + 2, ep);     /* saved proc */</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">     9492514 :     esp = ep + 2;</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">     9492514 :     return o_push_estack;</span></span>
+<span id="L383"><span class="lineNum">     383</span>              : }</span>
+<span id="L384"><span class="lineNum">     384</span>              : /* Continuation operator for reals. */</span>
+<span id="L385"><span class="lineNum">     385</span>              : static int</span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">     5224460 : for_real_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : {</span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">     5224460 :     os_ptr op = osp;</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">     5224460 :     es_ptr ep = esp;</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">     5224460 :     float var = ep[-3].value.realval;</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">     5224460 :     float incr = ep[-2].value.realval;</span></span>
+<span id="L392"><span class="lineNum">     392</span>              : </span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">    10155412 :     if (incr &gt;= 0 ? (var &gt; ep[-1].value.realval) :</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">     4930952 :         (var &lt; ep[-1].value.realval)</span></span>
+<span id="L395"><span class="lineNum">     395</span>              :         ) {</span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">        1908 :         esp -= 5;               /* pop everything */</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">        1908 :         return o_pop_estack;</span></span>
+<span id="L398"><span class="lineNum">     398</span>              :     }</span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">     5222552 :     push(1);</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">     5214792 :     ref_assign(op, ep - 3);</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">     5214792 :     ep[-3].value.realval = var + incr;</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">     5214792 :     esp = ep + 2;</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">     5214792 :     ref_assign(ep + 2, ep);     /* saved proc */</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">     5214792 :     return o_push_estack;</span></span>
+<span id="L405"><span class="lineNum">     405</span>              : }</span>
+<span id="L406"><span class="lineNum">     406</span>              : </span>
+<span id="L407"><span class="lineNum">     407</span>              : /*</span>
+<span id="L408"><span class="lineNum">     408</span>              :  * Here we provide an internal variant of 'for' that enumerates the values</span>
+<span id="L409"><span class="lineNum">     409</span>              :  * A, ((N-1)*A+1*B)/N, ((N-2)*A+2*B)/N, ..., B precisely.  The arguments are</span>
+<span id="L410"><span class="lineNum">     410</span>              :  * A (real), N (integer), and B (real).  We need this for loading caches such</span>
+<span id="L411"><span class="lineNum">     411</span>              :  * as the transfer function cache.</span>
+<span id="L412"><span class="lineNum">     412</span>              :  *</span>
+<span id="L413"><span class="lineNum">     413</span>              :  * NOTE: This computation must match the SAMPLE_LOOP_VALUE macro in gscie.h.</span>
+<span id="L414"><span class="lineNum">     414</span>              :  */</span>
+<span id="L415"><span class="lineNum">     415</span>              : static int for_samples_continue(i_ctx_t *);</span>
+<span id="L416"><span class="lineNum">     416</span>              : /* &lt;first&gt; &lt;count&gt; &lt;last&gt; &lt;proc&gt; %for_samples - */</span>
+<span id="L417"><span class="lineNum">     417</span>              : int</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">       20770 : zfor_samples(i_ctx_t *i_ctx_p)</span></span>
+<span id="L419"><span class="lineNum">     419</span>              : {</span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">       20770 :     os_ptr op = osp;</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">       20770 :     es_ptr ep;</span></span>
+<span id="L422"><span class="lineNum">     422</span>              : </span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">       20770 :     check_op(4);</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">       20770 :     check_type(op[-3], t_real);</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">       20770 :     check_type(op[-2], t_integer);</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">       20770 :     check_type(op[-1], t_real);</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">       20770 :     check_proc(*op);</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">       20770 :     check_estack(8);</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">       20770 :     ep = esp + 7;</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">       20770 :     make_mark_estack(ep - 6, es_for, no_cleanup);</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">       20770 :     make_int(ep - 5, 0);</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">       20770 :     memcpy(ep - 4, op - 3, 3 * sizeof(ref));</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">       20770 :     ref_assign(ep - 1, op);</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">       20770 :     make_op_estack(ep, for_samples_continue);</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">       20770 :     esp = ep;</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">       20770 :     pop(4);</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">       20770 :     return o_push_estack;</span></span>
+<span id="L438"><span class="lineNum">     438</span>              : }</span>
+<span id="L439"><span class="lineNum">     439</span>              : /* Continuation procedure */</span>
+<span id="L440"><span class="lineNum">     440</span>              : static int</span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">     5333286 : for_samples_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L442"><span class="lineNum">     442</span>              : {</span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">     5333286 :     os_ptr op = osp;</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">     5333286 :     es_ptr ep = esp;</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">     5333286 :     int var = ep[-4].value.intval;</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">     5333286 :     float a = ep[-3].value.realval;</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">     5333286 :     int n = ep[-2].value.intval;</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">     5333286 :     float b = ep[-1].value.realval;</span></span>
+<span id="L449"><span class="lineNum">     449</span>              : </span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">     5333286 :     if (var &gt; n) {</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">       20740 :         esp -= 6;               /* pop everything */</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">       20740 :         return o_pop_estack;</span></span>
+<span id="L453"><span class="lineNum">     453</span>              :     }</span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">     5312546 :     push(1);</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">     5312546 :     make_real(op, ((n - var) * a + var * b) / n);</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">     5312546 :     ep[-4].value.intval = var + 1;</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">     5312546 :     ref_assign_inline(ep + 2, ep);      /* saved proc */</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">     5312546 :     esp = ep + 2;</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">     5312546 :     return o_push_estack;</span></span>
+<span id="L460"><span class="lineNum">     460</span>              : }</span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span>              : /* &lt;int&gt; &lt;proc&gt; repeat - */</span>
+<span id="L463"><span class="lineNum">     463</span>              : static int repeat_continue(i_ctx_t *);</span>
+<span id="L464"><span class="lineNum">     464</span>              : int</span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">      307186 : zrepeat(i_ctx_t *i_ctx_p)</span></span>
+<span id="L466"><span class="lineNum">     466</span>              : {</span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">      307186 :     os_ptr op = osp;</span></span>
+<span id="L468"><span class="lineNum">     468</span>              : </span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">      307186 :     check_op(2);</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">      307184 :     check_proc(*op);</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">      307184 :     check_type(op[-1], t_integer);</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">      307182 :     if (op[-1].value.intval &lt; 0)</span></span>
+<span id="L473"><span class="lineNum">     473</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">      307180 :     check_estack(5);</span></span>
+<span id="L475"><span class="lineNum">     475</span>              :     /* Push a mark, the count, and the procedure, and invoke */</span>
+<span id="L476"><span class="lineNum">     476</span>              :     /* the continuation operator. */</span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">      307180 :     push_mark_estack(es_for, no_cleanup);</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">      307180 :     *++esp = op[-1];</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">      307180 :     *++esp = *op;</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">      307180 :     make_op_estack(esp + 1, repeat_continue);</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">      307180 :     pop(2);</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">      307180 :     return repeat_continue(i_ctx_p);</span></span>
+<span id="L483"><span class="lineNum">     483</span>              : }</span>
+<span id="L484"><span class="lineNum">     484</span>              : /* Continuation operator for repeat */</span>
+<span id="L485"><span class="lineNum">     485</span>              : static int</span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">    14046658 : repeat_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L487"><span class="lineNum">     487</span>              : {</span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">    14046658 :     es_ptr ep = esp;            /* saved proc */</span></span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">    14046658 :     if (--(ep[-1].value.intval) &gt;= 0) {              /* continue */</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">    13739478 :         esp += 2;</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">    13739478 :         ref_assign(esp, ep);</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">    13739478 :         return o_push_estack;</span></span>
+<span id="L494"><span class="lineNum">     494</span>              :     } else {                    /* done */</span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">      307180 :         esp -= 3;               /* pop mark, count, proc */</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">      307180 :         return o_pop_estack;</span></span>
+<span id="L497"><span class="lineNum">     497</span>              :     }</span>
+<span id="L498"><span class="lineNum">     498</span>              : }</span>
+<span id="L499"><span class="lineNum">     499</span>              : </span>
+<span id="L500"><span class="lineNum">     500</span>              : /* &lt;proc&gt; loop */</span>
+<span id="L501"><span class="lineNum">     501</span>              : static int loop_continue(i_ctx_t *);</span>
+<span id="L502"><span class="lineNum">     502</span>              : static int</span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">     1230258 : zloop(i_ctx_t *i_ctx_p)</span></span>
+<span id="L504"><span class="lineNum">     504</span>              : {</span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">     1230258 :     os_ptr op = osp;</span></span>
+<span id="L506"><span class="lineNum">     506</span>              : </span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">     1230258 :     check_op(1);</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">     1230258 :     check_proc(*op);</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">     1230258 :     check_estack(4);</span></span>
+<span id="L510"><span class="lineNum">     510</span>              :     /* Push a mark and the procedure, and invoke */</span>
+<span id="L511"><span class="lineNum">     511</span>              :     /* the continuation operator. */</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">     1230258 :     push_mark_estack(es_for, no_cleanup);</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">     1230258 :     *++esp = *op;</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">     1230258 :     make_op_estack(esp + 1, loop_continue);</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">     1230258 :     pop(1);</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">     1230258 :     return loop_continue(i_ctx_p);</span></span>
+<span id="L517"><span class="lineNum">     517</span>              : }</span>
+<span id="L518"><span class="lineNum">     518</span>              : /* Continuation operator for loop */</span>
+<span id="L519"><span class="lineNum">     519</span>              : static int</span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">     3043335 : loop_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L521"><span class="lineNum">     521</span>              : {</span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">     3043335 :     register es_ptr ep = esp;   /* saved proc */</span></span>
+<span id="L523"><span class="lineNum">     523</span>              : </span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">     3043335 :     ref_assign(ep + 2, ep);</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">     3043335 :     esp = ep + 2;</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">     1230258 :     return o_push_estack;</span></span>
+<span id="L527"><span class="lineNum">     527</span>              : }</span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span>              : /* - exit - */</span>
+<span id="L530"><span class="lineNum">     530</span>              : static int</span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">     1245653 : zexit(i_ctx_t *i_ctx_p)</span></span>
+<span id="L532"><span class="lineNum">     532</span>              : {</span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">     1245653 :     os_ptr op = osp;</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">     1245653 :     ref_stack_enum_t rsenum;</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">     1245653 :     uint scanned = 0;</span></span>
+<span id="L536"><span class="lineNum">     536</span>              : </span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">     1245653 :     ref_stack_enum_begin(&amp;rsenum, &amp;e_stack);</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">     1245653 :     do {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">     1245653 :         uint used = rsenum.size;</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">     1245653 :         es_ptr ep = rsenum.ptr + used - 1;</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">     1245653 :         uint count = used;</span></span>
+<span id="L542"><span class="lineNum">     542</span>              : </span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">     5003803 :         for (; count; count--, ep--)</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">     5003803 :             if (r_is_estack_mark(ep))</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">     1245653 :                 switch (estack_mark_index(ep)) {</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">     1245651 :                     case es_for:</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">     1245651 :                         pop_estack(i_ctx_p, scanned + (used - count + 1));</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">     1245651 :                         return o_pop_estack;</span></span>
+<span id="L549"><span class="lineNum">     549</span>              :                     case es_stopped:</span>
+<span id="L550"><span class="lineNum">     550</span>              :                         return_error(gs_error_invalidexit);     /* not a loop */</span>
+<span id="L551"><span class="lineNum">     551</span>              :                 }</span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC tlaBgUNC">           0 :         scanned += used;</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :     } while (ref_stack_enum_next(&amp;rsenum));</span></span>
+<span id="L554"><span class="lineNum">     554</span>              :     /* No mark, quit.  (per Adobe documentation) */</span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :     push(2);</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :     return unmatched_exit(op, zexit);</span></span>
+<span id="L557"><span class="lineNum">     557</span>              : }</span>
+<span id="L558"><span class="lineNum">     558</span>              : </span>
+<span id="L559"><span class="lineNum">     559</span>              : /*</span>
+<span id="L560"><span class="lineNum">     560</span>              :  * .stopped pushes the following on the e-stack:</span>
+<span id="L561"><span class="lineNum">     561</span>              :  *      - A mark with type = es_stopped and procedure = no_cleanup.</span>
+<span id="L562"><span class="lineNum">     562</span>              :  *      - The result to be pushed on a normal return.</span>
+<span id="L563"><span class="lineNum">     563</span>              :  *      - The signal mask for .stop.</span>
+<span id="L564"><span class="lineNum">     564</span>              :  *      - The procedure %stopped_push, to handle the normal return case.</span>
+<span id="L565"><span class="lineNum">     565</span>              :  */</span>
+<span id="L566"><span class="lineNum">     566</span>              : </span>
+<span id="L567"><span class="lineNum">     567</span>              : /* In the normal (no-error) case, pop the mask from the e-stack, */</span>
+<span id="L568"><span class="lineNum">     568</span>              : /* and move the result to the o-stack. */</span>
+<span id="L569"><span class="lineNum">     569</span>              : static int</span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC tlaBgGNC">      760775 : stopped_push(i_ctx_t *i_ctx_p)</span></span>
+<span id="L571"><span class="lineNum">     571</span>              : {</span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">      760775 :     os_ptr op = osp;</span></span>
+<span id="L573"><span class="lineNum">     573</span>              : </span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">      760775 :     push(1);</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">      760291 :     *op = esp[-1];</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">      760291 :     esp -= 3;</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">      760291 :     return o_pop_estack;</span></span>
+<span id="L578"><span class="lineNum">     578</span>              : }</span>
+<span id="L579"><span class="lineNum">     579</span>              : </span>
+<span id="L580"><span class="lineNum">     580</span>              : /* - stop - */</span>
+<span id="L581"><span class="lineNum">     581</span>              : /* Equivalent to true 1 .stop. */</span>
+<span id="L582"><span class="lineNum">     582</span>              : /* This is implemented in C because if were a pseudo-operator, */</span>
+<span id="L583"><span class="lineNum">     583</span>              : /* the stacks would get restored in case of an error. */</span>
+<span id="L584"><span class="lineNum">     584</span>              : static int</span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">     6396630 : zstop(i_ctx_t *i_ctx_p)</span></span>
+<span id="L586"><span class="lineNum">     586</span>              : {</span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">     6396630 :     os_ptr op = osp;</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">     6396630 :     uint count = count_to_stopped(i_ctx_p, 1L);</span></span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">     6396630 :     if (count) {</span></span>
+<span id="L591"><span class="lineNum">     591</span>              :         /*</span>
+<span id="L592"><span class="lineNum">     592</span>              :          * If there are any t_oparrays on the e-stack, they will pop</span>
+<span id="L593"><span class="lineNum">     593</span>              :          * any new items from the o-stack.  Wait to push the 'true'</span>
+<span id="L594"><span class="lineNum">     594</span>              :          * until we have run all the unwind procedures.</span>
+<span id="L595"><span class="lineNum">     595</span>              :          */</span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">     6396624 :         check_ostack(2);</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">     6396624 :         pop_estack(i_ctx_p, count);</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">     6396624 :         op = osp;</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">     6396624 :         push(1);</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">     6396624 :         make_true(op);</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">     6396624 :         return o_pop_estack;</span></span>
+<span id="L602"><span class="lineNum">     602</span>              :     }</span>
+<span id="L603"><span class="lineNum">     603</span>              :     /* No mark, quit.  (per Adobe documentation) */</span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           6 :     push(2);</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           6 :     return unmatched_exit(op, zstop);</span></span>
+<span id="L606"><span class="lineNum">     606</span>              : }</span>
+<span id="L607"><span class="lineNum">     607</span>              : </span>
+<span id="L608"><span class="lineNum">     608</span>              : /* &lt;result&gt; &lt;mask&gt; .stop - */</span>
+<span id="L609"><span class="lineNum">     609</span>              : static int</span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC tlaBgUNC">           0 : zzstop(i_ctx_t *i_ctx_p)</span></span>
+<span id="L611"><span class="lineNum">     611</span>              : {</span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :     uint count;</span></span>
+<span id="L614"><span class="lineNum">     614</span>              : </span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :     check_op(2);</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC">           0 :     check_type(*op, t_integer);</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaUNC">           0 :     count = count_to_stopped(i_ctx_p, op-&gt;value.intval);</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :     if (count) {</span></span>
+<span id="L619"><span class="lineNum">     619</span>              :         /*</span>
+<span id="L620"><span class="lineNum">     620</span>              :          * If there are any t_oparrays on the e-stack, they will pop</span>
+<span id="L621"><span class="lineNum">     621</span>              :          * any new items from the o-stack.  Wait to push the result</span>
+<span id="L622"><span class="lineNum">     622</span>              :          * until we have run all the unwind procedures.</span>
+<span id="L623"><span class="lineNum">     623</span>              :          */</span>
+<span id="L624"><span class="lineNum">     624</span> <span class="tlaUNC">           0 :         ref save_result;</span></span>
+<span id="L625"><span class="lineNum">     625</span>              : </span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaUNC">           0 :         check_op(2);</span></span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaUNC">           0 :         save_result = op[-1];</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC">           0 :         pop(2);</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaUNC">           0 :         pop_estack(i_ctx_p, count);</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaUNC">           0 :         op = osp;</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaUNC">           0 :         push(1);</span></span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaUNC">           0 :         *op = save_result;</span></span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaUNC">           0 :         return o_pop_estack;</span></span>
+<span id="L634"><span class="lineNum">     634</span>              :     }</span>
+<span id="L635"><span class="lineNum">     635</span>              :     /* No mark, quit.  (per Adobe documentation) */</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaUNC">           0 :     return unmatched_exit(op, zzstop);</span></span>
+<span id="L637"><span class="lineNum">     637</span>              : }</span>
+<span id="L638"><span class="lineNum">     638</span>              : </span>
+<span id="L639"><span class="lineNum">     639</span>              : /* &lt;obj&gt; stopped &lt;stopped&gt; */</span>
+<span id="L640"><span class="lineNum">     640</span>              : /* Equivalent to false 1 .stopped. */</span>
+<span id="L641"><span class="lineNum">     641</span>              : /* This is implemented in C because if were a pseudo-operator, */</span>
+<span id="L642"><span class="lineNum">     642</span>              : /* the stacks would get restored in case of an error. */</span>
+<span id="L643"><span class="lineNum">     643</span>              : static int</span>
+<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC tlaBgGNC">      318893 : zstopped(i_ctx_t *i_ctx_p)</span></span>
+<span id="L645"><span class="lineNum">     645</span>              : {</span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">      318893 :     os_ptr op = osp;</span></span>
+<span id="L647"><span class="lineNum">     647</span>              : </span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">      318893 :     check_op(1);</span></span>
+<span id="L649"><span class="lineNum">     649</span>              :     /* Mark the execution stack, and push the default result */</span>
+<span id="L650"><span class="lineNum">     650</span>              :     /* in case control returns normally. */</span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">      318891 :     check_estack(5);</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">      318891 :     push_mark_estack(es_stopped, no_cleanup);</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">      318891 :     ++esp;</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">      318891 :     make_false(esp);            /* save the result */</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">      318891 :     ++esp;</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">      318891 :     make_int(esp, 1);           /* save the signal mask */</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">      318891 :     push_op_estack(stopped_push);</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">      318891 :     push_op_estack(zexec);      /* execute the operand */</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">      318891 :     return o_push_estack;</span></span>
+<span id="L660"><span class="lineNum">     660</span>              : }</span>
+<span id="L661"><span class="lineNum">     661</span>              : </span>
+<span id="L662"><span class="lineNum">     662</span>              : /* &lt;obj&gt; &lt;result&gt; &lt;mask&gt; .stopped &lt;result&gt; */</span>
+<span id="L663"><span class="lineNum">     663</span>              : static int</span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">     6843898 : zzstopped(i_ctx_t *i_ctx_p)</span></span>
+<span id="L665"><span class="lineNum">     665</span>              : {</span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">     6843898 :     os_ptr op = osp;</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">     6843898 :     check_type(*op, t_integer);</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">     6843898 :     check_op(3);</span></span>
+<span id="L669"><span class="lineNum">     669</span>              :     /* Mark the execution stack, and push the default result */</span>
+<span id="L670"><span class="lineNum">     670</span>              :     /* in case control returns normally. */</span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">     6843898 :     check_estack(5);</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaGNC">     6843898 :     push_mark_estack(es_stopped, no_cleanup);</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaGNC">     6843898 :     *++esp = op[-1];            /* save the result */</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">     6843898 :     *++esp = *op;               /* save the signal mask */</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">     6843898 :     push_op_estack(stopped_push);</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC">     6843898 :     push_op_estack(zexec);      /* execute the operand */</span></span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaGNC">     6843898 :     pop(2);</span></span>
+<span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC">     6843898 :     return o_push_estack;</span></span>
+<span id="L679"><span class="lineNum">     679</span>              : }</span>
+<span id="L680"><span class="lineNum">     680</span>              : </span>
+<span id="L681"><span class="lineNum">     681</span>              : /* &lt;mask&gt; .instopped false */</span>
+<span id="L682"><span class="lineNum">     682</span>              : /* &lt;mask&gt; .instopped &lt;result&gt; true */</span>
+<span id="L683"><span class="lineNum">     683</span>              : static int</span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">     6417594 : zinstopped(i_ctx_t *i_ctx_p)</span></span>
+<span id="L685"><span class="lineNum">     685</span>              : {</span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">     6417594 :     os_ptr op = osp;</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">     6417594 :     uint count;</span></span>
+<span id="L688"><span class="lineNum">     688</span>              : </span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">     6417594 :     check_type(*op, t_integer);</span></span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">     6417594 :     count = count_to_stopped(i_ctx_p, op-&gt;value.intval);</span></span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaGNC">     6417594 :     if (count) {</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">     6381190 :         push(1);</span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaGNC">     6381190 :         op[-1] = *ref_stack_index(&amp;e_stack, count - 2);             /* default result */</span></span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">     6381190 :         make_true(op);</span></span>
+<span id="L695"><span class="lineNum">     695</span>              :     } else</span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">       36404 :         make_false(op);</span></span>
+<span id="L697"><span class="lineNum">     697</span>              :     return 0;</span>
+<span id="L698"><span class="lineNum">     698</span>              : }</span>
+<span id="L699"><span class="lineNum">     699</span>              : </span>
+<span id="L700"><span class="lineNum">     700</span>              : /* &lt;include_marks&gt; .countexecstack &lt;int&gt; */</span>
+<span id="L701"><span class="lineNum">     701</span>              : /* - countexecstack &lt;int&gt; */</span>
+<span id="L702"><span class="lineNum">     702</span>              : /* countexecstack is an operator solely for the sake of the Genoa tests. */</span>
+<span id="L703"><span class="lineNum">     703</span>              : static int</span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">       35006 : zcountexecstack(i_ctx_t *i_ctx_p)</span></span>
+<span id="L705"><span class="lineNum">     705</span>              : {</span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">       35006 :     os_ptr op = osp;</span></span>
+<span id="L707"><span class="lineNum">     707</span>              : </span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">       35006 :     push(1);</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">       34832 :     make_int(op, count_exec_stack(i_ctx_p, false));</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">       34832 :     return 0;</span></span>
+<span id="L711"><span class="lineNum">     711</span>              : }</span>
+<span id="L712"><span class="lineNum">     712</span>              : static int</span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC tlaBgUNC">           0 : zcountexecstack1(i_ctx_t *i_ctx_p)</span></span>
+<span id="L714"><span class="lineNum">     714</span>              : {</span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L716"><span class="lineNum">     716</span>              : </span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :     check_type(*op, t_boolean);</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :     make_int(op, count_exec_stack(i_ctx_p, op-&gt;value.boolval));</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :     return 0;</span></span>
+<span id="L720"><span class="lineNum">     720</span>              : }</span>
+<span id="L721"><span class="lineNum">     721</span>              : </span>
+<span id="L722"><span class="lineNum">     722</span>              : /* &lt;array&gt; &lt;include_marks&gt; .execstack &lt;subarray&gt; */</span>
+<span id="L723"><span class="lineNum">     723</span>              : /* &lt;array&gt; execstack &lt;subarray&gt; */</span>
+<span id="L724"><span class="lineNum">     724</span>              : /* execstack is an operator solely for the sake of the Genoa tests. */</span>
+<span id="L725"><span class="lineNum">     725</span>              : static int execstack_continue(i_ctx_t *);</span>
+<span id="L726"><span class="lineNum">     726</span>              : static int execstack2_continue(i_ctx_t *);</span>
+<span id="L727"><span class="lineNum">     727</span>              : static int</span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC tlaBgGNC">        3784 : push_execstack(i_ctx_t *i_ctx_p, os_ptr op1, bool include_marks,</span></span>
+<span id="L729"><span class="lineNum">     729</span>              :                op_proc_t cont)</span>
+<span id="L730"><span class="lineNum">     730</span>              : {</span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">        3784 :     uint size;</span></span>
+<span id="L732"><span class="lineNum">     732</span>              :     /*</span>
+<span id="L733"><span class="lineNum">     733</span>              :      * We can't do this directly, because the interpreter</span>
+<span id="L734"><span class="lineNum">     734</span>              :      * might have cached some state.  To force the interpreter</span>
+<span id="L735"><span class="lineNum">     735</span>              :      * to update the stored state, we push a continuation on</span>
+<span id="L736"><span class="lineNum">     736</span>              :      * the exec stack; the continuation is executed immediately,</span>
+<span id="L737"><span class="lineNum">     737</span>              :      * and does the actual transfer.</span>
+<span id="L738"><span class="lineNum">     738</span>              :      */</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">        3784 :     uint depth;</span></span>
+<span id="L740"><span class="lineNum">     740</span>              : </span>
+<span id="L741"><span class="lineNum">     741</span> <span class="tlaGNC">        3784 :     if (!r_is_array(op1))</span></span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaGNC">           4 :         return_op_typecheck(op1);</span></span>
+<span id="L743"><span class="lineNum">     743</span>              :     /* Check the length before the write access per CET 28-03 */</span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">        3780 :     size = r_size(op1);</span></span>
+<span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">        3780 :     depth = count_exec_stack(i_ctx_p, include_marks);</span></span>
+<span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">        3780 :     if (depth &gt; size)</span></span>
+<span id="L747"><span class="lineNum">     747</span>              :         return_error(gs_error_rangecheck);</span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">        3778 :     check_write(*op1);</span></span>
+<span id="L749"><span class="lineNum">     749</span>              :     {</span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">        3778 :         int code = ref_stack_store_check(&amp;e_stack, op1, size, 0);</span></span>
+<span id="L751"><span class="lineNum">     751</span>              : </span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">        3778 :         if (code &lt; 0)</span></span>
+<span id="L753"><span class="lineNum">     753</span>              :             return code;</span>
+<span id="L754"><span class="lineNum">     754</span>              :     }</span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaGNC">        3778 :     check_estack(1);</span></span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaGNC">        3778 :     r_set_size(op1, depth);</span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaGNC">        3778 :     push_op_estack(cont);</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaGNC">        3778 :     return o_push_estack;</span></span>
+<span id="L759"><span class="lineNum">     759</span>              : }</span>
+<span id="L760"><span class="lineNum">     760</span>              : static int</span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">        3784 : zexecstack(i_ctx_t *i_ctx_p)</span></span>
+<span id="L762"><span class="lineNum">     762</span>              : {</span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">        3784 :     os_ptr op = osp;</span></span>
+<span id="L764"><span class="lineNum">     764</span>              : </span>
+<span id="L765"><span class="lineNum">     765</span> <span class="tlaGNC">        3784 :     return push_execstack(i_ctx_p, op, false, execstack_continue);</span></span>
+<span id="L766"><span class="lineNum">     766</span>              : }</span>
+<span id="L767"><span class="lineNum">     767</span>              : static int</span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC tlaBgUNC">           0 : zexecstack2(i_ctx_t *i_ctx_p)</span></span>
+<span id="L769"><span class="lineNum">     769</span>              : {</span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L771"><span class="lineNum">     771</span>              : </span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :     check_type(*op, t_boolean);</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :     return push_execstack(i_ctx_p, op - 1, op-&gt;value.boolval, execstack2_continue);</span></span>
+<span id="L774"><span class="lineNum">     774</span>              : }</span>
+<span id="L775"><span class="lineNum">     775</span>              : /* Continuation operator to do the actual transfer. */</span>
+<span id="L776"><span class="lineNum">     776</span>              : /* r_size(op1) was set just above. */</span>
+<span id="L777"><span class="lineNum">     777</span>              : static int</span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaGNC tlaBgGNC">        3778 : do_execstack(i_ctx_t *i_ctx_p, bool include_marks, bool include_oparrays, os_ptr op1)</span></span>
+<span id="L779"><span class="lineNum">     779</span>              : {</span>
+<span id="L780"><span class="lineNum">     780</span> <span class="tlaGNC">        3778 :     os_ptr op = osp;</span></span>
+<span id="L781"><span class="lineNum">     781</span> <span class="tlaGNC">        3778 :     ref *arefs = op1-&gt;value.refs;</span></span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaGNC">        3778 :     uint asize = r_size(op1);</span></span>
+<span id="L783"><span class="lineNum">     783</span> <span class="tlaGNC">        3778 :     uint i;</span></span>
+<span id="L784"><span class="lineNum">     784</span> <span class="tlaGNC">        3778 :     ref *rq;</span></span>
+<span id="L785"><span class="lineNum">     785</span>              : </span>
+<span id="L786"><span class="lineNum">     786</span>              :     /*</span>
+<span id="L787"><span class="lineNum">     787</span>              :      * Copy elements from the stack to the array,</span>
+<span id="L788"><span class="lineNum">     788</span>              :      * optionally skipping executable nulls.</span>
+<span id="L789"><span class="lineNum">     789</span>              :      * Clear the executable bit in any internal operators, and</span>
+<span id="L790"><span class="lineNum">     790</span>              :      * convert t_structs and t_astructs (which can only appear</span>
+<span id="L791"><span class="lineNum">     791</span>              :      * in connection with stack marks, which means that they will</span>
+<span id="L792"><span class="lineNum">     792</span>              :      * probably be freed when unwinding) to something harmless.</span>
+<span id="L793"><span class="lineNum">     793</span>              :      */</span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaGNC">       62080 :     for (i = 0, rq = arefs + asize; rq != arefs; ++i) {</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">       58302 :         const ref *rp = ref_stack_index(&amp;e_stack, (long)i);</span></span>
+<span id="L796"><span class="lineNum">     796</span>              : </span>
+<span id="L797"><span class="lineNum">     797</span> <span class="tlaGNC">       58302 :         if (rp == NULL)</span></span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC tlaBgUNC">           0 :             continue;</span></span>
+<span id="L799"><span class="lineNum">     799</span> <span class="tlaGNC tlaBgGNC">       58302 :         if (r_has_type_attrs(rp, t_null, a_executable) &amp;&amp; !include_marks)</span></span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaGNC">        7836 :             continue;</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaGNC">       50466 :         --rq;</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaGNC">       50466 :         ref_assign_old(op1, rq, rp, &quot;execstack&quot;);</span></span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaGNC">       50466 :         switch (r_type(rq)) {</span></span>
+<span id="L804"><span class="lineNum">     804</span> <span class="tlaGNC">       11612 :             case t_operator: {</span></span>
+<span id="L805"><span class="lineNum">     805</span> <span class="tlaGNC">       11612 :                 uint opidx = op_index(rq);</span></span>
+<span id="L806"><span class="lineNum">     806</span>              : </span>
+<span id="L807"><span class="lineNum">     807</span> <span class="tlaGNC">       11612 :                 if (opidx == 0 || op_def_is_internal(op_index_def(opidx)))</span></span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaGNC">       11612 :                     r_clear_attrs(rq, a_executable);</span></span>
+<span id="L809"><span class="lineNum">     809</span>              :                 break;</span>
+<span id="L810"><span class="lineNum">     810</span>              :             }</span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC tlaBgUNC">           0 :             case t_struct:</span></span>
+<span id="L812"><span class="lineNum">     812</span>              :             case t_astruct: {</span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :                 const char *tname = rq-&gt;value.pstruct ?</span></span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                     gs_struct_type_name_string(</span></span>
+<span id="L815"><span class="lineNum">     815</span>              :                                 gs_object_type(imemory, rq-&gt;value.pstruct))</span>
+<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :                     : &quot;NULL&quot;;</span></span>
+<span id="L817"><span class="lineNum">     817</span>              : </span>
+<span id="L818"><span class="lineNum">     818</span> <span class="tlaUNC">           0 :                 make_const_string(rq, a_readonly | avm_foreign,</span></span>
+<span id="L819"><span class="lineNum">     819</span>              :                                   strlen(tname), (const byte *)tname);</span>
+<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 :                 break;</span></span>
+<span id="L821"><span class="lineNum">     821</span>              :             }</span>
+<span id="L822"><span class="lineNum">     822</span> <span class="tlaGNC tlaBgGNC">       11598 :             case t_array:</span></span>
+<span id="L823"><span class="lineNum">     823</span>              :             case t_shortarray:</span>
+<span id="L824"><span class="lineNum">     824</span>              :             case t_mixedarray:</span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">       11598 :                 if (!include_oparrays &amp;&amp; errorexec_find(i_ctx_p, rq) &lt; 0)</span></span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC tlaBgUNC">           0 :                     make_null(rq);</span></span>
+<span id="L827"><span class="lineNum">     827</span>              :                 break;</span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaGNC tlaBgGNC">       58302 :             default:</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaGNC">       58302 :                 ;</span></span>
+<span id="L830"><span class="lineNum">     830</span>              :         }</span>
+<span id="L831"><span class="lineNum">     831</span>              :     }</span>
+<span id="L832"><span class="lineNum">     832</span> <span class="tlaGNC">        3778 :     pop(op - op1);</span></span>
+<span id="L833"><span class="lineNum">     833</span> <span class="tlaGNC">        3778 :     return 0;</span></span>
+<span id="L834"><span class="lineNum">     834</span>              : }</span>
+<span id="L835"><span class="lineNum">     835</span>              : static int</span>
+<span id="L836"><span class="lineNum">     836</span> <span class="tlaGNC">        3778 : execstack_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L837"><span class="lineNum">     837</span>              : {</span>
+<span id="L838"><span class="lineNum">     838</span> <span class="tlaGNC">        3778 :     os_ptr op = osp;</span></span>
+<span id="L839"><span class="lineNum">     839</span>              : </span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC">        3778 :     return do_execstack(i_ctx_p, false, false, op);</span></span>
+<span id="L841"><span class="lineNum">     841</span>              : }</span>
+<span id="L842"><span class="lineNum">     842</span>              : static int</span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC tlaBgUNC">           0 : execstack2_continue(i_ctx_t *i_ctx_p)</span></span>
+<span id="L844"><span class="lineNum">     844</span>              : {</span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaUNC">           0 :     os_ptr op = osp;</span></span>
+<span id="L846"><span class="lineNum">     846</span>              : </span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :     return do_execstack(i_ctx_p, op-&gt;value.boolval, true, op - 1);</span></span>
+<span id="L848"><span class="lineNum">     848</span>              : }</span>
+<span id="L849"><span class="lineNum">     849</span>              : </span>
+<span id="L850"><span class="lineNum">     850</span>              : /* - .needinput - */</span>
+<span id="L851"><span class="lineNum">     851</span>              : static int</span>
+<span id="L852"><span class="lineNum">     852</span> <span class="tlaGNC tlaBgGNC">       52192 : zneedinput(i_ctx_t *i_ctx_p)</span></span>
+<span id="L853"><span class="lineNum">     853</span>              : {</span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaGNC">       52192 :     return gs_error_NeedInput;          /* interpreter will exit to caller */</span></span>
+<span id="L855"><span class="lineNum">     855</span>              : }</span>
+<span id="L856"><span class="lineNum">     856</span>              : </span>
+<span id="L857"><span class="lineNum">     857</span>              : /* &lt;obj&gt; &lt;int&gt; .quit - */</span>
+<span id="L858"><span class="lineNum">     858</span>              : static int</span>
+<span id="L859"><span class="lineNum">     859</span> <span class="tlaGNC">        5810 : zquit(i_ctx_t *i_ctx_p)</span></span>
+<span id="L860"><span class="lineNum">     860</span>              : {</span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaGNC">        5810 :     os_ptr op = osp;</span></span>
+<span id="L862"><span class="lineNum">     862</span>              : </span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaGNC">        5810 :     check_op(2);</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaGNC">        5806 :     check_type(*op, t_integer);</span></span>
+<span id="L865"><span class="lineNum">     865</span>              :     return_error(gs_error_Quit);        /* Interpreter will do the exit */</span>
+<span id="L866"><span class="lineNum">     866</span>              : }</span>
+<span id="L867"><span class="lineNum">     867</span>              : </span>
+<span id="L868"><span class="lineNum">     868</span>              : /* Get the current file from which the interpreter is reading. */</span>
+<span id="L869"><span class="lineNum">     869</span>              : static ref *</span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaGNC">       13116 : zget_current_file(i_ctx_t *i_ctx_p)</span></span>
+<span id="L871"><span class="lineNum">     871</span>              : {</span>
+<span id="L872"><span class="lineNum">     872</span> <span class="tlaGNC">       13116 :     ref_stack_enum_t rsenum;</span></span>
+<span id="L873"><span class="lineNum">     873</span>              : </span>
+<span id="L874"><span class="lineNum">     874</span> <span class="tlaGNC">       13116 :     ref_stack_enum_begin(&amp;rsenum, &amp;e_stack);</span></span>
+<span id="L875"><span class="lineNum">     875</span> <span class="tlaGNC">       13116 :     do {</span></span>
+<span id="L876"><span class="lineNum">     876</span> <span class="tlaGNC">       13116 :         uint count = rsenum.size;</span></span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaGNC">       13116 :         es_ptr ep = rsenum.ptr + count - 1;</span></span>
+<span id="L878"><span class="lineNum">     878</span>              : </span>
+<span id="L879"><span class="lineNum">     879</span> <span class="tlaGNC">      281906 :         for (; count; count--, ep--)</span></span>
+<span id="L880"><span class="lineNum">     880</span> <span class="tlaGNC">      281906 :             if (r_has_type_attrs(ep, t_file, a_executable))</span></span>
+<span id="L881"><span class="lineNum">     881</span> <span class="tlaGNC">       13116 :                 return ep;</span></span>
+<span id="L882"><span class="lineNum">     882</span> <span class="tlaUNC tlaBgUNC">           0 :     } while (ref_stack_enum_next(&amp;rsenum));</span></span>
+<span id="L883"><span class="lineNum">     883</span>              :     return 0;</span>
+<span id="L884"><span class="lineNum">     884</span>              : }</span>
+<span id="L885"><span class="lineNum">     885</span>              : </span>
+<span id="L886"><span class="lineNum">     886</span>              : /* - currentfile &lt;file&gt; */</span>
+<span id="L887"><span class="lineNum">     887</span>              : int</span>
+<span id="L888"><span class="lineNum">     888</span> <span class="tlaGNC tlaBgGNC">      589405 : z_current_file(i_ctx_t *i_ctx_p, ref **s)</span></span>
+<span id="L889"><span class="lineNum">     889</span>              : {</span>
+<span id="L890"><span class="lineNum">     890</span> <span class="tlaGNC">      589405 :     ref *fp;</span></span>
+<span id="L891"><span class="lineNum">     891</span>              :     /* Check the cache first */</span>
+<span id="L892"><span class="lineNum">     892</span> <span class="tlaGNC">      589405 :     if (esfile != 0) {</span></span>
+<span id="L893"><span class="lineNum">     893</span>              : #ifdef DEBUG</span>
+<span id="L894"><span class="lineNum">     894</span>              :         /* Check that esfile is valid. */</span>
+<span id="L895"><span class="lineNum">     895</span>              :         ref *efp = zget_current_file(i_ctx_p);</span>
+<span id="L896"><span class="lineNum">     896</span>              : </span>
+<span id="L897"><span class="lineNum">     897</span>              :         if (esfile != efp) {</span>
+<span id="L898"><span class="lineNum">     898</span>              :             lprintf2(&quot;currentfile: esfile=&quot;PRI_INTPTR&quot;, efp=&quot;PRI_INTPTR&quot;\n&quot;,</span>
+<span id="L899"><span class="lineNum">     899</span>              :                      (intptr_t) esfile, (intptr_t) efp);</span>
+<span id="L900"><span class="lineNum">     900</span>              :             *s = efp;</span>
+<span id="L901"><span class="lineNum">     901</span>              :         } else</span>
+<span id="L902"><span class="lineNum">     902</span>              : #endif</span>
+<span id="L903"><span class="lineNum">     903</span> <span class="tlaGNC">      576289 :             *s = esfile;</span></span>
+<span id="L904"><span class="lineNum">     904</span> <span class="tlaGNC">       13116 :     } else if ((fp = zget_current_file(i_ctx_p)) == 0) {        /* Return an invalid file object. */</span></span>
+<span id="L905"><span class="lineNum">     905</span> <span class="tlaUNC tlaBgUNC">           0 :         *s = NULL;</span></span>
+<span id="L906"><span class="lineNum">     906</span>              :     } else {</span>
+<span id="L907"><span class="lineNum">     907</span> <span class="tlaGNC tlaBgGNC">       13116 :         *s = fp;</span></span>
+<span id="L908"><span class="lineNum">     908</span> <span class="tlaGNC">       13116 :         esfile_set_cache(fp);</span></span>
+<span id="L909"><span class="lineNum">     909</span>              :     }</span>
+<span id="L910"><span class="lineNum">     910</span> <span class="tlaGNC">      589405 :     return 0;</span></span>
+<span id="L911"><span class="lineNum">     911</span>              : }</span>
+<span id="L912"><span class="lineNum">     912</span>              : static int</span>
+<span id="L913"><span class="lineNum">     913</span> <span class="tlaGNC">      590245 : zcurrentfile(i_ctx_t *i_ctx_p)</span></span>
+<span id="L914"><span class="lineNum">     914</span>              : {</span>
+<span id="L915"><span class="lineNum">     915</span> <span class="tlaGNC">      590245 :     os_ptr op = osp;</span></span>
+<span id="L916"><span class="lineNum">     916</span> <span class="tlaGNC">      590245 :     ref *s;</span></span>
+<span id="L917"><span class="lineNum">     917</span> <span class="tlaGNC">      590245 :     int code;</span></span>
+<span id="L918"><span class="lineNum">     918</span>              : </span>
+<span id="L919"><span class="lineNum">     919</span> <span class="tlaGNC">      590245 :     push(1);</span></span>
+<span id="L920"><span class="lineNum">     920</span>              : </span>
+<span id="L921"><span class="lineNum">     921</span> <span class="tlaGNC">      589405 :     code = z_current_file(i_ctx_p, &amp;s);</span></span>
+<span id="L922"><span class="lineNum">     922</span> <span class="tlaGNC">      589405 :     if (code &lt; 0 || s == NULL) {</span></span>
+<span id="L923"><span class="lineNum">     923</span>              :         /* This doesn't make a lot of sense to me, */</span>
+<span id="L924"><span class="lineNum">     924</span>              :         /* but it's what the PostScript manual specifies. */</span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaUNC tlaBgUNC">           0 :         make_invalid_file(i_ctx_p, op);</span></span>
+<span id="L926"><span class="lineNum">     926</span>              :     }</span>
+<span id="L927"><span class="lineNum">     927</span>              :     else {</span>
+<span id="L928"><span class="lineNum">     928</span> <span class="tlaGNC tlaBgGNC">      589405 :         ref_assign(op, s);</span></span>
+<span id="L929"><span class="lineNum">     929</span>              :     }</span>
+<span id="L930"><span class="lineNum">     930</span>              :     /* Make the returned value literal. */</span>
+<span id="L931"><span class="lineNum">     931</span> <span class="tlaGNC">      589405 :     r_clear_attrs(op, a_executable);</span></span>
+<span id="L932"><span class="lineNum">     932</span> <span class="tlaGNC">      589405 :     return code;</span></span>
+<span id="L933"><span class="lineNum">     933</span>              : }</span>
+<span id="L934"><span class="lineNum">     934</span>              : /* ------ Initialization procedure ------ */</span>
+<span id="L935"><span class="lineNum">     935</span>              : </span>
+<span id="L936"><span class="lineNum">     936</span>              : /* We need to split the table because of the 16-element limit. */</span>
+<span id="L937"><span class="lineNum">     937</span>              : const op_def zcontrol1_op_defs[] = {</span>
+<span id="L938"><span class="lineNum">     938</span>              :     {&quot;1.cond&quot;, zcond},</span>
+<span id="L939"><span class="lineNum">     939</span>              :     {&quot;0countexecstack&quot;, zcountexecstack},</span>
+<span id="L940"><span class="lineNum">     940</span>              :     {&quot;1.countexecstack&quot;, zcountexecstack1},</span>
+<span id="L941"><span class="lineNum">     941</span>              :     {&quot;0currentfile&quot;, zcurrentfile},</span>
+<span id="L942"><span class="lineNum">     942</span>              :     {&quot;1exec&quot;, zexec},</span>
+<span id="L943"><span class="lineNum">     943</span>              :     {&quot;1.execn&quot;, zexecn},</span>
+<span id="L944"><span class="lineNum">     944</span>              :     {&quot;1execstack&quot;, zexecstack},</span>
+<span id="L945"><span class="lineNum">     945</span>              :     {&quot;2.execstack&quot;, zexecstack2},</span>
+<span id="L946"><span class="lineNum">     946</span>              :     {&quot;0exit&quot;, zexit},</span>
+<span id="L947"><span class="lineNum">     947</span>              :     {&quot;2if&quot;, zif},</span>
+<span id="L948"><span class="lineNum">     948</span>              :     {&quot;3ifelse&quot;, zifelse},</span>
+<span id="L949"><span class="lineNum">     949</span>              :     {&quot;0.instopped&quot;, zinstopped},</span>
+<span id="L950"><span class="lineNum">     950</span>              :     {&quot;0.needinput&quot;, zneedinput},</span>
+<span id="L951"><span class="lineNum">     951</span>              :     op_def_end(0)</span>
+<span id="L952"><span class="lineNum">     952</span>              : };</span>
+<span id="L953"><span class="lineNum">     953</span>              : const op_def zcontrol2_op_defs[] = {</span>
+<span id="L954"><span class="lineNum">     954</span>              :     {&quot;4for&quot;, zfor},</span>
+<span id="L955"><span class="lineNum">     955</span>              :     {&quot;1loop&quot;, zloop},</span>
+<span id="L956"><span class="lineNum">     956</span>              :     {&quot;2.quit&quot;, zquit},</span>
+<span id="L957"><span class="lineNum">     957</span>              :     {&quot;2repeat&quot;, zrepeat},</span>
+<span id="L958"><span class="lineNum">     958</span>              :     {&quot;0stop&quot;, zstop},</span>
+<span id="L959"><span class="lineNum">     959</span>              :     {&quot;1.stop&quot;, zzstop},</span>
+<span id="L960"><span class="lineNum">     960</span>              :     {&quot;1stopped&quot;, zstopped},</span>
+<span id="L961"><span class="lineNum">     961</span>              :     {&quot;2.stopped&quot;, zzstopped},</span>
+<span id="L962"><span class="lineNum">     962</span>              :     op_def_end(0)</span>
+<span id="L963"><span class="lineNum">     963</span>              : };</span>
+<span id="L964"><span class="lineNum">     964</span>              : const op_def zcontrol3_op_defs[] = {</span>
+<span id="L965"><span class="lineNum">     965</span>              :                 /* Internal operators */</span>
+<span id="L966"><span class="lineNum">     966</span>              :     {&quot;1%cond_continue&quot;, cond_continue},</span>
+<span id="L967"><span class="lineNum">     967</span>              :     {&quot;1%execstack_continue&quot;, execstack_continue},</span>
+<span id="L968"><span class="lineNum">     968</span>              :     {&quot;2%execstack2_continue&quot;, execstack2_continue},</span>
+<span id="L969"><span class="lineNum">     969</span>              :     {&quot;0%for_pos_int_continue&quot;, for_pos_int_continue},</span>
+<span id="L970"><span class="lineNum">     970</span>              :     {&quot;0%for_neg_int_continue&quot;, for_neg_int_continue},</span>
+<span id="L971"><span class="lineNum">     971</span>              :     {&quot;0%for_real_continue&quot;, for_real_continue},</span>
+<span id="L972"><span class="lineNum">     972</span>              :     {&quot;4%for_samples&quot;, zfor_samples},</span>
+<span id="L973"><span class="lineNum">     973</span>              :     {&quot;0%for_samples_continue&quot;, for_samples_continue},</span>
+<span id="L974"><span class="lineNum">     974</span>              :     {&quot;0%loop_continue&quot;, loop_continue},</span>
+<span id="L975"><span class="lineNum">     975</span>              :     {&quot;0%repeat_continue&quot;, repeat_continue},</span>
+<span id="L976"><span class="lineNum">     976</span>              :     {&quot;0%stopped_push&quot;, stopped_push},</span>
+<span id="L977"><span class="lineNum">     977</span>              :     {&quot;2.runandhide&quot;, zrunandhide},</span>
+<span id="L978"><span class="lineNum">     978</span>              :     {&quot;0%end_runandhide&quot;, end_runandhide},</span>
+<span id="L979"><span class="lineNum">     979</span>              :     op_def_end(0)</span>
+<span id="L980"><span class="lineNum">     980</span>              : };</span>
+<span id="L981"><span class="lineNum">     981</span>              : </span>
+<span id="L982"><span class="lineNum">     982</span>              : /* ------ Internal routines ------ */</span>
+<span id="L983"><span class="lineNum">     983</span>              : </span>
+<span id="L984"><span class="lineNum">     984</span>              : /*</span>
+<span id="L985"><span class="lineNum">     985</span>              :  * Check the operand of exec or stopped.  Return 0 if OK to execute, or a</span>
+<span id="L986"><span class="lineNum">     986</span>              :  * negative error code.  We emulate an apparent bug in Adobe interpreters,</span>
+<span id="L987"><span class="lineNum">     987</span>              :  * which cause an invalidaccess error when 'exec'ing a noaccess literal</span>
+<span id="L988"><span class="lineNum">     988</span>              :  * (other than dictionaries).  We also match the Adobe interpreters in that</span>
+<span id="L989"><span class="lineNum">     989</span>              :  * we catch noaccess executable objects here, rather than waiting for the</span>
+<span id="L990"><span class="lineNum">     990</span>              :  * interpreter to catch them, so that we can signal the error with the</span>
+<span id="L991"><span class="lineNum">     991</span>              :  * object still on the operand stack.</span>
+<span id="L992"><span class="lineNum">     992</span>              :  */</span>
+<span id="L993"><span class="lineNum">     993</span>              : static int</span>
+<span id="L994"><span class="lineNum">     994</span> <span class="tlaGNC">   117381444 : check_for_exec(const_os_ptr op)</span></span>
+<span id="L995"><span class="lineNum">     995</span>              : {</span>
+<span id="L996"><span class="lineNum">     996</span> <span class="tlaGNC">   117381444 :     if (!r_has_attr(op, a_execute) &amp;&amp; /* only true if noaccess */</span></span>
+<span id="L997"><span class="lineNum">     997</span> <span class="tlaGNC">     1878582 :         ref_type_uses_access(r_type(op)) &amp;&amp;</span></span>
+<span id="L998"><span class="lineNum">     998</span> <span class="tlaGNC">           2 :         (r_has_attr(op, a_executable) || !r_has_type(op, t_dictionary))</span></span>
+<span id="L999"><span class="lineNum">     999</span>              :         ) {</span>
+<span id="L1000"><span class="lineNum">    1000</span> <span class="tlaGNC">           2 :         return_error(gs_error_invalidaccess);</span></span>
+<span id="L1001"><span class="lineNum">    1001</span>              :     }</span>
+<span id="L1002"><span class="lineNum">    1002</span>              :     return 0;</span>
+<span id="L1003"><span class="lineNum">    1003</span>              : }</span>
+<span id="L1004"><span class="lineNum">    1004</span>              : </span>
+<span id="L1005"><span class="lineNum">    1005</span>              : /* Vacuous cleanup routine */</span>
+<span id="L1006"><span class="lineNum">    1006</span>              : static int</span>
+<span id="L1007"><span class="lineNum">    1007</span> <span class="tlaGNC">     7632974 : no_cleanup(i_ctx_t *i_ctx_p)</span></span>
+<span id="L1008"><span class="lineNum">    1008</span>              : {</span>
+<span id="L1009"><span class="lineNum">    1009</span> <span class="tlaGNC">     7632974 :     return 0;</span></span>
+<span id="L1010"><span class="lineNum">    1010</span>              : }</span>
+<span id="L1011"><span class="lineNum">    1011</span>              : </span>
+<span id="L1012"><span class="lineNum">    1012</span>              : /*</span>
+<span id="L1013"><span class="lineNum">    1013</span>              :  * Count the number of elements on the exec stack, with or without</span>
+<span id="L1014"><span class="lineNum">    1014</span>              :  * the normally invisible elements (*op is a Boolean that indicates this).</span>
+<span id="L1015"><span class="lineNum">    1015</span>              :  */</span>
+<span id="L1016"><span class="lineNum">    1016</span>              : static uint</span>
+<span id="L1017"><span class="lineNum">    1017</span> <span class="tlaGNC">       38612 : count_exec_stack(i_ctx_t *i_ctx_p, bool include_marks)</span></span>
+<span id="L1018"><span class="lineNum">    1018</span>              : {</span>
+<span id="L1019"><span class="lineNum">    1019</span> <span class="tlaGNC">       38612 :     uint count = ref_stack_count(&amp;e_stack);</span></span>
+<span id="L1020"><span class="lineNum">    1020</span>              : </span>
+<span id="L1021"><span class="lineNum">    1021</span> <span class="tlaGNC">       38612 :     if (!include_marks) {</span></span>
+<span id="L1022"><span class="lineNum">    1022</span>              :         uint i;</span>
+<span id="L1023"><span class="lineNum">    1023</span>              : </span>
+<span id="L1024"><span class="lineNum">    1024</span> <span class="tlaGNC">      652280 :         for (i = count; i--;) {</span></span>
+<span id="L1025"><span class="lineNum">    1025</span> <span class="tlaGNC">      613668 :             ref *o;</span></span>
+<span id="L1026"><span class="lineNum">    1026</span> <span class="tlaGNC">      613668 :             o = ref_stack_index(&amp;e_stack, (long)i);</span></span>
+<span id="L1027"><span class="lineNum">    1027</span> <span class="tlaGNC">      613668 :             if (o == NULL)</span></span>
+<span id="L1028"><span class="lineNum">    1028</span> <span class="tlaUNC tlaBgUNC">           0 :                 continue;</span></span>
+<span id="L1029"><span class="lineNum">    1029</span> <span class="tlaGNC tlaBgGNC">      613668 :             if (r_has_type_attrs(o, t_null, a_executable))</span></span>
+<span id="L1030"><span class="lineNum">    1030</span> <span class="tlaGNC">       77808 :                 --count;</span></span>
+<span id="L1031"><span class="lineNum">    1031</span>              :         }</span>
+<span id="L1032"><span class="lineNum">    1032</span>              :     }</span>
+<span id="L1033"><span class="lineNum">    1033</span> <span class="tlaGNC">       38612 :     return count;</span></span>
+<span id="L1034"><span class="lineNum">    1034</span>              : }</span>
+<span id="L1035"><span class="lineNum">    1035</span>              : </span>
+<span id="L1036"><span class="lineNum">    1036</span>              : /*</span>
+<span id="L1037"><span class="lineNum">    1037</span>              :  * Count the number of elements down to and including the first 'stopped'</span>
+<span id="L1038"><span class="lineNum">    1038</span>              :  * mark on the e-stack with a given mask.  Return 0 if there is no 'stopped'</span>
+<span id="L1039"><span class="lineNum">    1039</span>              :  * mark.</span>
+<span id="L1040"><span class="lineNum">    1040</span>              :  */</span>
+<span id="L1041"><span class="lineNum">    1041</span>              : static uint</span>
+<span id="L1042"><span class="lineNum">    1042</span> <span class="tlaGNC">    12814224 : count_to_stopped(i_ctx_t *i_ctx_p, long mask)</span></span>
+<span id="L1043"><span class="lineNum">    1043</span>              : {</span>
+<span id="L1044"><span class="lineNum">    1044</span> <span class="tlaGNC">    12814224 :     ref_stack_enum_t rsenum;</span></span>
+<span id="L1045"><span class="lineNum">    1045</span> <span class="tlaGNC">    12814224 :     uint scanned = 0;</span></span>
+<span id="L1046"><span class="lineNum">    1046</span>              : </span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaGNC">    12814224 :     ref_stack_enum_begin(&amp;rsenum, &amp;e_stack);</span></span>
+<span id="L1048"><span class="lineNum">    1048</span> <span class="tlaGNC">    12814224 :     do {</span></span>
+<span id="L1049"><span class="lineNum">    1049</span> <span class="tlaGNC">    12814224 :         uint used = rsenum.size;</span></span>
+<span id="L1050"><span class="lineNum">    1050</span> <span class="tlaGNC">    12814224 :         es_ptr ep = rsenum.ptr + used - 1;</span></span>
+<span id="L1051"><span class="lineNum">    1051</span> <span class="tlaGNC">    12814224 :         uint count = used;</span></span>
+<span id="L1052"><span class="lineNum">    1052</span>              : </span>
+<span id="L1053"><span class="lineNum">    1053</span> <span class="tlaGNC">   199175374 :         for (; count; count--, ep--) {</span></span>
+<span id="L1054"><span class="lineNum">    1054</span> <span class="tlaGNC">   199138964 :             if (r_is_estack_mark(ep)) {</span></span>
+<span id="L1055"><span class="lineNum">    1055</span> <span class="tlaGNC">    34675540 :                 if (estack_mark_index(ep) == es_stopped &amp;&amp;</span></span>
+<span id="L1056"><span class="lineNum">    1056</span> <span class="tlaGNC">    12814224 :                   (ep[2].value.intval &amp; mask) != 0)</span></span>
+<span id="L1057"><span class="lineNum">    1057</span> <span class="tlaGNC">    12777814 :                     return scanned + (used - count + 1);</span></span>
+<span id="L1058"><span class="lineNum">    1058</span>              :             }</span>
+<span id="L1059"><span class="lineNum">    1059</span>              :         }</span>
+<span id="L1060"><span class="lineNum">    1060</span> <span class="tlaGNC">       36410 :         scanned += used;</span></span>
+<span id="L1061"><span class="lineNum">    1061</span> <span class="tlaGNC">       36410 :     } while (ref_stack_enum_next(&amp;rsenum));</span></span>
+<span id="L1062"><span class="lineNum">    1062</span>              :     return 0;</span>
+<span id="L1063"><span class="lineNum">    1063</span>              : }</span>
+<span id="L1064"><span class="lineNum">    1064</span>              : </span>
+<span id="L1065"><span class="lineNum">    1065</span>              : /*</span>
+<span id="L1066"><span class="lineNum">    1066</span>              :  * Pop the e-stack, executing cleanup procedures as needed.</span>
+<span id="L1067"><span class="lineNum">    1067</span>              :  * We could make this more efficient using ref_stack_enum_*,</span>
+<span id="L1068"><span class="lineNum">    1068</span>              :  * but it isn't used enough to make this worthwhile.</span>
+<span id="L1069"><span class="lineNum">    1069</span>              :  */</span>
+<span id="L1070"><span class="lineNum">    1070</span>              : void</span>
+<span id="L1071"><span class="lineNum">    1071</span> <span class="tlaGNC">     7642583 : pop_estack(i_ctx_t *i_ctx_p, uint count)</span></span>
+<span id="L1072"><span class="lineNum">    1072</span>              : {</span>
+<span id="L1073"><span class="lineNum">    1073</span> <span class="tlaGNC">     7642583 :     uint idx = 0;</span></span>
+<span id="L1074"><span class="lineNum">    1074</span> <span class="tlaGNC">     7642583 :     uint popped = 0;</span></span>
+<span id="L1075"><span class="lineNum">    1075</span>              : </span>
+<span id="L1076"><span class="lineNum">    1076</span> <span class="tlaGNC">     7642583 :     esfile_clear_cache();</span></span>
+<span id="L1077"><span class="lineNum">    1077</span> <span class="tlaGNC">    80213957 :     for (; idx &lt; count; idx++) {</span></span>
+<span id="L1078"><span class="lineNum">    1078</span> <span class="tlaGNC">    72571374 :         ref *ep = ref_stack_index(&amp;e_stack, idx - popped);</span></span>
+<span id="L1079"><span class="lineNum">    1079</span>              : </span>
+<span id="L1080"><span class="lineNum">    1080</span> <span class="tlaGNC">    72571374 :         if (ep == NULL)</span></span>
+<span id="L1081"><span class="lineNum">    1081</span> <span class="tlaUNC tlaBgUNC">           0 :             continue;</span></span>
+<span id="L1082"><span class="lineNum">    1082</span>              : </span>
+<span id="L1083"><span class="lineNum">    1083</span> <span class="tlaGNC tlaBgGNC">    72571374 :         if (r_is_estack_mark(ep)) {</span></span>
+<span id="L1084"><span class="lineNum">    1084</span>              :             /* This exec stack juggling is to cope with hitting</span>
+<span id="L1085"><span class="lineNum">    1085</span>              :                exactly the bottom of a stack block. It is possible</span>
+<span id="L1086"><span class="lineNum">    1086</span>              :                to end up with the book keeping at the bottom of</span>
+<span id="L1087"><span class="lineNum">    1087</span>              :                one block, and the opproc at the top of the previous</span>
+<span id="L1088"><span class="lineNum">    1088</span>              :                block. If we pop everything in one go, the book keeping</span>
+<span id="L1089"><span class="lineNum">    1089</span>              :                entries disappear, so we pop to the start of the book</span>
+<span id="L1090"><span class="lineNum">    1090</span>              :                keeping values, call the cleanup, then pop the final</span>
+<span id="L1091"><span class="lineNum">    1091</span>              :                entry.</span>
+<span id="L1092"><span class="lineNum">    1092</span>              :              */</span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaGNC">    13811752 :             op_proc_t opproc = real_opproc(ep);</span></span>
+<span id="L1094"><span class="lineNum">    1094</span> <span class="tlaGNC">    13811752 :             ref_stack_pop(&amp;e_stack, idx - popped);</span></span>
+<span id="L1095"><span class="lineNum">    1095</span> <span class="tlaGNC">    13811752 :             esp--;</span></span>
+<span id="L1096"><span class="lineNum">    1096</span> <span class="tlaGNC">    13811752 :             (*opproc) (i_ctx_p);</span></span>
+<span id="L1097"><span class="lineNum">    1097</span> <span class="tlaGNC">    13811752 :             esp++;</span></span>
+<span id="L1098"><span class="lineNum">    1098</span> <span class="tlaGNC">    13811752 :             ref_stack_pop(&amp;e_stack, 1);</span></span>
+<span id="L1099"><span class="lineNum">    1099</span> <span class="tlaGNC">    13811752 :             popped = idx + 1;</span></span>
+<span id="L1100"><span class="lineNum">    1100</span>              :         }</span>
+<span id="L1101"><span class="lineNum">    1101</span>              :     }</span>
+<span id="L1102"><span class="lineNum">    1102</span> <span class="tlaGNC">     7642583 :     ref_stack_pop(&amp;e_stack, count - popped);</span></span>
+<span id="L1103"><span class="lineNum">    1103</span> <span class="tlaGNC">     7642583 : }</span></span>
+<span id="L1104"><span class="lineNum">    1104</span>              : </span>
+<span id="L1105"><span class="lineNum">    1105</span>              : /*</span>
+<span id="L1106"><span class="lineNum">    1106</span>              :  * Execute a quit in the case of an exit or stop with no appropriate</span>
+<span id="L1107"><span class="lineNum">    1107</span>              :  * enclosing control scope (loop or stopped).  The caller has already</span>
+<span id="L1108"><span class="lineNum">    1108</span>              :  * ensured two free slots on the top of the o-stack.</span>
+<span id="L1109"><span class="lineNum">    1109</span>              :  */</span>
+<span id="L1110"><span class="lineNum">    1110</span>              : static int</span>
+<span id="L1111"><span class="lineNum">    1111</span> <span class="tlaGNC">           6 : unmatched_exit(os_ptr op, op_proc_t opproc)</span></span>
+<span id="L1112"><span class="lineNum">    1112</span>              : {</span>
+<span id="L1113"><span class="lineNum">    1113</span> <span class="tlaGNC">           6 :     make_oper(op - 1, 0, opproc);</span></span>
+<span id="L1114"><span class="lineNum">    1114</span> <span class="tlaGNC">           6 :     make_int(op, gs_error_invalidexit);</span></span>
+<span id="L1115"><span class="lineNum">    1115</span> <span class="tlaGNC">           6 :     return_error(gs_error_Quit);</span></span>
+<span id="L1116"><span class="lineNum">    1116</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

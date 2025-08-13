@@ -1,0 +1,1 @@
+genhtml --synthesize-missing --ignore-errors source --output-directory ./teststuff//cov/web ./teststuff//cov/lcov/trace.lcov_info_final

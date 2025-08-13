@@ -1,0 +1,1340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - ghostpdlcoverage/psi/iscan.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ghostpdlcoverage/psi</a> - iscan.c<span style="font-size: 80%;"> (source / <a href="iscan.c.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">67.7&nbsp;%</td>
+            <td class="headerCovTableEntry">628</td>
+            <td class="headerCovTableEntry">425</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2025-08-13 17:34:16</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">12</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : /* Copyright (C) 2001-2023 Artifex Software, Inc.</span>
+<span id="L2"><span class="lineNum">       2</span>              :    All Rights Reserved.</span>
+<span id="L3"><span class="lineNum">       3</span>              : </span>
+<span id="L4"><span class="lineNum">       4</span>              :    This software is provided AS-IS with no warranty, either express or</span>
+<span id="L5"><span class="lineNum">       5</span>              :    implied.</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :    This software is distributed under license and may not be copied,</span>
+<span id="L8"><span class="lineNum">       8</span>              :    modified or distributed except as expressly authorized under the terms</span>
+<span id="L9"><span class="lineNum">       9</span>              :    of the license contained in the file LICENSE in this distribution.</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :    Refer to licensing information at http://www.artifex.com or contact</span>
+<span id="L12"><span class="lineNum">      12</span>              :    Artifex Software, Inc.,  39 Mesa Street, Suite 108A, San Francisco,</span>
+<span id="L13"><span class="lineNum">      13</span>              :    CA 94129, USA, for further information.</span>
+<span id="L14"><span class="lineNum">      14</span>              : */</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : /* Token scanner for Ghostscript interpreter */</span>
+<span id="L18"><span class="lineNum">      18</span>              : #include &quot;ghost.h&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : #include &quot;memory_.h&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : #include &quot;string_.h&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              : #include &quot;stream.h&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : #include &quot;ierrors.h&quot;</span>
+<span id="L23"><span class="lineNum">      23</span>              : #include &quot;btoken.h&quot;             /* for ref_binary_object_format */</span>
+<span id="L24"><span class="lineNum">      24</span>              : #include &quot;files.h&quot;              /* for fptr */</span>
+<span id="L25"><span class="lineNum">      25</span>              : #include &quot;ialloc.h&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : #include &quot;idict.h&quot;              /* for //name lookup */</span>
+<span id="L27"><span class="lineNum">      27</span>              : #include &quot;dstack.h&quot;             /* ditto */</span>
+<span id="L28"><span class="lineNum">      28</span>              : #include &quot;ilevel.h&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : #include &quot;iname.h&quot;</span>
+<span id="L30"><span class="lineNum">      30</span>              : #include &quot;ipacked.h&quot;</span>
+<span id="L31"><span class="lineNum">      31</span>              : #include &quot;iparray.h&quot;</span>
+<span id="L32"><span class="lineNum">      32</span>              : #include &quot;strimpl.h&quot;            /* for string decoding */</span>
+<span id="L33"><span class="lineNum">      33</span>              : #include &quot;sa85d.h&quot;              /* ditto */</span>
+<span id="L34"><span class="lineNum">      34</span>              : #include &quot;sfilter.h&quot;            /* ditto */</span>
+<span id="L35"><span class="lineNum">      35</span>              : #include &quot;ostack.h&quot;             /* for accumulating proc bodies; */</span>
+<span id="L36"><span class="lineNum">      36</span>              :                                         /* must precede iscan.h */</span>
+<span id="L37"><span class="lineNum">      37</span>              : #include &quot;iscan.h&quot;              /* defines interface */</span>
+<span id="L38"><span class="lineNum">      38</span>              : #include &quot;iscanbin.h&quot;</span>
+<span id="L39"><span class="lineNum">      39</span>              : #include &quot;iscannum.h&quot;</span>
+<span id="L40"><span class="lineNum">      40</span>              : #include &quot;istream.h&quot;</span>
+<span id="L41"><span class="lineNum">      41</span>              : #include &quot;istruct.h&quot;            /* for RELOC_REF_VAR */</span>
+<span id="L42"><span class="lineNum">      42</span>              : #include &quot;iutil.h&quot;</span>
+<span id="L43"><span class="lineNum">      43</span>              : #include &quot;ivmspace.h&quot;</span>
+<span id="L44"><span class="lineNum">      44</span>              : #include &quot;store.h&quot;</span>
+<span id="L45"><span class="lineNum">      45</span>              : #include &quot;scanchar.h&quot;</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : /*</span>
+<span id="L48"><span class="lineNum">      48</span>              :  * Level 2 includes some changes in the scanner:</span>
+<span id="L49"><span class="lineNum">      49</span>              :  *      - \ is always recognized in strings, regardless of the data source;</span>
+<span id="L50"><span class="lineNum">      50</span>              :  *      - &lt;&lt; and &gt;&gt; are legal tokens;</span>
+<span id="L51"><span class="lineNum">      51</span>              :  *      - &lt;~ introduces an ASCII85 encoded string (terminated by ~&gt;);</span>
+<span id="L52"><span class="lineNum">      52</span>              :  *      - Character codes above 127 introduce binary objects.</span>
+<span id="L53"><span class="lineNum">      53</span>              :  * We explicitly enable or disable these changes based on level2_enabled.</span>
+<span id="L54"><span class="lineNum">      54</span>              :  */</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : /* ------ Dynamic strings ------ */</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : /* Begin collecting a dynamically allocated string. */</span>
+<span id="L59"><span class="lineNum">      59</span>              : static inline void</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">    10866827 : dynamic_init(da_ptr pda, gs_memory_t *mem)</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : {</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">    10866827 :     pda-&gt;is_dynamic = false;</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">    10866827 :     pda-&gt;limit = pda-&gt;buf + sizeof(pda-&gt;buf);</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">    10866827 :     pda-&gt;next = pda-&gt;base = pda-&gt;buf;</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">    10866827 :     pda-&gt;memory = mem;</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">    10824320 : }</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : /* Free a dynamic string. */</span>
+<span id="L69"><span class="lineNum">      69</span>              : static void</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">    82840803 : dynamic_free(da_ptr pda)</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : {</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">    82840803 :     if (pda-&gt;is_dynamic)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">     2153130 :         gs_free_string(pda-&gt;memory, pda-&gt;base, da_size(pda), &quot;scanner&quot;);</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">    82840803 : }</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              : /* Resize a dynamic string. */</span>
+<span id="L77"><span class="lineNum">      77</span>              : /* If the allocation fails, return gs_error_VMerror; otherwise, return 0. */</span>
+<span id="L78"><span class="lineNum">      78</span>              : static int</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">    13093868 : dynamic_resize(da_ptr pda, uint new_size)</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : {</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">    13093868 :     uint old_size = da_size(pda);</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">    13093868 :     uint pos = pda-&gt;next - pda-&gt;base;</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">    13093868 :     gs_memory_t *mem = pda-&gt;memory;</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">    13093868 :     byte *base;</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">    13093868 :     if (pda-&gt;is_dynamic) {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">       77664 :         base = gs_resize_string(mem, pda-&gt;base, old_size,</span></span>
+<span id="L88"><span class="lineNum">      88</span>              :                                 new_size, &quot;scanner&quot;);</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">       77664 :         if (base == 0)</span></span>
+<span id="L90"><span class="lineNum">      90</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L91"><span class="lineNum">      91</span>              :     } else {                    /* switching from static to dynamic */</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">    13016204 :         base = gs_alloc_string(mem, new_size, &quot;scanner&quot;);</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">    13016204 :         if (base == 0)</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">    13016204 :         memcpy(base, pda-&gt;base, min(old_size, new_size));</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">    13016204 :         pda-&gt;is_dynamic = true;</span></span>
+<span id="L97"><span class="lineNum">      97</span>              :     }</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">    13093868 :     pda-&gt;base = base;</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">    13093868 :     pda-&gt;next = base + pos;</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">    13093868 :     pda-&gt;limit = base + new_size;</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">    13093868 :     return 0;</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : }</span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : /* Grow a dynamic string. */</span>
+<span id="L105"><span class="lineNum">     105</span>              : /* Return 0 if the allocation failed, the new 'next' ptr if OK. */</span>
+<span id="L106"><span class="lineNum">     106</span>              : /* Return 0 or an error code, updating pda-&gt;next to point to the first */</span>
+<span id="L107"><span class="lineNum">     107</span>              : /* available byte after growing. */</span>
+<span id="L108"><span class="lineNum">     108</span>              : static int</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">     2230802 : dynamic_grow(da_ptr pda, byte * next, uint max_size)</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : {</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">     2230802 :     uint old_size = da_size(pda);</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">     2230802 :     uint new_size = (old_size &lt; 10 ? 20 :</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">      116653 :                      old_size &gt;= (max_size &gt;&gt; 1) ? max_size :</span></span>
+<span id="L114"><span class="lineNum">     114</span>              :                      old_size &lt;&lt; 1);</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">     2230802 :     int code;</span></span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">     2230802 :     pda-&gt;next = next;</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">     2230802 :     if (old_size &gt;= max_size)</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :         return_error(gs_error_limitcheck);</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">     2230796 :     while ((code = dynamic_resize(pda, new_size)) &lt; 0) {</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :         /* Try trimming down the requested new size. */</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC tlaBgUNC">           0 :         new_size -= (new_size - old_size + 1) &gt;&gt; 1;</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         if (new_size &lt;= old_size)</span></span>
+<span id="L124"><span class="lineNum">     124</span>              :                 break;</span>
+<span id="L125"><span class="lineNum">     125</span>              :     }</span>
+<span id="L126"><span class="lineNum">     126</span>              :     return code;</span>
+<span id="L127"><span class="lineNum">     127</span>              : }</span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              : /* Ensure that a dynamic string is either on the heap or in the */</span>
+<span id="L130"><span class="lineNum">     130</span>              : /* private buffer. */</span>
+<span id="L131"><span class="lineNum">     131</span>              : static void</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">        9599 : dynamic_save(da_ptr pda)</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : {</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">        9599 :     if (!pda-&gt;is_dynamic &amp;&amp; pda-&gt;base != pda-&gt;buf) {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           4 :         int len = da_size(pda);</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           4 :         if (len &gt; sizeof(pda-&gt;buf))</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           2 :             len = sizeof(pda-&gt;buf);</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         /* This can happen if we get a /&lt;CR&gt; at the end of a buffer, and the file is</span>
+<span id="L140"><span class="lineNum">     140</span>              :          * not at EOF. In this case 'len' will be zero so we don't actually copy any</span>
+<span id="L141"><span class="lineNum">     141</span>              :          * bytes. So this is safe on current C run-time libraries, but it's probably</span>
+<span id="L142"><span class="lineNum">     142</span>              :          * best to avoid it. Coverity ID C382008</span>
+<span id="L143"><span class="lineNum">     143</span>              :          */</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           4 :         if (pda-&gt;base != NULL)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           4 :             memcpy(pda-&gt;buf, pda-&gt;base, len);</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           4 :         pda-&gt;next = pda-&gt;buf + len;</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           4 :         pda-&gt;base = pda-&gt;buf;</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :     }</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">        9599 : }</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : </span>
+<span id="L151"><span class="lineNum">     151</span>              : /* Finish collecting a dynamic string. */</span>
+<span id="L152"><span class="lineNum">     152</span>              : static int</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">    10824288 : dynamic_make_string(i_ctx_t *i_ctx_p, ref * pref, da_ptr pda, byte * next)</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : {</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">    10824288 :     uint size = (pda-&gt;next = next) - pda-&gt;base;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">    10824288 :     int code = dynamic_resize(pda, size);</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">    10824288 :     if (code &lt; 0)</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :         return code;</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">    10824288 :     make_tasv_new(pref, t_string,</span></span>
+<span id="L161"><span class="lineNum">     161</span>              :                   a_all | imemory_space((gs_ref_memory_t *) pda-&gt;memory),</span>
+<span id="L162"><span class="lineNum">     162</span>              :                   size, bytes, pda-&gt;base);</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">    10824288 :     return 0;</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : }</span>
+<span id="L165"><span class="lineNum">     165</span>              : </span>
+<span id="L166"><span class="lineNum">     166</span>              : /* ------ Main scanner ------ */</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : /* GC procedures */</span>
+<span id="L169"><span class="lineNum">     169</span>              : static</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 : CLEAR_MARKS_PROC(scanner_clear_marks)</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : {</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :     scanner_state *const ssptr = vptr;</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :     r_clear_attrs(&amp;ssptr-&gt;s_file, l_mark);</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :     r_clear_attrs(&amp;ssptr-&gt;s_ss.binary.bin_array, l_mark);</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :     r_clear_attrs(&amp;ssptr-&gt;s_error.object, l_mark);</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : static</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 : ENUM_PTRS_WITH(scanner_enum_ptrs, scanner_state *ssptr) return 0;</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : case 0:</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :     ENUM_RETURN_REF(&amp;ssptr-&gt;s_file);</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : case 1:</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :     ENUM_RETURN_REF(&amp;ssptr-&gt;s_error.object);</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 : case 2:</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :     if (ssptr-&gt;s_scan_type == scanning_none ||</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         !ssptr-&gt;s_da.is_dynamic</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         )</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         ENUM_RETURN(0);</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :     return ENUM_STRING2(ssptr-&gt;s_da.base, da_size(&amp;ssptr-&gt;s_da));</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : case 3:</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :     if (ssptr-&gt;s_scan_type != scanning_binary)</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :         return 0;</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :     ENUM_RETURN_REF(&amp;ssptr-&gt;s_ss.binary.bin_array);</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : ENUM_PTRS_END</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 : static RELOC_PTRS_WITH(scanner_reloc_ptrs, scanner_state *ssptr)</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     RELOC_REF_VAR(ssptr-&gt;s_file);</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :     r_clear_attrs(&amp;ssptr-&gt;s_file, l_mark);</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :     if (ssptr-&gt;s_scan_type != scanning_none &amp;&amp; ssptr-&gt;s_da.is_dynamic) {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         gs_string sda;</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         sda.data = ssptr-&gt;s_da.base;</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         sda.size = da_size(&amp;ssptr-&gt;s_da);</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         RELOC_STRING_VAR(sda);</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         ssptr-&gt;s_da.limit = sda.data + sda.size;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         ssptr-&gt;s_da.next = sda.data + (ssptr-&gt;s_da.next - ssptr-&gt;s_da.base);</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         ssptr-&gt;s_da.base = sda.data;</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :     }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :     if (ssptr-&gt;s_scan_type == scanning_binary) {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         RELOC_REF_VAR(ssptr-&gt;s_ss.binary.bin_array);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         r_clear_attrs(&amp;ssptr-&gt;s_ss.binary.bin_array, l_mark);</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :     }</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :     RELOC_REF_VAR(ssptr-&gt;s_error.object);</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :     r_clear_attrs(&amp;ssptr-&gt;s_error.object, l_mark);</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : }</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 : RELOC_PTRS_END</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : /* Structure type */</span>
+<span id="L218"><span class="lineNum">     218</span>              : public_st_scanner_state_dynamic();</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : /* Initialize a scanner. */</span>
+<span id="L221"><span class="lineNum">     221</span>              : void</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">   349975332 : gs_scanner_init_options(scanner_state *sstate, const ref *fop, int options)</span></span>
+<span id="L223"><span class="lineNum">     223</span>              : {</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">   349975332 :     ref_assign(&amp;sstate-&gt;s_file, fop);</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">   349975332 :     sstate-&gt;s_scan_type = scanning_none;</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">   349975332 :     sstate-&gt;s_pstack = 0;</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">   349975332 :     sstate-&gt;s_options = options;</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">   349975332 :     SCAN_INIT_ERROR(sstate);</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">   348102073 : }</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">     1873259 : void gs_scanner_init_stream_options(scanner_state *sstate, stream *s,</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :                                  int options)</span>
+<span id="L232"><span class="lineNum">     232</span>              : {</span>
+<span id="L233"><span class="lineNum">     233</span>              :     /*</span>
+<span id="L234"><span class="lineNum">     234</span>              :      * The file 'object' will never be accessed, but it must be in correct</span>
+<span id="L235"><span class="lineNum">     235</span>              :      * form for the GC.</span>
+<span id="L236"><span class="lineNum">     236</span>              :      */</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">     1873259 :     ref fobj;</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">     1873259 :     make_file(&amp;fobj, a_read, 0, s);</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">     1873259 :     gs_scanner_init_options(sstate, &amp;fobj, options);</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">       42363 : }</span></span>
+<span id="L242"><span class="lineNum">     242</span>              : </span>
+<span id="L243"><span class="lineNum">     243</span>              : /*</span>
+<span id="L244"><span class="lineNum">     244</span>              :  * Return the &quot;error object&quot; to be stored in $error.command instead of</span>
+<span id="L245"><span class="lineNum">     245</span>              :  * --token--, if any, or &lt;0 if no special error object is available.</span>
+<span id="L246"><span class="lineNum">     246</span>              :  */</span>
+<span id="L247"><span class="lineNum">     247</span>              : int</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">         896 : gs_scanner_error_object(i_ctx_t *i_ctx_p, const scanner_state *pstate,</span></span>
+<span id="L249"><span class="lineNum">     249</span>              :                      ref *pseo)</span>
+<span id="L250"><span class="lineNum">     250</span>              : {</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">         896 :     if (!r_has_type(&amp;pstate-&gt;s_error.object, t__invalid)) {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC tlaBgUNC">           0 :         ref_assign(pseo, &amp;pstate-&gt;s_error.object);</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         return 0;</span></span>
+<span id="L254"><span class="lineNum">     254</span>              :     }</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC tlaBgGNC">         896 :     if (pstate-&gt;s_error.string[0]) {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC tlaBgUNC">           0 :         int len = strlen(pstate-&gt;s_error.string);</span></span>
+<span id="L257"><span class="lineNum">     257</span>              : </span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         if (pstate-&gt;s_error.is_name) {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :             int code = name_ref(imemory, (const byte *)pstate-&gt;s_error.string, len, pseo, 1);</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L262"><span class="lineNum">     262</span>              :                 return code;</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :             r_set_attrs(pseo, a_executable); /* Adobe compatibility */</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :             return 0;</span></span>
+<span id="L265"><span class="lineNum">     265</span>              :         } else {</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :             byte *estr = ialloc_string(len, &quot;gs_scanner_error_object&quot;);</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :             if (estr == 0)</span></span>
+<span id="L269"><span class="lineNum">     269</span>              :                 return -1;              /* VMerror */</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :             memcpy(estr, (const byte *)pstate-&gt;s_error.string, len);</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :             make_string(pseo, a_all | icurrent_space, len, estr);</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :             return 0;</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :         }</span>
+<span id="L274"><span class="lineNum">     274</span>              :     }</span>
+<span id="L275"><span class="lineNum">     275</span>              :     return -1;                  /* no error object */</span>
+<span id="L276"><span class="lineNum">     276</span>              : }</span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span>              : /* Handle a scan_Refill return from gs_scan_token. */</span>
+<span id="L279"><span class="lineNum">     279</span>              : /* This may return o_push_estack, 0 (meaning just call gs_scan_token */</span>
+<span id="L280"><span class="lineNum">     280</span>              : /* again), or an error code. */</span>
+<span id="L281"><span class="lineNum">     281</span>              : int</span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC tlaBgGNC">       52552 : gs_scan_handle_refill(i_ctx_t *i_ctx_p, scanner_state * sstate,</span></span>
+<span id="L283"><span class="lineNum">     283</span>              :                    bool save, op_proc_t cont)</span>
+<span id="L284"><span class="lineNum">     284</span>              : {</span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">       52552 :     const ref *const fop = &amp;sstate-&gt;s_file;</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">       52552 :     stream *s = fptr(fop);</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">       52552 :     uint avail = sbufavailable(s);</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">       52552 :     int status;</span></span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">       52552 :     if (s-&gt;end_status == EOFC) {</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :         /* More data needed, but none available, so this is a syntax error. */</span>
+<span id="L292"><span class="lineNum">     292</span>              :         return_error(gs_error_syntaxerror);</span>
+<span id="L293"><span class="lineNum">     293</span>              :     }</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">       52552 :     status = s_process_read_buf(s);</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">       52552 :     if (sbufavailable(s) &gt; avail)</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :         return 0;</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">       52100 :     if (status == 0)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">       52100 :         status = s-&gt;end_status;</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">       52100 :     switch (status) {</span></span>
+<span id="L300"><span class="lineNum">     300</span>              :         case EOFC:</span>
+<span id="L301"><span class="lineNum">     301</span>              :             /* We just discovered that we're at EOF. */</span>
+<span id="L302"><span class="lineNum">     302</span>              :             /* Let the caller find this out. */</span>
+<span id="L303"><span class="lineNum">     303</span>              :             return 0;</span>
+<span id="L304"><span class="lineNum">     304</span>              :         case ERRC:</span>
+<span id="L305"><span class="lineNum">     305</span>              :             return_error(gs_error_ioerror);</span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">       52100 :         case INTC:</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :         case CALLC:</span>
+<span id="L308"><span class="lineNum">     308</span>              :             {</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">       52100 :                 ref rstate[1];</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">       52100 :                 scanner_state *pstate;</span></span>
+<span id="L311"><span class="lineNum">     311</span>              : </span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">       52100 :                 if (save) {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">       52094 :                     pstate = (scanner_state *)</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">       52094 :                         ialloc_struct(scanner_state_dynamic, &amp;st_scanner_state_dynamic,</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :                                       &quot;gs_scan_handle_refill&quot;);</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">       52094 :                     if (pstate == 0)</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :                         return_error(gs_error_VMerror);</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">       52094 :                     ((scanner_state_dynamic *)pstate)-&gt;mem = imemory;</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">       52094 :                     *pstate = *sstate;</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :                 } else</span>
+<span id="L321"><span class="lineNum">     321</span>              :                     pstate = sstate;</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">       52100 :                 make_istruct(&amp;rstate[0], 0, pstate);</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">       52100 :                 return s_handle_read_exception(i_ctx_p, status, fop,</span></span>
+<span id="L324"><span class="lineNum">     324</span>              :                                                rstate, 1, cont);</span>
+<span id="L325"><span class="lineNum">     325</span>              :             }</span>
+<span id="L326"><span class="lineNum">     326</span>              :     }</span>
+<span id="L327"><span class="lineNum">     327</span>              :     /* No more data available, but no exception. */</span>
+<span id="L328"><span class="lineNum">     328</span>              :     /* A filter is consuming headers but returns nothing. */</span>
+<span id="L329"><span class="lineNum">     329</span>              :     return 0;</span>
+<span id="L330"><span class="lineNum">     330</span>              : }</span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span>              : /*</span>
+<span id="L333"><span class="lineNum">     333</span>              :  * Handle a comment.  The 'saved' argument is needed only for</span>
+<span id="L334"><span class="lineNum">     334</span>              :  * tracing printout.</span>
+<span id="L335"><span class="lineNum">     335</span>              :  */</span>
+<span id="L336"><span class="lineNum">     336</span>              : static int</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">       86869 : scan_comment(i_ctx_t *i_ctx_p, ref *pref, scanner_state *pstate,</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :              const byte * base, const byte * end, bool saved)</span>
+<span id="L339"><span class="lineNum">     339</span>              : {</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">       86869 :     uint len = (uint) (end - base);</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">       86869 :     int code;</span></span>
+<span id="L342"><span class="lineNum">     342</span>              : #ifdef DEBUG</span>
+<span id="L343"><span class="lineNum">     343</span>              :     const char *sstr = (saved ? &quot;&gt;&quot; : &quot;&quot;);</span>
+<span id="L344"><span class="lineNum">     344</span>              : #endif</span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">       86869 :     if (len &gt; 1 &amp;&amp; (base[1] == '%' || base[1] == '!')) {</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :         /* Process as a DSC comment if requested. */</span>
+<span id="L348"><span class="lineNum">     348</span>              : #ifdef DEBUG</span>
+<span id="L349"><span class="lineNum">     349</span>              :         if (gs_debug_c('%')) {</span>
+<span id="L350"><span class="lineNum">     350</span>              :             dmlprintf2(imemory, &quot;[%%%%%s%c]&quot;, sstr, (len &gt;= 3 ? '+' : '-'));</span>
+<span id="L351"><span class="lineNum">     351</span>              :             debug_print_string(imemory, base, len);</span>
+<span id="L352"><span class="lineNum">     352</span>              :             dmputs(imemory, &quot;\n&quot;);</span>
+<span id="L353"><span class="lineNum">     353</span>              :         }</span>
+<span id="L354"><span class="lineNum">     354</span>              : #endif</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC tlaBgUNC">           0 :         if (pstate-&gt;s_options &amp; SCAN_PROCESS_DSC_COMMENTS) {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :             code = scan_DSC_Comment;</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :             goto comment;</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :         }</span>
+<span id="L359"><span class="lineNum">     359</span>              :         /* Treat as an ordinary comment. */</span>
+<span id="L360"><span class="lineNum">     360</span>              :     }</span>
+<span id="L361"><span class="lineNum">     361</span>              : #ifdef DEBUG</span>
+<span id="L362"><span class="lineNum">     362</span>              :     else {</span>
+<span id="L363"><span class="lineNum">     363</span>              :         if (gs_debug_c('%')) {</span>
+<span id="L364"><span class="lineNum">     364</span>              :             dmlprintf2(imemory, &quot;[%% %s%c]&quot;, sstr, (len &gt;= 2 ? '+' : '-'));</span>
+<span id="L365"><span class="lineNum">     365</span>              :             debug_print_string(imemory, base, len);</span>
+<span id="L366"><span class="lineNum">     366</span>              :             dmputs(imemory, &quot;\n&quot;);</span>
+<span id="L367"><span class="lineNum">     367</span>              :         }</span>
+<span id="L368"><span class="lineNum">     368</span>              :     }</span>
+<span id="L369"><span class="lineNum">     369</span>              : #endif</span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC tlaBgGNC">       86869 :     if (pstate-&gt;s_options &amp; SCAN_PROCESS_COMMENTS) {</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC tlaBgUNC">           0 :         code = scan_Comment;</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         goto comment;</span></span>
+<span id="L373"><span class="lineNum">     373</span>              :     }</span>
+<span id="L374"><span class="lineNum">     374</span>              :     return 0;</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :  comment:</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :     {</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         byte *cstr = ialloc_string(len, &quot;scan_comment&quot;);</span></span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         if (cstr == 0)</span></span>
+<span id="L380"><span class="lineNum">     380</span>              :             return_error(gs_error_VMerror);</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         memcpy(cstr, base, len);</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         make_string(pref, a_all | icurrent_space, len, cstr);</span></span>
+<span id="L383"><span class="lineNum">     383</span>              :     }</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :     return code;</span></span>
+<span id="L385"><span class="lineNum">     385</span>              : }</span>
+<span id="L386"><span class="lineNum">     386</span>              : </span>
+<span id="L387"><span class="lineNum">     387</span>              : /* Read a token from a string. */</span>
+<span id="L388"><span class="lineNum">     388</span>              : /* Update the string if succesful. */</span>
+<span id="L389"><span class="lineNum">     389</span>              : /* Store the error object in i_ctx_p-&gt;error_object if not. */</span>
+<span id="L390"><span class="lineNum">     390</span>              : int</span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC tlaBgGNC">     1830898 : gs_scan_string_token_options(i_ctx_t *i_ctx_p, ref * pstr, ref * pref,</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :                              int options)</span>
+<span id="L393"><span class="lineNum">     393</span>              : {</span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">     1830898 :     stream st;</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">     1830898 :     stream *s = &amp;st;</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">     1830898 :     scanner_state state;</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">     1830898 :     int code;</span></span>
+<span id="L398"><span class="lineNum">     398</span>              : </span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">     1830898 :     if (!r_has_attr(pstr, a_read))</span></span>
+<span id="L400"><span class="lineNum">     400</span>              :         return_error(gs_error_invalidaccess);</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">     1830896 :     s_init(s, NULL);</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">     1830896 :     sread_string(s, pstr-&gt;value.bytes, r_size(pstr));</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">     1830896 :     gs_scanner_init_stream_options(&amp;state, s, options | SCAN_FROM_STRING);</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">     1830896 :     switch (code = gs_scan_token(i_ctx_p, pref, &amp;state)) {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC tlaBgUNC">           0 :         default:                /* error or comment */</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :             if (code &lt; 0)</span></span>
+<span id="L407"><span class="lineNum">     407</span>              :                 break;</span>
+<span id="L408"><span class="lineNum">     408</span>              :             /* falls through */</span>
+<span id="L409"><span class="lineNum">     409</span>              :         case 0:         /* read a token */</span>
+<span id="L410"><span class="lineNum">     410</span>              :         case scan_BOS:</span>
+<span id="L411"><span class="lineNum">     411</span>              :             {</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC tlaBgGNC">     1825372 :                 uint pos = stell(s);</span></span>
+<span id="L413"><span class="lineNum">     413</span>              : </span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">     1825372 :                 pstr-&gt;value.bytes += pos;</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">     1825372 :                 r_dec_size(pstr, pos);</span></span>
+<span id="L416"><span class="lineNum">     416</span>              :             }</span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">     1825372 :             break;</span></span>
+<span id="L418"><span class="lineNum">     418</span>              :         case scan_Refill:       /* error */</span>
+<span id="L419"><span class="lineNum">     419</span>              :             code = gs_note_error(gs_error_syntaxerror);</span>
+<span id="L420"><span class="lineNum">     420</span>              :         case scan_EOF:</span>
+<span id="L421"><span class="lineNum">     421</span>              :             break;</span>
+<span id="L422"><span class="lineNum">     422</span>              :     }</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">     1825372 :     if (code &lt; 0)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC tlaBgUNC">           0 :         gs_scanner_error_object(i_ctx_p, &amp;state, &amp;i_ctx_p-&gt;error_object);</span></span>
+<span id="L425"><span class="lineNum">     425</span>              :     return code;</span>
+<span id="L426"><span class="lineNum">     426</span>              : }</span>
+<span id="L427"><span class="lineNum">     427</span>              : </span>
+<span id="L428"><span class="lineNum">     428</span>              : /*</span>
+<span id="L429"><span class="lineNum">     429</span>              :  * Read a token from a stream.  Return 0 if an ordinary token was read,</span>
+<span id="L430"><span class="lineNum">     430</span>              :  * &gt;0 for special situations (see iscan.h).</span>
+<span id="L431"><span class="lineNum">     431</span>              :  * If the token required a terminating character (i.e., was a name or</span>
+<span id="L432"><span class="lineNum">     432</span>              :  * number) and the next character was whitespace, read and discard</span>
+<span id="L433"><span class="lineNum">     433</span>              :  * that character.  Note that the state is relevant for gs_error_VMerror</span>
+<span id="L434"><span class="lineNum">     434</span>              :  * as well as for scan_Refill.</span>
+<span id="L435"><span class="lineNum">     435</span>              :  */</span>
+<span id="L436"><span class="lineNum">     436</span>              : int</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC tlaBgGNC">   350027884 : gs_scan_token(i_ctx_t *i_ctx_p, ref * pref, scanner_state * pstate) /* lgtm [cpp/use-of-goto] */</span></span>
+<span id="L438"><span class="lineNum">     438</span>              : {</span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">   350027884 :     stream *const s = pstate-&gt;s_file.value.pfile;</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">   350027884 :     ref *myref = pref;</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">   350027884 :     int retcode = 0;</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">   350027884 :     int c;</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : </span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">   350027884 :     s_declare_inline(s, sptr, endptr);</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">   350027884 :     const byte *newptr;</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">   350027884 :     byte *daptr;</span></span>
+<span id="L447"><span class="lineNum">     447</span>              : </span>
+<span id="L448"><span class="lineNum">     448</span>              : #define sreturn(code)\</span>
+<span id="L449"><span class="lineNum">     449</span>              :   { retcode = gs_note_error(code); goto sret; }</span>
+<span id="L450"><span class="lineNum">     450</span>              : #define if_not_spush1()\</span>
+<span id="L451"><span class="lineNum">     451</span>              :   if ( osp &lt; ostop ) osp++;\</span>
+<span id="L452"><span class="lineNum">     452</span>              :   else if ( (retcode = ref_stack_push(&amp;o_stack, 1)) &gt;= 0 )\</span>
+<span id="L453"><span class="lineNum">     453</span>              :     ;\</span>
+<span id="L454"><span class="lineNum">     454</span>              :   else</span>
+<span id="L455"><span class="lineNum">     455</span>              : #define spop1()\</span>
+<span id="L456"><span class="lineNum">     456</span>              :   if ( osp &gt;= osbot ) osp--;\</span>
+<span id="L457"><span class="lineNum">     457</span>              :   else ref_stack_pop(&amp;o_stack, 1)</span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">   700055768 :     int max_name_ctype =</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">   350027884 :         ((ref_binary_object_format.value.intval != 0 &amp;&amp; level2_enabled)? ctype_name : ctype_btoken);</span></span>
+<span id="L460"><span class="lineNum">     460</span>              : </span>
+<span id="L461"><span class="lineNum">     461</span>              : #define scan_sign(sign, ptr)\</span>
+<span id="L462"><span class="lineNum">     462</span>              :   switch ( *ptr ) {\</span>
+<span id="L463"><span class="lineNum">     463</span>              :     case '-': sign = -1; ptr++; break;\</span>
+<span id="L464"><span class="lineNum">     464</span>              :     case '+': sign = 1; ptr++; break;\</span>
+<span id="L465"><span class="lineNum">     465</span>              :     default: sign = 0;\</span>
+<span id="L466"><span class="lineNum">     466</span>              :   }</span>
+<span id="L467"><span class="lineNum">     467</span>              : #define refill2_back(styp,nback)\</span>
+<span id="L468"><span class="lineNum">     468</span>              :   BEGIN sptr -= nback; sstate.s_scan_type = styp; goto pause; END</span>
+<span id="L469"><span class="lineNum">     469</span>              : #define ensure2_back(styp,nback)\</span>
+<span id="L470"><span class="lineNum">     470</span>              :   if ( sptr &gt;= endptr ) refill2_back(styp,nback)</span>
+<span id="L471"><span class="lineNum">     471</span>              : #define ensure2(styp) ensure2_back(styp, 1)</span>
+<span id="L472"><span class="lineNum">     472</span>              : #define refill2(styp) refill2_back(styp, 1)</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">   350027884 :     byte s1[2];</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">   350027884 :     const byte *const decoder = scan_char_decoder;</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">   350027884 :     int status;</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">   350027884 :     int sign;</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">   350027884 :     const bool check_only = (pstate-&gt;s_options &amp; SCAN_CHECK_ONLY) != 0;</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">   350027884 :     const bool PDFScanRules = (i_ctx_p-&gt;scanner_options &amp; SCAN_PDF_RULES) != 0;</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :     /*</span>
+<span id="L480"><span class="lineNum">     480</span>              :      * The following is a hack so that ^D will be self-delimiting in PS files</span>
+<span id="L481"><span class="lineNum">     481</span>              :      * (to compensate for bugs in some PostScript-generating applications)</span>
+<span id="L482"><span class="lineNum">     482</span>              :      * but not in strings (to match CPSI on the CET) or PDF.</span>
+<span id="L483"><span class="lineNum">     483</span>              :      */</span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">   348164218 :     const int ctrld = (pstate-&gt;s_options &amp; SCAN_FROM_STRING ||</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">   350027884 :                       PDFScanRules ? 0x04 : 0xffff);</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">   350027884 :     scanner_state sstate;</span></span>
+<span id="L487"><span class="lineNum">     487</span>              : </span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">   350027884 :     sptr = endptr = NULL; /* Quiet compiler */</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">   350027884 :     if (pstate-&gt;s_pstack != 0) {</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">         864 :         if_not_spush1()</span></span>
+<span id="L491"><span class="lineNum">     491</span>              :             return retcode;</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">         864 :         myref = osp;</span></span>
+<span id="L493"><span class="lineNum">     493</span>              :     }</span>
+<span id="L494"><span class="lineNum">     494</span>              :     /* Check whether we are resuming after an interruption. */</span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">   350027884 :     if (pstate-&gt;s_scan_type != scanning_none) {</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">        9593 :         sstate = *pstate;</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">        9593 :         if (!sstate.s_da.is_dynamic &amp;&amp; sstate.s_da.base != sstate.s_da.buf) {</span></span>
+<span id="L498"><span class="lineNum">     498</span>              :             /* The sstate.s_da contains some self-referencing pointers. */</span>
+<span id="L499"><span class="lineNum">     499</span>              :             /* Fix them up now. */</span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC tlaBgUNC">           0 :             uint next = sstate.s_da.next - sstate.s_da.base;</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :             uint limit = sstate.s_da.limit - sstate.s_da.base;</span></span>
+<span id="L502"><span class="lineNum">     502</span>              : </span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :             sstate.s_da.base = sstate.s_da.buf;</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :             sstate.s_da.next = sstate.s_da.buf + next;</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :             sstate.s_da.limit = sstate.s_da.buf + limit;</span></span>
+<span id="L506"><span class="lineNum">     506</span>              :         }</span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC tlaBgGNC">        9593 :         daptr = sstate.s_da.next;</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">        9593 :         switch (sstate.s_scan_type) {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC tlaBgUNC">           0 :             case scanning_binary:</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                 retcode = (*sstate.s_ss.binary.cont)</span></span>
+<span id="L511"><span class="lineNum">     511</span>              :                     (i_ctx_p, myref, &amp;sstate);</span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                 s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                 if (retcode == scan_Refill)</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                     goto pause;</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                 goto sret;</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :             case scanning_comment:</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                 goto cont_comment;</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC tlaBgGNC">        9593 :             case scanning_name:</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">        9593 :                 goto cont_name;</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC tlaBgUNC">           0 :             case scanning_string:</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 goto cont_string;</span></span>
+<span id="L523"><span class="lineNum">     523</span>              :             default:</span>
+<span id="L524"><span class="lineNum">     524</span>              :                 return_error(gs_error_Fatal);</span>
+<span id="L525"><span class="lineNum">     525</span>              :         }</span>
+<span id="L526"><span class="lineNum">     526</span>              :     }</span>
+<span id="L527"><span class="lineNum">     527</span>              :     else {</span>
+<span id="L528"><span class="lineNum">     528</span>              :         /* We *may* use these in the event of returning to this function after</span>
+<span id="L529"><span class="lineNum">     529</span>              :          * a interruption, but not every code path below sets them. Set them</span>
+<span id="L530"><span class="lineNum">     530</span>              :          * to sane values here for safety. We can write the contents of sstate</span>
+<span id="L531"><span class="lineNum">     531</span>              :          * (back) to pstate before returning.</span>
+<span id="L532"><span class="lineNum">     532</span>              :          */</span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC tlaBgGNC">   350018291 :         sstate.s_da.base = sstate.s_da.next = &amp;(sstate.s_da.buf[0]);</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">   350018291 :         sstate.s_da.limit = sstate.s_da.next;</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">   350018291 :         sstate.s_da.is_dynamic = false;</span></span>
+<span id="L536"><span class="lineNum">     536</span>              :     }</span>
+<span id="L537"><span class="lineNum">     537</span>              :     /* Fetch any state variables that are relevant even if */</span>
+<span id="L538"><span class="lineNum">     538</span>              :     /* sstate.s_scan_type == scanning_none. */</span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">   350018291 :     sstate.s_pstack = pstate-&gt;s_pstack;</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">   350018291 :     sstate.s_pdepth = pstate-&gt;s_pdepth;</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">   350018291 :     ref_assign(&amp;sstate.s_file, &amp;pstate-&gt;s_file);</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">   350018291 :     sstate.s_options = pstate-&gt;s_options;</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">   350018291 :     SCAN_INIT_ERROR(&amp;sstate);</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">   350018291 :     s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L545"><span class="lineNum">     545</span>              :     /*</span>
+<span id="L546"><span class="lineNum">     546</span>              :      * Loop invariants:</span>
+<span id="L547"><span class="lineNum">     547</span>              :      *      If sstate.s_pstack != 0, myref = osp, and *osp is a valid slot.</span>
+<span id="L548"><span class="lineNum">     548</span>              :      */</span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">   723494496 :   top:c = sgetc_inline(s, sptr, endptr);</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">   723494496 :     if_debug1m('S', imemory, (c &gt;= 32 &amp;&amp; c &lt;= 126 ? &quot;`%c'&quot; : c &gt;= 0 ? &quot;`\\%03o'&quot; : &quot;`%d'&quot;), c);</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">   723494496 :     switch (c) {</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">     1679125 :         case ' ':</span></span>
+<span id="L553"><span class="lineNum">     553</span>              :         case '\f':</span>
+<span id="L554"><span class="lineNum">     554</span>              :         case '\t':</span>
+<span id="L555"><span class="lineNum">     555</span>              :         case char_CR:</span>
+<span id="L556"><span class="lineNum">     556</span>              :         case char_EOL:</span>
+<span id="L557"><span class="lineNum">     557</span>              :         case char_NULL:</span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">     1679125 :             goto top;</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC tlaBgUNC">           0 :         case 0x04:              /* see ctrld above */</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :             if (c == ctrld)     /* treat as ordinary name char */</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                 goto begin_name;</span></span>
+<span id="L562"><span class="lineNum">     562</span>              :             /* fall through */</span>
+<span id="L563"><span class="lineNum">     563</span>              :         case '[':</span>
+<span id="L564"><span class="lineNum">     564</span>              :         case ']':</span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC tlaBgGNC">    77304726 :             s1[0] = (byte) c;</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">    77304726 :             retcode = name_ref(imemory, s1, 1, myref, 1);       /* can't fail */</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">    77304726 :             r_set_attrs(myref, a_executable);</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">    77304726 :             break;</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">     1152988 :         case '&lt;':</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">     1152988 :             if (level2_enabled) {</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">     1085837 :                 ensure2(scanning_none);</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">     1085627 :                 c = sgetc_inline(s, sptr, endptr);</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">     1085627 :                 switch (c) {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">      449794 :                     case '&lt;':</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">      449794 :                         sputback_inline(s, sptr, endptr);</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">      449794 :                         sstate.s_ss.s_name.s_name_type = 0;</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">      449794 :                         sstate.s_ss.s_name.s_try_number = false;</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">      449794 :                         goto try_funny_name;</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC tlaBgUNC">           0 :                     case '~':</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                         s_A85D_init_inline(&amp;sstate.s_ss.a85d);</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                         sstate.s_ss.st.templat = &amp;s_A85D_template;</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                         sstate.s_ss.a85d.require_eod = true;</span></span>
+<span id="L583"><span class="lineNum">     583</span>              :                         /* If this is an inline ASCII string, interpret it normally, throw an error</span>
+<span id="L584"><span class="lineNum">     584</span>              :                          * if it fails rather than ignoring it as PDF (Acrobat) does.</span>
+<span id="L585"><span class="lineNum">     585</span>              :                          */</span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                         sstate.s_ss.a85d.pdf_rules = false;</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :                         goto str;</span></span>
+<span id="L588"><span class="lineNum">     588</span>              :                 }</span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC tlaBgGNC">      635833 :                 sputback_inline(s, sptr, endptr);</span></span>
+<span id="L590"><span class="lineNum">     590</span>              :             }</span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">      702984 :             (void)s_AXD_init_inline(&amp;sstate.s_ss.axd);</span></span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">      702984 :             sstate.s_ss.st.templat = &amp;s_AXD_template;</span></span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">    10824320 :           str:s_end_inline(s, sptr, endptr);</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">    10824320 :             dynamic_init(&amp;sstate.s_da, imemory);</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">    10824320 :           cont_string:for (;;) {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">    10827114 :                 stream_cursor_write w;</span></span>
+<span id="L597"><span class="lineNum">     597</span>              : </span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">    10827114 :                 w.ptr = sstate.s_da.next - 1;</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">    10827114 :                 w.limit = sstate.s_da.limit - 1;</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">    21654228 :                 status = (*sstate.s_ss.st.templat-&gt;process)</span></span>
+<span id="L601"><span class="lineNum">     601</span>              :                     (&amp;sstate.s_ss.st, &amp;s-&gt;cursor.r, &amp;w,</span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">    10827114 :                      s-&gt;end_status == EOFC);</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">    10827114 :                 if (!check_only)</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">    10827114 :                     sstate.s_da.next = w.ptr + 1;</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">    10827114 :                 switch (status) {</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">        2708 :                     case 0:</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">        2708 :                         status = s-&gt;end_status;</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">        2708 :                         if (status &lt; 0) {</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC tlaBgUNC">           0 :                             if (status == EOFC) {</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                                 if (check_only) {</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                                     retcode = scan_Refill;</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :                                     sstate.s_scan_type = scanning_string;</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :                                     goto suspend;</span></span>
+<span id="L614"><span class="lineNum">     614</span>              :                                 } else</span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :                                     sreturn(gs_error_syntaxerror);</span></span>
+<span id="L616"><span class="lineNum">     616</span>              :                             }</span>
+<span id="L617"><span class="lineNum">     617</span>              :                             break;</span>
+<span id="L618"><span class="lineNum">     618</span>              :                         }</span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC tlaBgGNC">        2708 :                         s_process_read_buf(s);</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">        2794 :                         continue;</span></span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">          86 :                     case 1:</span></span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">          86 :                         if (!check_only) {</span></span>
+<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">          86 :                             retcode = dynamic_grow(&amp;sstate.s_da, sstate.s_da.next, max_string_size);</span></span>
+<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">          86 :                             if (retcode == gs_error_VMerror) {</span></span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaUNC tlaBgUNC">           0 :                                 sstate.s_scan_type = scanning_string;</span></span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaUNC">           0 :                                 goto suspend;</span></span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC tlaBgGNC">          86 :                             } else if (retcode &lt; 0)</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC tlaBgUNC">           0 :                                 sreturn(retcode);</span></span>
+<span id="L629"><span class="lineNum">     629</span>              :                         }</span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC tlaBgGNC">          86 :                         continue;</span></span>
+<span id="L631"><span class="lineNum">     631</span>              :                 }</span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">    10824320 :                 break;</span></span>
+<span id="L633"><span class="lineNum">     633</span>              :             }</span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">    10824320 :             s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">    10824320 :             switch (status) {</span></span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">          32 :                 default:</span></span>
+<span id="L637"><span class="lineNum">     637</span>              :                     /*case ERRC: */</span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">          32 :                     sreturn(gs_error_syntaxerror);</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaUNC tlaBgUNC">           0 :                 case INTC:</span></span>
+<span id="L640"><span class="lineNum">     640</span>              :                 case CALLC:</span>
+<span id="L641"><span class="lineNum">     641</span> <span class="tlaUNC">           0 :                     sstate.s_scan_type = scanning_string;</span></span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaUNC">           0 :                     goto pause;</span></span>
+<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC tlaBgGNC">    10824288 :                 case EOFC:</span></span>
+<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">    10824288 :                     ;</span></span>
+<span id="L645"><span class="lineNum">     645</span>              :             }</span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">    10824288 :             retcode = dynamic_make_string(i_ctx_p, myref, &amp;sstate.s_da, sstate.s_da.next);</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">    10824288 :             if (retcode &lt; 0) {  /* VMerror */</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaUNC tlaBgUNC">           0 :                 sputback(s);    /* rescan ) */</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaUNC">           0 :                 sstate.s_scan_type = scanning_string;</span></span>
+<span id="L650"><span class="lineNum">     650</span> <span class="tlaUNC">           0 :                 goto suspend;</span></span>
+<span id="L651"><span class="lineNum">     651</span>              :             }</span>
+<span id="L652"><span class="lineNum">     652</span>              :             break;</span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC tlaBgGNC">    10121336 :         case '(':</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">    20242672 :             sstate.s_ss.pssd.from_string =</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">    10121336 :                 ((pstate-&gt;s_options &amp; SCAN_FROM_STRING) != 0) &amp;&amp;</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaUNC tlaBgUNC">           0 :                 !level2_enabled;</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC tlaBgGNC">    10121336 :             s_PSSD_partially_init_inline(&amp;sstate.s_ss.pssd);</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">    10121336 :             sstate.s_ss.st.templat = &amp;s_PSSD_template;</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">    10121336 :             goto str;</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">    44971012 :         case '{':</span></span>
+<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">    44971012 :             if (sstate.s_pstack == 0) {  /* outermost procedure */</span></span>
+<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">    12521530 :                 if_not_spush1() {</span></span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaUNC tlaBgUNC">           0 :                     sputback_inline(s, sptr, endptr);</span></span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaUNC">           0 :                     sstate.s_scan_type = scanning_none;</span></span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaUNC">           0 :                     goto pause_ret;</span></span>
+<span id="L666"><span class="lineNum">     666</span>              :                 }</span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC tlaBgGNC">    12521530 :                 sstate.s_pdepth = ref_stack_count_inline(&amp;o_stack);</span></span>
+<span id="L668"><span class="lineNum">     668</span>              :             }</span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">    44971012 :             make_int(osp, sstate.s_pstack);</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">    44971012 :             sstate.s_pstack = ref_stack_count_inline(&amp;o_stack);</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">    44971012 :             if_debug3m('S', imemory, &quot;[S{]d=%d, s=%d-&gt;%d\n&quot;,</span></span>
+<span id="L672"><span class="lineNum">     672</span>              :                        sstate.s_pdepth, (int)osp-&gt;value.intval, sstate.s_pstack);</span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaGNC">    44971012 :             goto snext;</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">      441860 :         case '&gt;':</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">      441860 :             if (level2_enabled) {</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC">      441860 :                 ensure2(scanning_none);</span></span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaGNC">      441858 :                 sstate.s_ss.s_name.s_name_type = 0;</span></span>
+<span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC">      441858 :                 sstate.s_ss.s_name.s_try_number = false;</span></span>
+<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC">      441858 :                 goto try_funny_name;</span></span>
+<span id="L680"><span class="lineNum">     680</span>              :             }</span>
+<span id="L681"><span class="lineNum">     681</span>              :             /* falls through */</span>
+<span id="L682"><span class="lineNum">     682</span>              :         case ')':</span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           2 :             sreturn(gs_error_syntaxerror);</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">    44970000 :         case '}':</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">    44970000 :             if (sstate.s_pstack == 0)</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">         326 :                 sreturn(gs_error_syntaxerror);</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">    44969674 :             osp--;</span></span>
+<span id="L688"><span class="lineNum">     688</span>              :             {</span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">    44969674 :                 uint size = ref_stack_count_inline(&amp;o_stack) - sstate.s_pstack;</span></span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">    44969674 :                 ref arr;</span></span>
+<span id="L691"><span class="lineNum">     691</span>              : </span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">    44969674 :                 if_debug4m('S', imemory, &quot;[S}]d=%&quot;PRIu32&quot;, s=%&quot;PRIu32&quot;-&gt;%&quot;PRIpsint&quot;, c=%&quot;PRIu32&quot;\n&quot;,</span></span>
+<span id="L693"><span class="lineNum">     693</span>              :                            sstate.s_pdepth, sstate.s_pstack,</span>
+<span id="L694"><span class="lineNum">     694</span>              :                            (sstate.s_pstack == sstate.s_pdepth ? 0 :</span>
+<span id="L695"><span class="lineNum">     695</span>              :                            ref_stack_index(&amp;o_stack, size)-&gt;value.intval),</span>
+<span id="L696"><span class="lineNum">     696</span>              :                            size + sstate.s_pstack);</span>
+<span id="L697"><span class="lineNum">     697</span> <span class="tlaGNC">    44969674 :                 if (size &gt; max_array_size)</span></span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaUNC tlaBgUNC">           0 :                     sreturn(gs_error_limitcheck);</span></span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC tlaBgGNC">    44969674 :                 myref = (sstate.s_pstack == sstate.s_pdepth ? pref : &amp;arr);</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">    44969674 :                 if (check_only) {</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC tlaBgUNC">           0 :                     make_empty_array(myref, 0);</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaUNC">           0 :                     ref_stack_pop(&amp;o_stack, size);</span></span>
+<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC tlaBgGNC">    44969674 :                 } else if (ref_array_packing.value.boolval) {</span></span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">    43820826 :                     retcode = make_packed_array(myref, &amp;o_stack, size,</span></span>
+<span id="L705"><span class="lineNum">     705</span>              :                                                 idmemory, &quot;scanner(packed)&quot;);</span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">    43820826 :                     if (retcode &lt; 0) {  /* must be VMerror */</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaUNC tlaBgUNC">           0 :                         osp++;</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :                         sputback_inline(s, sptr, endptr);</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaUNC">           0 :                         sstate.s_scan_type = scanning_none;</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :                         goto pause_ret;</span></span>
+<span id="L711"><span class="lineNum">     711</span>              :                     }</span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">    43820826 :                     r_set_attrs(myref, a_executable);</span></span>
+<span id="L713"><span class="lineNum">     713</span>              :                 } else {</span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">     1148848 :                     retcode = ialloc_ref_array(myref,</span></span>
+<span id="L715"><span class="lineNum">     715</span>              :                                                a_executable + a_all, size,</span>
+<span id="L716"><span class="lineNum">     716</span>              :                                                &quot;scanner(proc)&quot;);</span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">     1148848 :                     if (retcode &lt; 0) {  /* must be VMerror */</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC tlaBgUNC">           0 :                         osp++;</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :                         sputback_inline(s, sptr, endptr);</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :                         sstate.s_scan_type = scanning_none;</span></span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :                         goto pause_ret;</span></span>
+<span id="L722"><span class="lineNum">     722</span>              :                     }</span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC tlaBgGNC">     1148848 :                     retcode = ref_stack_store(&amp;o_stack, myref, size, 0, 1,</span></span>
+<span id="L724"><span class="lineNum">     724</span>              :                                               false, idmemory, &quot;scanner&quot;);</span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaGNC">     1148848 :                     if (retcode &lt; 0) {</span></span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC tlaBgUNC">           0 :                         ifree_ref_array(myref, &quot;scanner(proc)&quot;);</span></span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 :                         sreturn(retcode);</span></span>
+<span id="L728"><span class="lineNum">     728</span>              :                     }</span>
+<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC tlaBgGNC">     1148848 :                     ref_stack_pop(&amp;o_stack, size);</span></span>
+<span id="L730"><span class="lineNum">     730</span>              :                 }</span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">    44969674 :                 if (sstate.s_pstack == sstate.s_pdepth) {         /* This was the top-level procedure. */</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaGNC">    12521016 :                     spop1();</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaGNC">    12521016 :                     sstate.s_pstack = 0;</span></span>
+<span id="L734"><span class="lineNum">     734</span>              :                 } else {</span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaGNC">    32448658 :                     if (osp &lt; osbot)</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC tlaBgUNC">           0 :                         ref_stack_pop_block(&amp;o_stack);</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC tlaBgGNC">    32448658 :                     sstate.s_pstack = osp-&gt;value.intval;</span></span>
+<span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">    32448658 :                     *osp = arr;</span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">    32448658 :                     goto snext;</span></span>
+<span id="L740"><span class="lineNum">     740</span>              :                 }</span>
+<span id="L741"><span class="lineNum">     741</span>              :             }</span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaGNC">    12521016 :             break;</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">   172551290 :         case '/':</span></span>
+<span id="L744"><span class="lineNum">     744</span>              :             /*</span>
+<span id="L745"><span class="lineNum">     745</span>              :              * If the last thing in the input is a '/', don't try to read</span>
+<span id="L746"><span class="lineNum">     746</span>              :              * any more data.</span>
+<span id="L747"><span class="lineNum">     747</span>              :              */</span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">   172551290 :             if (sptr &gt;= endptr &amp;&amp; s-&gt;end_status != EOFC) {</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">         240 :                 refill2(scanning_none);</span></span>
+<span id="L750"><span class="lineNum">     750</span>              :             }</span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">   172551050 :             c = sgetc_inline(s, sptr, endptr);</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">   172551050 :             if (!PDFScanRules &amp;&amp; (c == '/')) {</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaGNC">    16432809 :                 sstate.s_ss.s_name.s_name_type = 2;</span></span>
+<span id="L754"><span class="lineNum">     754</span> <span class="tlaGNC">    16432809 :                 c = sgetc_inline(s, sptr, endptr);</span></span>
+<span id="L755"><span class="lineNum">     755</span>              :             } else</span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaGNC">   156118241 :                 sstate.s_ss.s_name.s_name_type = 1;</span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaGNC">   172551050 :             sstate.s_ss.s_name.s_try_number = false;</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaGNC">   172551050 :             switch (decoder[c]) {</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaGNC">   172528283 :                 case ctype_name:</span></span>
+<span id="L760"><span class="lineNum">     760</span>              :                 default:</span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">   172528283 :                     goto do_name;</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC tlaBgUNC">           0 :                 case ctype_btoken:</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaUNC">           0 :                     if (!(ref_binary_object_format.value.intval != 0 &amp;&amp; level2_enabled))</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 :                         goto do_name;</span></span>
+<span id="L765"><span class="lineNum">     765</span>              :                     /* otherwise, an empty name */</span>
+<span id="L766"><span class="lineNum">     766</span>              :                 case ctype_exception:</span>
+<span id="L767"><span class="lineNum">     767</span>              :                 case ctype_space:</span>
+<span id="L768"><span class="lineNum">     768</span>              :                     /*</span>
+<span id="L769"><span class="lineNum">     769</span>              :                      * Amazingly enough, the Adobe implementations don't accept</span>
+<span id="L770"><span class="lineNum">     770</span>              :                      * / or // followed by [, ], &lt;&lt;, or &gt;&gt;, so we do the same.</span>
+<span id="L771"><span class="lineNum">     771</span>              :                      * (Older versions of our code had a ctype_other case here</span>
+<span id="L772"><span class="lineNum">     772</span>              :                      * that handled these specially.)</span>
+<span id="L773"><span class="lineNum">     773</span>              :                      */</span>
+<span id="L774"><span class="lineNum">     774</span>              :                 case ctype_other:</span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaGNC tlaBgGNC">       22767 :                     if (c == ctrld) /* see above */</span></span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC tlaBgUNC">           0 :                         goto do_name;</span></span>
+<span id="L777"><span class="lineNum">     777</span> <span class="tlaGNC tlaBgGNC">       22767 :                     sstate.s_da.base = sstate.s_da.limit = daptr = 0;</span></span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaGNC">       22767 :                     sstate.s_da.is_dynamic = false;</span></span>
+<span id="L779"><span class="lineNum">     779</span> <span class="tlaGNC">       22767 :                     goto nx;</span></span>
+<span id="L780"><span class="lineNum">     780</span>              :             }</span>
+<span id="L781"><span class="lineNum">     781</span>              :         case '%':</span>
+<span id="L782"><span class="lineNum">     782</span>              :             {                   /* Scan as much as possible within the buffer. */</span>
+<span id="L783"><span class="lineNum">     783</span>              :                 const byte *base = sptr;</span>
+<span id="L784"><span class="lineNum">     784</span>              :                 const byte *end;</span>
+<span id="L785"><span class="lineNum">     785</span>              : </span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaGNC">     1069305 :                 while (++sptr &lt; endptr)         /* stop 1 char early */</span></span>
+<span id="L787"><span class="lineNum">     787</span> <span class="tlaGNC">     1069247 :                     switch (*sptr) {</span></span>
+<span id="L788"><span class="lineNum">     788</span> <span class="tlaUNC tlaBgUNC">           0 :                         case char_CR:</span></span>
+<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :                             end = sptr;</span></span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :                             if (sptr[1] == char_EOL)</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                                 sptr++;</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :                           cend: /* Check for externally processed comments. */</span></span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaGNC tlaBgGNC">       86811 :                             retcode = scan_comment(i_ctx_p, myref, &amp;sstate,</span></span>
+<span id="L794"><span class="lineNum">     794</span>              :                                                    base, end, false);</span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">       86811 :                             if (retcode != 0)</span></span>
+<span id="L796"><span class="lineNum">     796</span> <span class="tlaUNC tlaBgUNC">           0 :                                 goto comment;</span></span>
+<span id="L797"><span class="lineNum">     797</span> <span class="tlaGNC tlaBgGNC">       86811 :                             goto top;</span></span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaGNC">       86811 :                         case char_EOL:</span></span>
+<span id="L799"><span class="lineNum">     799</span>              :                         case '\f':</span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaGNC">       86811 :                             end = sptr;</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaGNC">       86811 :                             goto cend;</span></span>
+<span id="L802"><span class="lineNum">     802</span>              :                     }</span>
+<span id="L803"><span class="lineNum">     803</span>              :                 /*</span>
+<span id="L804"><span class="lineNum">     804</span>              :                  * We got to the end of the buffer while inside a comment.</span>
+<span id="L805"><span class="lineNum">     805</span>              :                  * If there is a possibility that we must pass the comment</span>
+<span id="L806"><span class="lineNum">     806</span>              :                  * to an external procedure, move what we have collected</span>
+<span id="L807"><span class="lineNum">     807</span>              :                  * so far into a private buffer now.</span>
+<span id="L808"><span class="lineNum">     808</span>              :                  */</span>
+<span id="L809"><span class="lineNum">     809</span> <span class="tlaGNC">          58 :                 --sptr;</span></span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaGNC">          58 :                 sstate.s_da.buf[1] = 0;</span></span>
+<span id="L811"><span class="lineNum">     811</span>              :                 {</span>
+<span id="L812"><span class="lineNum">     812</span>              :                     /* Could be an externally processable comment. */</span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaGNC">          58 :                     uint len = sptr + 1 - base;</span></span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaGNC">          58 :                     if (len &gt; sizeof(sstate.s_da.buf))</span></span>
+<span id="L815"><span class="lineNum">     815</span>              :                         len = sizeof(sstate.s_da.buf);</span>
+<span id="L816"><span class="lineNum">     816</span>              : </span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaGNC">          58 :                     memcpy(sstate.s_da.buf, base, len);</span></span>
+<span id="L818"><span class="lineNum">     818</span> <span class="tlaGNC">          58 :                     daptr = sstate.s_da.buf + len;</span></span>
+<span id="L819"><span class="lineNum">     819</span>              :                 }</span>
+<span id="L820"><span class="lineNum">     820</span> <span class="tlaGNC">          58 :                 sstate.s_da.base = sstate.s_da.buf;</span></span>
+<span id="L821"><span class="lineNum">     821</span> <span class="tlaGNC">          58 :                 sstate.s_da.is_dynamic = false;</span></span>
+<span id="L822"><span class="lineNum">     822</span>              :             }</span>
+<span id="L823"><span class="lineNum">     823</span>              :             /* Enter here to continue scanning a comment. */</span>
+<span id="L824"><span class="lineNum">     824</span>              :             /* daptr must be set. */</span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">          58 :           cont_comment:for (;;) {</span></span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaGNC">      768716 :                 switch ((c = sgetc_inline(s, sptr, endptr))) {</span></span>
+<span id="L827"><span class="lineNum">     827</span> <span class="tlaGNC">      768658 :                     default:</span></span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaGNC">      768658 :                         if (c &lt; 0)</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC tlaBgUNC">           0 :                             switch (c) {</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :                                 case INTC:</span></span>
+<span id="L831"><span class="lineNum">     831</span>              :                                 case CALLC:</span>
+<span id="L832"><span class="lineNum">     832</span> <span class="tlaUNC">           0 :                                     sstate.s_da.next = daptr;</span></span>
+<span id="L833"><span class="lineNum">     833</span> <span class="tlaUNC">           0 :                                     sstate.s_scan_type = scanning_comment;</span></span>
+<span id="L834"><span class="lineNum">     834</span> <span class="tlaUNC">           0 :                                     goto pause;</span></span>
+<span id="L835"><span class="lineNum">     835</span> <span class="tlaUNC">           0 :                                 case EOFC:</span></span>
+<span id="L836"><span class="lineNum">     836</span>              :                                     /*</span>
+<span id="L837"><span class="lineNum">     837</span>              :                                      * One would think that an EOF in a comment</span>
+<span id="L838"><span class="lineNum">     838</span>              :                                      * should be a syntax error, but there are</span>
+<span id="L839"><span class="lineNum">     839</span>              :                                      * quite a number of files that end that way.</span>
+<span id="L840"><span class="lineNum">     840</span>              :                                      */</span>
+<span id="L841"><span class="lineNum">     841</span> <span class="tlaUNC">           0 :                                     goto end_comment;</span></span>
+<span id="L842"><span class="lineNum">     842</span> <span class="tlaUNC">           0 :                                 default:</span></span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 :                                     sreturn(gs_error_syntaxerror);</span></span>
+<span id="L844"><span class="lineNum">     844</span>              :                             }</span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaGNC tlaBgGNC">      768658 :                         if (daptr &lt; sstate.s_da.buf + max_comment_line)</span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">        1380 :                             *daptr++ = c;</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">      768658 :                         continue;</span></span>
+<span id="L848"><span class="lineNum">     848</span>              :                     case char_CR:</span>
+<span id="L849"><span class="lineNum">     849</span>              :                     case char_EOL:</span>
+<span id="L850"><span class="lineNum">     850</span>              :                     case '\f':</span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaGNC">          58 :                       end_comment:</span></span>
+<span id="L852"><span class="lineNum">     852</span> <span class="tlaGNC">          58 :                         retcode = scan_comment(i_ctx_p, myref, &amp;sstate,</span></span>
+<span id="L853"><span class="lineNum">     853</span>              :                                                sstate.s_da.buf, daptr, true);</span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaGNC">          58 :                         if (retcode != 0)</span></span>
+<span id="L855"><span class="lineNum">     855</span> <span class="tlaUNC tlaBgUNC">           0 :                             goto comment;</span></span>
+<span id="L856"><span class="lineNum">     856</span> <span class="tlaGNC tlaBgGNC">          58 :                         goto top;</span></span>
+<span id="L857"><span class="lineNum">     857</span>              :                 }</span>
+<span id="L858"><span class="lineNum">     858</span>              :             }</span>
+<span id="L859"><span class="lineNum">     859</span>              :             /*NOTREACHED */</span>
+<span id="L860"><span class="lineNum">     860</span> <span class="tlaGNC">      118905 :         case EOFC:</span></span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaGNC">      118905 :             if (sstate.s_pstack != 0) {</span></span>
+<span id="L862"><span class="lineNum">     862</span> <span class="tlaGNC">         508 :                 if (check_only)</span></span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC tlaBgUNC">           0 :                     goto pause;</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaGNC tlaBgGNC">         508 :                 sreturn(gs_error_syntaxerror);</span></span>
+<span id="L865"><span class="lineNum">     865</span>              :             }</span>
+<span id="L866"><span class="lineNum">     866</span>              :             retcode = scan_EOF;</span>
+<span id="L867"><span class="lineNum">     867</span>              :             break;</span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC tlaBgUNC">           0 :         case ERRC:</span></span>
+<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :             sreturn(gs_error_ioerror);</span></span>
+<span id="L870"><span class="lineNum">     870</span>              : </span>
+<span id="L871"><span class="lineNum">     871</span>              :             /* Check for a Level 2 funny name (&lt;&lt; or &gt;&gt;). */</span>
+<span id="L872"><span class="lineNum">     872</span>              :             /* c is '&lt;' or '&gt;'.  We already did an ensure2. */</span>
+<span id="L873"><span class="lineNum">     873</span> <span class="tlaGNC tlaBgGNC">      891652 :           try_funny_name:</span></span>
+<span id="L874"><span class="lineNum">     874</span>              :             {</span>
+<span id="L875"><span class="lineNum">     875</span> <span class="tlaGNC">      891652 :                 int c1 = sgetc_inline(s, sptr, endptr);</span></span>
+<span id="L876"><span class="lineNum">     876</span>              : </span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaGNC">      891652 :                 if (c1 == c) {</span></span>
+<span id="L878"><span class="lineNum">     878</span> <span class="tlaGNC">      891644 :                     s1[0] = s1[1] = c;</span></span>
+<span id="L879"><span class="lineNum">     879</span> <span class="tlaGNC">      891644 :                     name_ref(imemory, s1, 2, myref, 1); /* can't fail */</span></span>
+<span id="L880"><span class="lineNum">     880</span> <span class="tlaGNC">      891644 :                     goto have_name;</span></span>
+<span id="L881"><span class="lineNum">     881</span>              :                 }</span>
+<span id="L882"><span class="lineNum">     882</span> <span class="tlaGNC">           8 :                 sputback_inline(s, sptr, endptr);</span></span>
+<span id="L883"><span class="lineNum">     883</span>              :             }</span>
+<span id="L884"><span class="lineNum">     884</span> <span class="tlaGNC">           8 :             sreturn(gs_error_syntaxerror);</span></span>
+<span id="L885"><span class="lineNum">     885</span>              : </span>
+<span id="L886"><span class="lineNum">     886</span>              :             /* Handle separately the names that might be a number. */</span>
+<span id="L887"><span class="lineNum">     887</span>              :         case '0':</span>
+<span id="L888"><span class="lineNum">     888</span>              :         case '1':</span>
+<span id="L889"><span class="lineNum">     889</span>              :         case '2':</span>
+<span id="L890"><span class="lineNum">     890</span>              :         case '3':</span>
+<span id="L891"><span class="lineNum">     891</span>              :         case '4':</span>
+<span id="L892"><span class="lineNum">     892</span>              :         case '5':</span>
+<span id="L893"><span class="lineNum">     893</span>              :         case '6':</span>
+<span id="L894"><span class="lineNum">     894</span>              :         case '7':</span>
+<span id="L895"><span class="lineNum">     895</span>              :         case '8':</span>
+<span id="L896"><span class="lineNum">     896</span>              :         case '9':</span>
+<span id="L897"><span class="lineNum">     897</span>              :         case '.':</span>
+<span id="L898"><span class="lineNum">     898</span>              :             sign = 0;</span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaGNC">   152265310 :     nr:     /*</span></span>
+<span id="L900"><span class="lineNum">     900</span>              :              * Skip a leading sign, if any, by conditionally passing</span>
+<span id="L901"><span class="lineNum">     901</span>              :              * sptr + 1 rather than sptr.  Also, if the last character</span>
+<span id="L902"><span class="lineNum">     902</span>              :              * in the buffer is a CR, we must stop the scan 1 character</span>
+<span id="L903"><span class="lineNum">     903</span>              :              * early, to be sure that we can test for CR+LF within the</span>
+<span id="L904"><span class="lineNum">     904</span>              :              * buffer, by passing endptr rather than endptr + 1.</span>
+<span id="L905"><span class="lineNum">     905</span>              :              */</span>
+<span id="L906"><span class="lineNum">     906</span> <span class="tlaGNC">   152265310 :             retcode = scan_number(sptr + (sign &amp; 1),</span></span>
+<span id="L907"><span class="lineNum">     907</span>              :                     endptr /*(*endptr == char_CR ? endptr : endptr + 1) */ ,</span>
+<span id="L908"><span class="lineNum">     908</span>              :                                   sign, myref, &amp;newptr, i_ctx_p-&gt;scanner_options);</span>
+<span id="L909"><span class="lineNum">     909</span> <span class="tlaGNC">   152265310 :             if (retcode == 1 &amp;&amp; decoder[newptr[-1]] == ctype_space) {</span></span>
+<span id="L910"><span class="lineNum">     910</span> <span class="tlaGNC">    45623085 :                 sptr = newptr - 1;</span></span>
+<span id="L911"><span class="lineNum">     911</span> <span class="tlaGNC">    45623085 :                 if (*sptr == char_CR &amp;&amp; sptr[1] == char_EOL)</span></span>
+<span id="L912"><span class="lineNum">     912</span> <span class="tlaGNC">    45623085 :                     sptr++;</span></span>
+<span id="L913"><span class="lineNum">     913</span> <span class="tlaGNC">    45623085 :                 retcode = 0;</span></span>
+<span id="L914"><span class="lineNum">     914</span> <span class="tlaGNC">    45623085 :                 ref_mark_new(myref);</span></span>
+<span id="L915"><span class="lineNum">     915</span> <span class="tlaGNC">    45623085 :                 break;</span></span>
+<span id="L916"><span class="lineNum">     916</span>              :             }</span>
+<span id="L917"><span class="lineNum">     917</span> <span class="tlaGNC">   106642225 :             sstate.s_ss.s_name.s_name_type = 0;</span></span>
+<span id="L918"><span class="lineNum">     918</span> <span class="tlaGNC">   106642225 :             sstate.s_ss.s_name.s_try_number = true;</span></span>
+<span id="L919"><span class="lineNum">     919</span> <span class="tlaGNC">   106642225 :             goto do_name;</span></span>
+<span id="L920"><span class="lineNum">     920</span> <span class="tlaUNC tlaBgUNC">           0 :         case '+':</span></span>
+<span id="L921"><span class="lineNum">     921</span> <span class="tlaUNC">           0 :             sign = 1;</span></span>
+<span id="L922"><span class="lineNum">     922</span> <span class="tlaUNC">           0 :             goto nr;</span></span>
+<span id="L923"><span class="lineNum">     923</span> <span class="tlaGNC tlaBgGNC">     3047024 :         case '-':</span></span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaGNC">     3047024 :             sign = -1;</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaGNC">     3047024 :             if(i_ctx_p-&gt;scanner_options &amp; SCAN_PDF_INV_NUM) {</span></span>
+<span id="L926"><span class="lineNum">     926</span>              :                 const byte *osptr = sptr;</span>
+<span id="L927"><span class="lineNum">     927</span> <span class="tlaUNC tlaBgUNC">           0 :                 do {</span></span>
+<span id="L928"><span class="lineNum">     928</span>              :                     /* This is slightly unpleasant: we have to bounds check the buffer,</span>
+<span id="L929"><span class="lineNum">     929</span>              :                        rather than just incrementing the point until we find a non '-' character.</span>
+<span id="L930"><span class="lineNum">     930</span>              :                        But we cannot differentiate between multiple '-' characters that</span>
+<span id="L931"><span class="lineNum">     931</span>              :                        straddle a buffer boundary, or a token that is only one or more '-' characters.</span>
+<span id="L932"><span class="lineNum">     932</span>              :                        Handling this relies on the fact that the Postscript-based PDF interpreter</span>
+<span id="L933"><span class="lineNum">     933</span>              :                        always uses the &quot;token&quot; operator to tokenize a stream, thus we can assume</span>
+<span id="L934"><span class="lineNum">     934</span>              :                        here that the current buffer contains the entire token. So if we reach</span>
+<span id="L935"><span class="lineNum">     935</span>              :                        the end of the buffer without hitting a character taht is not a '-', we'll reset</span>
+<span id="L936"><span class="lineNum">     936</span>              :                        the buffer pointer, and retry, treating it as a name object.</span>
+<span id="L937"><span class="lineNum">     937</span>              :                      */</span>
+<span id="L938"><span class="lineNum">     938</span> <span class="tlaUNC">           0 :                     if (sptr + 1 &gt; endptr) {</span></span>
+<span id="L939"><span class="lineNum">     939</span> <span class="tlaUNC">           0 :                         sptr = osptr;</span></span>
+<span id="L940"><span class="lineNum">     940</span> <span class="tlaUNC">           0 :                         sstate.s_ss.s_name.s_name_type = 0;</span></span>
+<span id="L941"><span class="lineNum">     941</span> <span class="tlaUNC">           0 :                         sstate.s_ss.s_name.s_try_number = true;</span></span>
+<span id="L942"><span class="lineNum">     942</span> <span class="tlaUNC">           0 :                         goto do_name;</span></span>
+<span id="L943"><span class="lineNum">     943</span>              :                     }</span>
+<span id="L944"><span class="lineNum">     944</span> <span class="tlaUNC">           0 :                     if (*(sptr + 1) == '-') {</span></span>
+<span id="L945"><span class="lineNum">     945</span>              :                         sptr++;</span>
+<span id="L946"><span class="lineNum">     946</span>              :                     } else</span>
+<span id="L947"><span class="lineNum">     947</span>              :                         break;</span>
+<span id="L948"><span class="lineNum">     948</span>              :                 } while (1);</span>
+<span id="L949"><span class="lineNum">     949</span>              :             }</span>
+<span id="L950"><span class="lineNum">     950</span> <span class="tlaGNC tlaBgGNC">     3047024 :             goto nr;</span></span>
+<span id="L951"><span class="lineNum">     951</span>              : </span>
+<span id="L952"><span class="lineNum">     952</span>              :             /* Check for a binary object */</span>
+<span id="L953"><span class="lineNum">     953</span> <span class="tlaUNC tlaBgUNC">           0 :           case 128: case 129: case 130: case 131: case 132: case 133: case 134: case 135:</span></span>
+<span id="L954"><span class="lineNum">     954</span>              :           case 136: case 137: case 138: case 139: case 140: case 141: case 142: case 143:</span>
+<span id="L955"><span class="lineNum">     955</span>              :           case 144: case 145: case 146: case 147: case 148: case 149: case 150: case 151:</span>
+<span id="L956"><span class="lineNum">     956</span>              :           case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159:</span>
+<span id="L957"><span class="lineNum">     957</span> <span class="tlaUNC">           0 :             if ((ref_binary_object_format.value.intval != 0 &amp;&amp; level2_enabled)) {</span></span>
+<span id="L958"><span class="lineNum">     958</span> <span class="tlaUNC">           0 :                 s_end_inline(s, sptr, endptr);</span></span>
+<span id="L959"><span class="lineNum">     959</span> <span class="tlaUNC">           0 :                 retcode = scan_binary_token(i_ctx_p, myref, &amp;sstate);</span></span>
+<span id="L960"><span class="lineNum">     960</span> <span class="tlaUNC">           0 :                 s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L961"><span class="lineNum">     961</span> <span class="tlaUNC">           0 :                 if (retcode == scan_Refill)</span></span>
+<span id="L962"><span class="lineNum">     962</span> <span class="tlaUNC">           0 :                     goto pause;</span></span>
+<span id="L963"><span class="lineNum">     963</span>              :                 break;</span>
+<span id="L964"><span class="lineNum">     964</span>              :             }</span>
+<span id="L965"><span class="lineNum">     965</span>              :             /* Not a binary object, fall through. */</span>
+<span id="L966"><span class="lineNum">     966</span>              : </span>
+<span id="L967"><span class="lineNum">     967</span>              :             /* The default is a name. */</span>
+<span id="L968"><span class="lineNum">     968</span>              :         default:</span>
+<span id="L969"><span class="lineNum">     969</span> <span class="tlaGNC tlaBgGNC">       42507 :             if (c &lt; 0) {</span></span>
+<span id="L970"><span class="lineNum">     970</span> <span class="tlaGNC">       42507 :                 dynamic_init(&amp;sstate.s_da, name_memory(imemory));        /* sstate.s_da state must be clean */</span></span>
+<span id="L971"><span class="lineNum">     971</span> <span class="tlaGNC">       42507 :                 sstate.s_scan_type = scanning_none;</span></span>
+<span id="L972"><span class="lineNum">     972</span> <span class="tlaGNC">       42507 :                 goto pause;</span></span>
+<span id="L973"><span class="lineNum">     973</span>              :             }</span>
+<span id="L974"><span class="lineNum">     974</span>              :             /* Populate the switch with enough cases to force */</span>
+<span id="L975"><span class="lineNum">     975</span>              :             /* simple compilers to use a dispatch rather than tests. */</span>
+<span id="L976"><span class="lineNum">     976</span>              :         case '!':</span>
+<span id="L977"><span class="lineNum">     977</span>              :         case '&quot;':</span>
+<span id="L978"><span class="lineNum">     978</span>              :         case '#':</span>
+<span id="L979"><span class="lineNum">     979</span>              :         case '$':</span>
+<span id="L980"><span class="lineNum">     980</span>              :         case '&amp;':</span>
+<span id="L981"><span class="lineNum">     981</span>              :         case '\'':</span>
+<span id="L982"><span class="lineNum">     982</span>              :         case '*':</span>
+<span id="L983"><span class="lineNum">     983</span>              :         case ',':</span>
+<span id="L984"><span class="lineNum">     984</span>              :         case '=':</span>
+<span id="L985"><span class="lineNum">     985</span>              :         case ':':</span>
+<span id="L986"><span class="lineNum">     986</span>              :         case ';':</span>
+<span id="L987"><span class="lineNum">     987</span>              :         case '?':</span>
+<span id="L988"><span class="lineNum">     988</span>              :         case '@':</span>
+<span id="L989"><span class="lineNum">     989</span>              :         case 'A':</span>
+<span id="L990"><span class="lineNum">     990</span>              :         case 'B':</span>
+<span id="L991"><span class="lineNum">     991</span>              :         case 'C':</span>
+<span id="L992"><span class="lineNum">     992</span>              :         case 'D':</span>
+<span id="L993"><span class="lineNum">     993</span>              :         case 'E':</span>
+<span id="L994"><span class="lineNum">     994</span>              :         case 'F':</span>
+<span id="L995"><span class="lineNum">     995</span>              :         case 'G':</span>
+<span id="L996"><span class="lineNum">     996</span>              :         case 'H':</span>
+<span id="L997"><span class="lineNum">     997</span>              :         case 'I':</span>
+<span id="L998"><span class="lineNum">     998</span>              :         case 'J':</span>
+<span id="L999"><span class="lineNum">     999</span>              :         case 'K':</span>
+<span id="L1000"><span class="lineNum">    1000</span>              :         case 'L':</span>
+<span id="L1001"><span class="lineNum">    1001</span>              :         case 'M':</span>
+<span id="L1002"><span class="lineNum">    1002</span>              :         case 'N':</span>
+<span id="L1003"><span class="lineNum">    1003</span>              :         case 'O':</span>
+<span id="L1004"><span class="lineNum">    1004</span>              :         case 'P':</span>
+<span id="L1005"><span class="lineNum">    1005</span>              :         case 'Q':</span>
+<span id="L1006"><span class="lineNum">    1006</span>              :         case 'R':</span>
+<span id="L1007"><span class="lineNum">    1007</span>              :         case 'S':</span>
+<span id="L1008"><span class="lineNum">    1008</span>              :         case 'T':</span>
+<span id="L1009"><span class="lineNum">    1009</span>              :         case 'U':</span>
+<span id="L1010"><span class="lineNum">    1010</span>              :         case 'V':</span>
+<span id="L1011"><span class="lineNum">    1011</span>              :         case 'W':</span>
+<span id="L1012"><span class="lineNum">    1012</span>              :         case 'X':</span>
+<span id="L1013"><span class="lineNum">    1013</span>              :         case 'Y':</span>
+<span id="L1014"><span class="lineNum">    1014</span>              :         case 'Z':</span>
+<span id="L1015"><span class="lineNum">    1015</span>              :         case '\\':</span>
+<span id="L1016"><span class="lineNum">    1016</span>              :         case '^':</span>
+<span id="L1017"><span class="lineNum">    1017</span>              :         case '_':</span>
+<span id="L1018"><span class="lineNum">    1018</span>              :         case '`':</span>
+<span id="L1019"><span class="lineNum">    1019</span>              :         case 'a':</span>
+<span id="L1020"><span class="lineNum">    1020</span>              :         case 'b':</span>
+<span id="L1021"><span class="lineNum">    1021</span>              :         case 'c':</span>
+<span id="L1022"><span class="lineNum">    1022</span>              :         case 'd':</span>
+<span id="L1023"><span class="lineNum">    1023</span>              :         case 'e':</span>
+<span id="L1024"><span class="lineNum">    1024</span>              :         case 'f':</span>
+<span id="L1025"><span class="lineNum">    1025</span>              :         case 'g':</span>
+<span id="L1026"><span class="lineNum">    1026</span>              :         case 'h':</span>
+<span id="L1027"><span class="lineNum">    1027</span>              :         case 'i':</span>
+<span id="L1028"><span class="lineNum">    1028</span>              :         case 'j':</span>
+<span id="L1029"><span class="lineNum">    1029</span>              :         case 'k':</span>
+<span id="L1030"><span class="lineNum">    1030</span>              :         case 'l':</span>
+<span id="L1031"><span class="lineNum">    1031</span>              :         case 'm':</span>
+<span id="L1032"><span class="lineNum">    1032</span>              :         case 'n':</span>
+<span id="L1033"><span class="lineNum">    1033</span>              :         case 'o':</span>
+<span id="L1034"><span class="lineNum">    1034</span>              :         case 'p':</span>
+<span id="L1035"><span class="lineNum">    1035</span>              :         case 'q':</span>
+<span id="L1036"><span class="lineNum">    1036</span>              :         case 'r':</span>
+<span id="L1037"><span class="lineNum">    1037</span>              :         case 's':</span>
+<span id="L1038"><span class="lineNum">    1038</span>              :         case 't':</span>
+<span id="L1039"><span class="lineNum">    1039</span>              :         case 'u':</span>
+<span id="L1040"><span class="lineNum">    1040</span>              :         case 'v':</span>
+<span id="L1041"><span class="lineNum">    1041</span>              :         case 'w':</span>
+<span id="L1042"><span class="lineNum">    1042</span>              :         case 'x':</span>
+<span id="L1043"><span class="lineNum">    1043</span>              :         case 'y':</span>
+<span id="L1044"><span class="lineNum">    1044</span>              :         case 'z':</span>
+<span id="L1045"><span class="lineNum">    1045</span>              :         case '|':</span>
+<span id="L1046"><span class="lineNum">    1046</span>              :         case '~':</span>
+<span id="L1047"><span class="lineNum">    1047</span> <span class="tlaUNC tlaBgUNC">           0 :           begin_name:</span></span>
+<span id="L1048"><span class="lineNum">    1048</span>              :             /* Common code for scanning a name. */</span>
+<span id="L1049"><span class="lineNum">    1049</span>              :             /* sstate.s_ss.s_name.s_try_number and sstate.s_ss.s_name.s_name_type are already set. */</span>
+<span id="L1050"><span class="lineNum">    1050</span>              :             /* We know c has ctype_name (or maybe ctype_btoken, */</span>
+<span id="L1051"><span class="lineNum">    1051</span>              :             /* or is ^D) or is a digit. */</span>
+<span id="L1052"><span class="lineNum">    1052</span> <span class="tlaGNC tlaBgGNC">   217788566 :             sstate.s_ss.s_name.s_name_type = 0;</span></span>
+<span id="L1053"><span class="lineNum">    1053</span> <span class="tlaGNC">   217788566 :             sstate.s_ss.s_name.s_try_number = false;</span></span>
+<span id="L1054"><span class="lineNum">    1054</span> <span class="tlaGNC">   496959074 :           do_name:</span></span>
+<span id="L1055"><span class="lineNum">    1055</span>              :             /* Try to scan entirely within the stream buffer. */</span>
+<span id="L1056"><span class="lineNum">    1056</span>              :             /* We stop 1 character early, so we don't switch buffers */</span>
+<span id="L1057"><span class="lineNum">    1057</span>              :             /* looking ahead if the name is terminated by \r\n. */</span>
+<span id="L1058"><span class="lineNum">    1058</span> <span class="tlaGNC">   496959074 :             sstate.s_da.base = (byte *) sptr;</span></span>
+<span id="L1059"><span class="lineNum">    1059</span> <span class="tlaGNC">   496959074 :             sstate.s_da.is_dynamic = false;</span></span>
+<span id="L1060"><span class="lineNum">    1060</span>              :             {</span>
+<span id="L1061"><span class="lineNum">    1061</span> <span class="tlaGNC">   496959074 :                 const byte *endp1 = endptr - 1;</span></span>
+<span id="L1062"><span class="lineNum">    1062</span>              : </span>
+<span id="L1063"><span class="lineNum">    1063</span> <span class="tlaGNC">  3745108846 :                 do {</span></span>
+<span id="L1064"><span class="lineNum">    1064</span> <span class="tlaGNC">  3745108846 :                     if (sptr &gt;= endp1)  /* stop 1 early! */</span></span>
+<span id="L1065"><span class="lineNum">    1065</span> <span class="tlaGNC">     2191920 :                         goto dyn_name;</span></span>
+<span id="L1066"><span class="lineNum">    1066</span>              :                 }</span>
+<span id="L1067"><span class="lineNum">    1067</span> <span class="tlaGNC">  3742916926 :                 while (decoder[*++sptr] &lt;= max_name_ctype || *sptr == ctrld);   /* digit or name */</span></span>
+<span id="L1068"><span class="lineNum">    1068</span>              :             }</span>
+<span id="L1069"><span class="lineNum">    1069</span>              :             /* Name ended within the buffer. */</span>
+<span id="L1070"><span class="lineNum">    1070</span> <span class="tlaGNC">   494767154 :             daptr = (byte *) sptr;</span></span>
+<span id="L1071"><span class="lineNum">    1071</span> <span class="tlaGNC">   494767154 :             c = *sptr;</span></span>
+<span id="L1072"><span class="lineNum">    1072</span> <span class="tlaGNC">   494767154 :             goto nx;</span></span>
+<span id="L1073"><span class="lineNum">    1073</span> <span class="tlaGNC">     2191920 :           dyn_name:             /* Name extended past end of buffer. */</span></span>
+<span id="L1074"><span class="lineNum">    1074</span> <span class="tlaGNC">     2191920 :             s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1075"><span class="lineNum">    1075</span>              :             /* Initialize the dynamic area. */</span>
+<span id="L1076"><span class="lineNum">    1076</span>              :             /* We have to do this before the next */</span>
+<span id="L1077"><span class="lineNum">    1077</span>              :             /* sgetc, which will overwrite the buffer. */</span>
+<span id="L1078"><span class="lineNum">    1078</span> <span class="tlaGNC">     2191920 :             sstate.s_da.limit = (byte *)++ sptr;</span></span>
+<span id="L1079"><span class="lineNum">    1079</span> <span class="tlaGNC">     2191920 :             sstate.s_da.memory = name_memory(imemory);</span></span>
+<span id="L1080"><span class="lineNum">    1080</span> <span class="tlaGNC">     2191920 :             retcode = dynamic_grow(&amp;sstate.s_da, sstate.s_da.limit, name_max_string);</span></span>
+<span id="L1081"><span class="lineNum">    1081</span> <span class="tlaGNC">     2191920 :             if (retcode &lt; 0) {</span></span>
+<span id="L1082"><span class="lineNum">    1082</span> <span class="tlaGNC">           4 :                 dynamic_save(&amp;sstate.s_da);</span></span>
+<span id="L1083"><span class="lineNum">    1083</span> <span class="tlaGNC">           4 :                 if (retcode != gs_error_VMerror)</span></span>
+<span id="L1084"><span class="lineNum">    1084</span> <span class="tlaGNC">           4 :                     sreturn(retcode);</span></span>
+<span id="L1085"><span class="lineNum">    1085</span> <span class="tlaUNC tlaBgUNC">           0 :                 sstate.s_scan_type = scanning_name;</span></span>
+<span id="L1086"><span class="lineNum">    1086</span> <span class="tlaUNC">           0 :                 goto pause_ret;</span></span>
+<span id="L1087"><span class="lineNum">    1087</span>              :             }</span>
+<span id="L1088"><span class="lineNum">    1088</span> <span class="tlaGNC tlaBgGNC">     2191916 :             daptr = sstate.s_da.next;</span></span>
+<span id="L1089"><span class="lineNum">    1089</span>              :             /* Enter here to continue scanning a name. */</span>
+<span id="L1090"><span class="lineNum">    1090</span>              :             /* daptr must be set. */</span>
+<span id="L1091"><span class="lineNum">    1091</span> <span class="tlaGNC">     2201509 :           cont_name:s_begin_inline(s, sptr, endptr);</span></span>
+<span id="L1092"><span class="lineNum">    1092</span> <span class="tlaGNC">     6149992 :             while (decoder[c = sgetc_inline(s, sptr, endptr)] &lt;= max_name_ctype || c == ctrld) {</span></span>
+<span id="L1093"><span class="lineNum">    1093</span> <span class="tlaGNC">     3948485 :                 if (daptr == sstate.s_da.limit) {</span></span>
+<span id="L1094"><span class="lineNum">    1094</span> <span class="tlaGNC">       38796 :                     retcode = dynamic_grow(&amp;sstate.s_da, daptr,</span></span>
+<span id="L1095"><span class="lineNum">    1095</span>              :                                            name_max_string);</span>
+<span id="L1096"><span class="lineNum">    1096</span> <span class="tlaGNC">       38796 :                     if (retcode &lt; 0) {</span></span>
+<span id="L1097"><span class="lineNum">    1097</span> <span class="tlaGNC">           2 :                         dynamic_save(&amp;sstate.s_da);</span></span>
+<span id="L1098"><span class="lineNum">    1098</span> <span class="tlaGNC">           2 :                         if (retcode != gs_error_VMerror)</span></span>
+<span id="L1099"><span class="lineNum">    1099</span> <span class="tlaGNC">           2 :                             sreturn(retcode);</span></span>
+<span id="L1100"><span class="lineNum">    1100</span> <span class="tlaUNC tlaBgUNC">           0 :                         sputback_inline(s, sptr, endptr);</span></span>
+<span id="L1101"><span class="lineNum">    1101</span> <span class="tlaUNC">           0 :                         sstate.s_scan_type = scanning_name;</span></span>
+<span id="L1102"><span class="lineNum">    1102</span> <span class="tlaUNC">           0 :                         goto pause_ret;</span></span>
+<span id="L1103"><span class="lineNum">    1103</span>              :                     }</span>
+<span id="L1104"><span class="lineNum">    1104</span> <span class="tlaGNC tlaBgGNC">       38794 :                     daptr = sstate.s_da.next;</span></span>
+<span id="L1105"><span class="lineNum">    1105</span>              :                 }</span>
+<span id="L1106"><span class="lineNum">    1106</span> <span class="tlaGNC">     3948483 :                 *daptr++ = c;</span></span>
+<span id="L1107"><span class="lineNum">    1107</span>              :             }</span>
+<span id="L1108"><span class="lineNum">    1108</span> <span class="tlaGNC">   496991428 :           nx:switch (decoder[c]) {</span></span>
+<span id="L1109"><span class="lineNum">    1109</span> <span class="tlaGNC">   282443469 :                 case ctype_other:</span></span>
+<span id="L1110"><span class="lineNum">    1110</span> <span class="tlaGNC">   282443469 :                     if (c == ctrld) /* see above */</span></span>
+<span id="L1111"><span class="lineNum">    1111</span>              :                         break;</span>
+<span id="L1112"><span class="lineNum">    1112</span>              :                 case ctype_btoken:</span>
+<span id="L1113"><span class="lineNum">    1113</span> <span class="tlaGNC">   282443469 :                     sputback_inline(s, sptr, endptr);</span></span>
+<span id="L1114"><span class="lineNum">    1114</span> <span class="tlaGNC">   282443469 :                     break;</span></span>
+<span id="L1115"><span class="lineNum">    1115</span> <span class="tlaGNC">   212625862 :                 case ctype_space:</span></span>
+<span id="L1116"><span class="lineNum">    1116</span>              :                     /* Check for \r\n */</span>
+<span id="L1117"><span class="lineNum">    1117</span> <span class="tlaGNC">   212625862 :                     if (c == char_CR) {</span></span>
+<span id="L1118"><span class="lineNum">    1118</span> <span class="tlaUNC tlaBgUNC">           0 :                         if (sptr &gt;= endptr) {   /* ensure2 *//* We have to check specially for */</span></span>
+<span id="L1119"><span class="lineNum">    1119</span>              :                             /* the case where the very last */</span>
+<span id="L1120"><span class="lineNum">    1120</span>              :                             /* character of a file is a CR. */</span>
+<span id="L1121"><span class="lineNum">    1121</span> <span class="tlaUNC">           0 :                             if (s-&gt;end_status != EOFC) {</span></span>
+<span id="L1122"><span class="lineNum">    1122</span> <span class="tlaUNC">           0 :                                 sptr--;</span></span>
+<span id="L1123"><span class="lineNum">    1123</span> <span class="tlaUNC">           0 :                                 goto pause_name;</span></span>
+<span id="L1124"><span class="lineNum">    1124</span>              :                             }</span>
+<span id="L1125"><span class="lineNum">    1125</span> <span class="tlaUNC">           0 :                         } else if (sptr[1] == char_EOL)</span></span>
+<span id="L1126"><span class="lineNum">    1126</span> <span class="tlaUNC">           0 :                             sptr++;</span></span>
+<span id="L1127"><span class="lineNum">    1127</span>              :                     }</span>
+<span id="L1128"><span class="lineNum">    1128</span>              :                     break;</span>
+<span id="L1129"><span class="lineNum">    1129</span> <span class="tlaGNC tlaBgGNC">     1922097 :                 case ctype_exception:</span></span>
+<span id="L1130"><span class="lineNum">    1130</span> <span class="tlaGNC">     1922097 :                     switch (c) {</span></span>
+<span id="L1131"><span class="lineNum">    1131</span> <span class="tlaGNC">        9593 :                         case INTC:</span></span>
+<span id="L1132"><span class="lineNum">    1132</span>              :                         case CALLC:</span>
+<span id="L1133"><span class="lineNum">    1133</span> <span class="tlaGNC">        9593 :                             goto pause_name;</span></span>
+<span id="L1134"><span class="lineNum">    1134</span> <span class="tlaUNC tlaBgUNC">           0 :                         case ERRC:</span></span>
+<span id="L1135"><span class="lineNum">    1135</span> <span class="tlaUNC">           0 :                             sreturn(gs_error_ioerror);</span></span>
+<span id="L1136"><span class="lineNum">    1136</span>              :                         case EOFC:</span>
+<span id="L1137"><span class="lineNum">    1137</span>              :                             break;</span>
+<span id="L1138"><span class="lineNum">    1138</span>              :                     }</span>
+<span id="L1139"><span class="lineNum">    1139</span>              :             }</span>
+<span id="L1140"><span class="lineNum">    1140</span>              :             /* Check for a number */</span>
+<span id="L1141"><span class="lineNum">    1141</span> <span class="tlaGNC tlaBgGNC">   496981835 :             if (sstate.s_ss.s_name.s_try_number) {</span></span>
+<span id="L1142"><span class="lineNum">    1142</span> <span class="tlaGNC">   106642225 :                 const byte *base = sstate.s_da.base;</span></span>
+<span id="L1143"><span class="lineNum">    1143</span>              : </span>
+<span id="L1144"><span class="lineNum">    1144</span> <span class="tlaGNC">   106642225 :                 scan_sign(sign, base);</span></span>
+<span id="L1145"><span class="lineNum">    1145</span> <span class="tlaGNC">   106642225 :                 retcode = scan_number(base, daptr, sign, myref, &amp;newptr, i_ctx_p-&gt;scanner_options);</span></span>
+<span id="L1146"><span class="lineNum">    1146</span> <span class="tlaGNC">   106642225 :                 if (retcode == 1) {</span></span>
+<span id="L1147"><span class="lineNum">    1147</span> <span class="tlaGNC">       28787 :                     ref_mark_new(myref);</span></span>
+<span id="L1148"><span class="lineNum">    1148</span> <span class="tlaGNC">       28787 :                     retcode = 0;</span></span>
+<span id="L1149"><span class="lineNum">    1149</span> <span class="tlaGNC">   106613438 :                 } else if (retcode != gs_error_syntaxerror) {</span></span>
+<span id="L1150"><span class="lineNum">    1150</span> <span class="tlaGNC">    80709613 :                     dynamic_free(&amp;sstate.s_da);</span></span>
+<span id="L1151"><span class="lineNum">    1151</span> <span class="tlaGNC">    80709613 :                     if (sstate.s_ss.s_name.s_name_type == 2)</span></span>
+<span id="L1152"><span class="lineNum">    1152</span> <span class="tlaUNC tlaBgUNC">           0 :                         sreturn(gs_error_syntaxerror);</span></span>
+<span id="L1153"><span class="lineNum">    1153</span>              :                     break;      /* might be gs_error_limitcheck */</span>
+<span id="L1154"><span class="lineNum">    1154</span>              :                 }</span>
+<span id="L1155"><span class="lineNum">    1155</span>              :             }</span>
+<span id="L1156"><span class="lineNum">    1156</span> <span class="tlaGNC tlaBgGNC">   416272222 :             if (sstate.s_da.is_dynamic) {        /* We've already allocated the string on the heap. */</span></span>
+<span id="L1157"><span class="lineNum">    1157</span> <span class="tlaGNC">     2169974 :                 uint size = daptr - sstate.s_da.base;</span></span>
+<span id="L1158"><span class="lineNum">    1158</span>              : </span>
+<span id="L1159"><span class="lineNum">    1159</span> <span class="tlaGNC">     2169974 :                 retcode = name_ref(imemory, sstate.s_da.base, size, myref, -1);</span></span>
+<span id="L1160"><span class="lineNum">    1160</span> <span class="tlaGNC">     2169974 :                 if (retcode &gt;= 0) {</span></span>
+<span id="L1161"><span class="lineNum">    1161</span> <span class="tlaGNC">     2131190 :                     dynamic_free(&amp;sstate.s_da);</span></span>
+<span id="L1162"><span class="lineNum">    1162</span>              :                 } else {</span>
+<span id="L1163"><span class="lineNum">    1163</span> <span class="tlaGNC">       38784 :                     retcode = dynamic_resize(&amp;sstate.s_da, size);</span></span>
+<span id="L1164"><span class="lineNum">    1164</span> <span class="tlaGNC">       38784 :                     if (retcode &lt; 0) {  /* VMerror */</span></span>
+<span id="L1165"><span class="lineNum">    1165</span> <span class="tlaUNC tlaBgUNC">           0 :                         if (c != EOFC)</span></span>
+<span id="L1166"><span class="lineNum">    1166</span> <span class="tlaUNC">           0 :                             sputback_inline(s, sptr, endptr);</span></span>
+<span id="L1167"><span class="lineNum">    1167</span> <span class="tlaUNC">           0 :                         sstate.s_scan_type = scanning_name;</span></span>
+<span id="L1168"><span class="lineNum">    1168</span> <span class="tlaUNC">           0 :                         goto pause_ret;</span></span>
+<span id="L1169"><span class="lineNum">    1169</span>              :                     }</span>
+<span id="L1170"><span class="lineNum">    1170</span> <span class="tlaGNC tlaBgGNC">       38784 :                     retcode = name_ref(imemory, sstate.s_da.base, size, myref, 2);</span></span>
+<span id="L1171"><span class="lineNum">    1171</span>              :                 }</span>
+<span id="L1172"><span class="lineNum">    1172</span>              :             } else {</span>
+<span id="L1173"><span class="lineNum">    1173</span> <span class="tlaGNC">   414102248 :                 retcode = name_ref(imemory, sstate.s_da.base, (uint) (daptr - sstate.s_da.base),</span></span>
+<span id="L1174"><span class="lineNum">    1174</span>              :                                    myref, !s-&gt;foreign);</span>
+<span id="L1175"><span class="lineNum">    1175</span>              :             }</span>
+<span id="L1176"><span class="lineNum">    1176</span>              :             /* Done scanning.  Check for preceding /'s. */</span>
+<span id="L1177"><span class="lineNum">    1177</span> <span class="tlaGNC">   416272222 :             if (retcode &lt; 0) {</span></span>
+<span id="L1178"><span class="lineNum">    1178</span> <span class="tlaGNC">           2 :                 if (retcode != gs_error_VMerror)</span></span>
+<span id="L1179"><span class="lineNum">    1179</span> <span class="tlaGNC">           2 :                     sreturn(retcode);</span></span>
+<span id="L1180"><span class="lineNum">    1180</span> <span class="tlaUNC tlaBgUNC">           0 :                 if (!sstate.s_da.is_dynamic) {</span></span>
+<span id="L1181"><span class="lineNum">    1181</span> <span class="tlaUNC">           0 :                     sstate.s_da.next = daptr;</span></span>
+<span id="L1182"><span class="lineNum">    1182</span> <span class="tlaUNC">           0 :                     dynamic_save(&amp;sstate.s_da);</span></span>
+<span id="L1183"><span class="lineNum">    1183</span>              :                 }</span>
+<span id="L1184"><span class="lineNum">    1184</span> <span class="tlaUNC">           0 :                 if (c != EOFC)</span></span>
+<span id="L1185"><span class="lineNum">    1185</span> <span class="tlaUNC">           0 :                     sputback_inline(s, sptr, endptr);</span></span>
+<span id="L1186"><span class="lineNum">    1186</span> <span class="tlaUNC">           0 :                 sstate.s_scan_type = scanning_name;</span></span>
+<span id="L1187"><span class="lineNum">    1187</span> <span class="tlaUNC">           0 :                 goto pause_ret;</span></span>
+<span id="L1188"><span class="lineNum">    1188</span>              :             }</span>
+<span id="L1189"><span class="lineNum">    1189</span> <span class="tlaGNC tlaBgGNC">   417163864 :           have_name:switch (sstate.s_ss.s_name.s_name_type) {</span></span>
+<span id="L1190"><span class="lineNum">    1190</span> <span class="tlaGNC">   244612822 :                 case 0: /* ordinary executable name */</span></span>
+<span id="L1191"><span class="lineNum">    1191</span> <span class="tlaGNC">   244612822 :                     if (r_has_type(myref, t_name))      /* i.e., not a number */</span></span>
+<span id="L1192"><span class="lineNum">    1192</span> <span class="tlaGNC">   244612822 :                         r_set_attrs(myref, a_executable);</span></span>
+<span id="L1193"><span class="lineNum">    1193</span>              :                 case 1: /* quoted name */</span>
+<span id="L1194"><span class="lineNum">    1194</span>              :                     break;</span>
+<span id="L1195"><span class="lineNum">    1195</span> <span class="tlaGNC">    16432809 :                 case 2: /* immediate lookup */</span></span>
+<span id="L1196"><span class="lineNum">    1196</span>              :                     {</span>
+<span id="L1197"><span class="lineNum">    1197</span> <span class="tlaGNC">    16432809 :                         ref *pvalue;</span></span>
+<span id="L1198"><span class="lineNum">    1198</span>              : </span>
+<span id="L1199"><span class="lineNum">    1199</span> <span class="tlaGNC">    16432809 :                         if (!r_has_type(myref, t_name) ||</span></span>
+<span id="L1200"><span class="lineNum">    1200</span> <span class="tlaGNC">    16432809 :                             (pvalue = dict_find_name(myref)) == 0) {</span></span>
+<span id="L1201"><span class="lineNum">    1201</span> <span class="tlaUNC tlaBgUNC">           0 :                             ref_assign(&amp;sstate.s_error.object, myref);</span></span>
+<span id="L1202"><span class="lineNum">    1202</span> <span class="tlaUNC">           0 :                             r_set_attrs(&amp;sstate.s_error.object,</span></span>
+<span id="L1203"><span class="lineNum">    1203</span>              :                                 a_executable); /* Adobe compatibility */</span>
+<span id="L1204"><span class="lineNum">    1204</span> <span class="tlaUNC">           0 :                             sreturn(gs_error_undefined);</span></span>
+<span id="L1205"><span class="lineNum">    1205</span>              :                         }</span>
+<span id="L1206"><span class="lineNum">    1206</span> <span class="tlaGNC tlaBgGNC">    16432809 :                         if (sstate.s_pstack != 0 &amp;&amp;</span></span>
+<span id="L1207"><span class="lineNum">    1207</span> <span class="tlaGNC">    14360721 :                             r_space(pvalue) &gt; ialloc_space(idmemory)</span></span>
+<span id="L1208"><span class="lineNum">    1208</span>              :                             )</span>
+<span id="L1209"><span class="lineNum">    1209</span> <span class="tlaUNC tlaBgUNC">           0 :                             sreturn(gs_error_invalidaccess);</span></span>
+<span id="L1210"><span class="lineNum">    1210</span> <span class="tlaGNC tlaBgGNC">    16432809 :                         ref_assign_new(myref, pvalue);</span></span>
+<span id="L1211"><span class="lineNum">    1211</span>              :                     }</span>
+<span id="L1212"><span class="lineNum">    1212</span>              :             }</span>
+<span id="L1213"><span class="lineNum">    1213</span>              :     }</span>
+<span id="L1214"><span class="lineNum">    1214</span> <span class="tlaGNC">   644265873 :   sret:if (retcode &lt; 0) {</span></span>
+<span id="L1215"><span class="lineNum">    1215</span> <span class="tlaGNC">         896 :         s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1216"><span class="lineNum">    1216</span> <span class="tlaGNC">         896 :         pstate-&gt;s_error = sstate.s_error;</span></span>
+<span id="L1217"><span class="lineNum">    1217</span> <span class="tlaGNC">         896 :         if (sstate.s_pstack != 0) {</span></span>
+<span id="L1218"><span class="lineNum">    1218</span> <span class="tlaGNC">         514 :             if (retcode == gs_error_undefined)</span></span>
+<span id="L1219"><span class="lineNum">    1219</span> <span class="tlaUNC tlaBgUNC">           0 :                 *pref = *osp;   /* return undefined name as error token */</span></span>
+<span id="L1220"><span class="lineNum">    1220</span> <span class="tlaGNC tlaBgGNC">        1028 :             ref_stack_pop(&amp;o_stack,</span></span>
+<span id="L1221"><span class="lineNum">    1221</span> <span class="tlaGNC">         514 :                           ref_stack_count(&amp;o_stack) - (sstate.s_pdepth - 1));</span></span>
+<span id="L1222"><span class="lineNum">    1222</span>              :         }</span>
+<span id="L1223"><span class="lineNum">    1223</span> <span class="tlaGNC">         896 :         return retcode;</span></span>
+<span id="L1224"><span class="lineNum">    1224</span>              :     }</span>
+<span id="L1225"><span class="lineNum">    1225</span>              :     /* If we are at the top level, return the object, */</span>
+<span id="L1226"><span class="lineNum">    1226</span>              :     /* otherwise keep going. */</span>
+<span id="L1227"><span class="lineNum">    1227</span> <span class="tlaGNC">   644264977 :     if (sstate.s_pstack == 0) {</span></span>
+<span id="L1228"><span class="lineNum">    1228</span> <span class="tlaGNC">   349974436 :         s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1229"><span class="lineNum">    1229</span> <span class="tlaGNC">   349974436 :         return retcode;</span></span>
+<span id="L1230"><span class="lineNum">    1230</span>              :     }</span>
+<span id="L1231"><span class="lineNum">    1231</span> <span class="tlaGNC">   371710211 :   snext:if_not_spush1() {</span></span>
+<span id="L1232"><span class="lineNum">    1232</span> <span class="tlaUNC tlaBgUNC">           0 :         s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1233"><span class="lineNum">    1233</span> <span class="tlaUNC">           0 :         sstate.s_scan_type = scanning_none;</span></span>
+<span id="L1234"><span class="lineNum">    1234</span> <span class="tlaUNC">           0 :         goto save;</span></span>
+<span id="L1235"><span class="lineNum">    1235</span>              :     }</span>
+<span id="L1236"><span class="lineNum">    1236</span> <span class="tlaGNC tlaBgGNC">   371710211 :     myref = osp;</span></span>
+<span id="L1237"><span class="lineNum">    1237</span> <span class="tlaGNC">   371710211 :     goto top;</span></span>
+<span id="L1238"><span class="lineNum">    1238</span>              : </span>
+<span id="L1239"><span class="lineNum">    1239</span>              :     /* Pause for an interrupt or callout. */</span>
+<span id="L1240"><span class="lineNum">    1240</span> <span class="tlaGNC">        9593 :   pause_name:</span></span>
+<span id="L1241"><span class="lineNum">    1241</span>              :     /* If we're still scanning within the stream buffer, */</span>
+<span id="L1242"><span class="lineNum">    1242</span>              :     /* move the characters to the private buffer (sstate.s_da.buf) now. */</span>
+<span id="L1243"><span class="lineNum">    1243</span> <span class="tlaGNC">        9593 :     sstate.s_da.next = daptr;</span></span>
+<span id="L1244"><span class="lineNum">    1244</span> <span class="tlaGNC">        9593 :     dynamic_save(&amp;sstate.s_da);</span></span>
+<span id="L1245"><span class="lineNum">    1245</span> <span class="tlaGNC">        9593 :     sstate.s_scan_type = scanning_name;</span></span>
+<span id="L1246"><span class="lineNum">    1246</span>              :   pause:</span>
+<span id="L1247"><span class="lineNum">    1247</span>              :     retcode = scan_Refill;</span>
+<span id="L1248"><span class="lineNum">    1248</span> <span class="tlaGNC">       52552 :   pause_ret:</span></span>
+<span id="L1249"><span class="lineNum">    1249</span> <span class="tlaGNC">       52552 :     s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1250"><span class="lineNum">    1250</span> <span class="tlaGNC">       52552 :   suspend:</span></span>
+<span id="L1251"><span class="lineNum">    1251</span> <span class="tlaGNC">       52552 :     if (sstate.s_pstack != 0)</span></span>
+<span id="L1252"><span class="lineNum">    1252</span> <span class="tlaGNC">         864 :         osp--;                  /* myref */</span></span>
+<span id="L1253"><span class="lineNum">    1253</span> <span class="tlaGNC">       51688 :   save:</span></span>
+<span id="L1254"><span class="lineNum">    1254</span> <span class="tlaGNC">       52552 :     *pstate = sstate;</span></span>
+<span id="L1255"><span class="lineNum">    1255</span> <span class="tlaGNC">       52552 :     return retcode;</span></span>
+<span id="L1256"><span class="lineNum">    1256</span>              : </span>
+<span id="L1257"><span class="lineNum">    1257</span>              :     /* Handle a scanned comment. */</span>
+<span id="L1258"><span class="lineNum">    1258</span> <span class="tlaUNC tlaBgUNC">           0 :  comment:</span></span>
+<span id="L1259"><span class="lineNum">    1259</span> <span class="tlaUNC">           0 :     if (retcode &lt; 0)</span></span>
+<span id="L1260"><span class="lineNum">    1260</span> <span class="tlaUNC">           0 :         goto sret;</span></span>
+<span id="L1261"><span class="lineNum">    1261</span> <span class="tlaUNC">           0 :     s_end_inline(s, sptr, endptr);</span></span>
+<span id="L1262"><span class="lineNum">    1262</span> <span class="tlaUNC">           0 :     sstate.s_scan_type = scanning_none;</span></span>
+<span id="L1263"><span class="lineNum">    1263</span> <span class="tlaUNC">           0 :     goto save;</span></span>
+<span id="L1264"><span class="lineNum">    1264</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

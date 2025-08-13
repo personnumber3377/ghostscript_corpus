@@ -1,0 +1,160 @@
+%!PS
+%%DocumentMedia: a4 842 595 80 () ()
+
+/rawPageHeight 595 def
+/rawPageWidth 842 def
+
+<< /PageSize [rawPageWidth rawPageHeight] >> setpagedevice
+
+/mm { 2.834645669 mul } def
+
+/margin 10 mm def
+
+% arg stack: y x_right x_left  string 
+% prints the string at y, centered between x_left and x_right
+/centerText {
+	dup /Text exch def
+	stringwidth pop 2 div /HalfWidth exch def
+	dup /Left exch def
+	sub 2 div
+	HalfWidth sub
+	Left add
+	exch
+	newpath
+	moveto
+	Text show
+} def
+
+/Courier findfont               % load the font, for instance, Courier
+0 dict copy begin               % copy it to a new dictionary
+/Encoding ISOLatin1Encoding def % replace encoding vector
+/MyCourier /FontName def        % replace font name
+currentdict end
+dup /FID undef                  % remove internal data
+/MyCourier exch definefont pop  % define the new font 
+
+/Helvetica findfont               % load the font, for instance, Courier
+0 dict copy begin               % copy it to a new dictionary
+/Encoding ISOLatin1Encoding def % replace encoding vector
+/MyHelvetica /FontName def        % replace font name
+currentdict end
+dup /FID undef                  % remove internal data
+/MyHelvetica exch definefont pop  % define the new font 
+
+
+/pageWidth rawPageWidth margin 2 mul sub def
+/pageHeight rawPageHeight margin 2 mul sub def
+
+/nbCol 5 def
+/colWidth pageWidth nbCol div def
+
+%vertical lines
+/iVertLine 0 def
+nbCol 1 add
+{
+  newpath
+  margin iVertLine colWidth mul add margin moveto
+  0 pageHeight rlineto
+  stroke
+  iVertLine 1 add
+  /iVertLine exch def
+} repeat
+
+%horizontal lines
+/nbRow 9 def
+/rowHeight pageHeight nbRow div def
+/iHorizLine 0 def
+nbRow 1 add
+{
+  newpath
+  margin margin iHorizLine rowHeight mul add moveto
+  pageWidth 0 rlineto
+  stroke
+  iHorizLine 1 add
+  /iHorizLine exch def
+} repeat
+
+
+/MyHelvetica findfont 20 scalefont setfont
+
+/pageWidthHalf pageWidth 0.5 mul def
+
+% arg stack: string iCol iRow 
+/placeText {
+  0.5 add rowHeight mul margin add 10 sub /y exch def
+  dup colWidth mul margin add /x_right exch def
+  1 add colWidth mul margin add /x_left exch def
+  /text exch def
+  y x_right x_left text centerText
+} def
+
+% arg stack: all strings in columns iRow, iCol = 0,0 , 1,0 , ... , nRow-1,0 , 1,0, ...
+% 0,0 first in stack, nRow-1,nCol-1 last
+/fillTable {
+  /iCol nbCol 1 sub def
+  /iRow 0 def
+  nbCol
+  {
+     nbRow 
+     {
+       newpath 
+       iCol iRow placeText %eats 1 string in stack
+       /iRow iRow 1 add def
+     } repeat
+     /iRow 0 def
+     /iCol iCol 1 sub def
+  } repeat
+} def
+
+(Lundi)
+([Vie de classe])
+(Technologie)
+(Histoire Geo)
+(Francais)
+()
+(AP Francais)
+()
+()
+
+(Mardi)
+(Mathematiques)
+(Anglais)
+(EPS)
+(EPS)
+()
+(Physique Chimie)
+(AP Francais)
+()
+
+(Mercredi)
+(Anglais)
+(Mathematiques)
+(Histoire Geo)
+(Technologie)
+()
+()
+()
+()
+
+(Jeudi)
+(Mathematiques)
+(Arts plastiques)
+(Musique)
+(Anglais)
+()
+(SVT)
+(Histoire Geo)
+()
+
+(Vendredi)
+(Anglais)
+(Francais)
+(EPS)
+(EPS)
+()
+(Mathematiques)
+()
+(AP Maths)
+fillTable
+
+

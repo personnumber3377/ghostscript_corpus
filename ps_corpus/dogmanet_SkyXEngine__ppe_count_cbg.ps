@@ -1,0 +1,29 @@
+
+/*
+ppe_count_cbg.ps
+Регулировка контраста, гаммы, освещенности
+*/
+
+#include <struct.h>
+
+//##########################################################################
+
+half3 g_vParam;
+//x - contrast;
+//y - gamma;	
+//z - bright;
+
+//##########################################################################
+
+sampler2D g_sColor:register(s0);
+
+//##########################################################################
+
+half4 main(VSO_PP IN):COLOR0
+{
+	half4 vColor = tex2D(g_sColor,IN.vTexUV);
+	
+	vColor.rgb = pow((g_vParam.x * vColor.rgb) + g_vParam.z, 1.0/g_vParam.y);
+
+	return vColor;
+}

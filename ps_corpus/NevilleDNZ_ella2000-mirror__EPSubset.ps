@@ -1,0 +1,2597 @@
+%!
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%DocumentFonts: (atend)
+%%EndComments
+%%BeginProlog
+%
+% FrameMaker postscript_prolog 3.0, for use with FrameMaker 3.0
+% This postscript_prolog file is Copyright (c) 1986-1991 Frame Technology
+% Corporation.  All rights reserved.  This postscript_prolog file may be
+% freely copied and distributed in conjunction with documents created using
+% FrameMaker.
+%
+% Known Problems:
+%	Due to bugs in Transcript, the 'PS-Adobe-' is omitted from line 1
+/FMversion (3.0) def 
+
+% Set up Color vs. Black-and-White
+
+/FMPrintInColor false def
+/colorimage where { pop
+    /currentcolortransfer where { pop
+	/FMPrintInColor true def
+	statusdict begin 
+	    /processcolors where { 
+		pop processcolors 1 le {
+		    /FMPrintInColor false def
+		} if
+	    }{
+		/deviceinfo where {
+		    pop deviceinfo /Colors known { 
+			deviceinfo /Colors get 1 le {
+			    /FMPrintInColor false def
+			} if
+		    } if
+		} if
+	    } ifelse
+	end
+	/currentcanvas where {  % NeWSprint?
+	    pop systemdict /separationdict known not {
+		/FMPrintInColor false def
+	    } if
+	} if
+    } if
+} if
+
+
+% Uncomment this line to force b&w on color printer
+%   /FMPrintInColor false def
+
+/FrameDict 195 dict def 
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+% The readline in 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} def
+	} if
+/FMVERSION {
+	FMversion ne {
+		/Times-Roman findfont 18 scalefont setfont
+		100 100 moveto
+		(FrameMaker version does not match postscript_prolog!)
+		dup =
+		show showpage
+		} if
+	} def 
+/FMLOCAL {
+	FrameDict begin
+	0 def 
+	end 
+	} def 
+	/gstring FMLOCAL
+	/gfile FMLOCAL
+	/gindex FMLOCAL
+	/orgxfer FMLOCAL
+	/orgproc FMLOCAL
+	/organgle FMLOCAL
+	/orgfreq FMLOCAL
+	/yscale FMLOCAL
+	/xscale FMLOCAL
+	/manualfeed FMLOCAL
+	/paperheight FMLOCAL
+	/paperwidth FMLOCAL
+/FMDOCUMENT { 
+	array /FMfonts exch def 
+	/#copies exch def
+	FrameDict begin
+	0 ne dup {setmanualfeed} if
+	/manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	/yscale exch def
+	/xscale exch def
+	currenttransfer cvlit /orgxfer exch def
+	currentscreen cvlit /orgproc exch def
+	/organgle exch def /orgfreq exch def
+	setpapername 
+	manualfeed {true} {papersize} ifelse 
+	{manualpapersize} {false} ifelse 
+	{desperatepapersize} if
+	end 
+	} def 
+	/pagesave FMLOCAL
+	/orgmatrix FMLOCAL
+	/landscape FMLOCAL
+/FMBEGINPAGE { 
+	FrameDict begin 
+	/pagesave save def
+	3.86 setmiterlimit
+	/landscape exch 0 ne def
+	landscape { 
+		90 rotate 0 exch neg translate pop 
+		}
+		{pop pop}
+		ifelse
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave 
+	} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+/FMFONTDEFINE { 
+	FrameDict begin
+	findfont 
+	ReEncode 
+	1 index exch 
+	definefont 
+	FMfonts 3 1 roll 
+	put
+	end 
+	} def 
+/FMFILLS {
+	FrameDict begin
+	array /fillvals exch def
+	end 
+	} def 
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end 
+	} def 
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	0.0 0.0 moveto
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray 
+	} bind def
+	/fx FMLOCAL
+	/fy FMLOCAL
+	/fh FMLOCAL
+	/fw FMLOCAL
+	/llx FMLOCAL
+	/lly FMLOCAL
+	/urx FMLOCAL
+	/ury FMLOCAL
+/FMBEGINEPSF { 
+	end 
+	/FMEPSF save def 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fy translate 
+	rotate
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	} bind def
+/FMENDEPSF {
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+FrameDict begin 
+/setmanualfeed {
+%%BeginFeature *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} def
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+/pagedimen { 
+	paperheight sub abs 16 lt exch 
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} def
+	/papersizedict FMLOCAL
+/setpapername { 
+	/papersizedict 14 dict def 
+	papersizedict begin
+	/papername /unknown def 
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} def
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {11x17tray 11x17} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	/FMdicttop countdictstack 1 add def 
+	statusdict begin stopped end 
+	countdictstack -1 FMdicttop {pop end} for 
+	} def
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped 
+	} def
+/desperatepapersize {
+	statusdict /setpageparams known
+		{
+		paperwidth paperheight 0 1 
+		statusdict begin
+		{setpageparams} stopped pop 
+		end
+		} if
+	} def
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/dmatrix matrix def
+/dpi    72 0 dmatrix defaultmatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+/freq dpi 18.75 div 8 div round dup 0 eq {pop 1} if 8 mul dpi exch div def
+/sangle 1 0 dmatrix defaultmatrix dtransform exch atan def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+/ReEncode { 
+	dup 
+	length 
+	dict begin 
+	{
+	1 index /FID ne 
+		{def} 
+		{pop pop} ifelse 
+	} forall 
+	0 eq {/Encoding DiacriticEncoding def} if 
+	currentdict 
+	end 
+	} bind def
+/graymode true def
+	/bwidth FMLOCAL
+	/bpside FMLOCAL
+	/bstring FMLOCAL
+	/onbits FMLOCAL
+	/offbits FMLOCAL
+	/xindex FMLOCAL
+	/yindex FMLOCAL
+	/x FMLOCAL
+	/y FMLOCAL
+/setpattern {
+	 /bwidth  exch def
+	 /bpside  exch def
+	 /bstring exch def
+	 /onbits 0 def  /offbits 0 def
+	 freq sangle landscape {90 add} if 
+		{/y exch def
+		 /x exch def
+		 /xindex x 1 add 2 div bpside mul cvi def
+		 /yindex y 1 add 2 div bpside mul cvi def
+		 bstring yindex bwidth mul xindex 8 idiv add get
+		 1 7 xindex 8 mod sub bitshift and 0 ne
+		 {/onbits  onbits  1 add def 1}
+		 {/offbits offbits 1 add def 0}
+		 ifelse
+		}
+		setscreen
+	 {} settransfer
+	 offbits offbits onbits add div FMsetgray
+	/graymode false def
+	} bind def
+/grayness {
+	FMsetgray
+	graymode not {
+		/graymode true def
+		orgxfer cvx settransfer
+		orgfreq organgle orgproc cvx setscreen
+		} if
+	} bind def
+	/HUE FMLOCAL
+	/SAT FMLOCAL
+	/BRIGHT FMLOCAL
+	/Colors FMLOCAL
+FMPrintInColor 
+	
+	{
+	/HUE 0 def
+	/SAT 0 def
+	/BRIGHT 0 def
+	% array of arrays Hue and Sat values for the separations [HUE BRIGHT]
+	/Colors   
+	[[0    0  ]    % black
+	 [0    0  ]    % white
+	 [0.00 1.0]    % red
+	 [0.37 1.0]    % green
+	 [0.60 1.0]    % blue
+	 [0.50 1.0]    % cyan
+	 [0.83 1.0]    % magenta
+	 [0.16 1.0]    % comment / yellow
+	 ] def
+      
+	/BEGINBITMAPCOLOR { 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/K { 
+		Colors exch get dup
+		0 get /HUE exch store 
+		1 get /BRIGHT exch store
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} def
+	/FMsetgray { 
+		/SAT exch 1.0 exch sub store 
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} bind def
+	}
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/FMsetgray {setgray} bind def
+	/K { 
+		pop
+		} def
+	}
+ifelse
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/H { 
+	lnormalize setlinewidth
+	} bind def
+/Z {
+	setlinecap
+	} bind def
+	/fillvals FMLOCAL
+/X { 
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setpattern} 
+	{grayness}
+	ifelse
+	} bind def
+/V { 
+	gsave eofill grestore
+	} bind def
+/N { 
+	stroke
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+	/n FMLOCAL
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+	/x1 FMLOCAL
+	/x2 FMLOCAL
+	/y1 FMLOCAL
+	/y2 FMLOCAL
+	/rad FMLOCAL
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/RR { 
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	newpath
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rad arcto
+	x2 y2 x2 y1 rad arcto
+	x2 y1 x1 y1 rad arcto
+	x1 y1 x1 y2 rad arcto
+	closepath
+	16 {pop} repeat
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	} bind def
+	/FMpointsize FMLOCAL
+/F { 
+	FMfonts exch get
+	FMpointsize scalefont
+	setfont
+	} bind def
+/Q { 
+	/FMpointsize exch def
+	F 
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/RF { 
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+/TF { 
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/PF { 
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/SF { 
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/BF { 
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath fill
+	grestore
+	} bind def
+/A { 
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch 
+	normalize 2 index 2 div sub exch 3 index 2 div add exch 
+	translate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	stroke
+	grestore
+	} bind def
+	/x FMLOCAL
+	/y FMLOCAL
+	/w FMLOCAL
+	/h FMLOCAL
+	/xx FMLOCAL
+	/yy FMLOCAL
+	/ww FMLOCAL
+	/hh FMLOCAL
+	/FMsaveobject FMLOCAL
+	/FMoptop FMLOCAL
+	/FMdicttop FMLOCAL
+/BEGINPRINTCODE { 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 4 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	3 index neg 3 index neg translate
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+	/str FMLOCAL
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+	/sl FMLOCAL
+	/val FMLOCAL
+	/ws FMLOCAL
+	/im FMLOCAL
+	/bs FMLOCAL
+	/cs FMLOCAL
+	/len FMLOCAL
+	/pos FMLOCAL
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+	/h FMLOCAL
+	/w FMLOCAL
+	/d FMLOCAL
+	/lb FMLOCAL
+	/bitmapsave FMLOCAL
+	/is FMLOCAL
+	/cf FMLOCAL
+/wbytes { 
+	dup 
+	8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse
+	} bind def
+/BEGINBITMAPBWc { 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { 
+	2 {} COMMONBITMAPc
+	} bind def
+/COMMONBITMAPc { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	r                    
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BEGINBITMAPBW { 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { 
+	2 {} COMMONBITMAP
+	} bind def
+/COMMONBITMAP { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	r                    
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} image
+	bitmapsave restore 
+	grestore
+	} bind def
+	/proc1 FMLOCAL
+	/proc2 FMLOCAL
+	/newproc FMLOCAL
+/Fmcc {
+    /proc2 exch cvlit def
+    /proc1 exch cvlit def
+    /newproc proc1 length proc2 length add array def
+    newproc 0 proc1 putinterval
+    newproc proc1 length proc2 putinterval
+    newproc cvx
+} bind def
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+	/gryt FMLOCAL
+	/blut FMLOCAL
+	/grnt FMLOCAL
+	/redt FMLOCAL
+	/indx FMLOCAL
+	/cynu FMLOCAL
+	/magu FMLOCAL
+	/yelu FMLOCAL
+	/k FMLOCAL
+	/u FMLOCAL
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/k cynu magu min yelu min def
+		/u k currentundercolorremoval exec def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 k currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+	/tran FMLOCAL
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch Fmcc settransfer
+} bind def
+/BITMAPCOLOR { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	colorsetup
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCOLORc { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	colorsetup
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} {is} {is} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip} {gip} {bip} true 3 colorimage
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUECOLOR { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUEGRAYc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip gip bip w gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/ww FMLOCAL
+/r FMLOCAL
+/g FMLOCAL
+/b FMLOCAL
+/i FMLOCAL
+/gray { 
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop w gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+	/ALDsave FMLOCAL
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+%%EndProlog
+%%BeginSetup
+(3.0) FMVERSION
+1 1 595.3 841.89 0 1 11 FMDOCUMENT
+0 0 /Palatino-Roman FMFONTDEFINE
+1 0 /Palatino-Bold FMFONTDEFINE
+2 0 /Times-Roman FMFONTDEFINE
+3 0 /Helvetica FMFONTDEFINE
+4 0 /Palatino-Italic FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 0.1 FMFILL
+2 0.3 FMFILL
+3 0.5 FMFILL
+4 0.7 FMFILL
+5 0.9 FMFILL
+6 0.97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 0.9 FMFILL
+18 0.7 FMFILL
+19 0.5 FMFILL
+20 0.3 FMFILL
+21 0.1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "i" 1
+%%BeginPaperSize: A4
+%%EndPaperSize
+595.3 841.89 0 FMBEGINPAGE
+70.87 731.34 552.76 754.02 R
+7 X
+0 K
+V
+70.87 25.52 552.76 48.19 R
+V
+70.87 70.87 552.76 697.33 R
+V
+0 12 Q
+0 X
+(DRAFT) 291.48 405.33 T
+(Miss J I Thompson) 262.12 363.33 T
+(March 1995) 281.11 321.33 T
+170.09 463.89 425.21 568.78 R
+7 X
+V
+1 18 Q
+0 X
+(ELLA Prover Subset) 214.65 556.78 T
+0 12 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 195.57 504.78 T
+FMENDPAGE
+%%EndPage: "i" 2
+%%Page: "ii" 2
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+42.56 731.38 524.45 754.05 R
+V
+1 14 Q
+0 X
+(Use of the ELLA Prover Software and Documentation) 112.59 744.72 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+2 12 Q
+0 X
+(**********************************************************************) 73.5 689.36 T
+0 F
+1.26 (This Document and related Software \050the ELLA Prover\051 is the property of the) 70.9 675.36 P
+2.14 (Secretary of State for Defence \050United Kingdom\051 acting through the Defence) 70.9 661.36 P
+1.88 (Research Agency \050DRA\051. Use, reproduction, production of amended versions) 70.9 647.36 P
+(and/or transfer of this Document is permitted provided that:) 70.9 633.36 T
+(\050a\051) 70.9 605.36 T
+(this legend be preserved on any such reproduction and amended version,) 93.58 605.36 T
+(\050b\051) 70.9 591.36 T
+(any amended version be clearly marked to show the nature of the) 93.58 591.36 T
+(amendment and the name of the amending organisation,) 93.58 577.36 T
+(and) 70.9 563.36 T
+(\050c\051) 70.9 549.36 T
+-0.51 (any recipient of such reproduction or amended version accept the conditions) 93.58 549.36 P
+(set out in this legend.) 93.58 535.36 T
+( Crown Copyright, \050c\051 1995) 211.57 507.36 T
+( All rights reserved.) 230.93 479.36 T
+-0.06 (The Secretary of State for Defence \050United Kingdom\051 acting through his Defence) 70.9 451.36 P
+0.84 (Research Agency \050DRA\051 gives no warranty that any element of the Software is) 70.9 437.36 P
+2.66 (suitable for any purpose and he shall not be liable for any loss or damage) 70.9 423.36 P
+0.78 (including loss or damage resulting in injury or death howsoever caused which) 70.9 409.36 P
+5.71 (results from the use of the Software, or any developments, adaptions,) 70.9 395.36 P
+(modifications, translations and enhancements thereof.) 70.9 381.36 T
+1.59 (The authors may be contacted via email on ella@dra.hmg.gb or by writing to) 70.9 353.36 P
+(ELLA Office, CIS3, DRA, St. Andrews Road, Malvern, Worcs WR14 3PS, UK.) 70.9 339.36 T
+2 F
+(**********************************************************************) 73.5 325.36 T
+(\251) 184.29 147.36 T
+0 F
+( Crown Copyright, \0501995\051) 198.46 147.36 T
+(Defence Research Agency,) 198.46 133.36 T
+(Farnborough, Hants GU14 6TD, UK.) 198.46 119.36 T
+FMENDPAGE
+%%EndPage: "ii" 3
+%%Page: "v" 3
+595.3 841.89 0 FMBEGINPAGE
+70.87 734.03 552.76 756.79 R
+7 X
+0 K
+V
+1 16 Q
+0 X
+(List of Contents) 70.87 746.12 T
+70.87 25.52 552.76 48.29 R
+7 X
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.96 T
+0 11 Q
+(v) 546.54 40.96 T
+70.87 71.05 552.76 699.88 R
+7 X
+V
+1 14 Q
+0 X
+(1) 70.87 690.55 T
+(Introduction) 99.24 690.55 T
+(1) 418.23 690.55 T
+1 12 Q
+(1.1) 70.87 673.88 T
+(History) 99.24 673.88 T
+(1) 419.23 673.88 T
+(1.2) 70.87 659.88 T
+(Purpose) 99.24 659.88 T
+(1) 419.23 659.88 T
+(1.3) 70.87 645.88 T
+(Brief overview of the ELLA subset) 99.24 645.88 T
+(1) 419.23 645.88 T
+1 14 Q
+(2) 70.87 622.55 T
+(Integer and Boolean Expressions) 99.24 622.55 T
+(2) 418.23 622.55 T
+1 12 Q
+(2.1) 70.87 605.88 T
+(Numbers) 99.24 605.88 T
+(2) 419.23 605.88 T
+(2.2) 70.87 591.88 T
+(Integer definitions) 99.24 591.88 T
+(2) 419.23 591.88 T
+(2.3) 70.87 577.88 T
+(Integer expressions) 99.24 577.88 T
+(2) 419.23 577.88 T
+(2.4) 70.87 563.88 T
+(Boolean expressions) 99.24 563.88 T
+(2) 419.23 563.88 T
+(2.5) 70.87 549.88 T
+(Order of evaluation) 99.24 549.88 T
+(2) 419.23 549.88 T
+1 14 Q
+(3) 70.87 526.55 T
+(Types) 99.24 526.55 T
+(3) 418.23 526.55 T
+1 12 Q
+(3.1) 70.87 509.88 T
+(Restrictions) 99.24 509.88 T
+(3) 419.23 509.88 T
+(3.2) 70.87 495.88 T
+(The unspecified value) 99.24 495.88 T
+(3) 419.23 495.88 T
+(3.3) 70.87 481.88 T
+(Equivalence) 99.24 481.88 T
+(3) 419.23 481.88 T
+1 14 Q
+(4) 70.87 458.55 T
+(Functions) 99.24 458.55 T
+(4) 418.23 458.55 T
+1 12 Q
+(4.1) 70.87 441.88 T
+(Function specification) 99.24 441.88 T
+(4) 419.23 441.88 T
+(4.2) 70.87 427.88 T
+(Function bodies) 99.24 427.88 T
+(4) 419.23 427.88 T
+(4.3) 70.87 413.88 T
+(Function definition) 99.24 413.88 T
+(4) 419.23 413.88 T
+1 14 Q
+(5) 70.87 390.55 T
+(Simple Units) 99.24 390.55 T
+(5) 418.23 390.55 T
+1 12 Q
+(5.1) 70.87 373.88 T
+(Introduction) 99.24 373.88 T
+(5) 419.23 373.88 T
+(5.2) 70.87 359.88 T
+(Names and constant values) 99.24 359.88 T
+(5) 419.23 359.88 T
+(5.3) 70.87 345.88 T
+(Indexing and trimming) 99.24 345.88 T
+(5) 419.23 345.88 T
+(5.4) 70.87 331.88 T
+(Brackets) 99.24 331.88 T
+(5) 419.23 331.88 T
+(5.5) 70.87 317.88 T
+(Concatenation) 99.24 317.88 T
+(5) 419.23 317.88 T
+(5.6) 70.87 303.88 T
+(Function and macro instances) 99.24 303.88 T
+(5) 419.23 303.88 T
+(5.7) 70.87 289.88 T
+(Conditional unit) 99.24 289.88 T
+(5) 419.23 289.88 T
+(5.8) 70.87 275.88 T
+(Replication) 99.24 275.88 T
+(5) 419.23 275.88 T
+(5.9) 70.87 261.88 T
+(CASE clause) 99.24 261.88 T
+(6) 419.23 261.88 T
+1 14 Q
+(6) 70.87 238.55 T
+(The Series Unit) 99.24 238.55 T
+(7) 418.23 238.55 T
+1 12 Q
+(6.1) 70.87 221.88 T
+(Introduction) 99.24 221.88 T
+(7) 419.23 221.88 T
+(6.2) 70.87 207.88 T
+(Local definitions) 99.24 207.88 T
+(7) 419.23 207.88 T
+(6.3) 70.87 193.88 T
+(The MAKE construct) 99.24 193.88 T
+(7) 419.23 193.88 T
+(6.4) 70.87 179.88 T
+(The JOIN construct) 99.24 179.88 T
+(7) 419.23 179.88 T
+(6.5) 70.87 165.88 T
+(The LET construct) 99.24 165.88 T
+(7) 419.23 165.88 T
+(6.6) 70.87 151.88 T
+(An example) 99.24 151.88 T
+(7) 419.23 151.88 T
+1 14 Q
+(7) 70.87 128.55 T
+(Macros) 99.24 128.55 T
+(8) 418.23 128.55 T
+1 12 Q
+(7.1) 70.87 111.88 T
+(Macro specification) 99.24 111.88 T
+(8) 419.23 111.88 T
+(7.2) 70.87 97.88 T
+(Macro bodies) 99.24 97.88 T
+(8) 419.23 97.88 T
+(7.3) 70.87 83.88 T
+(Macro definition) 99.24 83.88 T
+(8) 419.23 83.88 T
+FMENDPAGE
+%%EndPage: "v" 4
+%%Page: "vi" 4
+595.3 841.89 0 FMBEGINPAGE
+42.56 761.51 524.45 785.16 R
+7 X
+0 K
+V
+42.56 25.52 524.45 49.17 R
+V
+0 10 Q
+0 X
+(vi) 42.56 41.83 T
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 41.83 T
+42.56 72.81 524.45 726.04 R
+7 X
+V
+1 12 Q
+0 X
+(7.4) 42.56 718.04 T
+(An example) 70.92 718.04 T
+(8) 390.92 718.04 T
+1 14 Q
+(8) 42.56 694.71 T
+(Comments in Text) 70.92 694.71 T
+(9) 389.92 694.71 T
+1 12 Q
+(8.1) 42.56 678.04 T
+(Introduction) 70.92 678.04 T
+(9) 390.92 678.04 T
+(8.2) 42.56 664.04 T
+(Hash symbol \050#\051) 70.92 664.04 T
+(9) 390.92 664.04 T
+(8.3) 42.56 650.04 T
+(COM and MOC) 70.92 650.04 T
+(9) 390.92 650.04 T
+(8.4) 42.56 636.04 T
+(Error messages) 70.92 636.04 T
+(9) 390.92 636.04 T
+1 14 Q
+(9) 42.56 612.71 T
+(Predefined Definitions) 70.92 612.71 T
+(10) 382.92 612.71 T
+1 12 Q
+(9.1) 42.56 596.04 T
+(Introduction) 70.92 596.04 T
+(10) 384.92 596.04 T
+(9.2) 42.56 582.04 T
+(The predefined definitions allowed in design text) 70.92 582.04 T
+(10) 384.92 582.04 T
+(9.3) 42.56 568.04 T
+(Use of the predefined definitions) 70.92 568.04 T
+(11) 384.92 568.04 T
+1 14 Q
+(10) 42.56 544.71 T
+(Conclusion) 70.92 544.71 T
+(12) 382.92 544.71 T
+(11) 42.56 520.71 T
+(References) 70.92 520.71 T
+(13) 382.92 520.71 T
+FMENDPAGE
+%%EndPage: "vi" 5
+%%Page: "1" 5
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(1) 547.26 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(1) 70.87 743.35 T
+(Introduction) 99.24 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+1 14 Q
+0 X
+(1.1) 70.87 687.99 T
+(History) 99.22 687.99 T
+0 12 Q
+(1.1.1) 70.87 662.33 T
+0.6 (A pr) 104.89 662.33 P
+0.6 (over and language \050NODEN\051, speci\336cally for har) 129.56 662.33 P
+0.6 (dwar) 392.99 662.33 P
+0.6 (e design, was developed) 420.86 662.33 P
+0.69 (under the MoD\325s Strategic Resear) 104.89 649.33 P
+0.69 (ch Pr) 285.19 649.33 P
+0.69 (ogramme \050AS02 BN17\051. It is described in the) 312.97 649.33 P
+2.63 (r) 104.89 636.33 P
+2.63 (eport \324A window based pr) 109.41 636.33 P
+2.63 (over for a har) 259.68 636.33 P
+2.63 (dwar) 339.18 636.33 P
+2.63 (e description language\325) 367.05 636.33 P
+0 10 Q
+2.19 (1) 496.07 641.13 P
+0 12 Q
+2.63 (, by C H) 501.07 636.33 P
+1.97 (Pygott. The experience gained on this pr) 104.89 623.33 P
+1.97 (ogramme was used to develop a pr) 330.66 623.33 P
+1.97 (over) 528.94 623.33 P
+0.8 (based on a subset of ELLA, a har) 104.89 610.33 P
+0.8 (dwar) 283.91 610.33 P
+0.8 (e design language particularly well suited to) 311.77 610.33 P
+(formal methods.) 104.89 597.33 T
+1 14 Q
+(1.2) 70.87 568.99 T
+(Purpose) 99.22 568.99 T
+0 12 Q
+(1.2.1) 70.87 543.33 T
+2.27 (This document describes the subset of ELLA which can be used with the ELLA) 104.89 543.33 P
+1 (Pr) 104.89 530.33 P
+1 (over) 116.66 530.33 P
+1 (. It is assumed that the r) 139.59 530.33 P
+1 (eader has some knowledge of ELLA 2000) 272.19 530.33 P
+0 10 Q
+0.83 (2) 496.9 535.13 P
+0 12 Q
+1 (, so a full) 501.9 530.33 P
+(description of the language is not given.) 104.89 517.33 T
+(1.2.2) 70.87 491.33 T
+1.19 (The document does not include how to de\336ne axioms, theor) 104.89 491.33 P
+1.19 (ems or conjectur) 433.9 491.33 P
+1.19 (es, or) 523.44 491.33 P
+-0.14 (any details about the operation of the pr) 104.89 478.33 P
+-0.14 (over) 316.72 478.33 P
+-0.14 (. These details can be found in the ELLA) 339.65 478.33 P
+(Pr) 104.89 465.33 T
+(over User Manual) 116.66 465.33 T
+0 10 Q
+(3) 212.45 470.13 T
+0 12 Q
+(.) 217.45 465.33 T
+1 14 Q
+(1.3) 70.87 436.99 T
+(Brief overview of the ELLA subset) 99.22 436.99 T
+0 12 Q
+(1.3.1) 70.87 411.33 T
+1.43 (Many of the featur) 104.89 411.33 P
+1.43 (es which ar) 207.79 411.33 P
+1.43 (e included in the subset have r) 270.8 411.33 P
+1.43 (estrictions placed on) 440.92 411.33 P
+0.17 (their level of complexity) 104.89 398.33 P
+0.17 (. For example, the LET constr) 232.95 398.33 P
+0.17 (uct is included, but only single) 388.94 398.33 P
+(let names ar) 104.89 385.33 T
+(e allowed.) 168.98 385.33 T
+(1.3.2) 70.87 359.33 T
+1.11 (Integer) 104.89 359.33 P
+1.11 (, type, function and macr) 141.85 359.33 P
+1.11 (o de\336nitions ar) 279.09 359.33 P
+1.11 (e included, but constant de\336nitions) 361.23 359.33 P
+2.09 (ar) 104.89 346.33 P
+2.09 (e not. Macr) 115.41 346.33 P
+2.09 (o de\336nitions ar) 178.98 346.33 P
+2.09 (e r) 263.08 346.33 P
+2.09 (estricted to explicit integer parameters only) 278.43 346.33 P
+2.09 (. Unit,) 517.95 346.33 P
+0.84 (DELA) 104.89 333.33 P
+0.84 (Y and ARITH function bodies ar) 136.84 333.33 P
+0.84 (e included, but none of the other specialised) 312.97 333.33 P
+1.3 (bodies ar) 104.89 320.33 P
+1.3 (e. Featur) 154.55 320.33 P
+1.3 (es not included, even in a simple form, ar) 201.69 320.33 P
+1.3 (e sequences, attributes) 431.05 320.33 P
+(and function types.) 104.89 307.33 T
+(1.3.3) 70.87 281.33 T
+-0.07 (Many of the featur) 104.89 281.33 P
+-0.07 (es not included in the subset can be r) 203.28 281.33 P
+-0.07 (emoved fr) 397.98 281.33 P
+-0.07 (om existing text by) 452.18 281.33 P
+1.02 (use of the standar) 104.89 268.33 P
+1.02 (d ELLA transformations) 202.04 268.33 P
+0 10 Q
+0.85 (4) 333.37 273.13 P
+0 12 Q
+1.02 (, although some additional editing may) 338.37 268.33 P
+(be needed.) 104.89 255.33 T
+(1.3.4) 70.87 229.33 T
+-0.12 (Most of the r) 104.89 229.33 P
+-0.12 (est of this document describes the subset in mor) 172.15 229.33 P
+-0.12 (e detail, lar) 425.35 229.33 P
+-0.12 (gely in terms) 483.85 229.33 P
+1.8 (of the r) 104.89 216.33 P
+1.8 (estrictions placed on the full ELLA syntax as described in the ELLA 2000) 146.19 216.33 P
+1.47 (book) 104.89 203.33 P
+0 10 Q
+1.22 (2) 131.3 208.13 P
+0 12 Q
+1.47 (. In the following sections the wor) 136.3 203.33 P
+1.47 (d ELLA will be used to mean ELLA 2000) 324.95 203.33 P
+(wher) 104.89 190.33 T
+(ever it r) 132.15 190.33 T
+(efers to the syntax of the language.) 173.09 190.33 T
+FMENDPAGE
+%%EndPage: "1" 6
+%%Page: "2" 6
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+0 11 Q
+0 X
+(2) 42.56 40.89 T
+0 10 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 40.89 T
+42.56 731.38 524.45 754.05 R
+7 X
+V
+1 16 Q
+0 X
+(2) 42.56 743.39 T
+(Integer and Boolean Expressions) 70.92 743.39 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+1 14 Q
+0 X
+(2.1) 42.56 688.03 T
+(Numbers) 70.9 688.03 T
+0 12 Q
+(2.1.1) 42.56 662.36 T
+-0.03 (Numbers must be written in decimal form; the use of a radix, for example 2r1001) 76.57 662.36 P
+-0.03 (1, is) 503.89 662.36 P
+(not supported. They must be between 2147483646 and -2147483647 inclusive.) 76.57 649.36 T
+1 14 Q
+(2.2) 42.56 621.03 T
+(Integer de\336nitions) 70.9 621.03 T
+0 12 Q
+(2.2.1) 42.56 595.36 T
+-0.22 (The syntax of integer de\336nitions is identical to that in ELLA. The only r) 76.57 595.36 P
+-0.22 (estrictions ar) 451.06 595.36 P
+-0.22 (e) 518.7 595.36 P
+(due to those for numbers \050see above\051 and integer expr) 76.57 582.36 T
+(essions \050see below\051.) 362.53 582.36 T
+1 14 Q
+(2.3) 42.56 554.03 T
+(Integer expressions) 70.9 554.03 T
+0 12 Q
+(2.3.1) 42.56 528.36 T
+0.8 (The syntax of integer expr) 76.57 528.36 P
+0.8 (essions is identical to that in ELLA. All the operators ar) 218.21 528.36 P
+0.8 (e) 518.7 528.36 P
+0.04 (included, except for ILOG and IEXP) 76.57 515.36 P
+0.04 (, but the r) 266.48 515.36 P
+0.04 (ules for or) 317.66 515.36 P
+0.04 (der of evaluation ar) 371.66 515.36 P
+0.04 (e slightly) 475.86 515.36 P
+(dif) 76.57 502.36 T
+(fer) 91.18 502.36 T
+(ent \050see below\051.) 105.44 502.36 T
+1 14 Q
+(2.4) 42.56 474.03 T
+(Boolean expressions) 70.9 474.03 T
+0 12 Q
+(2.4.1) 42.56 448.36 T
+1.79 (The syntax of a boolean expr) 76.57 448.36 P
+1.79 (ession, used between IF and THEN in a conditional) 237.67 448.36 P
+1.09 (integer expr) 76.57 435.36 P
+1.09 (ession or a conditional unit, is identical to that in ELLA. However) 141.63 435.36 P
+1.09 (, the) 500.71 435.36 P
+(r) 76.57 422.36 T
+(ules for or) 81.22 422.36 T
+(der of evaluation ar) 135.14 422.36 T
+(e slightly dif) 239.23 422.36 T
+(fer) 305.39 422.36 T
+(ent \050see below\051.) 319.65 422.36 T
+1 14 Q
+(2.5) 42.56 394.03 T
+(Order of evaluation) 70.9 394.03 T
+0 12 Q
+(2.5.1) 42.56 368.36 T
+(The integer and boolean operators ar) 76.57 368.36 T
+(e evaluated accor) 272.3 368.36 T
+(ding to the following r) 364.03 368.36 T
+(ules:-) 483.5 368.36 T
+(-) 56.73 349.36 T
+(As in ELLA, monadic operators ar) 76.57 349.36 T
+(e always evaluated \336rst.) 258.15 349.36 T
+(-) 56.73 328.36 T
+(Next the integer operators *, %, IDIV) 76.57 328.36 T
+(, MOD, SL, SR, IAND, IOR, or the boolean) 270.12 328.36 T
+(operator AND ar) 76.57 313.36 T
+(e evaluated.) 167.15 313.36 T
+(-) 56.73 292.36 T
+(Lastly the integer operators +, -, or the boolean operators =, /=, >, <, >=, <=, OR ar) 76.57 292.36 T
+(e) 513.68 292.36 T
+(evaluated.) 76.57 277.36 T
+(-) 56.73 256.36 T
+(If two or mor) 76.57 256.36 T
+(e dyadic operators fr) 147.05 256.36 T
+(om the same level ar) 257.02 256.36 T
+(e used they ar) 366.02 256.36 T
+(e evaluated) 440.02 256.36 T
+(fr) 76.57 241.36 T
+(om left to right.) 85.09 241.36 T
+(2.5.2) 42.56 213.36 T
+1.25 (In ELLA * and % ar) 76.57 213.36 P
+1.25 (e evaluated befor) 185.79 213.36 P
+1.25 (e + and -, but most other combinations must) 279.76 213.36 P
+0.72 (include brackets to show the or) 76.57 200.36 P
+0.72 (der of calculation. The left to right r) 245.73 200.36 P
+0.72 (ule is only used) 439.12 200.36 P
+0.1 (wher) 76.57 187.36 P
+0.1 (e the operators ar) 103.84 187.36 P
+0.1 (e + and -, or * and %, or the same dyadic operator is r) 196.59 187.36 P
+0.1 (epeated.) 479.74 187.36 P
+1.98 (For example, the expr) 76.57 174.36 P
+1.98 (essions) 197.78 174.36 P
+3 10 Q
+1.83 (NOT\050s = 0\051 OR \050t = 0\051 AND \050s > 0\051) 240.8 174.36 P
+0 12 Q
+1.98 ( and) 411.12 174.36 P
+3 10 Q
+1.83 (a MOD b * c) 441.4 174.36 P
+0 12 Q
+1.98 ( ar) 503.19 174.36 P
+1.98 (e) 518.7 174.36 P
+1 (accepted by the pr) 76.57 161.36 P
+1 (over r) 176.87 161.36 P
+1 (eader but not by the ELLA compiler) 209.21 161.36 P
+1 (. However) 405.57 161.36 P
+1 (, the pr) 461.24 161.36 P
+1 (over) 500.62 161.36 P
+1.76 (display pr) 76.57 148.36 P
+1.76 (ocedur) 132.35 148.36 P
+1.76 (es add brackets to make the binding clear and would r) 169.07 148.36 P
+1.76 (epr) 474.77 148.36 P
+1.76 (oduce) 492.25 148.36 P
+(these expr) 76.57 135.36 T
+(essions as) 130.73 135.36 T
+3 10 Q
+(\050NOT\050s = 0\051\051 OR \050\050t = 0\051 AND \050s > 0\051\051) 185.85 135.36 T
+0 12 Q
+(and) 353.93 135.36 T
+3 10 Q
+( \050a MOD b\051 * c.) 374.25 135.36 T
+0 12 Q
+(2.5.3) 42.56 109.36 T
+0.43 (Since it is assumed that the design input to the pr) 76.57 109.36 P
+0.43 (over will have been compiled and) 342.28 109.36 P
+0.65 (simulated in the ELLA system, any r) 76.57 96.36 P
+0.65 (elaxation in the compilation r) 274.08 96.36 P
+0.65 (ules, such as that) 432.41 96.36 P
+(in the above paragraph, should not be a pr) 76.57 83.36 T
+(oblem.) 302.22 83.36 T
+0 -0 595.3 841.88 C
+0 -0 595.3 841.89 C
+FMENDPAGE
+%%EndPage: "2" 7
+%%Page: "3" 7
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(3) 547.26 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(3) 70.87 743.35 T
+(T) 99.24 743.35 T
+(ypes) 108.47 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+1 14 Q
+0 X
+(3.1) 70.87 687.99 T
+(Restrictions) 99.22 687.99 T
+0 12 Q
+(3.1.1) 70.87 662.33 T
+(The following types cannot be de\336ned or used in type expr) 104.89 662.33 T
+(essions:-) 417.79 662.33 T
+(-) 85.04 643.33 T
+(ELLA-characters, and hence ELLA-strings,) 104.89 643.33 T
+(-) 85.04 622.33 T
+(associated types,) 104.89 622.33 T
+(-) 85.04 601.33 T
+(function types,) 104.89 601.33 T
+(-) 85.04 580.33 T
+(void.) 104.89 580.33 T
+(3.1.2) 70.87 552.33 T
+3.06 (In addition the syntax options) 104.89 552.33 P
+3 10 Q
+2.84 (TYPE typename) 282.59 552.33 P
+0 12 Q
+3.06 ( and) 358.24 552.33 P
+3 10 Q
+2.84 (TYPE typename = typeornew) 390.67 552.33 P
+0 12 Q
+3.06 (, for) 528.41 552.33 P
+0.69 (implicit macr) 104.89 539.33 P
+0.69 (o type parameter declaration, ar) 176.04 539.33 P
+0.69 (e not allowed in type expr) 348.72 539.33 P
+0.69 (essions due) 490.71 539.33 P
+(to the r) 104.89 526.33 T
+(estrictions placed on macr) 142.52 526.33 T
+(o de\336nitions. \050See section 7\051) 280.95 526.33 T
+1 14 Q
+(3.2) 70.87 497.99 T
+(The unspeci\336ed value) 99.22 497.99 T
+0 12 Q
+(3.2.1) 70.87 472.33 T
+0.41 (The pr) 104.89 472.33 P
+0.41 (over r) 140.12 472.33 P
+0.41 (epr) 171.88 472.33 P
+0.41 (esents the unspeci\336ed value in the same way as ELLA, for example,) 189.37 472.33 P
+3 10 Q
+-0.21 (?bool) 104.89 459.33 P
+0 12 Q
+-0.22 (. As in ELLA, the unspeci\336ed value cannot be used in a) 129.35 459.33 P
+3 10 Q
+-0.21 (chooser) 422.24 459.33 P
+0 12 Q
+-0.22 ( in a CASE clause.) 457.81 459.33 P
+(However) 104.89 446.33 T
+(, during a pr) 153.56 446.33 T
+(oof) 219.75 446.33 T
+3 10 Q
+(?bool = ?bool) 239.85 446.33 T
+0 12 Q
+( can arise and will be simpli\336ed to) 300.17 446.33 T
+3 10 Q
+(_true) 484.91 446.33 T
+0 12 Q
+(.) 507.7 446.33 T
+1 14 Q
+(3.3) 70.87 417.99 T
+(Equivalence) 99.22 417.99 T
+0 12 Q
+(3.3.1) 70.87 392.33 T
+0.31 (The pr) 104.89 392.33 P
+0.31 (over uses the same equivalence of types r) 140.02 392.33 P
+0.31 (ules as ELLA. For example,) 361.36 392.33 P
+3 10 Q
+0.29 ([3]bool) 510.85 392.33 P
+0 12 Q
+0.31 ( is) 540.87 392.33 P
+(equivalent to) 104.89 379.33 T
+3 10 Q
+(\050bool, bool, bool\051) 177.46 379.33 T
+0 12 Q
+( and the following de\336nitions ar) 251.94 379.33 T
+(e allowed:-) 422.51 379.33 T
+3 10 Q
+(TYPE data = NEW d/\0500 .. 100\051.) 104.89 361.66 T
+(TYPE point = \050data, data\051.) 104.89 347.66 T
+(TYPE vector = [2]data.) 104.89 333.66 T
+(FN SWITCHP = \050point: in\051 -> point: \050in[2], in[1]\051.) 104.89 319.66 T
+(FN SWITCHV = \050vector: in\051 -> vector: SWITCHP in.) 104.89 305.66 T
+FMENDPAGE
+%%EndPage: "3" 8
+%%Page: "4" 8
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+0 11 Q
+0 X
+(4) 42.56 40.89 T
+0 10 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 40.89 T
+42.56 731.38 524.45 754.05 R
+7 X
+V
+1 16 Q
+0 X
+(4) 42.56 743.39 T
+(Functions) 70.92 743.39 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+1 14 Q
+0 X
+(4.1) 42.56 688.03 T
+(Function speci\336cation) 70.9 688.03 T
+0 12 Q
+(4.1.1) 42.56 662.36 T
+-0.27 (A function name must be an upper case name \050any combination of upper case letters,) 76.57 662.36 P
+1.05 (digits and underscor) 76.57 649.36 P
+1.05 (es but starting with an upper case letter\051. Symbolic names ar) 188.51 649.36 P
+1.05 (e) 518.7 649.36 P
+2.25 (not allowed. The name must not match any other upper case name or keywor) 76.57 636.36 P
+2.25 (d) 517.11 636.36 P
+-0.04 (alr) 76.57 623.36 P
+-0.04 (eady known to the pr) 90.59 623.36 P
+-0.04 (over) 204.22 623.36 P
+-0.04 (. However) 227.15 623.36 P
+-0.04 (, since boolean operators cannot appear in the) 281.79 623.36 P
+-0.28 (same place as function names, the operator names NOT) 76.57 610.36 P
+-0.28 (, OR and AND ar) 368.94 610.36 P
+-0.28 (e exceptions) 459.72 610.36 P
+(to this r) 76.57 597.36 T
+(ule and may be used as function names.) 117.16 597.36 T
+(4.1.2) 42.56 571.36 T
+0.84 (The syntax for the input to a function is the same as in ELLA except that the input) 76.57 571.36 P
+0.83 (must be bracketed even if the input is not named. The output signal or sub-signals) 76.57 558.36 P
+(cannot be named.) 76.57 545.36 T
+1 14 Q
+(4.2) 42.56 517.03 T
+(Function bodies) 70.9 517.03 T
+0 12 Q
+(4.2.1) 42.56 491.36 T
+(A function body must be non-r) 76.57 491.36 T
+(ecursive and can be one of the following:-) 240.84 491.36 T
+(-) 56.73 472.36 T
+(a simple unit, described in section 5,) 76.57 472.36 T
+(-) 56.73 451.36 T
+(a simple form of the series unit, described in section 6,) 76.57 451.36 T
+(-) 56.73 430.36 T
+(a simple DELA) 76.57 430.36 T
+(Y) 156.16 430.36 T
+(, described below) 162.83 430.36 T
+(,) 254.6 430.36 T
+(-) 56.73 409.36 T
+(an ARITH constr) 76.57 409.36 T
+(uct, described below) 166.8 409.36 T
+(.) 275.05 409.36 T
+(4.2.2) 42.56 381.36 T
+-0.09 (Only the two parameter version of DELA) 76.57 381.36 P
+-0.09 (Y is allowed and its syntax is the same as in) 294.29 381.36 P
+(ELLA. An example function de\336nition is:-) 76.57 368.36 T
+3 10 Q
+(FN DEL2 = \050bool\051 -> bool: DELAY\050?bool, 2\051.) 76.57 350.69 T
+0 12 Q
+(4.2.3) 42.56 324.36 T
+2.69 (The syntax for the ARITH constr) 76.57 324.36 P
+2.69 (uct is identical to ELLA. An example function) 263.16 324.36 P
+(de\336nition using ARITH is:-) 76.57 311.36 T
+3 10 Q
+(FN ADD = \050data: a b\051 -> data: ARITH IF \050a + b\051 > 100 THEN a + b - 100 ELSE a + b FI.) 76.57 293.69 T
+1 14 Q
+(4.3) 42.56 265.03 T
+(Function de\336nition) 70.9 265.03 T
+0 12 Q
+(4.3.1) 42.56 239.36 T
+1.82 (Each function de\336nition must end with a full stop. The usual option of having a) 76.57 239.36 P
+3.39 (keywor) 76.57 226.36 P
+3.39 (d, \050FN in this case\051, followed by a number of de\336nitions separated by) 116.75 226.36 P
+(commas is not allowed for functions.) 76.57 213.36 T
+FMENDPAGE
+%%EndPage: "4" 9
+%%Page: "5" 9
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(5) 547.26 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(5) 70.87 743.35 T
+(Simple Units) 99.24 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+1 14 Q
+0 X
+(5.1) 70.87 687.99 T
+(Introduction) 99.22 687.99 T
+0 12 Q
+(5.1.1) 70.87 662.33 T
+0.34 (This section describes brie\337y all the sorts of unit which can be used wher) 104.89 662.33 P
+0.34 (ever a unit) 495.44 662.33 P
+0.64 (is allowed. Most of the sorts of unit not included in the list ar) 104.89 649.33 P
+0.64 (e omitted because the) 436.11 649.33 P
+2.2 (r) 104.89 636.33 P
+2.2 (estrictions on types or other featur) 109.41 636.33 P
+2.2 (es make them r) 302.55 636.33 P
+2.2 (edundant. However) 389.76 636.33 P
+2.2 (, dynamic) 498.16 636.33 P
+(indexing and the REPLACE constr) 104.89 623.33 T
+(uct ar) 288.35 623.33 T
+(e also omitted.) 318.35 623.33 T
+(5.1.2) 70.87 597.33 T
+2.01 (The series unit is described in section 6 because it may only be used as the sole) 104.89 597.33 P
+(contents of a function or macr) 104.89 584.33 T
+(o body) 263.17 584.33 T
+(.) 298.58 584.33 T
+1 14 Q
+(5.2) 70.87 555.99 T
+(Names and constant values) 99.22 555.99 T
+0 12 Q
+(5.2.1) 70.87 530.33 T
+0.6 (Input, let and instance names can be used as units. Constant values, for the sorts of) 104.89 530.33 P
+(type which ar) 104.89 517.33 T
+(e included in the subset, can also be used. For example) 177.75 517.33 T
+3 10 Q
+(d/5) 470.45 517.33 T
+0 12 Q
+( or) 484.35 517.33 T
+3 10 Q
+(?bool) 501.64 517.33 T
+0 12 Q
+(.) 526.1 517.33 T
+1 14 Q
+(5.3) 70.87 488.99 T
+(Indexing and trimming) 99.22 488.99 T
+0 12 Q
+(5.3.1) 70.87 463.33 T
+1.6 (Indexing and trimming using integer expr) 104.89 463.33 P
+1.6 (essions can be used and have the same) 336.55 463.33 P
+(syntax as in ELLA. However) 104.89 450.33 T
+(, dynamic indexing \050) 256.3 450.33 T
+3 10 Q
+(unit2 [[unit]]) 365.6 450.33 T
+0 12 Q
+(\051 cannot be used.) 417.3 450.33 T
+1 14 Q
+(5.4) 70.87 421.99 T
+(Brackets) 99.22 421.99 T
+0 12 Q
+(5.4.1) 70.87 396.33 T
+1.28 (Brackets can be used r) 104.89 396.33 P
+1.28 (ound a single unit to indicate or) 227.45 396.33 P
+1.28 (der of evaluation, or r) 404.16 396.33 P
+1.28 (ound) 524.66 396.33 P
+(mor) 104.89 383.33 T
+(e than one unit, separated by commas, to cr) 126.56 383.33 T
+(eate an ELLA str) 356.66 383.33 T
+(uctur) 445.02 383.33 T
+(e.) 473.26 383.33 T
+1 14 Q
+(5.5) 70.87 354.99 T
+(Concatenation) 99.22 354.99 T
+0 12 Q
+(5.5.1) 70.87 329.33 T
+1.99 (The keywor) 104.89 329.33 P
+1.99 (d CONC can be used to concatenate two units, using the same r) 170.14 329.33 P
+1.99 (ules) 531.2 329.33 P
+(about the units involved as in ELLA.) 104.89 316.33 T
+1 14 Q
+(5.6) 70.87 287.99 T
+(Function and macro instances) 99.22 287.99 T
+0 12 Q
+(5.6.1) 70.87 262.33 T
+2.44 (Units r) 104.89 262.33 P
+2.44 (epr) 143.66 262.33 P
+2.44 (esenting implicit instances of functions or macr) 161.15 262.33 P
+2.44 (os ar) 425.91 262.33 P
+2.44 (e allowed in both) 453.51 262.33 P
+2.24 (monadic and dyadic form. For example, if AND_N is a macr) 104.89 249.33 P
+2.24 (o with one explicit) 447.94 249.33 P
+1.16 (integer parameter and two inputs, the following units ar) 104.89 236.33 P
+1.16 (e allowed \050subject to type) 412.99 236.33 P
+(checking\051 and ar) 104.89 223.33 T
+(e equivalent:-) 192.93 223.33 T
+3 10 Q
+(AND_N {4} \050x, y\051) 267.79 223.33 T
+0 12 Q
+( and) 341.7 223.33 T
+3 10 Q
+(x AND_N {4} y) 368.01 223.33 T
+0 12 Q
+(.) 431.15 223.33 T
+1 14 Q
+(5.7) 70.87 194.99 T
+(Conditional unit) 99.22 194.99 T
+0 12 Q
+(5.7.1) 70.87 169.33 T
+0.42 (The syntax for a conditional unit is the same as in ELLA. However) 104.89 169.33 P
+0.42 (, see section 2 for) 461.11 169.33 P
+(the or) 104.89 156.33 T
+(der of evaluation of the boolean expr) 135.61 156.33 T
+(ession between IF and THEN.) 331 156.33 T
+1 14 Q
+(5.8) 70.87 127.99 T
+(Replication) 99.22 127.99 T
+0 12 Q
+(5.8.1) 70.87 102.33 T
+1 (T) 104.89 102.33 P
+1 (wo methods of pr) 111.16 102.33 P
+1 (oducing a unit by r) 208.21 102.33 P
+1 (eplication of another unit ar) 313.25 102.33 P
+1 (e allowed. Their) 465.07 102.33 P
+0.4 (syntax,) 104.89 89.33 P
+3 10 Q
+0.37 ([intexp] unit1) 146.13 89.33 P
+0 12 Q
+0.4 ( and) 203.2 89.33 P
+3 10 Q
+0.37 ([INT repname = intexp..intexp] unit1) 230.31 89.33 P
+0 12 Q
+0.4 (, and r) 390.48 89.33 P
+0.4 (ules of use ar) 425.23 89.33 P
+0.4 (e the same) 496.14 89.33 P
+(as in ELLA. Examples ar) 104.89 76.33 T
+(e:-) 234.97 76.33 T
+FMENDPAGE
+%%EndPage: "5" 10
+%%Page: "6" 10
+595.3 841.89 0 FMBEGINPAGE
+42.56 761.51 524.45 785.16 R
+7 X
+0 K
+V
+4 14 Q
+0 X
+(Simple Units) 449.36 775.82 T
+42.56 25.52 524.45 49.17 R
+7 X
+V
+0 10 Q
+0 X
+(6) 42.56 41.83 T
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 41.83 T
+42.56 72.81 524.45 726.04 R
+7 X
+V
+0 12 Q
+0 X
+(-) 56.73 718.04 T
+3 10 Q
+([4]t) 76.57 718.04 T
+0 12 Q
+( which is the same as) 90.47 718.04 T
+3 10 Q
+(\050t, t, t, t\051) 205.01 718.04 T
+0 12 Q
+(-) 56.73 697.04 T
+3 10 Q
+([INT j = 1..6] a[j]) 76.57 697.04 T
+0 12 Q
+( which is the same as) 147.44 697.04 T
+3 10 Q
+(\050a[1], a[2], a[3], a[4], a[5], a[6]\051) 261.98 697.04 T
+0 12 Q
+(.) 396.52 697.04 T
+1 14 Q
+(5.9) 42.56 666.71 T
+(CASE clause) 70.9 666.71 T
+0 12 Q
+(5.9.1) 42.56 641.04 T
+0 (The syntax for CASE is the same as in ELLA except for r) 76.57 641.04 P
+0 (estrictions on the chooser) 373.79 641.04 P
+0 (. In) 507.42 641.04 P
+3.1 (the pr) 76.57 628.04 P
+3.1 (over alternatives ar) 111.05 628.04 P
+3.1 (e not allowed within a str) 219.49 628.04 P
+3.1 (uctur) 370.32 628.04 P
+3.1 (e so the corr) 398.55 628.04 P
+3.1 (ect ELLA) 472.03 628.04 P
+(chooser) 76.57 615.04 T
+3 10 Q
+(\050f, t|f\051) 120.56 615.04 T
+0 12 Q
+( would have to be written as) 143.72 615.04 T
+3 10 Q
+(\050f, t\051 | \050f, f\051) 297.59 615.04 T
+0 12 Q
+(, which is also legal in ELLA.) 341.31 615.04 T
+FMENDPAGE
+%%EndPage: "6" 11
+%%Page: "7" 11
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(7) 547.26 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(6) 70.87 743.35 T
+(The Series Unit) 99.24 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+1 14 Q
+0 X
+(6.1) 70.87 687.99 T
+(Introduction) 99.22 687.99 T
+0 12 Q
+(6.1.1) 70.87 662.33 T
+0.69 (A simpli\336ed version of the ELLA series unit is included in the pr) 104.89 662.33 P
+0.69 (over subset, but it) 455.98 662.33 P
+1.55 (can only be used as the sole contents of a function or macr) 104.89 649.33 P
+1.55 (o body) 431.14 649.33 P
+1.55 (. Its syntax is :-) 468.1 649.33 P
+3 10 Q
+4.13 (BEGIN <steps> OUTPUT unit END) 104.89 636.33 P
+0 12 Q
+4.46 (, wher) 277.56 636.33 P
+4.46 (e steps can include local de\336nitions and) 315.28 636.33 P
+0.38 (simpli\336ed versions of the MAKE, JOIN and LET constr) 104.89 623.33 P
+0.38 (ucts. The PRINT and F) 399.36 623.33 P
+0.38 (AUL) 520.29 623.33 P
+0.38 (T) 545.4 623.33 P
+(constr) 104.89 610.33 T
+(ucts ar) 137.39 610.33 T
+(e not included.) 172.48 610.33 T
+1 14 Q
+(6.2) 70.87 581.99 T
+(Local de\336nitions) 99.22 581.99 T
+0 12 Q
+(6.2.1) 70.87 556.33 T
+0.79 (Local de\336nitions of integers, types, functions and macr) 104.89 556.33 P
+0.79 (os ar) 400.83 556.33 P
+0.79 (e allowed and have the) 426.78 556.33 P
+(same syntax as outer de\336nitions.) 104.89 543.33 T
+1 14 Q
+(6.3) 70.87 514.99 T
+(The MAKE construct) 99.22 514.99 T
+0 12 Q
+(6.3.1) 70.87 489.33 T
+-0.28 (Ther) 104.89 489.33 P
+-0.28 (e ar) 129.5 489.33 P
+-0.28 (e two options for the syntax of) 148.49 489.33 P
+3 10 Q
+-0.26 (makeitem) 310.87 489.33 P
+0 12 Q
+-0.28 ( in a MAKE,) 354.21 489.33 P
+3 10 Q
+-0.26 (fnname : instancenames) 421.3 489.33 P
+0 12 Q
+-0.28 ( and) 529.72 489.33 P
+3 10 Q
+2.57 (macname eparams : instancenames) 104.89 476.33 P
+0 12 Q
+2.77 (. Multiple MAKEs \050e.g.) 273.75 476.33 P
+3 10 Q
+2.57 (MAKE [4]AND: and.) 410 476.33 P
+0 12 Q
+2.77 (\051 ar) 503.5 476.33 P
+2.77 (e not) 523.79 476.33 P
+(included.) 104.89 463.33 T
+(6.3.2) 70.87 437.33 T
+-0.15 (The simpli\336ed option for macr) 104.89 437.33 P
+-0.15 (os r) 266.53 437.33 P
+-0.15 (e\337ects the r) 285.54 437.33 P
+-0.15 (estrictions placed on macr) 345.53 437.33 P
+-0.15 (o de\336nitions.) 483.51 437.33 P
+2.88 (Namely) 104.89 424.33 P
+2.88 (, that macr) 146.03 424.33 P
+2.88 (os must have at least one explicit parameter and no implicit) 208.06 424.33 P
+(parameters.) 104.89 411.33 T
+1 14 Q
+(6.4) 70.87 382.99 T
+(The JOIN construct) 99.22 382.99 T
+0 12 Q
+(6.4.1) 70.87 357.33 T
+0.37 (The syntax for) 104.89 357.33 P
+3 10 Q
+0.34 (joinitem) 185.23 357.33 P
+0 12 Q
+0.37 ( in a JOIN is r) 219.68 357.33 P
+0.37 (estricted to) 293.56 357.33 P
+3 10 Q
+0.34 ( unit -> instancename) 352.69 357.33 P
+0 12 Q
+0.37 (. A FOR loop is not) 449.61 357.33 P
+(allowed.) 104.89 344.33 T
+1 14 Q
+(6.5) 70.87 315.99 T
+(The LET construct) 99.22 315.99 T
+0 12 Q
+(6.5.1) 70.87 290.33 T
+(The syntax for) 104.89 290.33 T
+3 10 Q
+(letitem) 184.11 290.33 T
+0 12 Q
+( in a LET is r) 213.56 290.33 T
+(estricted to) 280.16 290.33 T
+3 10 Q
+(letname = unit) 341.92 290.33 T
+0 12 Q
+(.) 405.01 290.33 T
+1 14 Q
+(6.6) 70.87 261.99 T
+(An example) 99.22 261.99 T
+0 12 Q
+(6.6.1) 70.87 236.33 T
+(The example below illustrates many of the featur) 104.89 236.33 T
+(es of a series unit.) 364.46 236.33 T
+3 10 Q
+(FN ADD4 = \050data: a b c d\051 -> data:) 104.89 218.66 T
+(BEGIN) 104.89 204.66 T
+(FN ADD = \050data: x y\051 -> data: ARITH IF \050x + y\051 > 100 THEN x + y - 100 ELSE x + y FI.) 113.39 190.66 T
+(MAKE ADD : add1 add2.) 113.39 176.66 T
+(JOIN) 113.39 162.66 T
+(\050a, b\051 -> add1,) 141.74 162.66 T
+(\050c, d\051 -> add2.) 141.74 148.66 T
+(LET result = ADD\050add1, add2\051.) 113.39 134.66 T
+(OUTPUT result) 113.39 120.66 T
+(END.) 104.89 106.66 T
+FMENDPAGE
+%%EndPage: "7" 12
+%%Page: "8" 12
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+0 11 Q
+0 X
+(8) 42.56 40.89 T
+0 10 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 40.89 T
+42.56 731.38 524.45 754.05 R
+7 X
+V
+1 16 Q
+0 X
+(7) 42.56 743.39 T
+(Macros) 70.92 743.39 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+1 14 Q
+0 X
+(7.1) 42.56 688.03 T
+(Macro speci\336cation) 70.9 688.03 T
+0 12 Q
+(7.1.1) 42.56 662.36 T
+0 (The r) 76.57 662.36 P
+0 (ules for the name of a macr) 104.31 662.36 P
+0 (o and that part of the speci\336cation to the right of the) 248.16 662.36 P
+(equals sign ar) 76.57 649.36 T
+(e the same as given for functions in section 4.1.) 149.62 649.36 T
+(7.1.2) 42.56 623.36 T
+0.79 (A macr) 76.57 623.36 P
+0.79 (o must have at least one explicit parameter) 116.14 623.36 P
+0.79 (, and implicit parameters ar) 347.67 623.36 P
+0.79 (e not) 497.46 623.36 P
+1.08 (allowed. Only integer parameters ar) 76.57 610.36 P
+1.08 (e included in the subset. They must be named) 272.68 610.36 P
+(after the keywor) 76.57 597.36 T
+(d INT) 163.79 597.36 T
+(, between braces which follow the macr) 194.6 597.36 T
+(o name.) 403.91 597.36 T
+1 14 Q
+(7.2) 42.56 569.03 T
+(Macro bodies) 70.9 569.03 T
+0 12 Q
+(7.2.1) 42.56 543.36 T
+0.69 (The sorts of body allowed in a macr) 76.57 543.36 P
+0.69 (o ar) 271.15 543.36 P
+0.69 (e the same as given for functions in section) 291.91 543.36 P
+(4.2. However) 76.57 530.36 T
+(, as in ELLA, a macr) 146.24 530.36 T
+(o can be r) 252.59 530.36 T
+(ecursive and cr) 303.36 530.36 T
+(eate instances of itself.) 383.69 530.36 T
+1 14 Q
+(7.3) 42.56 502.03 T
+(Macro de\336nition) 70.9 502.03 T
+0 12 Q
+(7.3.1) 42.56 476.36 T
+(As with functions, each macr) 76.57 476.36 T
+(o de\336nition must be followed by a full stop.) 230.47 476.36 T
+1 14 Q
+(7.4) 42.56 448.03 T
+(An example) 70.9 448.03 T
+0 12 Q
+(7.4.1) 42.56 422.36 T
+0.73 (In the example below a r) 76.57 422.36 P
+0.73 (ecursive macr) 210.84 422.36 P
+0.73 (o is de\336ned which has a conditional unit for) 285.17 422.36 P
+(its body) 76.57 409.36 T
+(.) 117.92 409.36 T
+3 10 Q
+(MAC NOT_N{INT n} = \050[n]bool: a\051 -> [n]bool:) 76.57 391.69 T
+(IF n = 1) 76.57 377.69 T
+(THEN [n]\050NOT a[1]\051) 85.08 363.69 T
+(ELSE \050NOT a[1]\051 CONC \050NOT_N{n-1}a[2..n]\051) 85.08 349.69 T
+(FI.) 76.57 335.69 T
+FMENDPAGE
+%%EndPage: "8" 13
+%%Page: "9" 13
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(9) 547.26 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(8) 70.87 743.35 T
+(Comments in T) 99.24 743.35 T
+(ext) 210.34 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+1 14 Q
+0 X
+(8.1) 70.87 687.99 T
+(Introduction) 99.22 687.99 T
+0 12 Q
+(8.1.1) 70.87 662.33 T
+0.65 (While the same symbol \050#\051 and keywor) 104.89 662.33 P
+0.65 (ds \050COM and MOC\051 ar) 316.11 662.33 P
+0.65 (e used for comments) 440.56 662.33 P
+-0.18 (in the pr) 104.89 649.33 P
+-0.18 (over as ar) 149.38 649.33 P
+-0.18 (e used in ELLA, they do not obey exactly the same r) 200.44 649.33 P
+-0.18 (ules. However) 473.71 649.33 P
+-0.18 (,) 549.76 649.33 P
+1.41 (most comments in ELLA text will be accepted by the pr) 104.89 636.33 P
+1.41 (over and output fr) 412.63 636.33 P
+1.41 (om the) 514.56 636.33 P
+(pr) 104.89 623.33 T
+(over uses comments in a way which is acceptable in ELLA.) 116.62 623.33 T
+1 14 Q
+(8.2) 70.87 594.99 T
+(Hash symbol \050#\051) 99.22 594.99 T
+0 12 Q
+(8.2.1) 70.87 569.33 T
+0.17 (All text between two hash symbols is ignor) 104.89 569.33 P
+0.17 (ed, but unlike ELLA, the pr) 334.39 569.33 P
+0.17 (over does not) 480.43 569.33 P
+(insist that the symbols both appear on the same line.) 104.89 556.33 T
+1 14 Q
+(8.3) 70.87 527.99 T
+(COM and MOC) 99.22 527.99 T
+0 12 Q
+(8.3.1) 70.87 502.33 T
+0.59 (All text between COM and MOC is ignor) 104.89 502.33 P
+0.59 (ed. However) 326.6 502.33 P
+0.59 (, unlike ELLA, nesting of this) 394.94 502.33 P
+(sort of comment is not allowed.) 104.89 489.33 T
+1 14 Q
+(8.4) 70.87 460.99 T
+(Error messages) 99.22 460.99 T
+0 12 Q
+(8.4.1) 70.87 435.33 T
+3.63 (If a comment is not corr) 104.89 435.33 P
+3.63 (ectly terminated in ELLA a speci\336c err) 248.98 435.33 P
+3.63 (or message is) 474.68 435.33 P
+-0.18 (pr) 104.89 422.33 P
+-0.18 (oduced. In the pr) 116.62 422.33 P
+-0.18 (over the \324end of \336le\325 symbol will terminate a comment. If the start) 207.01 422.33 P
+0.06 (of the comment was not at a point in the text wher) 104.89 409.33 P
+0.06 (e the \336le could end, a syntax err) 372.26 409.33 P
+0.06 (or) 541.47 409.33 P
+(message will be pr) 104.89 396.33 T
+(oduced.) 203.43 396.33 T
+FMENDPAGE
+%%EndPage: "9" 14
+%%Page: "10" 14
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+0 11 Q
+0 X
+(10) 42.56 40.89 T
+0 10 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 40.89 T
+42.56 731.38 524.45 754.05 R
+7 X
+V
+1 16 Q
+0 X
+(9) 42.56 743.39 T
+(Prede\336ned De\336nitions) 70.92 743.39 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+1 14 Q
+0 X
+(9.1) 42.56 688.03 T
+(Introduction) 70.9 688.03 T
+0 12 Q
+(9.1.1) 42.56 662.36 T
+3.6 (The NODEN pr) 76.57 662.36 P
+3.6 (over contains a number of pr) 167.6 662.36 P
+3.6 (ede\336ned de\336nitions, with inbuilt) 339 662.36 P
+0.37 (simpli\336cation r) 76.57 649.36 P
+0.37 (ules, which can be used in text for input to the pr) 157.48 649.36 P
+0.37 (over) 421.19 649.36 P
+0.37 (. Some of these) 444.12 649.36 P
+1.04 (have been r) 76.57 636.36 P
+1.04 (etained for use only in de\336ning axioms, theor) 139.81 636.36 P
+1.04 (ems and conjectur) 387.99 636.36 P
+1.04 (es, and) 486.25 636.36 P
+0.29 (these ar) 76.57 623.36 P
+0.29 (e described in the ELLA Pr) 117.87 623.36 P
+0.29 (over User Manual) 261.76 623.36 P
+0 10 Q
+0.25 (3) 358.15 628.16 P
+0 12 Q
+0.29 (. They ar) 363.15 623.36 P
+0.29 (e useful in describing) 410.03 623.36 P
+1.64 (the behaviour of a design, but cannot be written as ELLA declarations so ar) 76.57 610.36 P
+1.64 (e not) 496.6 610.36 P
+1.86 (allowed in the design description. A few others, described below) 76.57 597.36 P
+1.86 (, do have ELLA) 436.14 597.36 P
+1.06 (declarations and ar) 76.57 584.36 P
+1.06 (e allowed in design text for the pr) 180.2 584.36 P
+1.06 (over) 366.19 584.36 P
+1.06 (. Use of these pr) 389.13 584.36 P
+1.06 (ede\336ned) 478.29 584.36 P
+(de\336nitions, wher) 76.57 571.36 T
+(e appr) 166.68 571.36 T
+(opriate, can speed up a pr) 200.38 571.36 T
+(oof. \050See section 9.3\051) 337.65 571.36 T
+1 14 Q
+(9.2) 42.56 543.03 T
+(The prede\336ned de\336nitions allowed in design text) 70.9 543.03 T
+0 12 Q
+(9.2.1) 42.56 517.36 T
+0.41 (All the names used in the inbuilt de\336nitions start with \324_\325 so that they will not clash) 76.57 517.36 P
+1.03 (with users\325 de\336nitions. This means the de\336nitions given below) 76.57 504.36 P
+1.03 (, and any text using) 416.12 504.36 P
+0.13 (them, ar) 76.57 491.36 P
+0.13 (e not legal ELLA. While the pr) 120.47 491.36 P
+0.13 (over allows the use of these names, it will not) 282.3 491.36 P
+(allow other names starting with \324_\325 to be de\336ned.) 76.57 478.36 T
+3 10 Q
+(TYPE _bool = NEW \050_t | _f\051.) 76.57 446.69 T
+(FN _NOT = \050_bool: a\051 -> _bool: CASE a OF _t: _f, _f: _t ELSE a ESAC.) 76.57 418.69 T
+(MAC _NOT_N{INT n} = \050[n]_bool: a\051 -> [n]_bool:) 76.57 390.69 T
+(IF n = 1) 76.57 376.69 T
+(THEN [n]\050_NOT\050a[1]\051\051) 85.08 362.69 T
+(ELSE \050_NOT\050a[1]\051\051 CONC \050_NOT_N{n-1}\050a[2..n]\051\051) 85.08 348.69 T
+(FI.) 76.57 334.69 T
+(FN _AND = \050_bool: a b\051 -> _bool:) 76.57 306.69 T
+(CASE \050a, b\051 OF) 76.57 292.69 T
+(\050_t, _t\051 : _t) 99.25 278.69 T
+( ELSEOF) 85.08 264.69 T
+(\050_bool, _f\051 | \050_f, _bool\051 : _f) 99.25 250.69 T
+( ELSE ?_bool) 85.08 236.69 T
+(ESAC.) 76.57 222.69 T
+(MAC _AND_N{INT n} = \050[n]_bool: a\051 -> _bool:) 76.57 194.69 T
+(IF n = 1 THEN a[1] ELSE a[1] _AND \050_AND_N{n-1}\050a[2..n]\051\051 FI.) 76.57 180.69 T
+(FN _NAND = \050_bool: a b\051 -> _bool: _NOT\050a _AND b\051.) 76.57 152.69 T
+(MAC _NAND_N{INT n} = \050[n]_bool: a\051 -> _bool: _NOT\050_AND_N{n} a\051.) 76.57 124.69 T
+FMENDPAGE
+%%EndPage: "10" 15
+%%Page: "11" 15
+595.3 841.89 0 FMBEGINPAGE
+70.87 761.51 552.76 785.16 R
+7 X
+0 K
+V
+4 14 Q
+0 X
+(Pr) 426.59 775.82 T
+(ede\336ned De\336nitions) 440.34 775.82 T
+70.87 25.52 552.76 49.17 R
+7 X
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 41.83 T
+0 11 Q
+(1) 542.36 41.83 T
+(1) 547.26 41.83 T
+70.87 72.81 552.76 726.04 R
+7 X
+V
+3 10 Q
+0 X
+(FN _OR = \050_bool: a b\051 -> _bool:) 104.89 719.38 T
+(CASE \050a, b\051 OF) 104.89 705.38 T
+( \050_f, _f\051 : _f) 127.56 691.38 T
+(ELSEOF) 113.39 677.38 T
+(\050_bool, _t\051 | \050_t, _bool\051 : _t) 127.56 663.38 T
+(ELSE ?_bool) 113.39 649.38 T
+(ESAC.) 104.89 635.38 T
+(MAC _OR_N{INT n} = \050[n]_bool: a\051 -> _bool:) 104.89 607.38 T
+(IF n = 1 THEN a[1] ELSE a[1] _OR \050_OR_N{n-1}\050a[2..n]\051\051 FI.) 104.89 593.38 T
+(FN _NOR = \050_bool: a b\051 -> _bool: _NOT\050a _OR b\051.) 104.89 565.38 T
+(MAC _NOR_N{INT n} = \050[n]_bool: a\051 -> _bool: _NOT\050_OR_N{n} a\051.) 104.89 537.38 T
+(FN _SEL = \050_bool: a b c\051 -> _bool: CASE a OF _t: b ELSE c ESAC.) 104.89 509.38 T
+1 14 Q
+(9.3) 70.87 466.71 T
+(Use of the prede\336ned de\336nitions) 99.22 466.71 T
+0 12 Q
+(9.3.1) 70.87 441.04 T
+5.57 (The advantage of using the inbuilt de\336nitions, rather than equivalent user) 104.89 441.04 P
+0.06 (de\336nitions, comes fr) 104.89 428.04 P
+0.06 (om the pr) 212.68 428.04 P
+0.06 (over) 264.32 428.04 P
+0.06 (\325s inbuilt simpli\336cation r) 289.03 428.04 P
+0.06 (ules for these de\336nitions.) 419.41 428.04 P
+0.96 (For example, one call of the simpli\336er will r) 104.89 415.04 P
+0.96 (educe) 343.4 415.04 P
+3 10 Q
+0.89 (_AND_N{6} \050_t, _t, _t, _t, _t, _f\051) 378.75 415.04 P
+0 12 Q
+0.96 ( to) 523.04 415.04 P
+3 10 Q
+0.89 (_f) 541.42 415.04 P
+0 12 Q
+0.96 (,) 549.76 415.04 P
+0.68 (wher) 104.89 402.04 P
+0.68 (eas r) 132.15 402.04 P
+0.68 (educing an equivalent user expr) 157.19 402.04 P
+0.68 (ession takes a number of stages - the \336rst) 330.3 402.04 P
+(being to r) 104.89 389.04 T
+(eplace) 155.41 389.04 T
+3 10 Q
+(AND_N{6} \050t, t, t, t, t, f\051) 191.93 389.04 T
+0 12 Q
+(by) 294.76 389.04 T
+3 10 Q
+(AND\050t, AND_N{5} \050t, t, t, t, f\051\051) 311.07 389.04 T
+0 12 Q
+(.) 438.89 389.04 T
+FMENDPAGE
+%%EndPage: "11" 16
+%%Page: "12" 16
+595.3 841.89 0 FMBEGINPAGE
+42.56 25.55 524.45 48.23 R
+7 X
+0 K
+V
+0 11 Q
+0 X
+(12) 42.56 40.89 T
+0 10 Q
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 354.32 40.89 T
+42.56 731.38 524.45 754.05 R
+7 X
+V
+1 16 Q
+0 X
+(10) 42.56 743.39 T
+(Conclusion) 70.92 743.39 T
+42.56 70.9 524.45 697.36 R
+7 X
+V
+0 12 Q
+0 X
+(10.0.1) 42.56 689.36 T
+1.22 (Although the ELLA subset described in this document omits many featur) 76.57 689.36 P
+1.22 (es of the) 477.98 689.36 P
+(language, enough ar) 76.57 676.36 T
+(e r) 185.07 676.36 T
+(etained to allow the writing of fairly complex designs. Also, a) 198.35 676.36 T
+0.28 (simple mechanism) 76.57 663.36 P
+0 10 Q
+0.23 (5) 176.29 668.16 P
+0 12 Q
+0.28 ( exists for writing pr) 181.29 663.36 P
+0.28 (ocedur) 290.24 663.36 P
+0.28 (es to transform an ELLA description.) 326.96 663.36 P
+1.75 (This could be used, together with the standar) 76.57 650.36 P
+1.75 (d ELLA transformations, to convert) 328.63 650.36 P
+(existing designs into a form suitable for the Pr) 76.57 637.36 T
+(over) 320.69 637.36 T
+(.) 343.62 637.36 T
+(10.0.2) 42.56 611.36 T
+1.65 (While the ELLA subset so far implemented is not a limiting factor for the sort of) 76.57 611.36 P
+0.75 (pr) 76.57 598.36 P
+0.75 (oofs which can be attempted in the Pr) 88.31 598.36 P
+0.75 (over) 293.52 598.36 P
+0.75 (, adding mor) 316.45 598.36 P
+0.75 (e language featur) 386.44 598.36 P
+0.75 (es could) 479.92 598.36 P
+(impr) 76.57 585.36 T
+(ove the ef) 102.4 585.36 T
+(\336ciency with which the pr) 153.65 585.36 T
+(oofs ar) 292.03 585.36 T
+(e completed.) 327.74 585.36 T
+FMENDPAGE
+%%EndPage: "12" 17
+%%Page: "13" 17
+595.3 841.89 0 FMBEGINPAGE
+70.87 25.52 552.76 48.19 R
+7 X
+0 K
+V
+0 10 Q
+0 X
+(DRA/CIS\050SE2\051/PROJ/SWI/TR/5/1.0) 70.87 40.86 T
+0 11 Q
+(13) 541.76 40.86 T
+70.87 731.34 552.76 754.02 R
+7 X
+V
+1 16 Q
+0 X
+(1) 70.87 743.35 T
+(1) 78.28 743.35 T
+(References) 99.24 743.35 T
+70.87 70.87 552.76 697.33 R
+7 X
+V
+0 12 Q
+0 X
+(1) 70.87 689.33 T
+4 F
+(\324A window based pr) 88.22 689.33 T
+(over for a hardwar) 184.56 689.33 T
+(e description language\325,) 273.32 689.33 T
+0 F
+(C H Pygott,) 390.89 689.33 T
+(DRA/CIS/CSE3/B36AK/93002/1.0, November 1993.) 88.22 674.33 T
+(2) 70.87 647.33 T
+4 F
+(\324ELLA2000 - A Language for Electr) 88.22 647.33 T
+(onic System Design) 261.9 647.33 T
+0 F
+(\325, J D Morison and A S Clarke,) 358.14 647.33 T
+( McGraw-Hill, October 1993, ISBN 0-07-707821-7.) 88.22 632.33 T
+(3) 70.87 605.33 T
+4 F
+(\324ELLA) 88.22 605.33 T
+(Pr) 123.9 605.33 T
+(over User Manual) 135.68 605.33 T
+0 F
+(\325, Miss J I Thompson,) 224.35 605.33 T
+( DRA/CIS\050SE2\051/PROJ/SWI/TR/6/1.0, Mar) 88.22 590.33 T
+(ch 1995.) 323.25 590.33 T
+(4) 70.87 563.33 T
+(\324) 88.22 563.33 T
+4 F
+(ELLA to ELLA transformations in ELLA 2000) 91.56 563.33 T
+0 F
+(\325, E V Whiting, D J Snell and D C T) 318.24 563.33 T
+(aylour) 500.77 563.33 T
+(,) 534.57 563.33 T
+(IED 4/1/1357, May 1994.) 88.22 548.33 T
+(5) 70.87 521.33 T
+(\324Schema Mapping System\325, E V Whiting, D C T) 88.22 521.33 T
+(aylour) 336.67 521.33 T
+(,) 370.47 521.33 T
+(DRA/CIS\050SE2\051/PROJ/F04AH/PDELLA/95010, Mar) 88.22 506.33 T
+(ch 1995.) 370.12 506.33 T
+FMENDPAGE
+%%EndPage: "13" 18
+%%Trailer
+%%BoundingBox: 0 0 595.3 841.89
+%%Pages: 17 1
+%%DocumentFonts: Palatino-Roman
+%%+ Palatino-Bold
+%%+ Times-Roman
+%%+ Helvetica
+%%+ Palatino-Italic

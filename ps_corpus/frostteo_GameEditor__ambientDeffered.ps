@@ -1,0 +1,46 @@
+
+cbuffer LightBuffer : register(b0)
+{
+	float4 ambientColor : packoffset(c0);
+};
+
+Texture2D normalTexture : register(t0);
+Texture2D colorTexture : register(t1);
+Texture2D specularTexture : register(t2);
+Texture2D selfIluninationTexture : register(t3);
+Texture2D depthTexture : register(t4);
+
+struct GBufferData
+{	
+	float3 diffuseColor;
+	float3 selfIlumColor;
+};
+
+GBufferData UnpackGBuffer(int2 location)
+{
+	GBufferData output;
+	
+	int3 location3 = int3(location, 0);
+	
+	output.diffuseColor = colorTexture.Load(location3).xyz;
+	output.selfIlumColor = selfIluninationTexture.Load(location3).xyz;
+	
+	return output;
+}
+
+SamplerState SampleTypePoint : register(s0);
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+	float2 cpPos : TEXCOORD0;
+};
+
+float4 AmbientPixelShader(PixelInputType input) : SV_TARGET
+{	
+	float4 outputColor;
+	GBufferData gdb = UnpackGBuffer(input.position.xy);
+	outputColor.xyz = ambientColor.xyz * gdb.diffuseColor + gdb.selfIlumColor;
+	outputColor.w = 1.0f;
+    return outputColor;
+}

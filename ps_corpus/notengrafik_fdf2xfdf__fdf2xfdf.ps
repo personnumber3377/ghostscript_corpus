@@ -1,0 +1,749 @@
+% MIT License
+%
+% Copyright (c) 2017 Notengrafik Berlin
+%
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+%
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+%
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+% TODO: Make everything more robust. Expect broken FDF!
+
+% Temporary dictionary for making entries immediately evaluable using "//"
+<<
+  /objectsByNo <<>>
+  /stdout (%stdout) (w) file
+  /stderr (%stderr) (w) file
+  /stringbuffer 128 string def
+  /blackColor (#000000)
+
+  /fdf2XfdfAnnotNames <<
+    % TODO: This list is not at all exhaustive
+    /Line (line)
+    /Popup (popup)
+    /FreeText (freetext)
+    /Square (square)
+    /Text (text)
+    /Highlight (highlight)
+    /Circle (circle)
+    /Ink (ink)
+    /Polygon (polygon)
+    /PolyLine (polyline)
+  >>
+
+  /pdf2XMLCharMap 256 array
+
+  dup 32 1 255 {    % array array charcode
+    1 string dup 0  % array array charcode string string 0
+    3 index         % array array charcode string string 0 charcode
+    put             % array array charcode string
+    put dup         % array array
+  } for
+
+  <<
+    % PDFDocEncoding is based on ISO 8859-1, with some additions.
+    % We list the characters that aren't identical in PDF and ISO 8859-1
+    % explicitly.  We use ISO 8859-1 for our output.
+
+      9 (&#x0009;) % CHARACTER TABULATION
+     10 (&#x000A;) % LINE FEED
+     13 (&#x000D;) % CARRIAGE RETURN
+     24 (&#x02D8;) % BREVE
+     25 (&#x02C7;) % CARON
+     26 (&#x02C6;) % MODIFIER ACCENT
+     27 (&#x02D9;) % DOT ABOVE
+     28 (&#x02DD;) % DOUBLE ACUTE ACCENT
+     29 (&#x02DB;) % OGONEK
+     30 (&#x02DA;) % RING ABOVE
+     31 (&#x02DC;) % SMALL TILDE
+     34 (&quot;)   % QUOTATION MARK
+     38 (&amp;)    % AMPERSAND
+     60 (&lt;)     % LESS THAN SIGN
+    127 null
+    128 (&#x2022;) % BULLET
+    129 (&#x2020;) % DAGGER
+    130 (&#x2021;) % DOUBLE DAGGER
+    131 (&#x2026;) % HORIZONTAL ELLIPSIS
+    132 (&#x2014;) % EM DASH
+    133 (&#x2013;) % EN DASH
+    134 (&#x0192;) %
+    135 (&#x2044;) % FRACTION SLASH (solidus)
+    136 (&#x2039;) % SINGLE LEFT-POINTING QUOTATION MARK
+    137 (&#x203A;) % SINGLE RIGHT-POINTING QUOTATION MARK
+    138 (&#x2212;) %
+    139 (&#x2030;) % PER MILLE SIGN
+    140 (&#x201E;) % DOUBLE LOW-9 (quotedblbase)
+    141 (&#x201C;) % LEFT DOUBLE QUOTATION MARK (double quote left)
+    142 (&#x201D;) % RIGHT DOUBLE (quotedblright)
+    143 (&#x2018;) % LEFT SINGLE (quoteleft) QUOTATION MARK
+    144 (&#x2019;) % RIGHT SINGLE (quoteright) QUOTATION MARK
+    145 (&#x201A;) % SINGLE LOW-9 (quotesinglbase) QUOTATION MARK
+    146 (&#x2122;) % TRADE MARK SIGN
+    147 (&#xFB01;) % LATIN SMALL LIGATURE FI
+    148 (&#xFB02;) % LATIN SMALL LIGATURE FL
+    149 (&#x0141;) % LATIN CAPITAL LETTER L WITH STROKE
+    150 (&#x0152;) % LATIN CAPITAL LIGATURE OE
+    151 (&#x0160;) % LATIN CAPITAL LETTER S WITH CARON
+    152 (&#x0178;) % LATIN CAPITAL DIAERESIS
+    153 (&#x017D;) % LATIN CAPITAL LETTER Z WITH CARON
+    154 (&#x0131;) % LATIN SMALL LETTER DOTLESS I l
+    155 (&#x0142;) % LATIN SMALL LETTER L WITH STROKE
+    156 (&#x0153;) % LATIN SMALL LIGATURE OE
+    157 (&#x0161;) % LATIN SMALL LETTER S WITH CARON
+    158 (&#x017E;) % LATIN SMALL LETTER Z WITH CARON
+    159 null
+    160 (&#x20AC;) % EURO SIGN
+    173 null
+  >> {             % array array charcode xmlString
+    put dup        % array array
+  } forall
+  pop
+
+  /string2hexstring {           % string
+    dup length 2 mul string     % string fullHexstring
+    dup 3 -1 roll               % fullHexstring fullHexstring string
+    { % forall                  % fullHexstring remainingHexstring char
+      % Iterate over "half-bytes" - most significant half first
+      2 copy                    % fullHexstring remainingHexstring char remainingHexstring char
+      16 -15 1 { % for          % fullHexstring remainingHexstring char remainingHexstring char divisor
+        idiv 16 mod             % fullHexstring remainingHexstring char remainingHexstring halfChar
+        16 //stringbuffer cvrs  % fullHexstring remainingHexstring char remainingHexstring halfCharString
+        0 exch                  % fullHexstring remainingHexstring char remainingHexstring 0 halfCharString
+        putinterval             % fullHexstring remainingHexstring char
+        exch dup length 1 sub   % fullHexstring char remainingHexstring newRemainingLength
+        1 exch                  % fullHexstring char remainingHexstring 1 newRemainingLength
+        getinterval exch        % fullHexstring remainingHexstring' char
+        2 copy                  % fullHexstring remainingHexstring' char remainingHexstring' char
+      } for                     % fullHexstring remainingHexstring' char remainingHexstring' char
+      pop pop pop               % fullHexstring remainingHexstring'
+    } forall                    % fullHexstring remainingHexstring'
+    pop                         % fullHexstring
+  } bind
+>> begin
+
+/writeEscapedChar {        % charCode
+  //pdf2XMLCharMap exch    % charToStringMap charCode
+  get                      % string
+  //stdout exch            % stdout string
+  writestring              % -/-
+} bind def
+
+/attributeTypeHandlers <<
+  /stringtype {
+    //writeEscapedChar forall
+  } bind
+
+  /arraytype {                              % array
+    % We turn arrays into comma separated attribute strings
+    () exch                               % separator array
+    {                                     % separator value
+      exch                                % value separator
+      //stdout exch writestring           % value
+      dup type /stringtype eq { % ifelse  % value
+         //writeEscapedChar forall        % -/-
+      }{ % else                           % number
+        % make sure we only convert numbers - they're safe in XML
+        10 //stringbuffer cvrs            % numberString
+        //stdout exch writestring         % -/-
+      } ifelse                            % -/-
+      (,)                                 % separator
+    } forall                              % separator
+    pop                                   % -/-
+  } bind
+
+  /integertype {
+    10 //stringbuffer cvrs
+    //stdout exch writestring
+  } bind
+
+  /realtype {
+    10 //stringbuffer cvrs
+    //stdout exch writestring
+  } bind
+
+  /nametype {
+    //stringbuffer cvs
+    //writeEscapedChar forall
+  } bind
+
+  /booleantype {
+    {(yes)}{(no)}ifelse
+    //writeEscapedChar forall
+  }
+>> def
+
+/borderEffectToAttributeConverters <<
+  /S {                    % styleName
+    % Both border styles and border effects apparently translate to a style
+    % attribute, but we can't have two style attributes. So we comment out the
+    % style for border effects for now.
+    /C eq { % ifelse
+      %(style)(cloudy)
+    }{ % else
+      %(style)(solid)
+    } ifelse
+  } bind
+
+  /I {                 % intensityValue
+    (intensity) exch
+  } bind
+>> def
+
+/borderStyleNames <<
+  /S (solid)
+  /D (dash)
+  /B (bevelled)
+  /I (inset)
+  /U (underline)
+>> def
+
+/borderStyleToAttributeConverters <<
+  /W {                    % borderWidth
+    (width) exch
+  } bind
+
+  /S {                       % styleName
+    (style) exch             % (style) styleName
+    //borderStyleNames exch  % (style) borderStyleNames styleName
+    get                      % (style) styleString
+  } bind
+
+  /D {                       % dashArray
+    (dashes) exch
+  } bind
+>> def
+
+/propToAttributeConverters <<
+  /BE {                                    % borderEffectDict
+    { % forall                             % key value
+      exch                                 % value key
+      //borderEffectToAttributeConverters  % value key borderEffectToAttributeConverters
+      exch get                             % value borderEffectConverter
+      exec                                 % attName attValue
+    } forall
+  } bind
+
+  /BS {                                    % borderStyleDictOrReference
+    dup type /integertype eq { % if        % borderStyleReference
+      getObjByNo                           % borderStyleDict
+    } if                                   % borderStyleDict
+    { % forall                             % key value
+      exch                                 % value key
+      //borderStyleToAttributeConverters   % value key borderStyleToAttributeConverters
+      exch                                 % value borderStyleToAttributeConverters key
+      2 copy known { % ifelse              % value borderStyleToAttributeConverters key
+        get exec                           % attName attValue
+      }{ % else                            % value borderStyleToAttributeConverters key
+        //stderr (Unsupported border style property: ) writestring  % value borderStyleToAttributeConverters key
+        //stringbuffer cvs                 % value borderStyleToAttributeConverters keyAsString
+        //stderr exch writestring          % value borderStyleToAttributeConverters
+        //stderr (\n) writestring          % value borderStyleToAttributeConverters
+        pop pop                            % -/-
+      } ifelse
+    } forall
+  } bind
+
+  /C {                    % rgbArray
+    rgbArrayToHex         % hexRgb
+    (color) exch          % (color) hexRgb
+  } bind
+
+  /CA {                   % opacityValue
+    (opacity) exch
+  } bind
+
+  /Cap {                  % caption flag
+    (caption) exch
+  } bind
+
+  /CL {                   % calloutLineCoordinateArray
+    (callout) exch
+  } bind
+
+  /CreationDate {         % datestring
+    (creationdate) exch
+  } bind
+
+  /F {                              % bitmask
+    [ exch                          % [ bitmask
+    % This is a bitmask value
+    {
+      (invisible)      % 1
+      (hidden)         % 2
+      (print)          % 3
+      (nozoom)         % 4
+      (norotate)       % 5
+      (noview)         % 6
+      (readonly)       % 7
+      (locked)         % 8
+      (togglenoview)   % 9
+      % (LockedContents) % 10  apparently not supported by XFDF (and FDF?)
+    }{                              % [ flag* bitmask flag
+      1 index 2 mod                 % [ flag* bitmask flag bit
+      0 eq { % ifelse               % [ flag* bitmask flag
+        pop                         % [ flag* bitmask
+      }{ % else                     % [ flag* bitmask flag
+        exch                        % [ flag+ bitmask
+      } ifelse                      % [ flag* bitmask
+      % Shift the bitmask one bit further
+      2 idiv                        % [ flag* bitmask'
+    } forall                        % [ flag* bitmask
+    pop ]                           % flagArray
+    (flags) exch                    % (flags) flagArray
+  } bind
+
+  /IC {                   % colorArray
+    rgbArrayToHex
+    (interior-color) exch
+  } bind
+
+  /IT {                    % polylineName
+    % There seems to be a bug in Adobe's XFDF export:
+    % Per the specs, /IT should be translated to an "intent" attribute,
+    % but the exported attribute is named "IT" as well. We simple do both
+    % so that no matter whether an application adheres to the specs or
+    % expects flawed Adobe export can work with what we write.
+    //stringbuffer cvs     % nameInStringBuffer
+    dup length string dup  % nameInStringBuffer finalString finalString
+    3 -1 roll              % finalString finalString nameInStringBuffer
+    0 exch                 % finalString finalString 0 nameInStringBuffer
+    putinterval            % finalString
+    (IT) exch              % (IT) finalString
+    (intent) 1 index       % (IT) finalString (intent) finalString
+  } bind
+
+  /L {                    % coordArray
+    (start) 1 index       % coordArray (start) coordArray
+    0 2 getinterval       % coordArray (start) startCoords
+    (end) 4 -1 roll       % (start) startCoords (end) coordArray
+    2 2 getinterval       % (start) startCoords (end) endCoords
+  } bind
+
+  /LE {                            % lineEnd
+    (head) exch                    % (head) lineEnd
+    dup type /arraytype eq { % if  % (head) lineEndArray
+      dup length 1 eq { % ifelse   % (head) lineEndArray
+        {} forall                  % (head) headName
+      }{ % else                    % (head) lineEndArray
+        {} forall                  % (head) headName tailName
+        (tail) exch                % (head) headName (tail) tailName
+      } ifelse                     % tailArray? (head) headName
+    } if                           % tailArray? (head) headName
+  } bind
+
+  /M {                    % datestring
+    (date) exch
+  } bind
+
+  /Name {                           % objString
+    (icon) exch
+  } bind
+
+  /NM {                   % uniqueName
+    (name) exch
+  } bind
+
+  /Open {                 % boolean
+    (open) exch
+    % Convert boolean to 'yes' or 'no'
+    {
+      (yes)
+    }{
+      (no)
+    } ifelse
+  } bind
+
+  /Page {                 % pageNumber
+    (page) exch
+  } bind
+
+  /Q {                              % justificationCode
+    (justification) exch            % (justification) justificationCode
+    {(left)(centered)(right)} exch  % (justification) justificationValues justificationCode
+    get                             % (justification) justificationValue
+  } bind
+
+  /QuadPoints {           % coordArray
+    (coords) exch
+  }
+
+  /RD {                   % fringeRectArray
+    (fringe) exch
+  } bind
+
+  /Rect {                 % rectArray
+    (rect) exch           % rect rectArray
+  } bind
+
+  /Rotate {
+    (rotation) exch
+  } bind
+
+  /State {
+    (state) exch
+  } bind
+
+  /StateModel {
+    (statemodel) exch
+  } bind
+
+  /Subj {                 % subjectString
+    (subject) exch
+  } bind
+
+  /T {                    % titleString
+    (title) exch
+  } bind
+
+>> def
+
+/propToChildConverters <<
+  /RC {                                    % annotDict xhtmlString
+    (contents-richtext) mark writeStartTag % annotDict xhtmlString
+    % We need to strip the XML declaration, if present
+    (?>) search { % if                     % annotDict htmlBodyString (?>)? xmlDecl?
+      pop pop                              % annotDict htmlBodyString
+    } if                                   % annotDict htmlBodyString
+    % In this case, we don't need to escape anything
+    % because it's already proper XHTML
+    //stdout exch writestring              % annotDict
+    (contents-richtext) writeEndTag        % annotDict
+    pop                                    % -/-
+  } bind
+
+  /Contents {                              % annotDict contentString
+    % We only write a contents elemnet if we don't have a richtext (/RC) property.
+    % /Contents is the same as /RC, but strippped of all markup.
+    exch /RC known { % ifelse              % contentString
+      pop                                  % -/-
+    }{ % else                              % contentString
+      (contents) mark writeStartTag        % contentString
+      //writeEscapedChar forall            % -/-
+      (contents) writeEndTag               % annotDict
+    } ifelse
+  } bind
+
+  /DA {                                     % annotDict appearanceString
+    (defaultappearance) mark writeStartTag  % annotDict appearanceString
+    //writeEscapedChar forall               % annotDict
+    (defaultappearance) writeEndTag         % annotDict
+    pop                                     % -/-
+  } bind
+
+  /DS {                                % annotDict styleString
+    (defaultstyle) mark writeStartTag  % annotDict styleString
+    //writeEscapedChar forall          % annotDict
+    (defaultstyle) writeEndTag         % annotDict
+    pop                                % -/-
+  } bind
+
+  /InkList {                        % annotDict inkListArray
+    (inklist) mark writeStartTag    % annotDict inkListArray
+    {                               % annotDict coordArray
+      (gesture) mark writeStartTag  % annotDict coordArray
+      writeVertexArray              % annotDict
+      (gesture) writeEndTag         % annotDict
+    } forall                        % annotDict
+    (inklist) writeEndTag           % annotDict
+    pop                             % -/-
+  } bind
+
+  /Popup {                          % annotDict objNumber
+    getObjByNo                      % annotDict popupObj
+    writeAnnot                      % annotDict
+    pop
+  } bind
+
+  /Vertices {                       % annotDict vertexArray
+    (vertices) mark writeStartTag   % annotDict vertexArray
+    writeVertexArray                % annotDict
+    (vertices) writeEndTag          % annotDict
+    pop                             % -/-
+  } bind
+>> def
+
+/knownProperties <<
+  propToAttributeConverters {pop true} forall
+  propToChildConverters {pop true} forall
+  {
+    /Subtype /Type /Parent
+    /AP  % TODO: Support the harder to handle /AP property?
+  } {true} forall
+>> def
+
+
+<<
+  % The commands "R" and "obj" take two parameters:
+  %  * The object number
+  %  * The generation number
+  % In XFDF (and maybe even FDF), the generation number doesn't seem to have
+  % meaning, so we discard it by popping.
+  /R /pop load
+  % Leaves on the stack: objectsByNo objNumber
+  /obj {pop //objectsByNo exch} bind
+
+  % Arguments: objectsByNo objNumber object
+  /endobj /put load
+
+  /stream {                      % streamDictionary
+    dup /Length get              % streamDictionary streamLength
+    currentfile fileposition     % streamDictionary streamLength filePosition
+    add                          % streamDictionary streamEndPosition
+    currentfile exch             % streamDictionary currentFile streamEndPosition
+    setfileposition              % streamDictionary
+    currentfile token pop        % streamDictionary nextToken
+    /endstream eq not { % if
+      % TODO: something is wrong if we end up here as the stream
+      %   is expected to end with an "endstream" token.
+      %   How can we signal the error?
+      quit
+    } if
+  } bind
+
+  /trailer {
+    % We've reached the end of the file and can start outputting XFDF.
+    % We push a dictionary that intercepts the final closing dictionary marker
+    <<
+      (>>) cvn {                 % << /Root rootObjNumber
+        end  % end this ">>" interception dictionary
+        >>                       % trailerObj
+        /Root get                % rootObjNumber
+        getObjByNo               % rootObj
+        writeXfdf                % -/-
+      }
+    >> begin
+  }
+
+  /writeXfdf {                   % rootObj
+    % Adobe Reader doesn't accept this without XML declaration,
+    % plus we'd run into problems if the XML defaulted to UTF-8
+    //stdout (<?xml version="1.0" encoding="ISO-8859-1"?>) writestring % rootObj
+    (xfdf) mark
+    (xmlns) (http://ns.adobe.com/xfdf/)
+    (xmlns:xfdf) (http://ns.adobe.com/xfdf/)
+    % The following declarations are nasty workarounds for Foxit's habit to
+    % give the namespace "http://www.xfa.org/schema/xfa-data/1.0/" either the
+    % namespace "ns1", "ns2" or "xfa" in XML strings without declaring them.
+    (xmlns:ns1) (http://www.xfa.org/schema/xfa-data/1.0/)
+    (xmlns:ns2) (http://www.xfa.org/schema/xfa-data/1.0/)
+    (xmlns:xfa) (http://www.xfa.org/schema/xfa-data/1.0/)
+    writeStartTag
+    /FDF get                       % rootObjFdfDict
+    % Loop through all annotations
+    dup /Annots known
+    { % if
+      (annots) mark writeStartTag  % rootObjFdfDict
+      dup /Annots get              % rootObjFdfDict annotNumberArray
+      { % forall                   % rootObjFdfDict annotNo
+        getObjByNo                 % rootObjFdfDict annotDict
+        dup /Parent known {        % rootObjFdfDict annotDict
+          pop                      % rootObjFdfDict
+        }{                         % rootObjFdfDict annotDict
+          writeAnnot               % rootObjFdfDict
+        } ifelse                   % rootObjFdfDict
+      } forall                     % rootObjFdfDict
+      (annots) writeEndTag         % rootObjFdfDict
+    } if
+    dup /Fields known
+    { % if
+      //stderr (WARNING: Forms support is marginal. Consult README.md\n) writestring
+      (fields) mark writeStartTag  % rootObjFdfDict fieldsArray
+      dup /Fields get              % rootObjFdfDict fieldsArray
+      { % forall
+        writeField
+      } forall
+      (fields) writeEndTag
+    } if
+    dup writeDocHref             % rootObjFdfDict
+    dup writeIds                 % rootObjFdfDict
+    pop                          % -/-
+    (xfdf) writeEndTag           % -/-
+    quit                         % -/-
+  }
+
+  /writeDocHref {                % rootObjFdfDict
+    % Document reference (stored in /UF and /F)
+    % TODO:
+    %  * /DOS, /MAC or /UNIX are present, /F is optional.
+    %  * If /UF is present, Adobe recommends using that
+    % Make this more robust!
+    (f) mark (href)                % rootObjFdfDict (f) mark (href)
+    4 -1 roll                      % (f) mark (href) rootObjFdfDict
+    /F get                         % (f) [[ (href) filepath
+    writeStartTag                  % -/-
+    (f) writeEndTag                % -/-
+  }
+
+  /writeIds {
+    dup /ID known { % ifelse             % rootObjFdfDict
+      (ids) exch mark exch               % (ids) mark rootObjFdfDict
+      /ID get //string2hexstring forall  % (ids) mark originalId modifiedId
+      (original) 3 1 roll                % (ids) mark (original) originalId modifiedId
+      (modified) exch                    % (ids) mark (original) originalId (modified) modifiedId
+      writeStartTag
+      (ids) writeEndTag
+    }{ % else
+      pop
+    } ifelse
+  }
+
+  /writeStartTag {                  % name mark ...
+    //stdout (\n<) writestring      % name mark ...
+    counttomark 2 add -1 roll       % mark ... name
+    //stdout exch writestring       % mark ...
+    { % loop                        % mark ...
+      dup mark eq {exit} if         % mark ... attName attValue
+      //stdout ( ) writestring      % mark ... attName attValue
+      exch                          % mark ... attValue attName
+      //stdout exch writestring     % mark ... attValue
+      //stdout (=") writestring     % mark ... attValue
+      dup type                      % mark ... attValue attType
+      //attributeTypeHandlers exch  % mark ... attValue attributeProcessors attType
+      get exec                      % mark ...
+      //stdout (") writestring      % mark ...
+    } loop                          % mark
+    //stdout (>) writestring        % mark
+    pop                             % -/-
+  } bind
+
+  /writeEndTag {                 % name
+    //stdout (</) writestring    % name
+    //stdout exch                % stdout name
+    writestring                  % -/-
+    //stdout (>) writestring     % -/-
+  } bind
+
+  /writeAnnot {                               % annotDict
+    dup /Subtype get                          % annotDict annotType
+    //fdf2XfdfAnnotNames exch                 % annotDict fdf2XfdfAnnotNames annotType
+    2 copy known { % ifelse                   % annotDict fdf2XfdfAnnotNames annotType
+      get                                     % annotDict tagName
+      exch 2 copy                             % tagName annotDict tagName annotDict
+      % Create array of attributes:
+      mark exch                               % tagName annotDict tagName [ annotDict
+      { % forall                              % tagName annotDict tagName [ attArray* key value
+        exch //propToAttributeConverters exch % tagName annotDict tagName [ ... value propToAttributeConverters key
+        2 copy known { % ifelse               % tagName annotDict tagName [ ... value propToAttributeConverters key
+          get exec                            % tagName annotDict tagName [ ... attName attValue
+        }{ % else                             % tagName annotDict tagName [ ... value annotPropertyHandlers key
+          pop pop pop                         % tagName annotDict tagName [ ...
+        } ifelse                              % tagName annotDict tagName [ ...
+      } forall                                % tagName annotDict tagName [ ...
+      writeStartTag                           % tagName annotDict
+      % Write children
+      dup dup { % forall                      % tagName annotDict annotDict key value
+        exch //propToChildConverters exch     % tagName annotDict annotDict value propToChildConverters key
+        2 copy known { % ifelse               % tagName annotDict annotDict value propToChildConverters key
+          get exec                            % tagName annotDict
+        }{ % else                             % tagName annotDict annotDict value propToChildConverters key
+          pop pop pop pop                     % tagName annotDict
+        } ifelse                              % tagName annotDict
+        dup                                   % tagName annotDict annotDict
+      } forall                                % tagName annotDict annotDict
+      pop                                     % tagName annotDict
+      % We check for the presence of unsupported properties
+      { % forall                              % tagName key value
+        pop dup //knownProperties exch        % tagName key knownProperties key
+        known {                               % tagName key
+          pop                                 % tagName
+        }{ % else                             % tagName key
+          //stderr (Unsupported annotation property: ) writestring  % annotDict annotDict annotDict key
+          //stringbuffer cvs                  % tagName keyString
+          //stderr exch writestring           % tagName
+          //stderr (\n) writestring           % tagName
+        } ifelse                              % tagName
+      } forall                                % tagName
+      writeEndTag                             % -/-
+    }{ % else                                 % annotDict fdf2XfdfAnnotNames annotType
+        //stderr (Unsupported annotation type: ) writestring  % annotDict fdf2XfdfAnnotNames annotType
+        //stringbuffer  cvs                   % annotDict fdf2XfdfAnnotNames annotTypeString
+        //stderr exch writestring             % annotDict fdf2XfdfAnnotNames
+        //stderr (\n) writestring             % annotDict fdf2XfdfAnnotNames
+        pop pop                               % -/-
+    } ifelse                                  % -/-
+  } bind
+
+  /writeField {                               % fieldDict
+    dup /T known                              % fieldDict bool
+    { %if                                     % fieldDict
+      (field) mark                            % fieldDict (field) mark
+      (name) 3 index /T get                   % fieldDict (field) mark (name) name
+      dup (.) search                          % fieldDict (field) mark (name) name pre? (.)? post? bool
+      { % ifelse                              % fieldDict (field) mark (name) name pre (.) post
+        //stderr (WARNING: Hierarchical fields are not supported: ) writestring
+        3 {//stderr exch writestring} repeat  % fieldDict (field) mark (name) name
+        //stderr (\n) writestring             % fieldDict (field) mark (name) name
+      }{ % else                               % fieldDict (field) mark (name) name name
+        pop                                   % fieldDict (field) mark (name) name
+      } ifelse                                % fieldDict (field) mark (name) name
+      writeStartTag                           % fieldDict
+      dup /V known                            % fieldDict bool
+      { % if                                  % fieldDict
+        dup /V get type /stringtype eq        % fieldDict bool
+        { % ifelse                            % fieldDict
+          (value) mark writeStartTag          % fieldDict
+          dup /V get                          % fieldDict value
+          //writeEscapedChar forall           % fieldDict
+          (value) writeEndTag                 % fieldDict
+        }{ % else                             % fieldDict
+          //stderr (WARNING: Only strings are supported as form fields values.\n) writestring
+        } ifelse                              % fieldDict
+      } if                                    % fieldDict
+      (field) writeEndTag                     % fieldDict
+    } if                                      % fieldDict
+    pop                                       % -/-
+  }
+
+  /getObjByNo {                    % objNumber
+    //objectsByNo exch get         % obj
+  }
+
+  % TODO: In principle, the /C or /IC entries from FDF could store arrays with
+  % 0 (transparent), 1 (DeviceGray), 3 (DeviceRGB) or 4 (DeviceCMYK) components.
+  % We only properly handle 3 right now
+  /rgbArrayToHex {                              % rgbArray
+    % Sum up all components to a single number that can be converted to hex
+    0 exch {                        % compoundColorValue colorComponent
+      255 mul round cvi             % compoundColorValue colorComponentByte
+      exch 256 mul                  % colorComponentByte compoundColorValue'
+      add                           % compoundColorValue''
+    } forall                        % compoundColorValue''
+    16 //stringbuffer cvrs          % hexString
+    % Now we need to add a leading hash and possibly leading zeroes.
+    7 string                        % hexString hexStringWithHash
+    % Initialize color with leading hash and all zeroes
+    dup 0 //blackColor putinterval  % hexString hexStringWithHash
+    dup 7                           % hexString hexStringWithHash hexStringWithHash 7
+    3 index length                  % hexString hexStringWithHash hexStringWithHash 7 hexLength
+    sub                             % hexString hexStringWithHash hexStringWithHash leadingZerosAndHashesCount
+    4 -1 roll                       % hexStringWithHash hexStringWithHash leadingZerosAndHashesCount hexString
+    putinterval                     % hexStringWithHash
+  } bind
+
+  /writeVertexArray {                 % coordArray
+    (,)(;)()                          % coordArray sep sep sep
+    4 -1 roll                         % sep sep sep coordArray
+    {                                 % sep sep sep coord
+      exch //stdout exch              % sep sep coord stdout sep
+      writestring                     % sep sep coord
+      10 //stringbuffer cvrs          % sep sep coordString
+      //stdout exch writestring       % sep sep
+      exch dup                        % sep sep sep
+    } forall                          % sep sep sep
+    pop pop pop
+  } bind
+>> end begin  % pop the temporary /objregistry dict, begin the new one

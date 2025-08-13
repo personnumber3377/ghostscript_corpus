@@ -1,0 +1,50 @@
+package std::io;
+
+import std::Object;
+
+public class Reader : @Input
+{
+	public read(buffer->char[], size->int)->int{
+		return 0;
+	}
+	public readLine(buffer->char[])->int{
+		return 0;
+	}
+	public readBool()->boolean{
+		return false;
+	}
+	public readByte()->byte{
+		return 0;
+	}
+	public readShort()->short{
+		return 0;
+	}
+	public readInt()->int{
+		return 0;
+	}
+	public readLong()->long{
+		return 0L;
+	}
+	public readFloat()->float{
+		return 0F;
+	}
+	public readDouble()->double{
+		return 0D;
+	}
+	public readObject()->Object{
+		return null;
+	}
+	public eof()->boolean{
+		return true;
+	}
+	public flush()->boolean{
+		return false;
+	}
+	public close()->boolean{
+		return false;
+	}
+	public available()->boolean
+	{
+		return false;
+	}
+}

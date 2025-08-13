@@ -1,0 +1,10 @@
+%!ps-nonconforming
+/pagesize {currentpagedevice /PageSize get dup 0 get exch 1 get} bind def
+0 setgray  % pure black
+/Helvetica-Bold 72 selectfont
+/circle {255 0 0 setrgbcolor 0 0 15 0 360 arc closepath stroke} bind def
+3 setlinewidth
+pagesize exch 2 div exch 2 div moveto
+gsave (S) show grestore
+gsave circle grestore
+showpage

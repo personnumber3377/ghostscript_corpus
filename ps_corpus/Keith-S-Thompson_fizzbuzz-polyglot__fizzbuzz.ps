@@ -1,0 +1,30 @@
+% Usage: gs -q -dNODISPLAY fizzbuzz.ps
+
+% Language:       PostScript
+% Web site:       https://www.adobe.com/products/postscript/
+% Web site:       https://www.ghostscript.com/
+% Last tested on: Ubuntu 24.04.2 LTS
+% Requires:       apt-get install ghostscript
+
+1
+100 {
+    dup 15 div dup floor eq
+        { (FizzBuzz) }
+        {
+            dup 3 div dup floor eq
+                { (Fizz) }
+                {
+                    dup 5 div dup floor eq
+                        { (Buzz) }
+                        { dup 3 string cvs }
+                    ifelse
+                }
+            ifelse
+        }
+    ifelse
+    print (\n) print
+
+    1 add
+} repeat
+
+quit

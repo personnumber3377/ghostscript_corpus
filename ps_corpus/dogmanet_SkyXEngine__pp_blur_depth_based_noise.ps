@@ -1,0 +1,56 @@
+
+/*
+pp_blur_depth_based_noise.ps
+Размытие с учетом глубины с добавлением шума
+*/
+
+#include <struct.h>
+#include <mtrl.h>
+
+//##########################################################################
+
+half4 g_vPixelSize;
+half2 g_vNearFar;
+
+//##########################################################################
+
+sampler2D g_sDepth:register(s0);
+sampler2D g_sBlur:register(s1);
+sampler2D g_sNoise:register(s2);
+
+//##########################################################################
+
+half4 main(VSO_PP IN) : COLOR0
+{
+	half2 vJitter = ((tex2D(g_sNoise , IN.vTexUV.xy * 256.0).xy * 2.0 - 1.0) * g_vPixelSize);
+  
+	half4 vColor = tex2D(g_sBlur,IN.vTexUV);
+	half vCenterDepth = tex2D(g_sDepth, IN.vTexUV).r * g_vNearFar.y;
+	
+	half4 aBlurs[8];
+	aBlurs[0] = tex2D(g_sBlur, IN.vTexUV.xy + half2(-g_vPixelSize.x, 0.0) + vJitter);
+	aBlurs[1] = tex2D(g_sBlur, IN.vTexUV.xy + half2(g_vPixelSize.x, 0.0) + vJitter);
+	aBlurs[2] = tex2D(g_sBlur, IN.vTexUV.xy + half2(0.0, g_vPixelSize.y) + vJitter);
+	aBlurs[3] = tex2D(g_sBlur, IN.vTexUV.xy + half2(0.0, -g_vPixelSize.y) + vJitter);
+	
+	aBlurs[4] = tex2D(g_sBlur, IN.vTexUV.xy + half2(-g_vPixelSize.x, g_vPixelSize.y) + vJitter);
+	aBlurs[5] = tex2D(g_sBlur, IN.vTexUV.xy + half2(g_vPixelSize.x, -g_vPixelSize.y) + vJitter);
+	aBlurs[6] = tex2D(g_sBlur, IN.vTexUV.xy + half2(g_vPixelSize.x, g_vPixelSize.y) + vJitter);
+	aBlurs[7] = tex2D(g_sBlur, IN.vTexUV.xy + half2(-g_vPixelSize.x, -g_vPixelSize.y) + vJitter);
+	
+	half aDepths[8];
+	aDepths[0] = tex2D(g_sDepth, IN.vTexUV.xy + half2(-g_vPixelSize.x, 0.0) + vJitter).r * g_vNearFar.y;
+	aDepths[1] = tex2D(g_sDepth, IN.vTexUV.xy + half2(g_vPixelSize.x, 0.0) + vJitter).r * g_vNearFar.y;
+	aDepths[2] = tex2D(g_sDepth, IN.vTexUV.xy + half2(0.0, g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	aDepths[3] = tex2D(g_sDepth, IN.vTexUV.xy + half2(0.0, -g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	
+	aDepths[4] = tex2D(g_sDepth, IN.vTexUV.xy + half2(-g_vPixelSize.x, g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	aDepths[5] = tex2D(g_sDepth, IN.vTexUV.xy + half2(g_vPixelSize.x, -g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	aDepths[6] = tex2D(g_sDepth, IN.vTexUV.xy + half2(g_vPixelSize.x, g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	aDepths[7] = tex2D(g_sDepth, IN.vTexUV.xy + half2(-g_vPixelSize.x, -g_vPixelSize.y) + vJitter).r * g_vNearFar.y;
+	
+	for(int i=0; i<8; i++)
+		vColor = lerp(vColor, aBlurs[i], saturate(1.0 - abs(aDepths[i] - vCenterDepth)));
+	
+	return vColor;
+}

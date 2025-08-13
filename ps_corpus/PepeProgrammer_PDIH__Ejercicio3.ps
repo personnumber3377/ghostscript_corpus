@@ -1,0 +1,57 @@
+%!
+
+<< /PageSize [600 282] >> setpagedevice
+
+1 0 0 setrgbcolor
+newpath % círculo izquierda
+% x  y   R  angI angF
+ 70 160  40   0   360   arc
+closepath
+fill
+stroke
+
+newpath % círculo derecha
+% x  y   R  angI angF
+ 140 160  40   0   360   arc
+closepath
+fill
+stroke
+
+
+newpath %triángulo
+33 144 moveto
+144 0 rlineto % 110 - 38 = 72
+-75 -100 rlineto
+closepath
+fill
+stroke
+
+/Times-Roman findfont
+20 scalefont
+setfont
+
+  newpath
+  0.8 setgray
+  200 100 moveto
+  (La belleza no es nada, no permanece.) show
+  stroke
+
+  newpath
+  0.6 setgray
+  200 80 moveto
+  (No sabes la suerte que tienes sin belleza.) show
+  stroke
+
+  newpath
+  0.3 setgray
+  200 60 moveto
+  (Porque si le gustas a alguien,) show
+  stroke
+
+newpath
+  0 setgray
+  200 40 moveto
+  (sabes que es por otra cosa) show
+  stroke
+
+showpage

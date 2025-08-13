@@ -1,0 +1,22 @@
+#! /usr/bin/pwsh
+
+# Install and import the Azure PowerShell module
+Install-Module -Name Az -Force -AllowClobber
+Import-Module Az
+
+# Connect to Azure (you might need to log in interactively if not previously authenticated)
+Add-AzAccount -DeviceCode
+
+# Set the Azure subscription
+Set-AzContext -Subscription <Subscription>
+
+# Define resource group and resource details
+$resourceGroupName = "AMA_AAD_Demo"
+$location = "East US"
+
+# Create a new resource group
+New-AzResourceGroup -Name $resourceGroupName -Location $location
+
+Write-Host "Azure resource creation completed."
+
+# Delete the config webapp for container

@@ -1,0 +1,48 @@
+
+/* medea.js - Open Source, High-Performance 3D Engine based on WebGL.
+ *
+ * (c) 2011-2013, Alexander C. Gessler
+ *  https://github.com/acgessler/medea.js
+ *
+ * Made available under the terms and conditions of a 3-clause BSD license.
+ *
+ */
+ 
+uniform vec3 LIGHT_D0_DIR;	
+uniform float g;
+uniform float g2;
+
+#include <remote:mcore/shaders/core.psh>
+#include <url:/data/shader/constants_shared.vsh>
+
+void main()
+{
+#ifdef SKY
+	vec3 dir = FetchVec3(direction);
+	float fCos = dot(LIGHT_D0_DIR, dir) / length(dir);
+
+	float fMiePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos*fCos) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);
+	gl_FragColor.rgb = FetchVec3(color_a) + fMiePhase * FetchVec3(color_b);
+	
+	// Fake tonemapping
+	gl_FragColor.rgb = 0.8 * max(1.0 - exp(gl_FragColor.rgb * - 0.5), vec3(0.0, 0.0, 0.0));
+	gl_FragColor.a = clamp(gl_FragColor.b, 0.0, 1.0);
+#else
+	// Blend equation should be:
+	// dst_color * FetchVec3(color_a) * 0.2 + FetchVec3(color_b)
+	//
+	// For this to do in a single pass, we need either access to dst_color,
+	// or dual source blending. With neither, we can only do an approximation
+	//
+	// Corresponding blend setup:
+	// pass.BlendOp('add');
+	// pass.BlendFunc('one', 'one_minus_src_alpha');
+	vec3 color_a = FetchVec3(color_a) * 0.2;
+	vec3 color_b = FetchVec3(color_b);
+	float a = clamp(dot(color_a, color_a), 0.0, 1.0);
+	gl_FragColor = vec4((color_a + color_b) * 0.7, a);
+#endif
+
+	//gl_FragColor.rgb = 1.0 - exp(gl_FragColor.rgb * -1.0);
+}
+

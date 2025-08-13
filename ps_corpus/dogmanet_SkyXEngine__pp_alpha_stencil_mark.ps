@@ -1,0 +1,32 @@
+
+#include <struct.h>
+
+//##########################################################################
+
+half2 g_vWinSize;
+
+//##########################################################################
+
+half4 main(VSO_PP IN):COLOR0
+{
+	#if defined(_COLUMN_)
+	if(frac(IN.vTexUV.y * g_vWinSize.y * 0.5) >= 0.5)
+		clip(-1);
+
+	clip(frac(IN.vTexUV.x * g_vWinSize.x * 0.5) - 0.5);
+	
+	#elif defined(_STR_)
+	clip(frac(IN.vTexUV.y * g_vWinSize.y * 0.5) - 0.5);
+	
+	[branch]if(frac(IN.vTexUV.x*g_vWinSize.x*0.5) >= 0.5)
+		clip(-1);
+	
+	#elif defined(_COLUMN_STR_)
+	clip(frac(IN.vTexUV.y * g_vWinSize.y * 0.5) - 0.5);
+	clip(frac(IN.vTexUV.x * g_vWinSize.x * 0.5) - 0.5);
+	
+	#else
+	#error unexpected operation
+	#endif
+	return 1;
+}

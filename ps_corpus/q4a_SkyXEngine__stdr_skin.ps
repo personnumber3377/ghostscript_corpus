@@ -1,0 +1,30 @@
+
+/*
+stdr_skin.ps
+Обычный рендер анимационной модели
+Если объявлен _CLIP_PLANE_ то будет обрабатываться отсечение по плоскости
+*/
+
+#include <../struct.h>
+
+//##########################################################################
+
+sampler2D g_sColor:register(s0);
+
+//##########################################################################
+
+#ifdef _CLIP_PLANE_
+half3 g_vPlaneNormal;
+half3 g_vPlanePoint;
+#endif
+
+//##########################################################################
+
+half4 main(VSO_SceneCommon IN) : COLOR0
+{
+#ifdef _CLIP_PLANE_
+	clip(dot(IN.vPos.xyz - g_vPlanePoint, g_vPlaneNormal));
+#endif
+	
+	return tex2D(g_sColor,IN.vTexUV);
+}

@@ -1,0 +1,241 @@
+100 100 translate
+
+/drawLine {
+	/row exch def
+	/col exch def
+	/draw exch def
+	/lineType exch def
+
+	/xShift 40 col mul def
+	/yShift 20 totalRows row sub mul def
+
+	draw 1 eq {
+		lineType 1 eq {
+			xShift 40 add yShift moveto
+			0 20 rlineto
+			0 -40 rlineto
+			stroke
+		} {
+			xShift yShift moveto
+			40 0 rlineto
+			stroke
+		} ifelse
+	} if
+} def
+
+2 setlinewidth
+0.5 0 1 setrgbcolor
+/totalRows 29 def
+/totalCols 15 def
+1 1 2 0 drawLine
+1 1 6 0 drawLine
+1 1 8 0 drawLine
+1 1 9 0 drawLine
+1 1 11 0 drawLine
+1 1 12 0 drawLine
+0 1 0 1 drawLine
+0 1 1 1 drawLine
+0 1 3 1 drawLine
+0 1 4 1 drawLine
+0 1 6 1 drawLine
+0 1 8 1 drawLine
+0 1 10 1 drawLine
+0 1 14 1 drawLine
+1 1 2 2 drawLine
+1 1 4 2 drawLine
+1 1 9 2 drawLine
+1 1 10 2 drawLine
+1 1 11 2 drawLine
+1 1 12 2 drawLine
+0 1 1 3 drawLine
+0 1 3 3 drawLine
+0 1 5 3 drawLine
+0 1 6 3 drawLine
+0 1 7 3 drawLine
+0 1 8 3 drawLine
+1 1 1 4 drawLine
+1 1 2 4 drawLine
+1 1 4 4 drawLine
+1 1 5 4 drawLine
+1 1 9 4 drawLine
+1 1 10 4 drawLine
+1 1 13 4 drawLine
+0 1 0 5 drawLine
+0 1 2 5 drawLine
+0 1 3 5 drawLine
+0 1 7 5 drawLine
+0 1 9 5 drawLine
+0 1 12 5 drawLine
+0 1 14 5 drawLine
+1 1 4 6 drawLine
+1 1 5 6 drawLine
+1 1 6 6 drawLine
+1 1 8 6 drawLine
+1 1 10 6 drawLine
+1 1 12 6 drawLine
+0 1 3 7 drawLine
+0 1 6 7 drawLine
+0 1 7 7 drawLine
+0 1 10 7 drawLine
+0 1 11 7 drawLine
+0 1 12 7 drawLine
+0 1 13 7 drawLine
+1 1 0 8 drawLine
+1 1 1 8 drawLine
+1 1 3 8 drawLine
+1 1 4 8 drawLine
+1 1 6 8 drawLine
+1 1 7 8 drawLine
+1 1 9 8 drawLine
+1 1 10 8 drawLine
+1 1 12 8 drawLine
+0 1 0 9 drawLine
+0 1 1 9 drawLine
+0 1 3 9 drawLine
+0 1 6 9 drawLine
+0 1 9 9 drawLine
+0 1 12 9 drawLine
+0 1 14 9 drawLine
+1 1 0 10 drawLine
+1 1 3 10 drawLine
+1 1 8 10 drawLine
+1 1 9 10 drawLine
+1 1 12 10 drawLine
+0 1 1 11 drawLine
+0 1 2 11 drawLine
+0 1 3 11 drawLine
+0 1 6 11 drawLine
+0 1 7 11 drawLine
+0 1 11 11 drawLine
+0 1 13 11 drawLine
+1 1 3 12 drawLine
+1 1 4 12 drawLine
+1 1 5 12 drawLine
+1 1 6 12 drawLine
+1 1 10 12 drawLine
+1 1 13 12 drawLine
+0 1 1 13 drawLine
+0 1 3 13 drawLine
+0 1 9 13 drawLine
+0 1 10 13 drawLine
+0 1 11 13 drawLine
+0 1 12 13 drawLine
+1 1 0 14 drawLine
+1 1 4 14 drawLine
+1 1 6 14 drawLine
+1 1 7 14 drawLine
+1 1 8 14 drawLine
+1 1 11 14 drawLine
+0 1 0 15 drawLine
+0 1 1 15 drawLine
+0 1 5 15 drawLine
+0 1 7 15 drawLine
+0 1 10 15 drawLine
+0 1 12 15 drawLine
+0 1 13 15 drawLine
+0 1 14 15 drawLine
+1 1 1 16 drawLine
+1 1 2 16 drawLine
+1 1 3 16 drawLine
+1 1 5 16 drawLine
+1 1 6 16 drawLine
+1 1 9 16 drawLine
+0 1 0 17 drawLine
+0 1 6 17 drawLine
+0 1 9 17 drawLine
+0 1 11 17 drawLine
+0 1 12 17 drawLine
+0 1 13 17 drawLine
+1 1 0 18 drawLine
+1 1 1 18 drawLine
+1 1 2 18 drawLine
+1 1 3 18 drawLine
+1 1 4 18 drawLine
+1 1 5 18 drawLine
+1 1 7 18 drawLine
+1 1 9 18 drawLine
+1 1 11 18 drawLine
+1 1 13 18 drawLine
+0 1 3 19 drawLine
+0 1 4 19 drawLine
+0 1 7 19 drawLine
+0 1 10 19 drawLine
+0 1 11 19 drawLine
+0 1 13 19 drawLine
+1 1 1 20 drawLine
+1 1 3 20 drawLine
+1 1 5 20 drawLine
+1 1 6 20 drawLine
+1 1 8 20 drawLine
+1 1 9 20 drawLine
+1 1 13 20 drawLine
+0 1 0 21 drawLine
+0 1 3 21 drawLine
+0 1 4 21 drawLine
+0 1 5 21 drawLine
+0 1 6 21 drawLine
+0 1 10 21 drawLine
+0 1 11 21 drawLine
+0 1 12 21 drawLine
+1 1 2 22 drawLine
+1 1 3 22 drawLine
+1 1 6 22 drawLine
+1 1 7 22 drawLine
+1 1 8 22 drawLine
+1 1 9 22 drawLine
+1 1 10 22 drawLine
+1 1 13 22 drawLine
+0 1 0 23 drawLine
+0 1 5 23 drawLine
+0 1 7 23 drawLine
+0 1 12 23 drawLine
+1 1 1 24 drawLine
+1 1 3 24 drawLine
+1 1 4 24 drawLine
+1 1 7 24 drawLine
+1 1 8 24 drawLine
+1 1 11 24 drawLine
+1 1 13 24 drawLine
+0 1 0 25 drawLine
+0 1 2 25 drawLine
+0 1 4 25 drawLine
+0 1 5 25 drawLine
+0 1 7 25 drawLine
+0 1 8 25 drawLine
+0 1 13 25 drawLine
+0 1 14 25 drawLine
+1 1 0 26 drawLine
+1 1 1 26 drawLine
+1 1 2 26 drawLine
+1 1 6 26 drawLine
+1 1 7 26 drawLine
+1 1 9 26 drawLine
+1 1 10 26 drawLine
+1 1 11 26 drawLine
+1 1 12 26 drawLine
+0 1 1 27 drawLine
+0 1 8 27 drawLine
+0 1 9 27 drawLine
+1 1 3 28 drawLine
+1 1 4 28 drawLine
+1 1 5 28 drawLine
+1 1 6 28 drawLine
+1 1 10 28 drawLine
+1 1 11 28 drawLine
+1 1 13 28 drawLine
+
+0 0 moveto
+3 setlinewidth
+0.4 0 0.8 setrgbcolor
+0 totalRows 1 add 20 mul rlineto
+totalCols 40 mul 0 rlineto
+0 totalRows 1 add 20 mul -1 mul rlineto
+totalCols 40 mul -1 mul 0 rlineto
+stroke
+
+0 0 0 setrgbcolor
+/Courier-Bold findfont 30 scalefont setfont
+0 totalRows 1 add 20 mul 20 add moveto
+(Labirynt Kruskal'a) show
+
+showpage

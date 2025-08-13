@@ -1,0 +1,87 @@
+%!PS
+% gs -dNOPAUSE -dBATCH -sDEVICE=pngalpha -sOutputFile=partycowsay%02d.png partycowsay.ps
+% convert -delay 1 -colors 256 -dispose previous -loop 0 partycowsay*.png partycowsay.gif
+
+/cowtop (^__^) def
+/cowmid (\(oo\)) def
+/cowbot (\(__\)) def
+/cowfont /NimbusMonoPS-Regular def
+/cowfontsize 144 def
+/colorangle { add sin 1 add 2 div } bind def
+/psi 120 def
+/bg {
+    /ANGLE exch def
+    ANGLE 0 colorangle /green exch def
+    ANGLE dup psi colorangle /blue exch def
+    ANGLE psi 2 mul colorangle /red exch def
+    red green blue setrgbcolor
+    newpath
+    0 0 moveto
+    floorwidth widthfudge mul 0 rlineto
+    0 floorheight heightfudge 3 mul mul rlineto
+    floorwidth widthfudge -1 mul mul 0 rlineto
+    0 floorheight heightfudge -3 mul mul rlineto
+    fill
+} bind def
+/cowsay {
+    /ANGLE exch def
+    ANGLE 0 colorangle /red exch def
+    ANGLE dup psi colorangle /green exch def
+    ANGLE psi 2 mul colorangle /blue exch def
+    pstack
+    red green blue setrgbcolor
+    (drawing bottom\n) print
+    newpath
+    0 0 moveto
+    cowbot true charpath fill
+    closepath
+    (drawing middle\n) print
+    newpath
+    0 floorheight heightfudge mul moveto
+    cowmid true charpath fill
+    closepath
+    (drawing top\n) print
+    newpath
+    0 floorheight heightfudge 2 mul mul moveto
+    cowtop true charpath fill
+    closepath
+} bind def
+/SEGMENTS 18 def
+/phi 360 SEGMENTS div def
+cowfont findfont cowfontsize scalefont setfont
+newpath 0 0 moveto
+cowtop true charpath pathbbox
+(bounding box is ) print
+pstack
+exch pop 3 -1 roll pop exch sub
+(floor height is ) print
+pstack
+/floorheight exch def
+/heightfudge 1.05 def
+newpath 0 0 moveto
+cowtop true charpath pathbbox
+(bounding box is ) print
+pstack
+pop exch pop exch sub
+(floor width is ) print
+pstack
+/floorwidth exch def
+/widthfudge 1.09 def
+<< /PageSize [
+       floorwidth widthfudge 1.08 mul mul
+       floorheight heightfudge 3 mul mul 36 add
+   ]
+>> setpagedevice
+0 phi 360 phi sub {
+    gsave
+    dup
+    gsave
+    1 1.08 scale
+    bg
+    grestore
+    0 36 translate
+    cowsay
+    showpage
+    grestore
+    pop
+} for

@@ -1,0 +1,64 @@
+%require "common.ps"
+%require "rect.ps"
+%require "break.ps"
+
+% arrow from sv_u.pvx
+% /Helvetica-Bold 9 SF
+% 5 262 M (svu_rv) show
+% 42 265 47 265 47 310 112 310 112 292.5 118 292.5 ptrn
+% newpath 97.5 292.5 2 0 360 arc fill
+% 97.5 292.5 M 113 292.5 L stroke
+% 113 290 M 120 292.5 L 113 295 L closepath fill
+
+% char* box
+gsave
+   0.8 setgray
+   190 285 220 300 rect F
+grestore
+
+0.5 setlinewidth
+130 10 210 {
+   dup 300 M 285 L S
+} for
+1 setlinewidth
+120 285 220 300 rect S
+
+/Courier 8 SF
+220 302 M (char[]) rshow
+
+125 290 M
+[(a) (b) (c) (?) (x) (y) (z) (\\0)] {
+   gsave
+     dup stringwidth pop 2 div neg 0 RM show
+   grestore
+   10 0 RM
+} forall
+
+
+
+%break in the midle of char*
+153 300 break
+
+% Some lines indicating the value of CUR/LEN
+
+gsave
+red
+
+% CUR length
+0.5 setlinewidth
+120 275 M 120 280 L
+120 277.5 M 190 277.5 L
+190 275 M 190 280 L
+stroke
+120 277.5 M 124 279 L 124 276 L closepath fill
+190 277.5 M 186 279 L 186 276 L closepath fill
+
+% LEN length
+120 265 M 120 260 L
+120 262.5 M 220 262.5 L
+220 265 M 220 260 L
+stroke
+120 262.5 M 124 264 L 124 261 L closepath fill
+220 262.5 M 216 264 L 216 261 L closepath fill
+
+grestore

@@ -1,0 +1,39 @@
+#!/usr/bin/env pwsh
+
+function Get-Min-Time([int64]$distance, [int64]$time) {
+  for($t=1;$t -lt $time;$t++){
+    if($t*($time-$t) -gt $distance){
+      return $t
+    }
+  }
+}
+
+function Get-Max-Time([int64]$distance, [int64]$time) {
+  for($t=$time;$t -gt 0;$t--){
+    if($t*($time-$t) -gt $distance){
+      return $t
+    }
+  }
+}
+
+$textfile = Get-Content "input.txt"
+$times = $textfile[0].Split(":")[1].Split(" ") | Where-Object {$_}
+$distances = $textfile[1].Split(":")[1].Split(" ") | Where-Object {$_}
+$wins=1
+
+for ($i=0;$i -lt $times.count;$i++){
+    $minTime=Get-Min-Time $distances[$i] $times[$i]
+    $maxtime=Get-Max-Time $distances[$i] $times[$i]
+    $wins=$wins*($maxtime-$minTime+1)
+}
+Write-Output "Product of wins: $wins"
+
+$time = $textfile[0].Split(":")[1].Replace(' ', '')
+$distance = $textfile[1].Split(":")[1].Replace(' ', '')
+
+
+$minTime=Get-Min-Time $distance $time
+$maxtime=Get-Max-Time $distance $time
+$bigWin=$maxtime-$minTime+1
+
+Write-Output "One big win: $bigWin"

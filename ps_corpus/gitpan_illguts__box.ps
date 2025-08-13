@@ -1,0 +1,57 @@
+%require "common.ps"
+%require "rect.ps"
+
+% Routines to draw the struct boxes
+
+/box {                     % <x> <y> <no> box -
+   10 dict begin
+      /no exch def
+      /y  exch def
+      /x  exch def
+
+      /x2 x 50 add def
+      /y2 y no 15 mul sub def
+
+      y2 15 add 15 y {
+	dup x exch M
+        x2 exch L S
+      } for
+
+      x y M x2 y L x2 y2 L x y2 L CP S
+   end
+} def
+
+/newbox {                  % <x> <y> <start> <end> newbox -
+   4 dict begin
+     /to exch def
+     /from exch def
+     /y exch def
+     /x exch def
+
+     gsave
+       yellow
+       x y from 1 sub 15 mul sub 
+       x 50 add y to 15 mul sub rect
+       F
+     grestore
+   end
+} def
+
+/boxs {                     % <x> <y> <no> boxs -
+   10 dict begin
+      /no exch def
+      /y  exch def
+      /x  exch def
+
+      /x2 x 40 add def
+      /y2 y no 10 mul sub def
+
+      y2 10 add 10 y {
+	dup x exch M
+        x2 exch L S
+      } for
+
+      x y M x2 y L x2 y2 L x y2 L CP S
+   end
+} def
+

@@ -1,0 +1,125 @@
+package std::collection;
+
+import std::Object;
+
+public class TreeSet : Collection 
+{
+	private m_node->TreeSetNode;
+	private m_size->int=0;
+	public TreeSet(){}
+	public add(e->Object)
+	{
+		if(e==null)return;
+		node->TreeSetNode=m_node;
+		if(node==null){
+			m_node=new TreeSetNode(e);
+			++m_size;
+			return;
+		}
+		else{
+			hashcode0->int=e.hashcode();
+			while(true){
+				hashcode1->int=node.v.hashcode();
+				if(hashcode0<hashcode1){
+					if(node.l==null){
+						node.l=new TreeSetNode(e);
+						++m_size;
+						return;
+					}
+					else node=node.l;
+				}
+				else if(hashcode1<hashcode0){
+					if(node.r==null){
+						node.r=new TreeSetNode(e);
+						++m_size;
+						return;
+					}
+					else node=node.r;
+				}
+				else {
+					node.v=e;
+					return;
+				}
+			}
+		}
+	}
+	public remove(e->Object)
+	{
+		if(e==null)return;
+		hashcode0->int=e.hashcode();
+		node->TreeSetNode=m_node;
+		last->TreeSetNode=null;
+		while(node!=null){
+			hashcode1->int=node.v.hashcode();
+			if(hashcode0<hashcode1){
+				last=node;
+				node=node.l;
+			}
+			else if(hashcode1<hashcode0){
+				last=node;
+				node=node.r;
+			}
+			else {
+				if(last==null)m_node=null;
+				else{
+					if(last.l==node)last.l=null;
+					else if(last.r==node)last.r=null;
+				}
+				--m_size;
+				return;
+			}
+		}
+	}
+	public exist(e->Object)->boolean
+	{
+		if(e==null)return false;
+		hashcode0->int=e.hashcode();
+		node->TreeSetNode=m_node;
+		while(node!=null){
+			hashcode1->int=node.v.hashcode();
+			if(hashcode0<hashcode1)node=node.l;
+			else if(hashcode1<hashcode0)node=node.r;
+			else return true;
+		}
+		return false;
+	}
+	public empty()->boolean{return m_size==0;}
+	public clear(){m_node=null;m_size=0;}
+	public size()->int{return m_size;}
+	public iterator()->Iterator{return new TreeSetIterator(m_node);}
+}
+
+class TreeSetNode : Object
+{
+	public l->TreeSetNode;
+	public r->TreeSetNode;
+	public v->Object;
+	public TreeSetNode(v->Object){this.v=v;}
+}
+
+class TreeSetIterator : Iterator
+{
+	private m_stack->Stack;
+	public TreeSetIterator(node->TreeSetNode)
+	{
+		if(node==null)return;
+		m_stack=new Stack();
+		m_stack.push(node);
+	}
+	public hasNext()->boolean
+	{
+		if(m_stack==null)return false;
+		return !m_stack.empty();
+	}
+	public next()->Object
+	{
+		if(m_stack==null)return null;
+		if(m_stack.empty())return null;
+		else{
+			node->TreeSetNode=m_stack.pop();
+			if(node.r!=null)m_stack.push(node.r);
+			if(node.l!=null)m_stack.push(node.l);
+			return node.v;
+		}
+	}
+}

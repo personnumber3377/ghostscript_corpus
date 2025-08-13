@@ -1,0 +1,58 @@
+%!PS
+% Tam
+/width 600 def
+/height 300 def
+
+<< /PageSize [600 300] >> setpagedevice
+% Fondo
+newpath
+2 setlinewidth
+0 0 moveto
+width 0 lineto
+width height lineto
+0 height lineto
+closepath
+stroke
+
+% Circulo foto
+gsave
+/centerX 100 def
+/centerY 150 def
+/radius 50 def
+0.8 0.8 0.8 setrgbcolor
+centerX centerY radius 0 360 arc
+fill
+grestore
+
+% Texto
+/Helvetica findfont 12 scalefont setfont
+% Nombre
+newpath
+300 200 moveto
+(Jorge y Carlos) show
+
+newpath
+300 185 moveto
+(Estudiantes Ingenieria Informatica) show
+
+newpath
+300 150 moveto
+(Granada) show
+
+newpath
+300 135 moveto
+(ETSIIT) show
+
+newpath
+300 120 moveto
+(18001 Granada) show
+
+newpath
+300 105 moveto
+(Tels. .......) show
+
+newpath
+300 90 moveto
+(ejemplo@correo.ugr.es) show
+
+showpage

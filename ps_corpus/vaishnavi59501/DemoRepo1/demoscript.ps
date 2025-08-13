@@ -1,0 +1,126 @@
+#!/usr/bin/pwsh
+
+$location=Get-Location
+
+write-host($location)
+
+[int]$a=read-host("Enter a number for a")
+[int]$b=read-host("Enter a number for b")
+
+#Arithmetic operator
+$a+$b
+$a-$b
+$a*$b
+$a/$b
+$a%$b
+
+#Relational operator
+$a -eq $b
+$a -lt $b
+$a -le $b
+$a -gt $b
+$a -ge $b
+$a -ne $b
+$a -lt $b
+
+$c=read-host("enter a string")
+write-host($c -like "*ers*")
+write-host($c -notLike "*ers*")
+write-host($c -match "[s$]")
+write-host($c -notMatch "[s$]")
+write-host($c -contains "points")
+write-host($c -notContains "points")
+
+
+
+$array=@("apple","orange","banana","grapes","pears","kiwi")
+
+for($it=0;$it -lt $array.length;$it+=1)
+{
+	$array[$it]
+}
+
+
+$pattern="*"
+$i=0
+
+while($i -le 5)
+{       $j=0
+	while($j -le $i)
+	{
+		$pattern
+		$j+=1
+	}
+	
+	write-host(" ")
+	$i+=1
+}
+
+$arr=@("apple","potato","orange","tomato","grapes","onion")
+
+for($it=0;$it -lt $arr.length;$it++)
+{
+	if($it%2 -eq 0)
+	{
+		write-host("it is a fruit")
+	}
+	else
+	{
+		write-host("it is a vegetable")
+	}
+}
+
+
+[int]$ch=read-host("Enter your choice between 1 to 4")
+
+switch($ch)
+{
+	1 {"one"}
+	2 {"two"}
+	3 {"three"}
+	4 {"four"}
+}
+
+#array declaration
+$list=5.6, 4.5, 3.3, 13.2, 4.0, 34.33, 34.0, 45.45
+write-host("elements in list")
+$list
+write-host("Number of elements in list")
+$list.length
+write-host("accessing element at third index")
+$list[3]
+write-host("sublist")
+$sublist=$list[2...6]
+$sublist
+
+
+#hashtables
+
+$hash=@{sno=1234;name="john";age=27}
+write-host("hash table with key value pairs")
+$hash
+write-host(" ")
+write-host("hash keys:")
+$hash.keys
+write-host(" ")
+write-host("hash values:")
+$hash.values
+write-host(" ")
+
+
+$hash["name"] #getting value for key 'name'
+write-host(" ")
+write-host("size of hash table")
+$hash.Count
+
+$hash["occupation"]="software-engineer" #updating hash table with new key-value pair
+
+$hash.Add("location","chennai") #another way of updating key-value pair
+
+$hash.Remove("age") #removing specific element from hash table
+
+#usage of `n and `t
+
+write-host("Hello`tWorld") #`t is tab
+
+write-host("Hello`nWorld") #`n is newline

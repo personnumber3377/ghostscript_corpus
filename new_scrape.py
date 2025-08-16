@@ -5,9 +5,9 @@ import random
 
 # ==== CONFIG ====
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")  # set your token in env
-SEARCH_QUERY = 'extension:ps size:<200000'  # tweak for size limits
+SEARCH_QUERY = '(extension:ps OR extension:eps) size:<200000'  # tweak for size limits
 OUTPUT_DIR = "ps_corpus"
-MAX_PAGES = 20  # number of search pages to fetch (100 files per page)
+MAX_PAGES = 40  # number of search pages to fetch (100 files per page)
 # ===============
 
 if not GITHUB_TOKEN:

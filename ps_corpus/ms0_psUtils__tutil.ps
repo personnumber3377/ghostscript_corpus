@@ -1,0 +1,709 @@
+% Let's put here lots of typesetting-related postscript subroutines
+
+/currentfontinfo {    % - currentfontinfo fontname fontmatrix
+  currentfont /FontName get
+  dup findfont /FontMatrix get matrix invertmatrix
+  currentfont /FontMatrix get matrix concatmatrix
+} bind readonly def
+
+/string2fss {    % convert a plain string to [font size string]
+  dup type /arraytype ne {[currentfontinfo 4 3 roll]} if
+} bind readonly def
+
+/2matrix {  % size-or-matrix 2matrix matrix
+  dup type /arraytype ne {[exch 0 0 2 index 0 0]} if
+} bind readonly def
+
+/superscript {    % size-or-matrix superscript matrix
+  2matrix dup 3 get 2 div [2 3 div 0 0 2 index 0  7 6 roll] matrix concatmatrix
+} bind readonly def
+
+/subscript {    % size-or-matrix subscript matrix
+  2matrix dup 3 get -6 div [2 3 div 0 0 2 index 0 7 6 roll] matrix concatmatrix
+} bind readonly def
+
+/raise {    % size-or-matrix factor raise matrix
+  exch 2matrix dup 3 get 3 2 roll mul [1 0 0 1 0 7 6 roll] matrix concatmatrix 
+} bind readonly def
+
+/tan {dup sin exch cos div} bind readonly def
+
+/oblique {    % size-or-matrix angle oblique matrix
+  tan exch 2matrix dup 3 get
+  [1 0 6 5 roll dup 1 exch -.25 mul 7 6 roll mul 0] matrix concatmatrix
+} bind readonly def
+
+/expand {    % size-or-matrix factor expand matrix
+  exch 2matrix exch [exch 0 0 1 0 0] matrix concatmatrix
+} bind readonly def
+
+/goback {    % k goback null dx dy
+  % insert a fixed space reversing previous k fss elements
+  gsave nulldevice 0 0 moveto
+  3 mul array astore aload 1 dict begin sshow end
+  null currentpoint neg exch neg exch
+  grestore
+} bind readonly def
+
+/overlay {    % null dx dy fss^k k overlay null dx' dy' fss^k null -dx' -dy'
+  % center the k fss elements on the space specified by null dx dy
+  % typical usage: k1 goback fss^k2 k2 overlay
+  gsave nulldevice 0 0 moveto
+  1 add 3 mul array astore dup 1 dict begin sshow end
+  dup 1 2 getinterval aload 3 1 roll
+  null currentpoint -2 div exch -2 div
+  dup 6 5 roll add 6 1 roll exch dup 5 4 roll add 5 1 roll 6 3 roll astore pop
+  3 array astore cat aload pop
+  grestore
+} bind readonly def
+
+% calculate bounding box of text
+/cbox {    % [font size string font size string ...] cbox llx lly ulx uly
+  string2fss
+  gsave nulldevice 0 0 moveto
+  3 dict begin
+  /fss exch def
+  0 3 fss length 1 sub {
+    /i exch def
+    fss i get dup null eq
+    { pop fss i 1 add get fss i 2 add get rmoveto }
+    { fss i 1 add get selectfont fss i 2 add get true charpath }
+    ifelse
+  } for
+  flattenpath pathbbox
+  end
+  grestore
+} bind readonly def
+
+% find horizontal and vertical extent of text
+/cwidth {   % [font size string font size string ...] cwidth dx dy
+  cbox 3 2 roll sub 3 1 roll sub neg exch
+} bind readonly def
+
+% find center of text
+/ccenter {   % [font size string font size string ...] ccenter centerx centery
+  cbox 3 2 roll add 2 div 3 1 roll add 2 div exch
+} bind readonly def
+
+% show text
+/sshow {   % [font size string font size string ...] sshow -
+  3 dict begin
+  /fss exch string2fss def
+  [ currentpoint
+  0 3 fss length 1 sub {
+    /i exch def
+    fss i get dup null eq
+    { pop fss i 1 add get fss i 2 add get rmoveto }
+    { fss i 1 add get selectfont fss i 2 add get show }
+    ifelse currentpoint
+  } for ]
+  end
+  /.sshow. exch def    % array of currentpoints of each fss segment
+} bind readonly def
+
+% clear text area
+/clr {    % [font size string font size string ...] clr -
+  gsave 1 setgray 2 setlinewidth 0 setlinejoin [] 0 setdash
+  cbox 2 index sub exch 3 index sub exch
+  currentpoint translate 4 copy rectfill rectstroke
+  grestore
+} bind readonly def
+
+% clear then show text
+/clrshow {   % [font size string font size string ...] clrshow -
+  dup clr sshow
+} bind readonly def
+
+% center text horizontally and vertically
+/ccentershow {   % [font size string font size string ...] ccentershow -
+  gsave dup ccenter neg exch neg exch rmoveto sshow grestore
+} bind readonly def
+
+% clear then show text centered horizontally and vertically
+/clrcentershow {   % [font size string font size string ...] clrcentershow -
+  gsave dup ccenter neg exch neg exch rmoveto clrshow grestore
+} bind readonly def
+
+% center text horizontally
+/chshow {   % [font size string font size string ...] chshow -
+  gsave dup ccenter pop neg 0 rmoveto sshow grestore
+} bind readonly def
+
+% clear then show text centered horizontally
+/cchshow {  % [font size string font size string ...] cchshow -
+  gsave dup ccenter pop neg 0 rmoveto clrshow grestore
+} bind readonly def
+
+% center text vertically
+/cvshow {   % [font size string ...] cvshow -
+  gsave dup ccenter exch pop neg 0 exch rmoveto sshow grestore
+} bind readonly def
+
+% clear then show text centered vertically
+/ccvshow {  % [font size string font size string ...] ccvshow -
+  gsave dup ccenter exch pop neg 0 exch rmoveto clrshow grestore
+} bind readonly def
+
+% center text vertically right of current point
+/rcvshow {    % [font size string ...] rcvshow -
+  gsave dup cbox 3 2 roll add -2 div 3 1 roll pop neg exch rmoveto sshow grestore
+} bind readonly def
+
+% clear then center text vertically right of current point
+/crcvshow {    % [font size string ...] crcvshow -
+  gsave dup cbox 3 2 roll add -2 div 3 1 roll pop neg exch rmoveto clrshow grestore
+} bind readonly def
+
+% center text vertically left of current point
+/lcvshow {    % [font size string ...] lcvshow -
+  gsave dup cbox 3 2 roll add -2 div 3 1 roll exch pop neg exch rmoveto sshow grestore
+} bind readonly def
+
+% clear then center text vertically left of current point
+/clcvshow {    % [font size string ...] lcvshow -
+  gsave dup cbox 3 2 roll add -2 div 3 1 roll exch pop neg exch rmoveto clrshow grestore
+} bind readonly def
+
+% show text right of current point
+/rshow {    % [font size string ...] rshow -
+  gsave dup cbox pop pop pop neg 0 rmoveto sshow grestore
+} bind readonly def
+
+% clear then show text right of current point
+/crshow {    % [font size string ...] crshow -
+  gsave dup cbox pop pop pop neg 0 rmoveto clrshow grestore
+} bind readonly def
+
+% show text left of current point
+/lshow {    % [font size string ...] lshow -
+  gsave dup cbox pop exch pop sub 0 rmoveto sshow grestore
+} bind readonly def
+
+% clear then show text left of current point
+/clshow {    % [font size string ...] clshow -
+  gsave dup cbox pop exch pop sub 0 rmoveto clrshow grestore
+} bind readonly def
+
+/leftshow /lshow load def
+/rightshow /rshow load def
+/centershow /chshow load def
+/xycentershow /ccentershow load def
+/ycenterleftshow /lcvshow load def
+/ycenterrightshow /rcvshow load def
+
+% in sshow et al, we can use a triple with an empty string to tag a position
+% this results in a repeated point in .sshow.
+
+% given an array of points, pick out the ones that are repeated
+/gettaggedpoints {    % array gettaggedpoints subarray-of-tagged-points
+  2 dict begin /a exch def
+  [ 0 2 a length 4 sub {
+    a exch 4 getinterval aload pop
+    2 index eq exch 3 index eq and not {pop pop} if
+  } for ] end
+} bind readonly def
+
+% add an overbar, underbar, or strikethrough to text
+/overbar {    % startpoint endpoint vertical-displacement thickness overbar -
+  gsave
+  setlinewidth 2 setlinecap [] 0 setdash
+  3 1 roll pop 3 index sub 4 1 roll add moveto 0 rlineto stroke
+  grestore
+} bind readonly def
+
+/rootbar {    % startpoint endpoint pointsize rootbar -
+  dup .875 mul exch 24 div overbar
+} bind readonly def
+
+% example usage:
+% /ps 10 def 100 100 moveto
+% [/Symbol ps (\326) /Symbol ps ()
+%  /Times-Roman ps (2) /Symbol ps ()
+%  /Symbol ps (/2 = \326) /Symbol ps ()
+%  /Times-Roman ps (1/2) /Symbol ps ()] sshow
+% .sshow. gettaggedpoints aload length 4 idiv {ps rootbar} repeat
+
+/reencsmalldict 12 dict def
+/ReEncodeSmall {    % basename newname newencondings ReEncodeSmall -
+  reencsmalldict begin
+  /newcodesandnames exch def
+  /newfontname exch def
+  /basefontname exch def
+  /basefontdict basefontname findfont def
+  /newfont basefontdict maxlength dict def
+  basefontdict {
+    exch dup /FID ne {
+      dup /Encoding eq {
+	exch dup length array copy
+	newfont 3 1 roll put
+      }
+      { exch newfont 3 1 roll put }
+      ifelse
+    }
+    { pop pop }
+    ifelse
+  } forall
+  newfont /FontName newfontname put
+  newcodesandnames aload pop
+  newcodesandnames length 2 idiv
+  { newfont /Encoding get 3 1 roll put}
+  repeat
+  newfontname newfont definefont pop
+  end
+} bind readonly def
+
+/Symbol /SymbolX [60 /angleleft 62 /angleright] ReEncodeSmall
+
+/ReEncode {    % basename newname newencoding ReEncode -
+  reencsmalldict begin
+  /newencoding exch def
+  /newfontname exch def
+  /basefontname exch def
+  /basefontdict basefontname findfont def
+  /newfont basefontdict maxlength dict def
+  basefontdict {
+    exch dup /FID ne
+    { exch newfont 3 1 roll put }
+    { pop pop }
+    ifelse
+  } forall
+  newfont /FontName newfontname put
+  newfont /Encoding newencoding put
+  newfontname newfont definefont pop
+  end
+} bind readonly def
+
+/Times-Roman /ISOTimes ISOLatin1Encoding ReEncode
+
+/integral {
+   1 index 3 index sub 256 div 0. eq
+   {pop pop pop 0}
+   {0
+    2 index 4 index sub 256 div dup 5 index add exch dup add 4 index
+    {2 index exec add} for dup add
+    2 index 4 index sub 256 div dup dup add dup 6 index add exch 5 index 4 -1
+    roll sub
+    {2 index exec add} for dup add
+    3 index 2 index exec add 2 index 2 index exec add
+    4 1 roll pop sub mul -768 div
+   }
+   ifelse
+} bind readonly def
+
+/180:pi 57.29577951308 def          % 180. pi div
+/pi:180 .0174532925199433 def			% pi 180. div
+
+/cadd {3 2 roll add 3 1 roll add exch} bind readonly def
+
+/csub {3 2 roll exch sub 3 1 roll sub exch} bind readonly def
+
+/cmul {2 copy 4 index mul exch 5 index mul exch sub 5 1 roll
+       4 3 roll mul 3 1 roll mul add} bind readonly def
+
+/cdiv {2 copy cabs
+       dup 5 1 roll div
+       exch 3 index div
+       3 2 roll 3 index div
+       5 3 roll div			% d/m c/m b/m a/m
+       2 copy 4 index mul exch 5 index mul add 5 1 roll
+       4 1 roll mul 3 1 roll mul sub
+} bind readonly def
+
+/cabs {abs exch abs 2 copy lt {exch} if      % |big| |small|
+       1 index dup 0 eq {pop pop} {div dup mul 1. add sqrt mul} ifelse
+} bind readonly def
+
+/csqrt {2 copy cabs dup 0. eq
+        {pop}
+        {%stack: x y cabs
+         3 2 roll dup 0. lt
+         {sub .5 mul sqrt dup 3 1 roll div .5 mul exch}
+         {add .5 mul sqrt 1 index 0. lt {neg} if dup 3 1 roll div .5 mul}
+         ifelse   % x negative or not
+        }
+        ifelse % zero or not
+} bind readonly def
+
+/cex {exch e exch exp exch 180:pi mul dup cos 2 index mul 3 1 roll sin mul
+} bind readonly def
+
+/cln {2 copy cabs ln 3 1 roll exch atan pi:180 mul} bind readonly def
+
+/cexp {4 2 roll cln cmul cex} bind readonly def
+
+/cdup {2 copy} bind readonly def
+/cexch {4 2 roll} bind readonly def
+/cneg {exch neg exch neg} bind readonly def
+/c.i {neg exch} bind readonly def
+/c.-i {exch neg} bind readonly def
+
+/csinh {cdup cex cexch cneg cex csub exch .5 mul exch .5 mul} bind readonly def
+/ccosh {cdup cex cexch cneg cex cadd exch .5 mul exch .5 mul} bind readonly def
+/ctanh {cdup cex cexch cneg cex 4 copy csub 6 2 roll cadd cdiv} bind readonly def
+
+% atanh x = 1/2 ln ((1 + x) / (1 - x))
+
+/catanh {cdup exch 1 add exch cexch exch 1 exch sub exch neg cdiv cln exch .5 mul exch .5 mul} bind readonly def
+
+% acosh x = ln (x +- sqrt (x^2 - 1))
+
+/cacosh {cdup cdup cmul exch 1 sub exch csqrt cadd cln} bind readonly def
+
+% asinh x = atanh(x/sqrt(1+x^2))
+
+/casinh {cdup cdup cmul exch 1 add exch csqrt cdiv catanh} bind readonly def
+
+
+/csin {cdup c.i cex cexch c.-i cex csub .5 mul exch -.5 mul} bind readonly def
+
+/ccos {cdup c.i cex cexch c.-i cex cadd exch .5 mul exch .5 mul}bind readonly def
+
+/ctan {cdup c.i cex cexch c.-i cex 4 copy csub 6 2 roll cadd cdiv c.-i}bind readonly def
+
+% atan x = -i/2 ln ((1 + ix) / (1 - ix))
+
+/catan {cdup neg 1 add exch cexch 1 add exch neg cdiv cln .5 mul exch -.5 mul}bind readonly def
+
+% asin x = -i ln (ix +- sqrt (1 - x^2))
+
+/casin {c.i cdup cdup cmul exch 1 add exch csqrt cadd cln c.-i} bind readonly def
+
+% acos x = -i ln (x +- sqrt (x^2 - 1))
+
+/cacos {cdup cdup cmul exch 1 sub exch csqrt cadd cln c.-i} bind readonly def
+
+/c=print {exch =print ( )print =print} bind readonly def
+/c= {exch =print ( )print =} bind readonly def
+
+
+% f is a one-parameter 2D vector function, and must be a procedure
+
+
+% x y unit x/sqrt(x^2+y^2) y/sqrt(x^2+y^2)
+
+/unit
+{ 2 copy cabs dup 0 eq
+  {pop}
+  {dup 4 -1 roll exch div 3 1 roll div}
+  ifelse
+} bind def
+
+
+% t f deriv dfx/dt dfy/dt
+
+/deriv
+{ 1 index .001953125 add 1 index exec 3 index .001953125 sub 3 index exec
+  exch 4 -1 roll exch sub 256 mul 3 1 roll sub 256 mul 4 2 roll pop pop
+} bind def
+
+
+% lo hi f arclength length
+
+/arclength
+{ [ exch //deriv aload pop //cabs aload pop] cvx integral} bind def
+
+
+% lo hi f arclength findarc t
+
+/findarc  % not currently a good algorithm!!
+{ 4 1 roll
+  10 { 3 copy arclength 
+       4 index exch div 2 index 4 index sub mul 3 index add 3 1 roll exch pop
+     } repeat 
+  pop 3 1 roll pop pop  
+} bind def
+
+/findnarc  % not currently a good algorithm!!
+{ 4 1 roll
+  10 { 3 copy arclength 
+       4 index exch div 3 index 3 index sub mul 2 index add
+       4 1 roll 3 2 roll pop
+     } repeat 
+  pop pop exch pop  
+} bind def
+
+
+% lo hi f string fitcurveshow -
+/fitcurveshow
+{ gsave
+  4 copy pop arclength
+  1 index stringwidth pop
+  div currentfont exch scalefont setfont
+  curveshow
+  grestore
+} bind def  
+
+
+% lo hi f string curveshow -
+/curveshow
+{ { ( ) dup 0 4 -1 roll put dup stringwidth pop .5 mul
+    5 copy pop pop 3 index findarc
+    6 -1 roll pop 5 1 roll
+    gsave
+    4 index 3 index 2 copy exec moveto 0 0 translate
+    deriv unit [ 3 1 roll dup neg 2 index 0 0 ] concat
+    dup neg 0 rmoveto exch show
+    4 copy findarc 5 -1 roll pop 4 1 roll pop
+    grestore
+  }
+  forall pop pop pop
+} bind def
+
+/catdict
+<< /dicttype /copy load
+   /stringtype {
+     2 copy length exch length dup 4 1 roll add string
+     dup 5 1 roll 3 1 roll putinterval 1 index copy pop
+   } bind readonly
+   /arraytype {
+     2 copy length exch length dup 4 1 roll add array
+     dup 5 1 roll 3 1 roll putinterval 1 index copy pop
+   } bind readonly
+   /packedarraytype {
+     2 copy length exch length dup 4 1 roll add array
+     dup 5 1 roll 3 1 roll putinterval 1 index copy pop
+     aload length packedarray
+   } bind readonly
+>> readonly def
+
+/catlit {    % op1 op2 cat op1-concatenated-with-op2
+  2 copy type exch type ne {stop} if
+  //catdict 2 index type get exec
+} bind readonly def
+
+/cat {    % op1 op2 cat op1-concatenated-with-op2
+  2 copy xcheck exch xcheck and {catlit cvx} {catlit} ifelse
+} bind readonly def
+
+/pi 3.141592653589793 def
+/pi_180 pi 180 div def
+
+/asin {dup dup mul 1. exch sub sqrt atan} bind readonly def
+/acos {dup dup mul 1. exch sub sqrt exch atan} bind readonly def
+
+/Infinity {9 9999 exp} stopped {pop} if def
+Infinity 9 eq {
+  /Infinity dup def
+  /-Infinity dup def
+  /NaN dup def
+} {
+  /-Infinity {Infinity neg} stopped {pop dup} if def
+  /NaN {Infinity dup sub} stopped {pop pop dup} if def
+} ifelse
+
+2 dict begin
+/m 1 Infinity type /realtype eq {
+  {{dup 2 mul Infinity eq {exit} {2 mul} ifelse}loop}bind stopped {pop pop} if
+}{
+  {{2 mul}loop}bind stopped pop pop def
+} ifelse
+def /d m def
+mark
+{{/d d 2 div store /m m d add dup m eq {exit} if store}loop}bind stopped
+cleartomark
+/maxreal m /-maxreal m neg end def def
+/minreal 1. {dup 2 div dup 0 ne {exch pop} {pop exit} ifelse}bind loop def
+/-minreal minreal neg def
+
+/min where {pop} {/min {2 copy gt {exch} if pop} bind readonly def} ifelse
+/max where {pop} {/max {2 copy lt {exch} if pop} bind readonly def} ifelse
+
+% given a font-size-string array, and a width, break into width-sized chunks
+% given a chunk, right align, left align, justify, or center
+% moveto right margin [for ra], left margin [for la or j], or center [for c]
+
+% linefeed: specify vertical displacement
+
+/tryshow {gsave nulldevice 0 0 moveto sshow grestore} bind readonly def
+
+/removeleadingspaces {    % fss removleadingspaces fss
+  { {dup 2 get ( ) eq
+      {dup length 3 sub 3 exch getinterval} {exit} ifelse
+    } loop
+  } stopped {pop} if
+} bind readonly def
+
+/removetrailingspaces {    % fss removetrailingspaces fss
+  { {dup dup length 1 sub get ( ) eq
+      {dup length 3 sub 0 exch getinterval} {exit} ifelse
+    } loop
+  } stopped {pop} if
+} bind readonly def  
+
+/breakfss {    % [font size string ...] [maxwidths] breakfss [[f s s][f s s]...]
+  % break [f s s ...] into consecutive pieces, each with width <= maxwidth
+  % (if maxwidths is empty, [[f s s ...]] is returned)
+  % when maxwidths runs out, its last element is reused
+  % if the last maxwidth is being reused, and the result is an empty piece,
+  %  the remainder of the original fss is returned
+  % a break can only occur at a space, which must be a separate f s ( ) triple
+  % a break at a space elides that space in the output
+  8 dict begin
+  /maxwidths exch def
+  maxwidths length 0 eq { [exch] } {  % don't break unless maxwidths nonempty
+    removetrailingspaces removeleadingspaces
+    /fss exch def
+    fss tryshow
+    /s [ 2 3 fss length {fss 1 index get ( ) eq {3 idiv} {pop} ifelse} for
+         fss length 3 idiv
+    ] def
+    /x 0 def    % index into s
+    /i 0 def    % starting index
+    /j 0 def    % ending index
+    /l s length def
+    [{ x l ge {exit} if s x get dup i eq
+       { /i exch 1 add store /j i store }    % skip leading spaces
+       { .sshow. 1 index 2 mul get
+         .sshow. i 2 mul get sub maxwidths 0 get le
+	 { /j exch store }    % next "word" fits
+	 { pop i j eq maxwidths length 1 le and
+	   { exit }    % done
+	   { fss i 3 mul j i sub 3 mul getinterval removetrailingspaces
+	     /maxwidths maxwidths ccdr store
+	     /x x 1 sub store /i s x get 1 add store /j i store
+	   } ifelse
+	 } ifelse
+       } ifelse
+       /x x 1 add store
+     } loop
+     fss dup length i 3 mul dup 3 1 roll sub
+     dup 0 eq {pop pop pop} {getinterval} ifelse
+    ] end
+  } ifelse
+} bind readonly def
+
+/isolatespaces {   % [font size string ...] isolatespaces [font size string ...]
+  3 dict begin
+  /fss exch def
+  [ 0 3 fss length 3 sub {
+    fss exch 3 getinterval aload pop 2 index null ne {
+    { ( ) search
+      { dup () eq {pop} {3 1 roll 4 index 4 index 4 2 roll} ifelse
+        exch dup () eq {pop exit} {3 index 3 index 3 2 roll} ifelse
+      } {exit} ifelse
+    } loop } if
+  } for ]
+  end
+} bind readonly def
+
+/ccdr {    % array ccdr array[1:]ORarray
+  dup length dup 1 le
+  {pop} {1 exch 1 sub getinterval} ifelse } bind readonly def
+
+/justifyline {    % fss width justifyline fss
+  % replace isolated spaces with apportioned fixed widths
+  5 dict begin
+  /w exch def
+  /fss exch def
+  /s [ 2 3 fss length {fss 1 index get ( ) eq {3 idiv} {pop} ifelse} for ] def
+  fss tryshow
+  /w w .sshow. dup length 2 sub get sub store   % extra width needed
+  /x 0 s {.sshow. exch 2 mul 2 copy 2 add get 3 1 roll get sub add} forall def
+  x 0 eq { [null w 2 div 0 fss aload pop null w 2 div 0] } {
+    /m w x add x div def    % spacewidth multiplier
+    s { .sshow. 1 index 2 mul 2 copy 2 add get 3 1 roll get sub m mul
+        exch 3 mul fss exch [null 5 4 roll 0] putinterval } forall fss
+  } ifelse
+  end
+} bind readonly def  
+
+/pshown {/.pshow. .pshow. .sshow. cat def} bind readonly def
+/paraend {/.sshow. .pshow. end def} bind readonly def
+/parabeg {1 add dict begin /.pshow. [] def} bind readonly def
+
+/parashowjustified { % fss width dx(firstline) dy(interline) parashowjustified -
+  6 parabeg
+  /dy exch neg def
+  /dx exch def
+  /w exch def
+  isolatespaces [w dx sub w] breakfss
+  /lines exch def
+  /last lines length 1 sub def
+  0 1 last {/i exch def
+    lines i get gsave i 0 eq {dx 0 rmoveto} if
+    i last ne {w i 0 eq {dx sub} if justifyline} if sshow pshown grestore 0 dy rmoveto
+  } for
+  paraend
+} bind readonly def
+
+/parashowleft { % fss width dx(firstline) dy(interline) parashowleft -
+  4 parabeg
+  /dy exch neg def
+  /dx exch def
+  /w exch def
+  isolatespaces [w dx sub w] breakfss
+  /lines exch def
+  lines 0 get gsave dx 0 rmoveto sshow pshown grestore
+  0 dy rmoveto
+  lines 1 lines length 1 sub getinterval
+  {gsave sshow pshown grestore 0 dy rmoveto} forall
+  paraend
+} bind readonly def
+
+/eshow {    % fss eshow -  (show fss, leftward offset by its width)
+  dup tryshow .sshow. dup length 2 sub get neg 0 gsave rmoveto sshow grestore
+} bind readonly def
+
+/endshow {    % fss endshow -  (show fss ending at currentpoint)
+  dup tryshow .sshow. dup length 2 sub 2 getinterval aload pop
+  neg exch neg exch rmoveto sshow
+} bind readonly def
+
+/parashowright { % fss width dx(firstline) dy(interline) parashowright -
+  4 parabeg
+  /dy exch neg def
+  /dx exch def
+  /w exch def
+  isolatespaces [w dx sub w] breakfss
+  /lines exch def
+  lines 0 get gsave w dx sub 0 rmoveto eshow pshown grestore
+  0 dy rmoveto
+  lines 1 lines length 1 sub getinterval
+  {gsave w 0 rmoveto eshow pshown grestore 0 dy rmoveto} forall
+  paraend
+} bind readonly def
+
+/parashowcenter { % fss width dy(interline) parashowcenter -
+  2 parabeg
+  /dy exch neg def
+  /w exch def
+  isolatespaces [w] breakfss
+  {gsave w 2 div 0 rmoveto chshow pshown grestore 0 dy rmoveto} forall
+  paraend
+} bind readonly def
+  
+/parashowholed {
+  % fss [[l00 r00 l01 r01 ...][l10 r10 ...]...] dy parashow [lx0 rx0 ...] dy
+  % second arg gives, for each line, left and right edges of text segments
+  % positions are relative to currentpoint
+  16 parabeg
+  gsave currentpoint translate
+  /dy exch neg def
+  /a exch def
+  /intervals [ a{length 2 idiv}forall ] def 
+  /minx maxreal a{{min}forall}forall def
+  /maxx minreal a{{max}forall}forall def
+  /maxx-minx maxx minx sub def
+  isolatespaces
+  [ a {/b exch def b length 0 ne
+      {0 2 b length 1 sub
+        {b exch 2 getinterval aload pop exch sub} for} if
+    } forall
+    maxx-minx    % full width for anything left
+  ] /maxwidths exch def
+  maxwidths breakfss /segments exch def
+  /lineno 0 def    % increments after each array in a
+  /ss [a {/b exch def b length 0 ne
+       {0 2 b length 1 sub {b exch get lineno} for} if
+        /lineno lineno 1 add store} forall] def
+  % we justify each segment except the last
+  /last segments length 1 sub def
+  0 1 last {
+    /i exch def segments i get {maxwidths i get} stopped {pop pop} if
+    i last lt {justifyline} if
+    {ss i 2 mul 2 getinterval aload pop} stopped
+    {pop pop pop minx lineno /lineno lineno 1 add store} if dy mul moveto sshow pshown
+  } for
+  0 currentpoint exch pop dy add grestore rmoveto
+  paraend
+} bind readonly def

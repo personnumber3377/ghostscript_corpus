@@ -1,0 +1,662 @@
+% BASED ON viewgif.ps
+
+% With big thanks to:
+% - http://fileformats.archiveteam.org/wiki/GIF
+% - http://www.matthewflickinger.com/lab/whatsinagif/bits_and_bytes.asp
+
+/read1
+% <file> read1 <int>
+% read a single byte
+{
+    read pop
+} bind def
+
+/read2
+% <file> read2 <int>
+% read two bytes as little endian int
+{
+    dup read1 exch read1 8 bitshift add
+} bind def
+
+/hex
+% <hexstring> hex <int>
+% trick to get a hex byte as int
+% use: <ff> hex -> 255
+{
+    0 get
+} def
+
+/sleep
+% <int:milliseconds> sleep -
+{
+    % note: while realtime rolls over to 0 when too large,
+    % we ignore this possibility as 32-bit int can contain
+    % ~50 days worth of milliseconds
+
+    % nothing to do if we get a negative value
+    dup 0 gt {
+        % delta
+        realtime
+        % delta start
+        add
+        % end
+
+        % busy wait until
+        {
+            % end time < current time
+            dup realtime lt {
+                exit
+            } if
+        } loop
+    } if
+    % clean up
+    pop
+} def
+
+%
+% Draw FPS
+%
+/pagewidth  612.0 def  % standard for US Letter size paper
+/pageheight 792.0 def
+
+/prnum {
+    ( ) show
+    100 string % create a string of 20 characters
+    cvs % convert object to string :   object string cvs  =>  string
+    show
+} def
+
+/lastframe realtime def
+/framerate 0 def
+/drawfps
+{
+    gsave
+        % display setup
+        pagewidth 48 sub pageheight 32 sub translate
+
+        0 0 0 setrgbcolor
+
+        0 0 moveto
+        0 12 lineto
+        48 12 lineto
+        48 0 lineto
+        closepath
+        fill
+
+        0 0 moveto
+
+        1 1 1 setrgbcolor
+        /Helvetica findfont 12 scalefont setfont
+
+        realtime lastframe sub % frame delta in ms
+        dup 0 eq { 1 } if % handle edge case on first loop
+        1000 exch div % frames per second
+        % rolling average for a tiny bit of stability
+        framerate add 2 div /framerate exch def
+        framerate prnum
+    grestore
+
+    /lastframe realtime def
+} def
+
+
+% In PostScript Level 3:
+% 
+% A radix number takes the form base#number, where base is a
+% decimal integer in the range 2 through 36. number is interpreted
+% in this base; it must consist of digits ranging from 0 to base
+% − 1. Digits greater than 9 are represented by the letters A
+% through Z (or a through z). The number is treated as an unsigned
+% integer and is converted to an integer object having the same
+% twos-complement binary repre- sentation. This notation is
+% intended for specifying integers in a nondecimal radix, such as
+% binary, octal, or hexadecimal. If the number exceeds the
+% implementation limit for integers, a limitcheck error occurs.
+
+/int_to_bool
+% <int> int_to_bool <bool>
+{
+    0 ne
+} def
+
+/readGIFheader
+% <file> readGIFheader <dict>
+% reads GIF header block and logical screen descriptor
+{
+    20 dict begin
+        dup 6 string readstring pop
+        dup (GIF87a) eq exch (GIF89a) eq or not {
+            (Not a GIF file.\n) print cleartomark stop
+        } if
+        dup read2 /CanvasWidth exch def
+        dup read2 /CanvasHeight exch def
+        dup read1
+            % packed bit
+            dup 128 ge /GlobalColor exch def
+            dup -4 bitshift 7 and 1 add /BitsPerPixel exch def
+            dup 8 and 0 ne /PaletteSorted exch def
+            7 and 1 add dup /BitsPerPixel exch def
+            1 exch bitshift /PaletteSize exch def
+        dup read1 /BackgroundIndex exch def
+        dup read1 15 add 64 div /AspectRatio exch def
+        GlobalColor {
+            PaletteSize 3 mul string readstring pop
+            /GlobalPalette exch def
+        } if
+    currentdict end
+ } bind def
+
+/readGIFimageHeader
+% <file> readGIFimageHeader <dict>
+% Note: GIF header must be on dict stack
+{
+    % (Read Image Header at ) print
+    % dup fileposition = () print
+
+    10 dict begin
+        % check for extension
+        dup read1
+        % image block should be right here, otherwise we have a problem
+        dup <2c> hex ne {
+            (Not a GIF image.\n) print = stop
+        } if pop
+        % read image position and size
+
+        dup read2 /Left exch def
+        dup read2 /Top exch def
+        dup read2 /Width exch def
+        dup read2 /Height exch def
+        % packed byte
+        dup read1
+            dup 128 ge /LocalColor exch def
+            dup 64 and 0 ne /Interlaced exch def
+            LocalColor {
+                % if we have a local color table, it comes now
+                7 and 1 add /BitsPerPixel exch def
+                1 BitsPerPixel bitshift 3 mul string readstring pop
+                /Palette exch def
+            } {
+                % otherwise, copy the global palette
+                pop pop /Palette GlobalPalette def
+            } ifelse
+    currentdict end
+} bind def
+
+/viewGIFskipData
+% <file> viewGIFskipData -
+% this method is used to skip sections of LZW Encoded data
+% useful for bypassing GIF Extension blocks of unknown type
+{
+    {
+        % next byte should contain extension length
+        dup read1
+        dup 0 eq {
+            % pop
+            % dup read1 pop exit
+            pop exit
+        } {
+            {
+                dup read1 pop
+            } repeat
+        } ifelse
+    } loop
+    % clean up
+    pop
+} def
+
+
+% set default animation loop repeat count
+/repeatCount 1 def
+
+/readGIFExtension
+% reads a GIF Extension data block
+{
+    (Read Extension at ) print
+    dup fileposition = () print
+    {
+        % check for extension
+        dup read1
+        % dup (Extension type: ) print = () print
+        % if this isn't an extension
+        <21> hex ne {
+            % step back a byte and abort
+            (No Extension Found\n) print
+            dup fileposition 1 sub setfileposition
+            exit
+        } if
+        % otherwise, this would be the time to parse the extension
+        % skip the extension
+        % ignore the type
+        <<
+            <ff> hex {
+                % Application Block
+
+                % Read length
+                % Read string of length
+                dup dup read1 string readstring pop
+                % <file> <string>
+                % compare to dict key
+                <<
+                    (ANIMEXTS1.0) {
+                        % identical parsing to NETSCAPE2.0
+                        (AnimExts Block\n) print stop
+                    }
+                    (NETSCAPE2.0) {
+                        % # NETSCAPE2.0
+
+                        (Netscape Block\n) print
+
+                        % Netscape Navigator has an Application Extension Block that tells Navigator
+                        % to loop the entire GIF file. The Netscape block must appear immediately
+                        % after the global color table of the logical screen descriptor. Only
+                        % Navigator 2.0 Beta4 or better willl recognize this Extension block. The
+                        % block is 19 bytes long composed off: (note: hexadecimal equivalent
+                        % supplied for programmers)
+
+                        %     byte   1       : 33 (hex 0x21) GIF Extension code
+                        %     byte   2       : 255 (hex 0xFF) Application Extension Label
+                        %     byte   3       : 11 (hex 0x0B) Length of Application Block
+                        %                      (eleven bytes of data to follow) octal \13
+                        %     bytes  4 to 11 : "NETSCAPE"
+                        %     bytes 12 to 14 : "2.0"
+                        %     byte  15       : 3 (hex 0x03) Length of Data Sub-Block
+                        %                      (three bytes of data to follow) octal \3
+                        %     byte  16       : 1 (hex 0x01) octal \1
+                        %     bytes 17 to 18 : 0 to 65535, an unsigned integer in
+                        %                      lo-hi byte format. This indicate the
+                        %                      number of iterations the loop should
+                        %                      be executed.
+                        %     byte  19       : 0 (hex 0x00) a Data Sub-Block Terminator.
+
+                        % More: http://www.vurdalakov.net/misc/gif/netscape-looping-application-extension
+
+                        % Note: Another Netscape2.0 extension type exists
+                        % http://www.vurdalakov.net/misc/gif/netscape-buffering-application-extension
+
+                        % Note: this extension has constant length, which we use to validate it:
+                        dup 2 string readstring pop
+                        % (\3\1) eq not {
+                        <0301> eq not {
+                            (Not a valid NETSCAPE2.0 Extension Block.\n) print
+                            % Either we can abort,
+                            stop
+                            % or... We can skip it!
+                            % dup fileposition 14 sub setfileposition
+                            % dup viewGIFskipData
+                        } if
+
+                        % now we're in the actual data
+
+                        % read two-byte loop count
+                        dup read2 /repeatCount exch def
+                        % discard 0x00 byte
+                        dup read1 pop
+
+                        % store the return location for looping
+                        dup fileposition /repeatloc exch def
+
+                        stack
+                        pop
+                    }
+                    (XMP DataXMP) {
+                        (XMP Metadata Block\n) print
+
+                        % Taken from "XMP Specification Part 3: Storage in Files"
+                        % (c) Jun 2010 Adobe Systems Inc.
+                        % In a GIF 89a file, an XMP packet is in an Application Extension
+                        % (see Figure 2). Its Application Identifier is 'XMP Data' and the
+                        % Application Authenticator is 'XMP'. The Application Data consists
+                        % of the XMP packet, which must be encoded as UTF-8, followed by a
+                        % 258-byte “magic” trailer, whose values are 0x01, 0xFF, 0xFE, 0xFD
+                        % ....0x03, 0x02, 0x01, 0x00, 0x00. The final byte is the Block
+                        % Terminator.
+                        % The XMP must be UTF-8-encoded, for the following reasons. GIF
+                        % actually treats the Application Data as a series of GIF data sub-
+                        % blocks. The first byte of each sub-block is the length of the
+                        % sub-block’s content, not counting the first byte itself. To
+                        % consume the Application Data, a length byte is read. If it is
+                        % non-zero, that many bytes of data are read, followed by the next
+                        % length byte. The series ends when a zero-length byte is
+                        % encountered.
+                        % When XMP is encoded as UTF-8, there are no zero bytes in the XMP
+                        % packet. Therefore, software that is unaware of XMP views packet
+                        % data bytes as sub-block lengths, and follows them through the
+                        % packet accordingly, eventually arriving somewhere in the magic
+                        % trailer. The trailer is arranged so whichever byte is
+                        % encountered there will cause a skip to the Block Terminator at
+                        % the end.
+
+                        % TL; DR: we can just read this like any other unknown extension
+                        dup viewGIFskipData
+
+                        % discard 0x00 byte
+                        % dup read1 pop
+
+                        stack
+                        pop
+                    }
+
+                >> exch
+                % <file> <dict> <string>
+                2 copy
+                % <file> <dict> <string> <dict> <string>
+                % check if we have a case for this extension type
+                known {
+                    % Yep! Execute it
+                    % <file> <dict> <string>
+                    get exec
+                } {
+                    % Nope! Read past and ignore it
+                    % <file> <dict> <string>
+
+                    dup (Unknown Application Extension type: ) print = (\n) print
+                    viewGIFskipData
+                } ifelse
+
+            }
+
+            <f9> hex {
+                % # Graphic Control
+                (Graphic Control Block\n) print
+
+                % Graphic Control Blocks are part of the spec and control transparency
+                % as well as animation timing. Format as such:
+
+                %   byte   1        : 33 (hex 0x21) GIF Extension Code
+                %   byte   2        : 249 (hex 0xF9) Graphic Control Extension Label
+                %   byte   3        : 4 (hex 0x04) Length in Bytes
+                %   byte   4        : Packed Field
+                %       bit 1 to 3  : Reserved
+                %       bit 4 to 6  : Disposal Method
+                %       bit 7       : User Input Flag - require user input before advancing
+                %       bit 8       : Transparency Control Flag
+                %   byte   5 to 6   : Delay Time - in 1/100 second (not milliseconds!)
+                %   byte   7        : Transparent Color Index
+                %   byte   8        : 0 (hex 0x00) Data Sub-Block Terminator.
+
+                % Skip this for now
+                % 6 { dup read1 pop } repeat exit
+
+                dup read1 <04> hex ne {
+                    % invalid length
+                    (Not a valid Graphic Control Extension Block.\n) print stop
+                } if
+
+                % 5 dict begin
+                    % packed byte
+                    dup read1
+                        % 0x1110 0000 - reserved
+                        dup <e0> hex and -5 bitshift /reserved exch def
+                        % 0x0001 1100 - disposal method
+                        dup <1c> hex and -2 bitshift /DisposalMethod exch def
+                        % 0x0000 0010 - user input <bool>
+                        dup <02> hex and -1 bitshift int_to_bool /UserInput exch def
+                        % 0x0000 0001 - transparency <bool>
+                        dup <01> hex and 0 bitshift int_to_bool /Transparent exch def
+                    pop
+                    % delay time
+                    dup read2 /Delay exch def
+                    % transparent color index
+                    dup read2 /TransparentColor exch def
+                    pop
+                % currentdict end
+            }
+        >> exch
+        % <dict> <file>
+        dup read1 dup
+        % <dict> <file> byte byte
+        3 index exch
+        % <dict> <file> byte <dict> byte
+        known {
+            % <dict> <file> byte
+            3 -1 roll exch
+            % <file> <dict> byte
+            % check if we have a case for this extension type
+            get exec
+        } {
+            % <dict> <file> byte
+            pop exch pop
+            % <file>
+            dup (Unknown extension type: ) print = (\n) print
+            % bypass this section
+            viewGIFskipData
+        } ifelse
+
+        exit
+
+    } loop
+
+    % stack
+
+    % (  >Read Extension Done\n) print
+    % pop
+} def
+
+/readGIFend
+% <file> readGIFend <bool>
+{
+    dup read1
+    % (End char read: ) print
+    % <file> <int>
+    % is this the GIF EOF char?
+    <3b> hex eq dup not {
+        stack
+        (Found not EOF\n) print
+        % <file> <bool>
+        % step back a char and abort
+        exch dup
+        fileposition
+        1 sub
+        setfileposition
+    } if
+} def
+
+/markpos
+{
+    print ( ) print File fileposition = () print
+} def
+
+
+/viewGIF
+% <file|string> viewGIF -
+% displays the gif
+{
+    % save 20 dict begin
+    %     /saved exch def
+
+    20 dict begin
+
+        dup type /stringtype eq { (r) file } if
+        /File exch def
+        File readGIFheader /Header exch def
+        % put image header dict below current dict
+        currentdict Header end begin begin
+
+        % store the return location for looping
+        File fileposition /repeatloc exch def
+
+        % Check for Netscape loop block
+        File readGIFExtension
+
+    % main frame rendering loop
+    {
+
+        % update last frame render time
+        /starttime realtime def
+
+        % provide two minutes of operation before exiting
+        starttime 1000 60 mul 2 mul gt { exit } if
+
+
+        (Frame Render Loop\n) print
+        % File fileposition =
+
+        % File readGIFend
+
+        % there's a better way to do this... theoretically
+        % we should read extensions until we get to EOF 0x3b trailer
+        % or until we get to the next image block
+        File readGIFExtension
+
+        File readGIFExtension
+
+        File readGIFimageHeader /ImageHeader exch def
+        % place image header below current dict
+        currentdict ImageHeader end begin begin
+
+
+        % LZWDecode the pixel data
+        /Data File
+        <<
+            /InitialCodeLength File read1
+            /FirstBitLowOrder true
+            /BlockData true
+            /EarlyChange 0
+        >> /LZWDecode filter def
+
+        % change document color space to image color space
+        [/Indexed /DeviceRGB 1 BitsPerPixel bitshift 1 sub Palette] setcolorspace
+
+        gsave
+
+        % translate image within GIF canvas
+        Left
+        % left
+        CanvasHeight Height Top add sub
+        % left bottom
+        translate
+
+        % now draw the image
+        <<
+            /ImageMatrix [1 0 0 -1 0 Height]
+            /BitsPerComponent 8
+            /Decode [0 255]
+            /Width Width
+        % if the image has transparency
+        Transparent {
+            /ImageType 4
+            /MaskColor [ TransparentColor ] % single value index of transparent color from Graphics Control Block
+        } {
+            /ImageType 1
+        } ifelse
+        % if the image is interlaced, draw it by rows
+        Interlaced {
+                /Height 1
+                /row Width string def
+                /DataSource row
+            >> /Image exch def
+
+            /inter
+            % <num> <denom> inter -
+            {
+                /denom exch def
+                /num exch def
+                gsave
+                /lines Height denom 1 sub add num sub denom idiv def
+
+                0 1 lines 1 sub {
+                    Height exch denom mul num add sub
+                    Image /ImageMatrix get 5 3 -1 roll put
+                    Data row readstring pop pop
+                    Image image
+                    % I imageGIF
+                } for
+                grestore
+            }
+            bind def
+            0 8 inter
+            4 8 inter
+            2 4 inter
+            1 2 inter
+        } {
+            % otherwise, draw it straight
+                /Height Height
+                /DataSource Data
+            >> image
+        } ifelse
+
+        grestore
+
+        % this should be the image block trailing 0x00
+        (Trailing char: ) print
+        File read1 = () print
+
+        (End of image ) markpos
+
+        drawfps
+
+        flushpage
+
+        % busy wait until it's time to draw the next frame
+        /target_frametime Delay 10 mul def
+        starttime target_frametime add realtime sub sleep
+
+
+
+        % Drop previous Image from dict stack
+        currentdict end end begin
+
+        % (>>nextframe, press <return> to continue<<\n) .confirm
+
+        File readGIFend {
+            (End of file ) markpos
+
+            repeatCount 1 eq {
+                (Done\n) print
+                exit
+            } if
+
+            repeatCount 1 gt {
+                /repeatCount repeatCount 1 sub def
+            } if
+
+            % jump back to the beginning
+            repeatloc setfileposition
+
+        } if
+
+    } loop
+
+    (Dict stack size: ) print countdictstack =
+
+    end end
+
+    grestore
+
+} bind def
+
+% This lets you do stuff on the command line like:
+% gs -sDEVICE=pdfwrite -o stuff%03d.pdf viewgif.ps -c "(image.gif) << /PageSize 2 index viewGIFgetsize 2 array astore  >> setpagedevice viewGIF"
+% so the output size is influenced by the original image.
+/viewGIFgetsize
+% <file|string> viewGIFgetsize [width height]
+{
+    save 20 dict begin
+    /saved exch def
+    dup type /stringtype eq { (r) file } if
+    /F exch def
+    F readGIFheader /Header exch def
+    currentdict Header end begin begin
+    VGIFDEBUG { Header { exch == == } forall (----------------\n) print flush } if
+    F readGIFimageHeader /ImageHeader exch def
+    currentdict ImageHeader end begin begin
+    F 0 setfileposition       % reset file pointer
+    Width 72 div Height 72 div
+    saved end end end restore
+} bind def
+
+
+% scaling to 2 2 or more may be useful for the first two examples
+% 1 1 scale
+
+% (sample_1.gif) viewGIF showpage
+
+% (sample_2_animation.gif) viewGIF showpage
+
+% (potato.gif) viewGIF showpage
+
+% (soccer.gif) viewGIF showpage
+
+% (spoopy.gif) viewGIF showpage
+
+% (parrot.gif) viewGIF showpage

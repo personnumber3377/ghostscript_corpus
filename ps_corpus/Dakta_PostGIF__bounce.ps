@@ -1,0 +1,293 @@
+%!
+
+% Midterm 2: Individual Project
+% Draws an animated clock.
+% Author: Dakota Schneider, dakota@lclark.edu
+% Usage: gs midterm2_clockwithsleep.ps
+% Options: None.
+% Configuration: can set target frame length or calculate from target framerate.
+
+% draws a clock
+% taken from: http://doc.novsu.ac.ru/oreilly/web/cgi/ch06_02.htm#CGI-CHP-6-SECT-2.4
+% modified to display seconds
+/clock
+% - clock -
+{
+    gsave
+
+    % we get the time from the %Calendar% device, available in ghostscript env
+    % thanks to https://en.wikibooks.org/wiki/PostScript_FAQ#How_to_get_date_and_time.3F
+    (%Calendar%) /IODevice resourcestatus {
+        pop pop (%Calendar%) currentdevparams
+        dup /Running get {
+            dup /Year get /year exch def
+            dup /Month get /month exch def
+            dup /Day get /day exch def
+            dup /Hour get /hour exch def
+            dup /Minute get /min exch def
+            /Second get /sec exch def
+        } {
+            (Clock/calendar is present but not running.\n) print
+        } ifelse
+    } {
+        (No clock/calendar present.\n) print
+    } ifelse
+
+
+    /max_length     150 def
+    /line_size      1.5 def
+    /marker         5 def
+
+    % /origin          { 100 dup } def
+    /center          { 0 dup } def
+    /radius          { max_length 2 div } def
+    /hour_segment    { 0.50 radius mul } def
+    /minute_segment  { 0.80 radius mul } def
+    /second_segment  { 0.90 radius mul } def
+
+    /red             { 1 0 0 setrgbcolor } def
+    /green           { 0 1 0 setrgbcolor } def
+    /blue            { 0 0 1 setrgbcolor } def
+    /black           { 0 0 0 setrgbcolor } def
+    /white           { 1 1 1 setrgbcolor } def
+
+    /hour_angle {
+        hour min 60 div add 3 sub 30 mul
+        neg
+    } def
+    /minute_angle {
+        min sec 60 div add 15 sub 6 mul
+        neg
+    } def
+    /second_angle {
+        sec 6 mul
+        neg
+    } def
+
+
+    % origin translate
+
+    % draw face (covers up previous drawing)
+    center radius 1.1 mul 0 360 arc white fill
+
+    line_size setlinewidth
+
+    center radius 0 360 arc black stroke
+
+    % draw
+    black
+    1 1 12 {
+        pop
+        radius marker sub 0 moveto
+        % marker 0 rlineto red stroke
+        marker 0 rlineto stroke
+        30 rotate
+    } for
+
+
+    center moveto
+    hour_segment hour_angle cos mul
+    hour_segment hour_angle sin mul
+    lineto green stroke
+
+    center moveto
+    minute_segment minute_angle cos mul
+    minute_segment minute_angle sin mul
+    lineto green stroke
+
+    center moveto
+    second_segment second_angle cos mul
+    second_segment second_angle sin mul
+    lineto red stroke
+
+    center line_size 2 mul 0 360 arc red fill
+
+    grestore
+} def
+
+
+/sleep
+% milliseconds sleep -
+{
+    % note: while realtime rolls over to 0 when too large,
+    % we ignore this possibility as 32-bit int can contain
+    % ~50 days worth of milliseconds
+
+    % nothing to do if we get a negative value
+    dup 0 gt {
+        % delta
+        realtime
+        % delta start
+        add
+        % end
+
+        % busy wait until
+        {
+            % end time < current time
+            dup realtime lt {
+                exit
+            } if
+        } loop
+    } if
+    % clean up
+    pop
+} def
+
+
+%
+% Draw FPS
+%
+/pagewidth  612.0 def  % standard for US Letter size paper
+/pageheight 792.0 def
+
+/prnum {
+    ( ) show
+    100 string % create a string of 20 characters
+    cvs % convert object to string :   object string cvs  =>  string
+    show
+} def
+
+/lastframe realtime def
+/framerate 0 def
+/drawfps
+{
+    gsave
+        % display setup
+        pagewidth 48 sub pageheight 32 sub translate
+
+        0 0 0 setrgbcolor
+
+        0 0 moveto
+        0 12 lineto
+        48 12 lineto
+        48 0 lineto
+        closepath
+        fill
+
+        0 0 moveto
+
+        1 1 1 setrgbcolor
+        /Helvetica findfont 12 scalefont setfont
+
+        realtime lastframe sub % frame delta in ms
+        dup 0 eq { 1 } if % handle edge case on first loop
+        1000 exch div % frames per second
+        % rolling average for a tiny bit of stability
+        framerate add 2 div /framerate exch def
+        framerate prnum
+    grestore
+
+    /lastframe realtime def
+} def
+
+
+% framerate cap
+/target_framerate 60 def
+% how long should we wait per frame? (milliseconds)
+/target_frametime 1000 target_framerate div def
+% uncomment for maximum
+% /target_frametime 0 def
+
+
+/posx pagewidth 2 div def
+/posy pageheight 2 div def
+% /posy 24 def
+/velx 8 def
+/vely 0 def
+
+
+% almost like real programming
+/main
+% - main -
+{
+   {
+        % update last frame render time
+        /starttime realtime def
+
+        % provide two minutes of operation before exiting
+        starttime 1000 60 mul 2 mul gt { exit } if
+
+        gsave
+            % two methods for "clearing" the page between frames
+            % erasepage % slow, causes flicker
+            % 1 1 1 setrgbcolor clippath fill % dumb, but works
+        grestore
+
+        % do the thing
+        gsave
+
+        % //Move balls
+        % coefficients of friction and gravity
+        /velx velx 0.997 mul def
+        /vely vely 0.997 mul def
+        /vely vely 0.3 sub def
+
+        % bounce x-axis
+        posx 0 le {
+            /posx 0 def
+            /velx velx abs 1 mul def
+            % for inefficient collissions that absorb energy
+            % /velx velx abs 0.999 mul def
+        } if
+        posx pagewidth ge {
+            /posx pagewidth def
+            /velx velx abs -1 mul def
+            % for inefficient collissions that absorb energy
+            % /velx velx abs -0.999 mul def
+        } if
+        % bounce y-axis
+        posy 0 le {
+            /posy 0 def
+            % recover a little velocity
+            /vely vely 0.3 add def
+            /vely vely abs 0.8 mul def
+        } if
+        posy pageheight ge {
+            /posy pageheight def
+            % recover a little velocity
+            /vely vely 0.3 add def
+            /vely vely abs -0.8 mul def
+        } if
+
+        % move
+        /posx posx velx add def
+        /posy posy vely add def
+
+        % draw
+        posx posy translate
+        % circle
+        % 0 0 2 0 360 arc fill
+        % or clock
+        clock
+
+        % debug
+        % (posx: ) print posx = () print
+        % (posy: ) print posy = () print
+
+        % (velx: ) print velx = () print
+        % (vely: ) print vely = () print
+
+        grestore
+
+
+
+        % draw FPS on top
+        drawfps
+
+        % last but not least, flush this frame
+        % thanks to http://stackoverflow.com/a/8396072/362042
+        flushpage
+
+        % busy wait until it's time to draw the next frame
+        starttime target_frametime add realtime sub sleep
+
+        % (>>nextframe, press <return> to continue<<\n) .confirm
+
+        grestore
+    } loop
+} def
+
+% let's boogie
+main
+
+showpage

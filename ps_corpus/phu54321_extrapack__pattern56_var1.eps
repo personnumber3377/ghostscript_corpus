@@ -1,0 +1,40 @@
+// 태양을 피하고싶었어
+
+import stages.ep_commonlib as cl;
+
+var angle = 0;
+var t = 0;
+const dt = 1;
+
+var subt = 0;
+
+function pattern() {
+    subt++;
+    if(subt == 2) {
+        subt = 0;
+
+        const cx, cy = cl.getTilePos(2, 2);
+        for(var i = 0 ; i < 4 ; i++) {
+            const a = angle + i * 90;
+            const cdx, cdy = lengthdir(50, a);
+            cl.mloc_px($L('cloc1'), cdx + cx, cdy + cy, -22);
+            const dx1, dy1 = lengthdir(600, a);
+            const ddx, ddy = cl.getInfiniteVectorEnd(cx, cy, dx1, dy1);
+            cl.mloc_px($L('cloc2'), ddx, ddy, 0);
+            CreateUnit(1, 'Small Missile', 'cloc1', P7);
+            Order('Small Missile', P7, 'cloc1', Move, 'cloc2');
+        }
+        cl.mloc_px($L('cloc1'), cx, cy, 0);
+        CreateUnit(1, "Flare", 'cloc1', P7);
+        KillUnitAt(All, 'Flare', 'Anywhere', P7);
+
+        KillUnitAt(All, 'Small Missile', 'u', P7);
+        KillUnitAt(All, 'Small Missile', 'l', P7);
+        KillUnitAt(All, 'Small Missile', 'd', P7);
+        KillUnitAt(All, 'Small Missile', 'r', P7);
+
+        angle = (angle + t) % 360;
+        t += dt;
+        if (t >= 360) t -= 360;
+    }
+}

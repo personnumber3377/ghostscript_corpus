@@ -1,0 +1,381 @@
+import ETK.ETKUnit as Unit;
+import ETK.ETKUtils as Utils;
+import ETK.ETKTimer as Timer;
+import ETK.ETKConstants as Const;
+import ETK.ETKCommon as Common;
+import Balance;
+import Sound;
+import Waves;
+import Towers;
+import Content;
+import CommandCard;
+
+const Screen = StringBuffer(256);
+const MouseLeftButtonPress = EUDArray(6);
+const MouseLeftButtonDown = EUDArray(6);
+const MouseRightButtonPress = EUDArray(6);
+const MouseRightButtonDown = EUDArray(6);
+
+// Debug console
+const ConsoleOpen = EUDArray(6);
+const KeyNumberDown = EUDArray(6);
+const ConsoleCommandInput = EUDArray(6);
+const ConsoleNumberInput = EUDArray(6);
+const KeyENTERDown = EUDArray(6);
+const KeyESCDown = EUDArray(6);
+const CommandKeyDown = EUDArray(6);
+
+const Command_Wave = 1; // W
+const Command_Kill = 2; // K
+const Command_Minerals = 3; // M
+const Command_Level = 4; // L
+const Command_Speed = 5; // s
+
+const PlayerSelectedTower = EUDArray(6);
+const SelectedUnitID = EUDArray(6);
+var Debug_MissileMisses = 0;
+
+const NumberOfPlayers = bread(0x57F1E1);
+
+var DebugMode = false;
+
+// Mob stuff, move out
+var MobUpdateTimer = 0;
+const MobUpdateCooldown = 6;
+
+const MouseLoc = [
+	$L("MouseLoc1"),
+	$L("MouseLoc2"),
+	$L("MouseLoc3"),
+	$L("MouseLoc4"),
+	$L("MouseLoc5"),
+	$L("MouseLoc6")
+];
+
+const SelectionAddresses = [
+	0x6284E8,
+	0x628518,
+	0x628548,
+	0x628578,
+	0x6285A8,
+	0x6285D8
+];
+
+function updateSelectedUnit(playerID) {
+	const address = SelectionAddresses[playerID];
+	const ptr = dwread(address);
+	const epd = EPD(ptr);
+	if (ptr != 0) {
+		SelectedUnitID[playerID] = epd;
+	} else {
+		SelectedUnitID[playerID] = 0;
+	}
+}
+
+function RefreshTowerSelection(playerID) {
+	PlayerSelectedTower[playerID] = 0;
+}
+
+function initMap() {
+	EUDRegisterObjectToNamespace("MouseLeftButtonPress", MouseLeftButtonPress);
+	EUDRegisterObjectToNamespace("MouseLeftButtonDown", MouseLeftButtonDown);
+	EUDRegisterObjectToNamespace("MouseRightButtonPress", MouseRightButtonPress);
+	EUDRegisterObjectToNamespace("MouseRightButtonDown", MouseRightButtonDown);
+
+	EUDRegisterObjectToNamespace("KeyNumberDown", KeyNumberDown);
+	EUDRegisterObjectToNamespace("KeyENTERDown", KeyENTERDown);
+	EUDRegisterObjectToNamespace("KeyESCDown", KeyESCDown);
+	EUDRegisterObjectToNamespace("CommandKeyDown", CommandKeyDown);
+
+	Content.loadData();
+
+	SetResources(AllPlayers, SetTo, 75, 0);
+
+	EUDPlayerLoop()();
+	if (IsUserCP()) {
+		Towers.UpdateTowerCost(getcurpl());
+		CommandCard.hideAllButtonIcons();
+	}
+	EUDEndPlayerLoop();
+
+	if (DebugMode) {
+		Waves.SetLevel(1);
+	} else {
+		SetCountdownTimer(SetTo, 30);
+	}
+}
+
+function onPluginStart() {
+	if (NumberOfPlayers == 1) {
+		DebugMode = true;
+	}
+	randomize();
+	initMap();
+	Utils.setup();
+}
+
+function handleConsoleCommand(command, value, playerID) {
+	if (!DebugMode) {
+		return;
+	}
+	switch(command) {
+		case Command_Wave:
+			Waves.StartWave(value);
+		break;
+		case Command_Kill:
+			//Disabled for now
+			// Screen.print("Killing all mobs");
+			// Waves.KillAllMobs();
+		break;
+		case Command_Minerals:
+			if (value > 0) {
+				Screen.printf("Adding {} minerals", value);
+				SetResources(playerID, 8, value, 0);
+			}
+		break;
+		case Command_Level:
+			if (value > 0) {
+				Screen.printf("Starting Level {}", value);
+				Waves.SetLevel(value);
+			}
+		break;
+		case Command_Speed:
+			if (value > 0 && value <= 6) {
+				Screen.printf("Setting speed to {}", value);
+				const rate = 42 - (value - 1) * 6;
+				SetMemoryEPD(EPD(0x5124F0), SetTo, rate);
+				// Screen.print(dwread_epd(EPD(0x5124F0)));
+			}
+		break;
+	}
+}
+
+function handleConsoleInput(playerID) {
+	if (ConsoleOpen[playerID]) {
+		if (CommandKeyDown[playerID] > 0) {
+			ConsoleCommandInput[playerID] = CommandKeyDown[playerID];
+			ConsoleNumberInput[playerID] = 0;
+			// Screen.printf("ConsoleCommandInput {}", CommandKeyDown[playerID]);
+		}
+		if (KeyNumberDown[playerID] > 0) {
+			if (KeyNumberDown[playerID] == 10) {
+				KeyNumberDown[playerID] = 0;
+			}
+			ConsoleNumberInput[playerID] = Utils.concatenateIntegers(ConsoleNumberInput[playerID], KeyNumberDown[playerID]);
+			// Screen.printf("AddN {}", KeyNumberDown[playerID]);
+		}
+		if (KeyENTERDown[playerID] || KeyESCDown[playerID]) {
+			if (KeyENTERDown[playerID] && ConsoleCommandInput[playerID]) {
+				// Screen.printf("Value {}", ConsoleNumberInput[playerID]);
+				handleConsoleCommand(ConsoleCommandInput[playerID], ConsoleNumberInput[playerID], playerID);
+			}
+			ConsoleCommandInput[playerID] = 0;
+			ConsoleNumberInput[playerID] = 0;
+			ConsoleOpen[playerID] = false;
+			// Screen.print("Close console");
+		}
+	} else {
+		if (KeyENTERDown[playerID]) {
+			ConsoleOpen[playerID] = true;
+			// Screen.print("Open console");
+		}
+	}
+}
+
+
+function beforeTriggerExec() {
+
+	if (CountdownTimer(Exactly, 1)) {
+		SetCountdownTimer(SetTo, 0);
+		Waves.SetLevel(1);
+	}
+
+
+	Utils.EUDTurbo();
+	Sound.Update();
+	Timer.tick();
+	Waves.Update();
+	Towers.Update();
+
+	EUDPlayerLoop()();
+	if (getcurpl() < $P7) {
+		const playerID = getcurpl();
+		updateSelectedUnit(playerID);
+		const selectedUnit = SelectedUnitID[playerID];
+		const mouseLocation = MouseLoc[playerID];
+		handleConsoleInput(playerID);
+
+		if (Waves.CurrentWaveID > 0) {
+			eprintf("\x04Wave: {} \x01· \x04Lives: {} \x01· \x04Enemies Alive: {}", Waves.CurrentWaveID, Waves.Lives, Waves.CurrentWaveAliveMobs);
+		}
+
+		// PLACING TOWERS
+		if (selectedUnit != 0 && Unit.getUnitType(selectedUnit) == Const.Unit_Flag) {
+			RefreshTowerSelection(playerID);
+			var towerTypeID = 0;
+			const orderID = Unit.getOrder(selectedUnit);
+			switch(Unit.getOrder(selectedUnit)) {
+				case Const.Order_Build_SCV: towerTypeID = 1; break;
+				case Const.Order_Build_Probe: towerTypeID = 2; break;
+				case Const.Order_DroneMutate: towerTypeID = 3; break;
+				case Const.Order_PlaceAddOn: towerTypeID = 4; break;
+			}
+			Unit.setOrder(selectedUnit, Const.Order_Nothing2_Normal);
+			if (towerTypeID != 0) {
+				const towerType = Towers.getTowerType(towerTypeID);
+				const cost = towerType.calculcateCost(playerID);
+				const x = Unit.getOrderTargetX(selectedUnit);
+				const y = Unit.getOrderTargetY(selectedUnit);
+				if (Accumulate(playerID, AtLeast, cost, 0)) {
+					Utils.centerLocationOnPoint(Utils.LOCATION_ANYSIZE, x, y, 2, 2);
+					const tower = Towers.createTowerUnit(Utils.LOCATION_ANYSIZE, playerID, towerTypeID);
+					if (tower != 0) {
+						SetResources(playerID, Subtract, cost, 0);
+					}
+				} else {
+					eprintln("Not enough minerals. Kill more mobs.");
+					PlayWAV("sound\\protoss\\advisor\\paderr00.wav");
+				}
+			}
+		}
+
+		// TOWERS ACTIVE
+		foreach(ptr, unit : EUDLoopPlayerUnit(playerID)) {
+			if (Towers.isUnitTower(unit)) {
+				const towerUnit = unit;
+				const tower = Towers.getTowerForUnit(towerUnit);
+				if (tower != 0) {
+					tower.update();
+					if (Unit.getBuildQueueLength(towerUnit) > 0) {
+						tower.handleButtonClick();
+						RefreshTowerSelection(playerID);
+					}
+				}
+			}
+		}
+
+		// MOB DISPLAY
+		if (Unit.getPlayerID(selectedUnit) == $P7) {
+			RefreshTowerSelection(playerID);
+			if (DebugMode && Unit.getConnectedUnit(selectedUnit) != 0) {
+				// Screen.printfAt(0,
+				// 	"P{} - Unit: {} ({}), Speed {}, Priority {} O:{} {}x{} == {}x{} ET {} PT {} DT {}",
+				// 	Unit.getPlayerID(selectedUnit)+1,
+				// 	Unit.getUnitType(selectedUnit),
+				// 	selectedUnit,
+				// 	Unit.getFlingyTopSpeed(selectedUnit),
+				// 	Unit.getRemoveTimer(selectedUnit),
+				// 	Unit.getOrder(selectedUnit),
+				// 	Unit.getOrderTargetX(selectedUnit),
+				// 	Unit.getOrderTargetY(selectedUnit),
+				// 	Unit.getNextMovementWaypointX(selectedUnit),
+				// 	Unit.getNextMovementWaypointY(selectedUnit),
+				// 	Unit.getEnsnareTimer(selectedUnit),
+				// 	Unit.getPlagueTimer(selectedUnit),
+				// 	Unit.getDefenseMatrixTimer(selectedUnit)
+				// );
+				const mob = Waves.Mob.cast(Unit.getConnectedUnit(selectedUnit));
+				Screen.printfAt(0,
+					"unit {} mob.unit {}",
+					selectedUnit,
+					mob.unit
+				);
+			}
+		}
+
+		// TOWERS DISPLAY
+		if (Towers.isUnitTower(selectedUnit)) {
+			const tower = Towers.getTowerForUnit(selectedUnit);
+			if (tower != 0) {
+				if (PlayerSelectedTower[playerID] != selectedUnit) {
+					tower.updateInterface(playerID);
+					PlayerSelectedTower[playerID] = selectedUnit;
+					Unit.setStatusFlags(selectedUnit, 0x04340008);
+					Timer.add(0, selectedUnit, EUDFuncPtr (2, 0) (function(callbackUnit, intervalCount) {
+						Unit.setStatusFlags(callbackUnit, 0x04340003);
+					}));
+					if (tower.range > 0) {
+						Towers.drawTowerRange(playerID, Unit.getPositionX(selectedUnit), Unit.getPositionY(selectedUnit), tower.range);
+					}
+				}
+				if (DebugMode) {
+					Screen.printfAt(0,
+						"Damage: {} Speed: {} Range: {} HasTarget: {} Timer: {}",
+						tower.damage,
+						tower.speed,
+						tower.range,
+						tower.getTarget() != 0,
+						tower.fireTimer
+					);
+				}
+			}
+		} else {
+			Towers.clearTowerRange(playerID);
+		}
+	}
+	EUDEndPlayerLoop();
+
+	// Missiles
+	foreach(ptr, unit : EUDLoopPlayerUnit(P8)) {
+		if (Unit.getUnitType(unit) == Const.Unit_ProtossObserver) {
+			if (Unit.getRemoveTimer(unit) < 10) {
+				Utils.removeUnit(unit);
+			}
+
+			const targetUnit = Unit.getAutoTargetUnit(unit);
+			if (targetUnit != 0 && Unit.getHitpoints(targetUnit) > 0 && Unit.getPlayerID(targetUnit) == $P7) {
+				const uX, uY = Unit.getPosition(unit);
+				const tX, tY = Unit.getPosition(targetUnit);
+				Unit.setOrder(unit, Const.Order_Ignore_Normal);
+				Unit.setOrderTargetX(unit, tX);
+				Unit.setOrderTargetY(unit, tY);
+				if (Utils.abs(uX-tX) < 32 && Utils.abs(uY-tY) < 32) {
+					Towers.missileHit(unit);
+					// Screen.printfAt(2, "Hit: {},{}, O: {} TU: {}", Unit.getOrderTargetX(unit), Unit.getOrderTargetY(unit), Unit.getOrder(unit), Unit.getAutoTargetUnit(unit));
+				}
+			} else {
+				// Screen.printfAt(2, "Miss: {},{}, O: {} TU: {}", Unit.getOrderTargetX(unit), Unit.getOrderTargetY(unit), Unit.getOrder(unit), Unit.getAutoTargetUnit(unit));
+				// Debug_MissileMisses++; setcurpl(P1); Screen.printfAt(3, "Missile misses {}", Debug_MissileMisses);
+				Utils.removeUnit(unit);
+			}
+		}
+		if (Unit.getUnitType(unit) == Utils.OVERLAY_SPRITE_UNIT_TYPE) {
+			Utils.updateOverlay(unit);
+		}
+	}
+
+	foreach(ptr, unit : EUDLoopPlayerUnit($P7)) {
+		Unit.setRemoveTimer(unit, Unit.getRemoveTimer(unit) + Unit.getFlingyTopSpeed(unit)/100);
+
+		if (Unit.getOrder(unit) == Const.Order_ReturnToBase_Computer
+			|| Unit.getOrderTargetX(unit) == 0
+			|| Unit.getOrderTargetY(unit) == 0) {
+			Waves.MoveUnitToStart(unit);
+		}
+		
+		if (MobUpdateTimer >= MobUpdateCooldown) {
+			const maxHP = Unit.getMaxHitpoints(unit);
+			const hp = Unit.getHitpoints(unit);
+			const fraction = maxHP / 4;
+			if (hp <= fraction) {
+				Utils.setUnitColor(unit, $P1);
+			} else if (hp <= fraction*2) {
+				Utils.setUnitColor(unit, $P5);
+			} else if (hp <= fraction*3) {
+				Utils.setUnitColor(unit, $P8);
+			} else {
+				Utils.setUnitColor(unit, $P7);
+			}
+		}
+
+		const mob = Waves.GetMobObjectForUnit(unit);
+		mob.update();
+
+	}
+
+	if (MobUpdateTimer >= MobUpdateCooldown) {
+		MobUpdateTimer = 0;
+	} else {
+		MobUpdateTimer++;
+	}
+}

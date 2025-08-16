@@ -1,0 +1,247 @@
+%!PS
+%
+% Copyright (c) 2022, Natacha Porté
+%
+% Permission to use, copy, modify, and distribute this software for any
+% purpose with or without fee is hereby granted, provided that the above
+% copyright notice and this permission notice appear in all copies.
+%
+% THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+% WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+% MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+% ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+% WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+% ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+% OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+%
+% Usage:
+% gs -q- -sDEVICE=png16m -o- day13.ps <day13.txt | display
+
+/datafile (%stdin) (r) file def
+/stderr (%stderr) (w) file def
+
+% [ item_1 ... item_n ] item_0 -> [ item_0 item_1 ... item_n ]
+/apush {
+  % array new_item
+  exch aload length 1 add array astore
+} bind def
+
+% [ item_0 ... item_n-1 ] item_n -> [ item_0 item_1 ... item_n ]
+/aappend {
+  exch aload length
+  % new-item item-0 item-1 ... item-n-1 n
+  dup dup 2 add exch 1 add roll
+  % item-0 item-1 ... item-n-1 n new-item
+  exch
+  % item-0 item-1 ... item-n-1 new-item n
+  1 add array astore
+} bind def
+
+% [ item_0 item_1 ... item_n ] -> [ item_1 ... item_n ] item_0
+/apop {
+  aload length 1 sub array astore exch
+} bind def
+
+% (item) -> item
+/parse-item {
+  { % (suffix)
+    dup length 0 eq { pop exit } if
+    % (suffix)
+    { %%% 1-iteration loop to use `exit` as a short circuit
+      ([) anchorsearch
+      { % (next-suffix) ([)
+        pop [ exch
+        % mark (next-suffix)
+        exit
+      } if
+
+      (]) anchorsearch
+      { % (next-suffix) (])
+        pop
+        % mark items (next-suffix)
+        counttomark 1 add
+        % mark items (next-suffix) item-count+2
+        1 roll
+        % (next-suffix) mark items
+        ] exch
+        % array (next-suffix)
+        exit
+      } if
+
+      (,) anchorsearch
+      { % (next-suffix) (,)
+        pop exit
+      } if
+
+      0 {
+        % (suffix) digit-count
+        2 copy get
+        % (suffix) digit-count cur-char
+        dup 48 ge exch 57 le and
+        % (suffix) digit-count cur-char-is-digit?
+        { 1 add }
+        { exit }
+        ifelse
+      } loop
+      % (suffix) digit-count
+      dup 0 eq { 2.125 pstack quit } if
+      % (suffix) digit-count
+      2 copy 0 exch getinterval
+      % (suffix) digit-count (num)
+      cvi 3 1 roll
+      % num (suffix) digit-count
+      1 index length 1 index sub getinterval
+      % num (next-suffix)
+      exit
+    } loop
+  } loop
+} bind def
+
+% left right -> num
+%   -1 if left < right
+%    0 if left = right
+%    1 if left > right
+/cmp-items {
+  % left right
+  1 index type /integertype eq
+  { % int-left right
+    dup type /integertype eq
+    { % int-left int-right
+      2 copy eq
+      { pop pop 0 }
+      { lt { -1 } { 1 } ifelse}
+      ifelse
+      % result
+    }
+    { % int-left list-right
+      exch 1 array astore exch
+      % list-left list-right
+      cmp-items
+      % result
+    }
+    ifelse
+  }
+  { % list-left right
+    dup type /integertype eq
+    { % list-left int-right
+      1 array astore
+      % list-left list-right
+      cmp-items
+      % result
+    }
+    { 0 % list-left list-right index
+      {
+        2 index length 1 index le
+        % list-left list-right index list-left-too-short?
+        2 index length 2 index le
+        % list-left list-right index list-left-too-short? list-right-too-short?
+        2 copy or
+        { 2 copy and
+          { pop pop pop pop pop 0 }
+          { 5 1 roll pop pop pop pop { 1 } { -1 } ifelse }
+          ifelse
+          % result
+          exit
+        }
+        { pop pop }
+        ifelse
+        % list-left list-right index
+        2 index 1 index get
+        % list-left list-right index left-item
+        2 index 2 index get
+        % list-left list-right index left-item right-item
+        cmp-items
+        % list-left list-right index item-cmp
+        dup 0 eq
+        { pop }
+        { 4 1 roll pop pop pop exit }
+        ifelse
+        % list-left list-right index
+        1 add
+        % list-left list-right next-index
+      } loop
+      % result
+    }
+    ifelse
+  }
+  ifelse
+} bind def
+
+/data [
+  [
+  {
+    datafile 200 string readline
+    not { pop exit } if
+    % line
+    dup length 0 eq
+    { pop ] [ }
+    { parse-item }
+    ifelse
+  } loop
+  ]
+] def
+
+
+/Helvetica 20 selectfont
+
+
+(First Puzzle: )
+72 700 moveto show
+0 0 data {
+  % sum prev-rank pair
+  exch 1 add exch
+  % sum rank pair
+  dup length 2 eq not
+  { 1.125 pstack quit } if
+  % sum rank pair
+  aload pop
+  % sum rank left right
+  cmp-items
+  % sum rank cmp
+  stderr (Pair ) writestring
+  stderr 2 index 15 string cvs writestring
+  stderr (: ) writestring
+  stderr 1 index 15 string cvs writestring
+  stderr 10 write
+  % sum rank cmp
+  -1 eq
+  { exch 1 index add exch } if
+  % sum rank
+} forall
+pop
+% sum
+15 string cvs show
+
+
+(Second Puzzle: )
+72 664 moveto show
+
+1 [[2]] 2 [[6]] 0 data {
+  % rank-A item-A rank-B item-B prev-index pair
+  exch 1 add exch
+  % rank-A item-A rank-B item-B index pair
+  {
+    % rank-A item-A rank-B item-B index item
+    dup 5 index cmp-items -1 le
+    % rank-A item-A rank-B item-B index item item<item-A?
+    { 6 5 roll 1 add 6 1 roll } if
+    % rank-A item-A rank-B item-B index item
+    2 index cmp-items -1 le
+    % rank-A item-A rank-B item-B index item<item-B?
+    { 3 2 roll 1 add 3 1 roll } if
+    % rank-A item-A rank-B item-B index
+  } forall
+  % rank-A item-A rank-B item-B index
+} forall
+% rank-A item-A rank-B item-B index
+pop pop exch pop
+% rank-A rank-B
+
+1 index 15 string cvs show
+( * ) show
+dup 15 string cvs show
+( = ) show
+mul 15 string cvs show
+
+showpage
+quit

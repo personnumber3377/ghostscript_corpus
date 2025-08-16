@@ -1,0 +1,292 @@
+/dbg { pstack (\n) print} def
+/qdbg { pstack (\n) print quit } def
+/over { 1 index } def
+/2dup { 1 index 1 index } def
+/3dup { 2 index 2 index 2 index } def
+
+% min max n in_range -> true/false
+/in_range {
+    dup
+    4 1 roll
+    ge
+    3 1 roll
+    ge
+    and
+} def
+
+/f (day4.txt) (r) file def
+
+% read file into array of passports, each one an array of lines that compose it
+/input [
+% start array to hold first passport
+[
+{
+    f 1024 string readline
+
+    % eof
+    not {
+        % get rid of the last new line if there is one
+        dup () eq { pop } if
+        ]
+        exit
+    } if
+
+    dup () eq {
+        % with an empty line, end the current passport and start the next one
+        pop % we don't need the empty line
+        ] [
+    } {
+        % accumulate part of passport
+    } ifelse
+} loop
+
+] def
+
+f closefile
+
+/passports [
+% now convert each passport array into an array of passport fields
+input {
+    % create a new mark to hold this passport's pieces
+    [ exch
+    {
+        % split current line into parts
+        {
+            ( ) search
+            not {
+                exit
+            } {
+                % discard space, and then loop again on rest of string
+                exch pop exch
+            } ifelse
+        } loop
+    } forall
+    % done looping over this passport, end the array
+    ]
+} forall
+
+] def
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% passport array utils %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+/passport_array_to_dict {
+    /passport 8 dict def
+    {
+        passport exch
+        (:) search
+        not {
+            (\nexpected :, not found!\n) print
+            dbg
+            (\n--exiting early--\n) print quit
+        } if
+
+        % discard colon
+        exch pop
+        cvn exch
+        put
+    } forall
+    passport
+} def
+
+/has_all_required_fields {
+    % we now have the passport dict on the stack
+    % check for all the required fields
+    dup /byr known exch
+    dup /iyr known exch
+    dup /eyr known exch
+    dup /hgt known exch
+    dup /hcl known exch
+    dup /ecl known exch
+    % don't need the dict anymore, so 'consume' it
+    /pid known exch
+
+    % combine all the bools on the stack
+    6 { and } repeat
+} def
+
+% yeah i shouldnt duplicate this so much but oh well
+
+% check 1920 <= byr <= 2002
+/byr_is_valid {
+    {
+        cvi
+    } stopped {
+        % not valid if cvi failed
+        % discard invalid number
+        pop
+        false
+    } {
+        1920 2002
+        3 2 roll in_range
+    } ifelse
+} def
+
+% check 2010 <= iyr <= 2020
+/iyr_is_valid {
+    {
+        cvi
+    } stopped {
+        % not valid if cvi failed
+        % discard invalid number
+        pop
+        false
+    } {
+        2010 2020
+        3 2 roll in_range
+    } ifelse
+} def
+
+% check 2020 <= eyr <= 2030
+/eyr_is_valid {
+    {
+        cvi
+    } stopped {
+        % not valid if cvi failed
+        % discard invalid number
+        pop
+        false
+    } {
+        2020 2030
+        3 2 roll in_range
+    } ifelse
+} def
+
+% hgt (Height) - a number followed by either cm or in:
+%   If cm, the number must be at least 150 and at most 193.
+%   If in, the number must be at least 59 and at most 76.
+/hgt_is_valid {
+    (cm) search {
+        % cm found
+        cvi
+        exch pop % pop (cm)
+        exch pop % pop ()
+        150 193
+        3 2 roll in_range
+    } {
+        (in) search {
+            % in found
+            cvi
+            exch pop % pop (in)
+            exch pop % pop ()
+            59 76
+            3 2 roll in_range
+        } {
+            % neither cm nor in
+            pop % don't need the string anymore
+            false
+        } ifelse
+    } ifelse
+} def
+
+% hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f
+/hcl_is_valid {
+    (#) anchorsearch {
+        % discard #
+        pop
+        dup length 6 eq {
+            {
+                dup
+                (0) 0 get (9) 0 get
+                3 2 roll in_range
+
+                % get the character again
+                exch
+
+                (a) 0 get (f) 0 get
+                3 2 roll in_range
+
+                or
+            } forall
+            5 { and } repeat
+        } {
+            false
+        } ifelse
+    } {
+        pop
+        false
+    } ifelse
+} def
+
+% ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+/ecl_is_valid {
+    dup (amb) eq exch
+    dup (blu) eq exch
+    dup (brn) eq exch
+    dup (gry) eq exch
+    dup (grn) eq exch
+    dup (hzl) eq exch
+        (oth) eq
+
+    6 { or } repeat
+} def
+
+/pid_is_valid {
+    dup length 9 eq {
+        {
+            (0) 0 get (9) 0 get
+            3 2 roll in_range
+        } forall
+
+        8 { and } repeat
+    } {
+        % discard invalid item
+        pop
+        false
+    } ifelse
+} def
+
+/fields_are_valid {
+    dup /byr get byr_is_valid exch
+    dup /iyr get iyr_is_valid exch
+    dup /eyr get eyr_is_valid exch
+    dup /hgt get hgt_is_valid exch
+    dup /hcl get hcl_is_valid exch
+    dup /ecl get ecl_is_valid exch
+        /pid get pid_is_valid
+
+    6 { and } repeat
+} def
+
+%%%%%%%%%%
+% part 1 %
+%%%%%%%%%%
+
+0
+passports {
+    passport_array_to_dict
+    has_all_required_fields
+    {
+        1 add
+    } if
+} forall
+
+(--- part 1 ---\n) print
+(valid passports: ) print =
+
+%%%%%%%%%%
+% part 2 %
+%%%%%%%%%%
+
+(--- part 2 ---\n) print
+0
+passports {
+    passport_array_to_dict
+    dup
+    has_all_required_fields
+    {
+        fields_are_valid
+        {
+            1 add
+        } if
+    } {
+        % discard copy of dict if we didn't need to do a field validity check
+        pop
+    } ifelse
+
+} forall
+
+(valid passports: ) print =
+
+quit

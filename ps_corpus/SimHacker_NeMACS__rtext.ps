@@ -1,0 +1,245 @@
+% rtext.ps	render text in a document window
+%
+%		Copyright (c) 1988 UniPress Software, Inc.
+%
+% RTextFrame is a subclass of EmacsDsp that can display formatted multi-font
+% text.
+% 
+% 
+% newline
+% InitPage
+% TopOfPage
+% EndOfPage
+% b
+% i
+% r
+% l
+% nl
+% tab
+% chapter
+% BeginText
+% DrawText
+% EndText
+% RenderText
+% RenderInput
+% GrowIfNecessary
+% RenderArray
+
+EmacsDict begin
+
+/RTextFrame MainEmacsWindow dictbegin
+    /TopMargin	35	def
+    /LeftMargin	40	def
+    /LineSpacing	20	def
+    /MaxHeight	600	def
+    /MaxWidth	1000	def
+
+    /FixedPitch false def
+    /RenderTabSize	8 def
+
+    % NOTE: all instances share these fonts!
+    % 
+    /pointsize 12 def
+
+    /tinyfont	/Times-Roman findfont	pointsize 2 idiv    scalefont def
+    /bigfont	/Times-Roman findfont	pointsize 1.3 mul   scalefont def
+    /hugefont	/Times-Roman findfont	pointsize 2.0 mul   scalefont def
+    /romanfont	/Times-Roman findfont	pointsize	    scalefont def
+    /boldfont	/Times-Bold findfont	pointsize	    scalefont def
+    /italicfont	/Times-Italic findfont	pointsize	    scalefont def
+
+    /cromanfont	/Courier findfont	pointsize	    scalefont def
+    /cboldfont	/Courier-Bold findfont	pointsize	    scalefont def
+
+    /sromanfont	/Helvetica findfont	pointsize	    scalefont def
+    /sboldfont	/Helvetica-Bold findfont   pointsize	    scalefont def
+
+    /numfont	/Helvetica findfont	pointsize 1.25 mul  scalefont def
+
+    /x 0 def
+    /y 0 def
+dictend
+classbegin
+
+    % newline advances to the next line, returns true if reached the end of
+    % the page.
+    % 
+    /newline {
+	y dup LineSpacing sub /y exch def	    % y -= LineSpacing
+	x y moveto false
+% 	currentpoint
+% 	  pop
+    %   0 ge { x y moveto false } { true } ifelse
+% 	MaxHeight neg ge { x y moveto false } { true } ifelse
+    } def
+
+    % InitPage --
+    % 
+    /InitPage {
+	erasepage
+    } def
+
+    /TopOfPage {
+	gsave				% matched by grestore in EndOfPage
+	clippath pathbbox 
+	/height exch def pop pop pop	% height
+	newpath
+	0 height TopMargin sub translate
+	/y 0 def			% start at TopMargin below top of page
+	/x LeftMargin def		% leave x at left margin for all lines
+	x y moveto			% basepoint of first line
+    } def
+
+    /EndOfPage {
+	grestore			% matched by gsave in TopOfPage
+    } def
+
+    /b {
+	show FixedPitch { cboldfont } { boldfont } ifelse setfont
+    } def
+    /i {
+	show italicfont setfont
+    } def
+    /r {
+	show FixedPitch { cromanfont } { romanfont } ifelse setfont
+    } def
+    /l {
+	show hugefont setfont
+    } def
+    /nl {
+	show currentpoint stroke moveto newline pop
+    } def
+    /tab {
+	exch
+	show
+    %     currentfont /FontBBox  get 2 get 32 mul mul
+	RenderTabSize 12 mul
+	/tabwidth exch def
+	currentpoint exch
+	tabwidth add tabwidth div floor tabwidth mul
+	exch moveto
+    } def
+
+    /chapter {
+	nl hugefont setfont (Chapter ) show
+    } def
+
+    % ----------------------------------------------------------------------
+    % RenderText renders a given string with embedded "effects" by collecting
+    % characters from the input stream in a string buffer, filtering it there,
+    % and displaying the contents of the string buffer.  This is an expensive
+    % way to do it, but it allows the display server to maintain local copies
+    % of things to relate mouse events to items in the buffer, etc.
+    % ----------------------------------------------------------------------
+
+    % The functions in the next group are used by RenderText:
+    % 
+    % BeginText	prepare to draw text with encoded formatting and effects
+    % DrawText	draw this string
+    % EndText	finish drawing this batch
+    % 
+
+    /LineBuffer 200 string def	% accumulate strings to display here
+
+    /BeginText {
+	erasepage
+    } def
+
+
+    /DrawText {
+	/lineindex 0 def
+	{
+	    dup 16#40 eq
+		{   % it's an atsign
+		    pop			% don't put it in the string
+		    boldfont setfont
+		}
+		{   % it's a normal character
+		    LineBuffer exch lineindex exch put % tack char LineBuffer
+		    /lineindex lineindex 1 add def	    % lineindex++
+		}
+	    ifelse
+	} forall
+	LineBuffer 0 lineindex 1 sub		    % string index count
+	    getinterval show			    % show the string
+    %    show
+    } def
+
+    /EndText {
+
+    } def
+
+
+    % canvas RenderText --
+    %
+    % draws a page of text in the given canvas.  Its invokes its procedure
+    % argument to produce the next batch of text to be rendered.  This
+    % procedure must return the text as a string on the stack, with a boolean
+    % on top of the stack.  This boolean is true if the string is valid and
+    % false if there is no more text to be rendered; RenderText stops when the
+    % procedure returns false on top of the stack.
+    % 
+    % NOTE:  for now each batch is shown on its own line.
+
+    /RenderText {
+	exch	% -- proc canvas
+	setcanvas
+	gsave
+	    BeginText
+	    TopOfPage
+	    {
+		dup			% save proc for next time around
+		exec			% arg leaves string on stack
+		  { DrawText newline { exit } if }
+		  { pop EndText exit }
+		ifelse
+	    } loop
+	grestore
+    } def
+
+    % canvas RenderInput -- draws a page of text from standard input in the
+    % given canvas.  It invokes RenderText with a text-get procedure that
+    % returns the next line read from standard input.  Text is terminated by a
+    % line containing a single period or end of file.
+    % 
+    /InputBuffer 300 string def
+
+    /RenderInput {
+	{
+	    currentfile InputBuffer readline    % -- string notend
+	    { dup (.) ne } { false } ifelse
+	} RenderText
+    } def
+
+
+
+    % canvas GrowIfNecessary --	makes sure window is at least n lines high
+
+    /GrowIfNecessary {
+	{
+	    1 add 20 mul /n exch def	% number of lines required
+	    getwinsize			% current window height
+	    dup n lt { setwinsize } { pop pop } ifelse
+	} incanvas
+    } def
+
+    % RenderArray accepts an array of strings and draws each element on its
+    % own line.  It invokes RenderText with a text-get procedure that returns
+    % the next element in the array.
+    % 
+    /RenderArray {
+	/PageText exch def		% PageText refers to array to print
+	/lines PageText length def
+	/index 0 def			% index of line within PageText
+	{ 
+	    index dup 1 add /index exch def	    % index++
+	    dup lines lt			    % if index < lines
+	      { PageText exch get true }	    %   return next element
+	      { false }			    % else signal eot
+	    ifelse
+	} RenderText
+    } def
+
+classend ?def	    % RTextFrame
+
+end	% EmacsDict

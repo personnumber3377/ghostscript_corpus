@@ -1,0 +1,251 @@
+%!
+
+% a3.ps
+% 5 April 2016
+%
+% Jason Warta
+% CS 372 Sp2016
+% Assignment 3
+
+
+
+% Step 1
+
+%% Draws a one square inch box and inch in from the bottom left
+/inch {72 mul} def	% Convert inches->points (1/72 inch)
+
+newpath			% Start a new path
+1 inch 1 inch moveto	% an inch in from the lower left
+2 inch 1 inch lineto	% bottom side
+2 inch 2 inch lineto	% right side
+1 inch 2 inch lineto	% top side
+stroke			% Draw the box on the paper
+showpage		% We're done... eject the page
+
+
+
+% Step 2
+
+% Example of rotation... draws 36 lines in a circular pattern
+
+0 10 360 {		% Go from 0 to 360 degrees in 10 degree steps
+  newpath		% Start a new path
+  dup
+
+  gsave			% Keep rotations temporary
+    144 144 moveto
+    rotate		% Rotate by degrees on stack from 'for'
+    sqrt 0 rlineto
+    stroke
+  grestore		% Get back the unrotated state
+
+} for			% Iterate over angles
+
+showpage
+
+
+
+% Step 3
+
+% Draw a box at 72, 72 using translate
+
+% operator box: xcoord ycoord box -
+% Creates one inch box at xcoord, ycoord
+/box {
+   newpath
+   moveto
+   72 0 rlineto
+   0 72 rlineto
+   -72 0 rlineto
+   closepath
+} def
+
+0 1 2 {
+	/x exch def
+	0 1 2 {
+		/y exch def
+		gsave				% Preserve the old coordinates
+		  72 x mul 72 y mul translate		% Set origin to (72, 72)
+		  0 0 box stroke		% Draw the box at the new origin
+		grestore			% Restore the old coordinates
+	} for
+} for
+
+showpage
+
+
+
+% Step 4
+
+% Demonstrate shading and width in drawing lines and filling shapes
+
+% Define an operator box which builds a path for a one inch square box
+% Note that box does not draw or fill the box.
+
+/box {
+  newpath
+  moveto                                % Current point is on stack
+  setlinewidth
+  0 72 rlineto                          % Left
+  72 0 rlineto                          % Top
+  0 -72 rlineto                         % Right
+  closepath                             % Bottom
+} def
+
+/filledbox { % args: border_grayscale, border_width, fill_grayscale, posX, posY
+  newpath
+  moveto                                % Current point is on stack
+  0 72 rlineto                          % Left
+  72 0 rlineto                          % Top
+  0 -72 rlineto                         % Right
+  closepath                             % Bottom
+  gsave							% save path											
+	  setgray					% change gray
+	  fill  					% fill shape with gray
+  grestore					% restore path
+  setlinewidth      % set line width
+  setgray 					% set line grayscale color
+  stroke 						% trace line
+} def
+
+0 setgray                               % 100% black
+1 setlinewidth                          % One point thick lines
+72 72 moveto 72 144 lineto stroke       % Draw a one inch line
+
+gsave                                   % Save a copy of the current settings
+  0.5 setgray                           % 50% black
+  10 setlinewidth                       % 10 point wide lines
+  144 72 moveto 144 144 lineto stroke   % Draw a one inch wide line
+  0.35 3 0.35 216 72 filledbox                            % Build a square path...
+  %0.35 setgray                          %   make it a little darker...
+  %fill                                  %   and fill it.
+grestore                                % Go back to the original settings
+
+%3 setlinewidth                          % Make the box lines wider
+3 300 72 box stroke                       % Draw a black box
+
+showpage
+
+
+
+% Step 5
+
+% Demonstrate shading and width in drawing lines and filling shapes
+
+% Define an operator box which builds a path for a one inch square box
+% Note that box does not draw or fill the box.
+
+/box {
+  newpath
+  moveto				% Current point is on stack
+  0 72 rlineto			% Left
+  72 0 rlineto			% Top
+  0 -72 rlineto			% Right
+  closepath				% Bottom
+} def
+
+0 setgray				% 100% black
+1 setlinewidth			% One point thick lines
+72 72 moveto 72 144 lineto stroke	% Draw a one inch line
+
+gsave					% Save a copy of the current settings
+  0.5 setgray			% 50% black
+  10 setlinewidth		% 10 point wide lines
+  144 72 moveto 144 144 lineto stroke	% Draw a one inch wide line
+  216 72 box
+  0.35 setgray
+  gsave	                        % Build a square path...
+  				%    make it a little darker...
+  	fill	
+  grestore
+  3 setlinewidth
+  stroke 				%    and fill it.
+grestore                % Go back to the original settings
+
+3 setlinewidth			% Make the box lines wider
+
+0 30 60 {
+  gsave     % Keep rotations temporary
+    rotate    % Rotate by degrees on stack from 'for'
+    300 72 box stroke
+  grestore    % Get back the unrotated state
+} for
+
+%%300 72 box stroke		% Draw a black box
+
+showpage
+
+
+
+% Step 6
+
+% gold: ffd202, blue: 005dab
+% gold: 1.0 0.820 0.0078
+% blue: 0.0 0.3632 0.6679
+
+
+% gold outline
+
+newpath
+200 400 moveto  
+
+10 setlinewidth 
+1.0 0.820 0.0078 setrgbcolor
+
+135 0 rlineto
+0 55 rlineto
+-15 0 rlineto
+-20 80 rlineto
+20 0 rlineto
+0 55 rlineto
+-100 0 rlineto
+0 -55 rlineto
+20 0 rlineto
+-20 -80 rlineto
+-15 0 rlineto
+0 -55 rlineto
+stroke
+
+newpath
+270 400 moveto
+12 setlinewidth
+0 50 rlineto
+stroke
+
+% change to blue
+
+35 setlinewidth
+0.0 0.3632 0.6679 setrgbcolor
+
+newpath 215 427 moveto
+45 0 rlineto stroke
+newpath 280 427 moveto
+45 0 rlineto stroke
+
+newpath 230 562 moveto
+80 0 rlineto stroke
+
+30 setlinewidth
+
+newpath 240 470 moveto
+50 0 rlineto stroke
+
+25 setlinewidth
+
+newpath 270 562 moveto
+-35 -140 rlineto stroke
+
+newpath 270 562 moveto
+35 -140 rlineto stroke
+
+
+1 setlinewidth
+0 1 0 setrgbcolor
+newpath
+103 300 40 330 30 arc stroke
+128 330 15 100 310 arc stroke
+140 350 15 340 200 arc stroke
+155 330 15 230 95 arc stroke
+110 300 40 330 30 arc stroke
+
+

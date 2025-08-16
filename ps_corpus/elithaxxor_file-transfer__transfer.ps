@@ -1,0 +1,115 @@
+# Check if rsync is installed for remote operations
+if (-not (Get-Command rsync -ErrorAction SilentlyContinue)) {
+    Write-Warning "rsync is not installed. Remote operations may not work."
+}
+
+# Function to display the menu
+function Show-Menu {
+    Write-Host "=== File Management Menu ==="
+    Write-Host "1. Copy files/folder"
+    Write-Host "2. Move files/folder"
+    Write-Host "3. Analyze folder"
+    Write-Host "4. Exit"
+    Write-Host "============================"
+    Write-Host "Enter your choice (1-4): "
+}
+
+# Function to check if a path is remote (contains a colon)
+function Is-RemotePath {
+    param($path)
+    return $path.Contains(":")
+}
+
+# Function to copy files/folder (local or remote)
+function Copy-Files {
+    $source = Read-Host "Enter source path"
+    $dest = Read-Host "Enter destination path"
+    if (-not (Is-RemotePath $source) -and -not (Is-RemotePath $dest)) {
+        # Local to local: use Copy-Item
+        Copy-Item -Recurse $source $dest -ErrorAction SilentlyContinue
+        if ($?) {
+            Write-Host "Copy successful!"
+        } else {
+            Write-Host "Copy failed!"
+        }
+    } else {
+        # Remote involved: use rsync
+        & rsync -a $source $dest
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Copy successful!"
+        } else {
+            Write-Host "Copy failed!"
+        }
+    }
+}
+
+# Function to move files/folder (local or remote)
+function Move-Files {
+    $source = Read-Host "Enter source path"
+    $dest = Read-Host "Enter destination path"
+    if (-not (Is-RemotePath $source) -and -not (Is-RemotePath $dest)) {
+        # Local to local: use Move-Item
+        Move-Item $source $dest -ErrorAction SilentlyContinue
+        if ($?) {
+            Write-Host "Move successful!"
+        } else {
+            Write-Host "Move failed!"
+        }
+    } else {
+        # Remote involved: use rsync with removal
+        & rsync -a --remove-source-files $source $dest
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Move successful!"
+        } else {
+            Write-Host "Move failed!"
+        }
+    }
+}
+
+# Function to analyze folder contents
+function Analyze-Folder {
+    $folder = Read-Host "Enter folder path to analyze"
+    if (Test-Path $folder -PathType Container) {
+        Write-Host "Analyzing folder: $folder"
+        Write-Host "------------------------"
+        
+        # Total number of files
+        $fileCount = (Get-ChildItem -Recurse -File $folder | Measure-Object).Count
+        Write-Host "Total number of files: $fileCount"
+        
+        # Total size of the folder
+        $totalSize = (Get-ChildItem -Recurse -File $folder | Measure-Object -Property Length -Sum).Sum
+        $totalSizeHuman = "{0:N2} MB" -f ($totalSize / 1MB)
+        Write-Host "Total size: $totalSizeHuman"
+        
+        # Detailed list of files with size and modification date
+        Write-Host "`nDetailed contents:"
+        Write-Host "Size  Last Modified       Name"
+        Write-Host "---------------------------------------------"
+        Get-ChildItem -Recurse -File $folder | Sort-Object Length | Select-Object @{
+            Name="Size"; Expression={"{0:N0} bytes" -f $_.Length}
+        }, LastWriteTime, Name | ForEach-Object {
+            Write-Host "$($_.Size)  $($_.LastWriteTime)  $($_.Name)"
+        }
+        
+        Write-Host "------------------------"
+        Write-Host "Analysis complete!"
+    } else {
+        Write-Host "Error: '$folder' is not a valid directory!"
+    }
+}
+
+# Main loop
+while ($true) {
+    Show-Menu
+    $choice = Read-Host
+    switch ($choice) {
+        1 { Copy-Files }
+        2 { Move-Files }
+        3 { Analyze-Folder }
+        4 { Write-Host "Exiting..."; exit }
+        default { Write-Host "Invalid choice! Please select 1-4." }
+    }
+    Write-Host "`nPress Enter to continue..."
+    $null = Read-Host
+}

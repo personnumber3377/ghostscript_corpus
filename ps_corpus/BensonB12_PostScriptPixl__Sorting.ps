@@ -1,0 +1,75 @@
+% Benson Bird
+% PostScript Sorting and Searching
+% 9/29/2023
+
+/arg { exch def } def
+
+% a i j swap -- array a with values at i and j swapped
+/swap {
+    3 dict begin
+
+    /j arg
+    /i arg
+    /a arg
+
+    /tempi a i get def
+    
+    a i a j get put
+    a j tempi put
+
+    a
+
+    end
+} def
+
+% a lt sort -- array a with values rearranged so that a[i] a[i+1] lt  (I did insertion sort)
+/sort {
+    2 dict begin
+
+    /lt arg
+    /a arg
+
+    /i a length 1 sub def
+    i { 
+        /j 1 def
+        /value a 0 get def
+
+        i {
+            value a j get lt
+            {/a a j 1 sub j swap def}
+            {/value a j get def}
+            ifelse
+
+            /j j 1 add def
+        }repeat 
+
+        /i i 1 sub def
+    } repeat
+
+    a
+    end
+} def
+
+% array lt value myfind -- index in the given array such that 
+% neither array[i] < value nor value < array[i] according to the given less-than comparator or a negative number otherwise 
+% (this doesn't need to be efficient; but if you want you can assume the array is sorted under the same lt operator and do binary search).
+/myfind { %search for index
+    3 dict begin
+
+    /value arg
+    /lt arg
+    /array arg
+
+    /i 0 def
+
+    array length {
+        array i get
+        value eq
+        {i} if
+        /i i 1 add def
+    } repeat
+
+    end
+} def
+
+

@@ -1,0 +1,2264 @@
+import System as sy;
+import Display as tx;
+import Enemy as ey;
+import TriggerEditor.TETools as TE;
+import DRAW as dw;
+
+const WeaponArray = EUDArray(100);
+const Player_Hero_loc = $L("Hero_P1");
+const Targetloc = $L("Location 22");
+const Temploc = $L("Location 21");
+const DummyUnit = 204;
+const CheckingUnitEpd = UnitGroup(150);
+const NONEEDSCALE = 0;
+const NEEDSCALE = 1;
+const UNDERHEALED = 0;
+const OVERHEALED = 1;
+
+
+/* 콜백 관련 함수 */
+
+var executorHead, executorTail; //수정하지마
+//지속 스킬용 콜백
+object Executor {
+    var next: selftype;  // 다음에 실행할 콜백 함수
+    var cp; //플레이어 변수 (0~2)
+    var Index; //무기번호
+    var Type; //무기상세 분류
+    var Timer;  //타이머 변수. 0에서 시작해서 매 프레임마다 1씩 증가함.
+    var Tmax;  //지속시간
+    var TargetX; //타겟 좌표 X
+    var TargetY; //타겟 좌표 Y
+    var Extra: EUDArray; //추가 데이터 (반복횟수, 조건변수, 공격각도)
+    var Extra_XY: EUDArray(2); //추가 데이터 (타겟 좌표 X, Y)
+    var callback: EUDFuncPtr(1, 1);  // 실제로 실행할 함수
+    // 그 외에도 데이터를 추가로 선언해도 됨
+};
+// 콜백 함수 추가
+function addExecutor_Skill(cp, Index_, Type_, Tmax_, x, y, Parameter: EUDArray, callback: EUDFuncPtr(1, 1)) {
+    const e = Executor.alloc();
+    e.callback = callback;
+    e.Timer = 0;  // 처음 등록하면 타이머 0 부터 시작
+    e.cp = cp;
+    e.Index = Index_;
+    e.Type = Type_;
+    e.Tmax = Tmax_;
+    e.Extra = Parameter; //추가 데이터 (반복횟수, 조건변수, 공격각도)
+    e.TargetX = x;
+    e.TargetY = y;
+
+
+    if (!executorHead) executorHead = e;
+    if (executorTail) Executor.cast(executorTail).next = e;
+    executorTail = e;
+    e.next = 0;
+}
+// 모든 콜백 함수들 실행하는 함수. 항상 1번만 호출하세요.
+function runExecutor_SKill() {
+    var executor = executorHead;
+    var ePrev = 0;
+
+    while(executor) {
+        const e = Executor.cast(executor);
+        const ret = e.callback(e);
+        const eNext = e.next;
+
+        if(!ret) {
+            if (e == executorTail) executorTail = ePrev;
+            if (ePrev) Executor.cast(ePrev).next = eNext;
+            else executorHead = eNext;
+            Executor.free(e);
+            executor = eNext;
+        }
+        else {
+            e.Timer += 1;  // 타이머 증가   
+            ePrev = executor;
+            executor = eNext;
+        }
+    }
+}
+function WeaponSkill(cp, Index);
+function ComboSkill(e: Executor);
+
+/* 무기 객체 정보 */
+object WeaponList { //무기
+    var Index;                  //무기번호
+    var WeaponName;             //무기이름
+    var WeaponExplain;          //무기기본설명
+    var Type;                   //무기분류
+    var Ownedidx;               //무기순서
+    var Cool;                   //무기스킬 쿨타임 초기값
+    var WeaponTree_1;           //무기트리 1번째 수치
+    var WeaponTree_2;           //무기트리 2번째 수치
+    var Weapon_Damage: EUDArray;//무기 데미지
+    
+    function constructor(Index_, WeaponName_, WeaponExplain_, Type_, Cool_){
+        // constructor(생성자) 함수는 할당될 때 작동됨
+        this.Index =                Index_;
+        this.WeaponName =           WeaponName_;
+        this.WeaponExplain =        WeaponExplain_;
+        this.Type =                 Type_;
+        this.Cool =                 Cool_;
+        this.Weapon_Damage =        [0, 0, 0, 0];
+    }
+    function Skill(epd) {
+        WeaponSkill(epd, this);
+    }
+    function Damage_Calculation(cp, Damage, Type, Scale, NeedScale, Index) {
+        Damage = sy.SetWeaponDamage(cp, Damage, Type, Scale, NeedScale);
+        this.Weapon_Damage[Index] = Damage;
+        return Damage, Index + 1;
+    }
+};
+
+
+/* 무기 관련 함수 */
+
+
+function WeaponInit() {
+    //고유무기
+    WeaponArray[0] = WeaponList.alloc(0, Db("무기없음"),        Db("설명없음"), 0, 0);
+    WeaponArray[1] = WeaponList.alloc(1, Db("방패와검"),        Db("\x042칸 내의 적들에게 \x0710+3\x02(\x11물리\x02)\x04범위피해를 준 다음 사거리 4내의 적에게 14+5(\x11물리\x02)\x04의 검격을 휘두릅니다."), 0, 4*24);
+    WeaponArray[2] = WeaponList.alloc(2, Db("탄성궁"),          Db("\x046칸 내의 적에게 6번에 걸쳐 \x0718+2\x02(\x11물리\x02)\x04의 피해를 줍니다."), 0, 3*24);
+    WeaponArray[3] = WeaponList.alloc(3, Db("달빛스태프"),      Db("\x0410칸 내의 적에게 \x0714+2\x02(\x1E마법\x02)\x04의 범위피해를 주는 파이어볼을 2회 시전합니다.."), 1, 6*24);
+    WeaponArray[4] = WeaponList.alloc(4, Db("고요한밤"),        Db("\x04주변 범위에 서리파편을 날려보내 1초뒤 폭발하며 \x0710+0.4\x02(\x1E마법\x02)\x04의 피해를 주고 빙결시킵니다."), 1, 8*24);
+    WeaponArray[5] = WeaponList.alloc(5, Db("데스티니"),        Db("\x04무작위 방향으로 2회 튕겨져 나가는 주사위를 던져 \x0710+1\x02(\x15행운\x02)\x04의 범위피해를 줍니다."), 3, 2*24);
+    WeaponArray[6] = WeaponList.alloc(6, Db("영원의병"),        Db("\x04무작위 적에게 \x0710+(모든확률스탯의합*1.2)\x04만큼 피해를 주고 쉴드를 생성합니다."), 3, 1*24);
+    WeaponArray[7] = WeaponList.alloc(7, Db("이그드라실"),      Db("\x04타차원의 영혼을 소환합니다. 최대 4기까지 소환됩니다."), 2, 8*24);
+    WeaponArray[8] = WeaponList.alloc(8, Db("미정의무기"),      Db("\x04."), 2, 10*24);
+    //물리무기
+    WeaponArray[9] = WeaponList.alloc(9, Db("바다의창"),        Db("\x045칸 내의 적에게 \x0720+5\x02(\x11물리\x02)\x04의 단일피해를 주고 \x075+0.25\x02(\x11물리\x02)\x04만큼의 쉴드를 생성합니다."), 0, 2*24+12);
+    WeaponArray[10] = WeaponList.alloc(10, Db("거대도끼"),      Db("\x04부채꼴 범위의 적에게 \x0714+1.1\x02(\x11물리\x02)\x04의 범위피해를 줍니다."), 0, 4*24);
+    WeaponArray[11] = WeaponList.alloc(11, Db("흑철석궁"),      Db("\x0410칸 내의 무작위 3기의 적에게 \x0720+3\x02(\x11물리\x02)\x04의 단일피해를 줍니다."), 0, 3*24);
+    WeaponArray[12] = WeaponList.alloc(12, Db("피바라기"),      Db("\x044칸 내의 무작위 적에게 \x0730+6\x02(\x11물리\x02)\x04의 단일피해를 2회 줍니다. 공격할 때마다 체력을 5씩 회복합니다."), 0, 2*24+12);
+    WeaponArray[13] = WeaponList.alloc(13, Db("극독의단도"),    Db("\x042칸 내의 무작위 적에게 \x078+2\x02(\x11물리\x02)\x04의 단일피해를 주고 중독시켜 매초 3의 피해를 입습니다."), 0, 24);
+    WeaponArray[14] = WeaponList.alloc(14, Db("개조된장총"),    Db("\x0410칸 내의 적에게 \x0740+5\x02(\x11물리\x02)\x04의 단일피해를 줍니다."), 0, 1*24+12);
+    WeaponArray[15] = WeaponList.alloc(15, Db("신벌의철퇴"),    Db("\x043칸 내의 적에게 \x0710+1\x02(\x11물리\x02)\x04의 범위피해를 줍니다."), 0, 4*24);
+    WeaponArray[16] = WeaponList.alloc(16, Db("저주받은검"),    Db("\x046칸 내의 5초동안 적에게 \x030.15\x04초마다 \x0714+3\x02(\x11물리\x02)\x04의 피해를 줍니다."), 0, 10*24);
+    WeaponArray[17] = WeaponList.alloc(17, Db("쾌속의쌍검"),    Db("\x04무작위 적에게 \x075+0.4\x02(\x11물리\x02)\x04의 피해를 1초에 걸쳐 3회 줍니다."), 0, 4*24);
+    //마법무기
+    WeaponArray[18] = WeaponList.alloc(18, Db("레이저완드"),    Db("\x04레이저벽을 생성하여 지나가는 적에게 \x073+0.2\x02(\x1E마법\x02)\x04의 피해를 줍니다. 4초동안 지속됩니다."), 1, 8*24);
+    WeaponArray[19] = WeaponList.alloc(19, Db("운명의손짓"),    Db("\x0710+2\x02(\x1E마법\x02)\x04의 쉴드생성, \x0720+3\x02(\x1E마법\x02)\x04의 체력회복, \x0730+4\x02(\x1E마법\x02)\x04의 범위피해 중 무작위로 시전됩니다."), 1, 3*24+12);
+    WeaponArray[20] = WeaponList.alloc(20, Db("하늘의부름"),    Db("\x04적들에게 \x0716+0.6\x02(\x1E마법\x02)\x04의 범위피해를 주는 유성우를 3회 시전합니다."), 1, 5*24);
+    WeaponArray[21] = WeaponList.alloc(21, Db("신의징벌"),      Db("\x04번개가 떨어져 주변 무작위 위치에\x078+0.4\x02(\x1E마법\x02)\x04의 범위피해를 줍니다."), 1, 4*24);
+    WeaponArray[22] = WeaponList.alloc(22, Db("얼음왕관"),      Db("\x04거대한 얼음을 10초간 소환하여 주변 적들에게 지속적으로 \x079+0.3\x02(\x1E마법\x02)\x04의 단일피해를 줍니다."), 1, 18*24);
+    WeaponArray[23] = WeaponList.alloc(23, Db("별소나기"),      Db("\x0440개의 파편으로 이루어진 별을 생성합니다. 각 파편은 적에게 \x0713+1.2\x02(\x1E마법\x02)\x04의 피해를 줍니다."), 1, 9*24);
+    WeaponArray[24] = WeaponList.alloc(24, Db("지옥의부름"),    Db("\x04주변 적들을 끌어당기는 포탈을 5초간 소환합니다. \x078+0.4\x02(\x1E마법\x02)\x04의 지속피해를 줍니다."), 1, 9*24);
+    WeaponArray[25] = WeaponList.alloc(25, Db("달의공명"),      Db("\x04달이 떨어지며 적에게 \x075+1.2\x02(\x1E마법\x02)\x04의 단일피해를 줍니다. 추락시 \x0720+1\x02(\x1E마법\x02)\x04의 범위피해를 줍니다."), 1, 15*24);
+    WeaponArray[26] = WeaponList.alloc(26, Db("피의화관"),      Db("\x04직선상의 모든 적에게 \x075+0.3\x02(\x1E마법\x02)\x04의 범위피해를 주는 붉은 가시를 2회 발사합니다."), 1, 7*24);
+    //소환무기
+    WeaponArray[27] = WeaponList.alloc(27, Db("지옥의문"),      Db("\x0715+0.8\x02(\x10소환\x02)\x04의 범위피해를 주는 고정된 거대악마를 \x071\x04기 소환합니다. 최대 \x073\x04기"), 2, 10*24);
+    WeaponArray[28] = WeaponList.alloc(28, Db("야수부리미"),    Db("\x078+1\x02(\x1E마법\x02)\x04의 쉴드생성, \x0710+1.5\x02(\x1E마법\x02)\x04의 체력회복, \x0715+2\x02(\x1E마법\x02)\x04의 범위피해 중 무작위로 시전됩니다."), 2, 4*24);
+    WeaponArray[29] = WeaponList.alloc(29, Db("귀곡성"),        Db("\x04적들에게 \x0714+0.8\x02(\x1E마법\x02)\x04의 범위피해를 주는 유성우를 3회 시전합니다."), 2, 5*24);
+    WeaponArray[30] = WeaponList.alloc(30, Db("모선조종기"),    Db("\x04번개가 떨어져 \x078+1.2\x02(\x1E마법\x02)\x04의 범위피해를 주고 둔화시킵니다. 중심부는 50%의 추가피해를 줍니다."), 2, 5*24);
+    WeaponArray[31] = WeaponList.alloc(31, Db("정령의완드"),    Db("\x04거대한 얼음을 10초간 소환하여 주변 적들에게 \x079+0.3\x02(\x1E마법\x02)\x04의 지속피해를 줍니다."), 2, 18*24);
+    WeaponArray[32] = WeaponList.alloc(32, Db("늪의지팡이"),    Db("\x04적에게 들러붙어 5+0.2(소환)의 지속피해를 주는 거머리를 1기 소환합니다. 최대 3기"), 2, 9*24);
+    WeaponArray[33] = WeaponList.alloc(33, Db("장난감열쇠"),    Db("\x04우주선을 1기 소환합니다. 소환되어 있는동안 50%의 이동속도 버프를 받고 무적상태가 됩니다. 최대 1기"), 2, 30*24);
+    WeaponArray[34] = WeaponList.alloc(34, Db("미정의무기"),    Db("빈공간"), 2, 15*24);
+    WeaponArray[35] = WeaponList.alloc(35, Db("미정의무기"),    Db("빈공간"), 2, 6*24);
+    //행운무기
+    WeaponArray[36] = WeaponList.alloc(36, Db("운명의구슬"),   Db("\x04운명을 들여다보아 무작위 적에게 \x0720+3\x02(\x15행운\x02)\x04의 피해를 줍니다. \x0725%\x04확률로 공격이 빗나갑니다."), 3, 3*24);
+    WeaponArray[37] = WeaponList.alloc(37, Db("황금율"), Db("\x04무작위 적에게 \x0710+1.2\x02(\x15행운\x02)\x04의 범위피해를 줍니다. \x03500\x04골드마다 공격횟수가 1회가 증가합니다."), 3, 6*24);
+    WeaponArray[38] = WeaponList.alloc(38, Db("불가사의"),    Db("\x04무작위 적에게 \x0710+0.4~0.8\x02(\x15행운\x02)\x04의 단일피해를 1~3회 줍니다."), 3, 2*24);
+    WeaponArray[39] = WeaponList.alloc(39, Db("율법창조서"), Db("\x04이 무기를 제외한 확률을 확인할 때마다 \x0710+0.12\x02(\x15행운\x02)\x04%확률로 \x075\x04의 단일피해를 주는 투사체를 발사합니다. 최대 100%"), 3, 0);
+    WeaponArray[40] = WeaponList.alloc(40, Db("성장하는검"), Db("\x041분마다 모든 공격력 스탯들이 \x03-2\x02~\x07+2\x04만큼 증가합니다."), 3, 60*24);
+    WeaponArray[41] = WeaponList.alloc(41, Db("피해증폭기"),   Db("\x04모든 적들의 방어력을 5초동안 \x0710\x04만큼 감소시킵니다."), 3, 9*24);
+    WeaponArray[42] = WeaponList.alloc(42, Db("해적나침반"), Db("\x04쿨타임마다 \x0710\x02~\x0724\x04골드를 무작위로 얻습니다."), 3, 5*24);
+    WeaponArray[43] = WeaponList.alloc(43, Db("미정의무기"),   Db("빈공간"), 3, 15*24);
+    WeaponArray[44] = WeaponList.alloc(44, Db("미정의무기"), Db("빈공간"), 3, 6*24);
+}
+function GiveWeaponToPlayer(Num) {
+    return WeaponArray[Num];
+}
+function WeaponReset(CurWeapon: WeaponList) {
+    CurWeapon.WeaponTree_1 = 0;
+    CurWeapon.WeaponTree_2 = 0;
+    for (var i = 0; i < 4; i++) {
+        CurWeapon.Weapon_Damage[i] = 0;
+    }
+}
+
+
+/* 스킬 관련 함수 */
+
+function AddData(List: EUDArray, Parameter_1, Parameter_2, Parameter_3, Parameter_4) {
+    //추가 데이터 생성
+    List[0] = Parameter_1; //반복횟수
+    List[1] = Parameter_2; //조건변수
+    List[2] = Parameter_3; //공격각도
+    List[3] = Parameter_4; //기타정보
+}
+
+const Heron_SkillTarget = 27;
+const Heron_ShieldAttack = 10;
+const Heron_ShieldAttack_WeaponId = 0;
+const Heron_SwordAttack = 32;
+const Heron_SwordAttack_WeaponId = 1;
+const Wreath_ArrowAttack = 81;
+const Wreath_ArrowAttack_WeaponId = 2;
+const Wreath_ArrowAttack_Mine = 13;
+const Wreath_ArrowAttack_Mine_WeaponId = 6;
+const Neffrim_FireBall = 106;
+const Neffrim_FireBall_WeaponId = 3;
+const Neffrim_Ignite = 116;
+const Neffrim_Ignite_WeaponId = 16;
+const Roira_Frost_Unit = 15;
+const Roira_Frost = 109;
+const Roira_Frost_WeaponId = 10;
+const Roira_Frost_Icicle = 111;
+const Roira_Frost_Icicle_WeaponId = 9;
+const Frost_Effect = 107;
+const Forture_Dice = 126;
+const Forture_Dice_WeaponId = 22;
+const ColdFan_Jar = 127;
+const ColdFan_Jar_WeaponId = 23;
+const Yaron_Wheat = 111;
+var Wheat_MaxHeal = 0;
+var Wheat_GrowGold = 0;
+var Yaron_GetItem = 0; //수확할때마다 +1
+const ToxicGroup = UnitGroup(100);
+const FireBallGroup = UnitGroup(100);
+const IcicleGroup = UnitGroup(100);
+const Trident_Attack = 34;
+const Trident_Attack_WeaponId = 7;
+const HugeAxe_TargetUnit = 26;
+const HugeAxe_Attack = 112;
+const HugeAxe_Attack_WeaponId = 11;
+const Crossbow_Attack = 113;
+const Crossbow_Attack_WeaponId = 12;
+const Bloodblade_Attack = 114;
+const Bloodblade_Attack_WeaponId = 13;
+const ToxicKnife_Attack = 115;
+const ToxicKnife_Attack_WeaponId = 15;
+const LongRifle_Attack = 117;
+const LongRifle_Attack_WeaponId = 17;
+const LongRifle_Dog = 16;
+const LongRifle_Dog_WeaponId = 18;
+const RifleDogGroup = UnitGroup(100);
+const Mace_Attack = 118;
+const Mace_Attack_WeaponId = 19;
+const MaceGroup = UnitGroup(100);
+const CurseSword_Attack = 120;
+const CurseSword_Attack_WeaponId = 20;
+const CurseSword_TrueAttack = 122;
+const CurseSword_TrueAttack_WeaponId = 21;
+const FastKnife_Target = 123;
+const FastKnife_Target_WeaponId = 24;
+const FastKnife_Radius_Attack = 94;
+const FastKnife_Radius_Attack_WeaponId = 27;
+const LaserWand_Attack = 96;
+const LaserWand_Attack_WeaponId = 25;
+const LaserWand_Explosion_Attack = 95;
+const LaserWand_Explosion_Attack_WeaponId = 26;
+const FateHand_Attack = 93;
+const FateHand_Attack_WeaponId = 28;
+const FateHand_SingleAttack = 90;
+const FateHand_SingleAttack_WeaponId = 29;
+const MeteorRain_Attack = 89;
+const MeteorRain_Attack_WeaponId = 30;
+const MeteorRain_DOT_Attack = 86;
+const MeteorRain_DOT_Attack_WeaponId = 31;
+const GodImpact_Attack = 84;
+const GodImpact_Attack_WeaponId = 50;
+const IceCrown_Unit = 206;
+const IceCrown_Attack = 80;
+const IceCrown_Attack_WeaponId = 52;
+const IceCrownGroup = UnitGroup(100);
+const Starfall_Attack = 79;
+const Starfall_Attack_WeaponId = 53;
+const Starfall_Remove_Attack = 78;
+const Starfall_Remove_Attack_WeaponId = 54;
+const StarfallGroup = UnitGroup(100);
+const Hell_Attack = 77;
+const Hell_Attack_WeaponId = 62;
+const Hell_EndAttack = 76;
+const Hell_EndAttack_WeaponId = 63;
+var LaserCond = 0; //레이저완드 조건
+const Moon_Unit = 75;
+const Moon_Attack = 74;
+const Moon_Attack_WeaponId = 64;
+const Moon_Radius_Attack = 71;
+const Moon_Radius_Attack_WeaponId = 65;
+const Moon_Devil = 70;
+const Moon_Devil_WeaponId = 66;
+const BloodFlower_Attack = 68;
+const BloodFlower_Attack_WeaponId = 67;
+const MoonLightGroup = UnitGroup(100);
+const HellGate_BigUnit = 67;
+const HellGate_Attack = 154;
+const HellGate_BigUnit_WeaponId = 68;
+const HellGate_SmallUnit = 66;
+const HellGate_SmallUnit_WeaponId = 69;
+const HellGateGroup = UnitGroup(100);
+const BeastCall_Snake_Unit = 65;
+const BeastCall_Snake_Attack = 155;
+const BeastCall_Snake_Attack_WeaponId = 70;
+const BeastCall_Wolf_Unit = 64;
+const BeastCall_Wolf_Attack = 159;
+const BeastCall_Wolf_Attack_WeaponId = 71;
+const PlayerSkillCool = [EUDArray(4), EUDArray(4), EUDArray(4)];
+
+
+function WeaponSkill(epd, WeaponList: WeaponList) {
+    const cp = bread_epd(epd + 0x4C/4, 0);
+    const PlayerX, PlayerY = posread_epd(epd + 0x28/4);
+    const CurCool = EUDArray.cast(PlayerSkillCool[cp]);
+    const Index = WeaponList.Index;
+    const Ownedidx = WeaponList.Ownedidx;
+    var Cool = WeaponList.Cool;
+    const Tree_1 = WeaponList.WeaponTree_1;
+    const Tree_2 = WeaponList.WeaponTree_2;
+    const ExtraData = EUDArray(4); //추가 데이터 (반복횟수, 조건변수, 공격각도, 기타정보)
+    //지역변수
+    var Angle, Size, Damage, Scale, Radius = 0, 0, 0, 0, 0;
+    var Range = 0;
+    var Radius_Large = 0;
+    var dx, dy = 0, 0;
+    var dx2, dy2 = 0, 0;
+    var tempepd = 0;
+    var SkillType = 0;
+    var MineRadius = 0;
+    var FireBall_Radius = 48;
+    var CondTrigger = 0; //조건변수
+    var Type = 0; //조건변수
+    var Repeat = 1;
+    var Chance_Shield = 0;
+    var Critical_Shield = 0;
+    var Chance_Damage = 0;
+    var Critical_Damage = 0;
+    var ShieldAmount = 0;
+    var Hpheal = 0;
+    var Damage_Second = 0;
+    var Scale_Second = 0;
+    var Damage_Third = 0;
+    var Scale_Third = 0;
+    var WeaponRange_Max = 0;
+    var WeaponRange_Min = 0;
+    var Damage_Index = 0;
+    var SummonLimit = 0; //소환제한
+    var SummonUnit_Hp = 0; //소환유닛 체력
+    var SummonUnit_Hp_Second = 0; //소환유닛 두번째 스탯
+    var SummonScale_First = 0; //소환유닛 첫번째 스탯
+    var SummonScale_Second = 0; //소환유닛 첫번째 스탯
+    if (CurCool[Ownedidx] == 0) {
+        switch (Index) {
+            case 1: //방패와검: 2칸 범위에 범위피해를 준 다음 사거리 4내의 적에게 검격을 휘두릅니다.
+                //방패공격
+                //피해량 설정
+                Size = 64;
+                Damage = 10;
+                Scale = 150;
+                if (Tree_1 >= 1) Size += 32;
+                if (Tree_1 >= 3) {
+                    Size += 32;
+                    Scale += 50;
+                }
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SPD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting(Heron_ShieldAttack_WeaponId, Size, Damage, 0);
+                //어택그라운드
+                setloc(Targetloc, PlayerX, PlayerY);
+                TE.AttackGround(Targetloc, Targetloc, Heron_ShieldAttack, DummyUnit, cp);
+                //이펙트효과
+                Size = 8;
+                if (Tree_1 >= 1) Size += 8;
+                if (Tree_1 >= 3) Size += 8;
+                AddData(ExtraData, Repeat, CondTrigger, Angle, 0);
+                addExecutor_Skill(cp, Index, 1, Size, PlayerX, PlayerY, ExtraData, ComboSkill);
+                //추가효과
+                if (Tree_1 >= 2) { //쉴드생성
+                    var Amount = sy.SetWeaponDamage(cp, 5, sy.SPD, 200, NONEEDSCALE);
+                    sy.Set_Stat_permanent(cp, sy.SSH, Amount);
+                }
+                //검공격
+                setloc(Targetloc, PlayerX, PlayerY);
+                //타겟 설정용 유닛 생성
+                //사거리 설정
+                tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, Heron_SkillTarget, Targetloc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, 3);
+                sy.SetExtraDb(tempepd, 0, 7);
+                sy.SetExtraDb(tempepd, 1, Index);
+                sy.SetExtraDb(tempepd, 2, Ownedidx);
+                CheckingUnitEpd.add(tempepd);
+                //쿨타임 설정
+                if (Tree_1 >= 4 || Tree_2 >= 4) Cool -= 24;
+                //검공격
+                break;
+            case 2: //탄성궁: 6칸 내의 적에게 6번에 걸쳐 16+1.6(물리)의 피해를 줍니다.
+                //스킬 설정
+                Size = 12; //공격횟수*2
+                Damage = 16;
+                Scale = 160;
+                SkillType = 1;
+                MineRadius = 0;
+                Damage_Second = 10;
+                Scale_Second = 70;
+                if (Tree_1 >= 1) Size += 2*2;
+                if (Tree_1 >= 2) {
+                    Size += 3*2;
+                    Scale += 50;
+                }
+                if (Tree_1 >= 3) Size += 4*2;
+                if (Tree_1 >= 4) SkillType += 0x10;
+                if (Tree_2 >= 1) {
+                    SkillType += 0x100;
+                    MineRadius = 15;
+                }
+                if (Tree_2 >= 2) Cool -= 24;
+                if (Tree_2 >= 3) MineRadius = 30;
+                if (Tree_2 >= 4) MineRadius = 45;
+                AddData(ExtraData, Repeat, CondTrigger, Angle, 0);
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SPD, Scale, NEEDSCALE, Damage_Index);
+                Damage_Second, Damage_Index = WeaponList.Damage_Calculation(cp, Damage_Second, sy.SPD, Scale_Second, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Range(Wreath_ArrowAttack_WeaponId, 6);
+                sy.WeaponSetting_Radius(Wreath_ArrowAttack_Mine_WeaponId, MineRadius);
+                sy.WeaponSetting_Damage(Wreath_ArrowAttack_WeaponId, sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE));
+                sy.WeaponSetting_Damage(Wreath_ArrowAttack_Mine_WeaponId, Damage_Second);
+                addExecutor_Skill(cp, Index, SkillType, Size, PlayerX, PlayerY, ExtraData, ComboSkill);
+                break;
+            case 3: //달빛스태프: 10칸 내의 적에게 14+1.6(마법)의 범위피해를 주는 파이어볼을 2회 시전합니다.
+                //스킬 설정
+                sy.WeaponSetting_Range(Neffrim_FireBall, 10);
+                Angle = 0;
+                Size = 2; //공격횟수
+                Damage = 14;
+                Scale = 160;
+                FireBall_Radius = 48;
+                CondTrigger = 0; //지속피해 트리거용
+                if (sy.Stat_Neffrim_MDUp[cp]) Scale += 100;
+                if (Tree_1 >= 1) Size += 1;
+                if (Tree_1 >= 2) FireBall_Radius += 24;
+                if (Tree_1 >= 3) Size += 2;
+                if (Tree_1 >= 4) Size += 4;
+                if (Tree_2 >= 1) sy.Set_Stat_permanent(cp, sy.SSH, sy.SetWeaponDamage(cp, 2, sy.SMD, 10, NONEEDSCALE));
+                if (Tree_2 >= 2) Scale += 50;
+                if (Tree_2 >= 3) CondTrigger = 1;
+                if (Tree_2 >= 4) Cool -= 24;
+                sy.WeaponSetting_Radius(Neffrim_FireBall_WeaponId, FireBall_Radius);
+                //피해량 설정
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SMD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(Neffrim_FireBall_WeaponId, Damage);
+                AddData(ExtraData, Repeat, CondTrigger, Angle, 0);
+                addExecutor_Skill(cp, Index, 0, Size*3, PlayerX, PlayerY, ExtraData, ComboSkill);
+                break;
+            case 4: //고요한밤: 주변 범위에 서리파편을 날려보내 1초뒤 폭발하며 12+0.6(마법)의 피해를 주고 빙결시킵니다.
+                Angle = 0;
+                Size = 128;
+                Damage = 12;
+                Scale = 60;
+                Repeat = 1;
+                ey.IsRoira = cp;
+                if (Tree_1 >= 1) ey.MoreIceTime += 1*3;
+                if (Tree_1 >= 2) Repeat = 4;
+                if (Tree_1 >= 3) ey.IsIceDoT = 0x1;
+                if (Tree_1 >= 4) {
+                    Cool -= 1*24;
+                    Repeat = 9;
+                }
+                if (Tree_2 >= 1) ey.IsIceDoT = 0x10;
+                if (Tree_2 >= 2) ey.IsIceDoT = 0x110;
+                if (Tree_2 >= 3) {
+                    sy.WeaponSetting_DamageTypeChange(Roira_Frost_Icicle_WeaponId, 4);
+                } else {
+                    sy.WeaponSetting_DamageTypeChange(Roira_Frost_Icicle_WeaponId, 3);
+                }
+                if (Tree_2 >= 4) ey.IsIceDoT = 0x1010;
+                //피해량 설정
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SMD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(Roira_Frost_WeaponId, Damage);
+                sy.WeaponSetting_Radius(Roira_Frost_WeaponId, Size);
+                //유닛생성
+                setloc(Targetloc, PlayerX, PlayerY);
+                dilateloc(Targetloc, 96, 96);
+                MoveLocation(Temploc, "Men", P4, Targetloc);
+                tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, Roira_Frost_Unit, Temploc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, 24);
+                sy.SetExtraDb(tempepd, 1, Repeat);
+                IcicleGroup.add(tempepd);
+                //이펙트
+                const Temp_x, Temp_y = getlocTL(Temploc);
+                sy.ScanImage_Create(cp, 546, 34, 0, Temp_x, Temp_y - 16, Targetloc);
+                sy.ScanImage_Create(cp, 546, 34, 0, Temp_x - 64, Temp_y - 16, Targetloc);
+                sy.ScanImage_Create(cp, 546, 34, 0, Temp_x - 32 , Temp_y + 16, Targetloc);
+                sy.ScanImage_Create(cp, 546, 34, 0, Temp_x - 32 , Temp_y - 48, Targetloc);
+                break;
+            case 5: //데스티니: 무작위 방향으로 2회 튕겨져 나가는 주사위를 던져 10+1(행운)의 범위피해를 줍니다.
+                Angle = 0; //확률변수
+                Radius = 64;
+                Size = 2; //공격횟수
+                Damage = 10;
+                Scale = 100;
+                CondTrigger = 0; //조건변수
+                if (Tree_1 >= 1) CondTrigger = 0x1; //유도성
+                if (Tree_1 >= 2) Radius += 8;
+                if (Tree_1 >= 3) Size += 1;
+                if (Tree_1 >= 4) {
+                    Radius += 24;
+                    Size += 1;
+                }
+                if (Tree_2 >= 1) Angle = 100;
+                if (Tree_2 >= 2) {
+                    Radius -= 16;
+                    Angle = 350;
+                }
+                if (Tree_2 >= 3) Cool -= 12;
+                if (Tree_2 >= 4) {
+                    Angle = 700;
+                    CondTrigger = 0x10; //발동속도 Up
+                }
+                sy.WeaponSetting_Radius(Forture_Dice_WeaponId, Radius);
+                //피해량 설정
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SLD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(Forture_Dice_WeaponId, Damage);
+                AddData(ExtraData, Repeat, CondTrigger, Angle, 0);
+                addExecutor_Skill(cp, Index, 0, Size*4, PlayerX, PlayerY, ExtraData, ComboSkill);
+                break;
+            case 6: //영원의병
+                Size = 1; //공격횟수
+                Radius = 64;
+                Chance_Shield = 0;
+                Critical_Shield = 0;
+                Chance_Damage = 0;
+                Critical_Damage = 0;
+                Damage = 10 + (sy.Stat_Lu[cp] + sy.Stat_Lb[cp] + sy.Stat_Dr[cp] + sy.Stat_Da[cp])*8/10;
+                Scale = 0;
+                ShieldAmount = Damage/10; //쉴드 생성량은 피해량의 10분의 1
+                if (Tree_1 >= 1) {
+                    Chance_Shield = 15;
+                    Critical_Shield = 150;
+                }
+                if (Tree_1 >= 2) {
+                    var R = rand()%100;
+                    R = sy.Player_LuckTest(cp, R, 100, 1);
+                    if (R < 18) {
+                        Angle = 0x1; //체력회복
+                    }
+                }
+                if (Tree_1 >= 3) {
+                    Chance_Shield = 25;
+                    Critical_Shield = 180;
+                }
+                if (Tree_1 >= 4) { //일시 무적
+                    var R = rand()%100;
+                    R = sy.Player_LuckTest(cp, R, 100, 1);
+                    if (R < 5) {
+                        sy.SetExtraDb(epd, 1, 2*24);
+                    }
+                }
+                if (Tree_2 >= 1) Scale = 50;
+                if (Tree_2 >= 2) Size += 2;
+                if (Tree_2 >= 3) {
+                    Chance_Damage = 22;
+                    Critical_Damage = 200;
+                }
+                if (Tree_2 >= 4) { //10% 확률로 범위공격
+                    var R = rand()%100;
+                    R = sy.Player_LuckTest(cp, R, 100, 1);
+                    if (R < 10) {
+                        sy.WeaponSetting_ExplosionChange(ColdFan_Jar_WeaponId, 1);
+                        sy.WeaponSetting_Radius(ColdFan_Jar_WeaponId, 25);
+                    }
+                }
+                //쉴드 생성량 계산
+                if (Chance_Shield > 0) {
+                    var R = rand()%100;
+                    R = sy.Player_LuckTest(cp, R, 100, 1);
+                    if (R < Chance_Shield) {
+                        ShieldAmount = ShieldAmount * Critical_Shield / 100;
+                    }
+                }
+                sy.WeaponSetting_Radius(ColdFan_Jar_WeaponId, Radius);
+                //피해량 설정
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SLD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(ColdFan_Jar_WeaponId, Damage);
+                //무기 공격
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    setloc(Targetloc, PlayerX, PlayerY);
+                    CreateUnit(1, ColdFan_Jar, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 6);
+                }
+                //쉴드 생성
+                sy.Set_Stat_permanent(cp, sy.SSH, ShieldAmount);
+                //체력 회복
+                if (Angle & 0x1) sy.Player_HP_Heal(cp, ShieldAmount, 0);
+                break;
+            case 9: //바다의창
+                Damage = 20;
+                Scale = 100;
+                Angle = rand()%360;
+                Size = 12; //투사체 속도
+                Repeat = 1;
+                if (Tree_1 >= 1) CondTrigger += 0x1; //쓰나미로 변경
+                if (Tree_1 >= 2) {
+                    Size -= 4; //속도 감소
+                    Repeat += 1; //투사체 증가
+                }
+                if (Tree_1 >= 3) CondTrigger += 0x10; //쓰나미 폭 증가
+                if (Tree_1 >= 4) Cool -= 12;
+                if (Tree_2 >= 1) {
+                    CondTrigger += 0x100; //쉴드 재생 불가
+                    Repeat += 4; //투사체 증가
+                }
+                if (Tree_2 >= 2) CondTrigger += 0x1000; //이동속도 버프
+                if (Tree_2 >= 3) {
+                    Repeat += 2;
+                    Size -= 8;
+                }
+                if (Tree_2 >= 4) CondTrigger += 0x10000; //창 길이 증가
+                AddData(ExtraData, Repeat, CondTrigger, Angle, Size);
+                //공격범위 설정
+                sy.WeaponSetting_Radius(Trident_Attack_WeaponId, Radius);
+                //피해량 설정
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SPD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(Trident_Attack_WeaponId, Damage);
+                //삼지창 공격
+                setloc(Targetloc, PlayerX, PlayerY);
+                if (!(CondTrigger & 0x100)) {
+                    SkillType = sy.SetWeaponDamage(cp, SkillType, sy.SPD, Size, NEEDSCALE);
+                    sy.Set_Stat_permanent(cp, sy.SSH, SkillType);
+                }
+                addExecutor_Skill(cp, Index, 0, Repeat*Size, PlayerX, PlayerY, ExtraData, ComboSkill);
+                break;
+            case 10: //거대도끼
+                Size = 3; //피해범위
+                Damage = 14;
+                Scale = 110;
+                Radius = 24;
+                if (Tree_1 >= 1) Size += 1;
+                if (Tree_1 >= 2) {
+                    CondTrigger += 0x1; //범위 증가
+                    Radius += 12;
+                }
+                if (Tree_1 >= 3) {
+                    Size += 1;
+                    Scale += 20;
+                }
+                if (Tree_1 >= 4) {
+                    Size += 2;
+                }
+                if (Tree_2 >= 1) Cool -= 6;
+                if (Tree_2 >= 2) Repeat += 1;
+                if (Tree_2 >= 3) {
+                    Cool -= 12;
+                    Repeat += 2;
+                }
+                if (Tree_2 >= 4) Repeat += 3;
+                Damage, Damage_Index = WeaponList.Damage_Calculation(cp, Damage, sy.SPD, Scale, NEEDSCALE, Damage_Index);
+                sy.WeaponSetting_Damage(HugeAxe_Attack_WeaponId, Damage);
+                sy.WeaponSetting_Radius(HugeAxe_Attack_WeaponId, Radius);
+                //타겟 설정용 유닛 생성
+                setloc(Targetloc, PlayerX, PlayerY);
+                //사거리 설정
+                tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, HugeAxe_TargetUnit, Targetloc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, 3);
+                sy.SetExtraDb(tempepd, 0, 7);
+                sy.SetExtraDb(tempepd, 1, Index);
+                sy.SetExtraDb(tempepd, 2, Ownedidx);
+                sy.SetExtraDb(tempepd, 3, Repeat);
+                sy.SetExtraDb(tempepd, 4, CondTrigger);
+                sy.SetExtraDb(tempepd, 5, Size);
+                CheckingUnitEpd.add(tempepd);
+                break;
+            case 11: //흑철석궁
+                Damage = 20;
+                Scale = 180;
+                Radius = 0;
+                Size = 3;
+                if (Tree_1 >= 1) Scale += 60;
+                if (Tree_1 >= 2) {
+                    sy.WeaponSetting_ExplosionChange(Crossbow_Attack_WeaponId, 1);
+                    Radius = 12;
+                } else {
+                    sy.WeaponSetting_ExplosionChange(Crossbow_Attack_WeaponId, 0);
+                    Radius = 0;
+                }
+                if (Tree_1 >= 3) sy.WeaponSetting_TypeChange(Crossbow_Attack_WeaponId, 3);
+                else sy.WeaponSetting_TypeChange(Crossbow_Attack_WeaponId, 1);
+                if (Tree_1 >= 4) Radius = 25;
+                if (Tree_2 >= 1) Size += 1;
+                if (Tree_2 >= 2) Cool -= 12;
+                if (Tree_2 >= 3) Size += 2;
+                if (Tree_2 >= 4) {
+                    Size += 3;
+                    Cool -= 12;
+                }
+                sy.WeaponSetting_Radius(Crossbow_Attack_WeaponId, 12);
+                setloc(Targetloc, PlayerX, PlayerY);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Crossbow_Attack_WeaponId, Damage);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Crossbow_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 24);
+                }
+                //이펙트
+                sy.ScanImage_Create(cp, 213, 34, 13, PlayerX, PlayerY, Targetloc);
+                break;
+            case 12: //피바라기
+                Damage = 25;
+                Scale = 400;
+                Size = 1;
+                Angle = 25; //체력회복 비율
+                var HealShield = 0;
+                var OverHealing = 0; // 0x1: 50%체력재생력 전환 0x10: 25% 쉴드재생력 전환
+                sy.WeaponSetting_Range(Bloodblade_Attack, 4);
+                if (Tree_1 >= 1) HealShield = 1;
+                if (Tree_1 >= 2) Angle += 15;
+                if (Tree_1 >= 3) OverHealing += 0x1;
+                if (Tree_1 >= 4) OverHealing += 0x10;
+                if (Tree_2 >= 1) {
+                    sy.WeaponSetting_Range(Bloodblade_Attack, 6);
+                    Scale += 100;
+                }
+                if (Tree_2 >= 2) {
+                    if (sy.Check_IsHPBelow_Percent(cp, 75)) Size += 1;
+                }
+                if (Tree_2 >= 3) {
+                    if (sy.Check_IsHPBelow_Percent(cp, 75)) Cool -= 36;
+                }
+                if (Tree_2 >= 4) {
+                    const temp = 100 - sy.HpBelow_Return_Percent(cp);
+                    Angle += temp;
+                }
+                setloc(Targetloc, PlayerX, PlayerY);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Bloodblade_Attack_WeaponId, Damage);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Bloodblade_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 3);
+                    const OverAmount = sy.Player_HP_Heal(cp, Damage * Angle / 100, HealShield)/256;
+                    if (OverHealing & 0x1) sy.Callbuff(cp, sy.SHR, OverAmount/2, 6*24);
+                    if (OverHealing & 0x10) sy.Callbuff(cp, sy.SSR, OverAmount/4, 3*24);
+                }
+                //이펙트
+                sy.ScanImage_Create(cp, 3, 34, 13, PlayerX, PlayerY, Targetloc);
+                break;
+            case 13: //극독단도
+                Damage = 8;
+                Scale = 150;
+                Size = 1;
+                Angle = 3;
+                Scale_Second = 0;
+                CondTrigger = 0;
+                WeaponRange_Max = 2;
+                if (Tree_1 >= 1) Angle += 3;
+                if (Tree_1 >= 2) Scale_Second += 25;
+                if (Tree_1 >= 3) CondTrigger = 1;
+                if (Tree_1 >= 4) {
+                    Cool -= 12;
+                    Size += 1;
+                }
+                if (Tree_2 >= 1) {
+                    Scale += 50;
+                    WeaponRange_Max += 1;
+                }
+                if (Tree_2 >= 2) {
+                    Size += 1;
+                    WeaponRange_Max += 1;
+                }
+                if (Tree_2 >= 3) {
+                    Size += 2;
+                    WeaponRange_Max += 2;
+                }
+                if (Tree_2 >= 4) {
+                    WeaponRange_Max += 3;
+                }
+                sy.WeaponSetting_Range(ToxicKnife_Attack, WeaponRange_Max);
+                setloc(Targetloc, PlayerX, PlayerY);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(ToxicKnife_Attack_WeaponId, Damage);
+                var ToxicDamage = sy.SetWeaponDamage(cp,Angle, sy.SPD, Scale_Second, NEEDSCALE);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, ToxicKnife_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 6);
+                    wwrite_epd(tempepd + 0x8C/4, 0, ToxicDamage);
+                    bwrite_epd(tempepd + 0x84/4, 2, CondTrigger);
+                    ToxicGroup.add(tempepd);
+                }
+                //이펙트
+                sy.ScanImage_Create(cp, 3, 34, 13, PlayerX, PlayerY, Targetloc);
+                break;
+            case 14: //저격총
+                Damage = 32;
+                Scale = 300;
+                Size = 1;
+                Angle = 0; //들개 갯수
+                CondTrigger = 0; //들개 소환조건
+                Damage_Second = 6;
+                Scale_Second = 100;
+                WeaponRange_Max = 10;
+                WeaponRange_Min = 0;
+                if (Tree_1 >= 1) WeaponRange_Max += 3;
+                if (Tree_1 >= 2) Scale += 100;
+                if (Tree_1 >= 3) {
+                    WeaponRange_Min += 5;
+                    WeaponRange_Max += 5;
+                }
+                if (Tree_1 >= 4) {
+                    Size += 1;
+                    WeaponRange_Max += 2;
+                }
+                if (Tree_2 >= 1) { 
+                    CondTrigger += 0x1; //소환조건
+                    Angle += 2;
+                }
+                if (Tree_2 >= 2) {
+                    CondTrigger += 0x10; //이속, 공속버프
+                }
+                if (Tree_2 >= 3) {
+                    WeaponRange_Max += 4;
+                    Scale_Second += 30; //들개 계수++
+                }
+                if (Tree_2 >= 4) Angle += 2;
+                //사거리 설정
+                sy.WeaponSetting_Range(LongRifle_Attack, WeaponRange_Max);
+                sy.WeaponSetting_Range_Min(LongRifle_Attack, WeaponRange_Min);
+                //피해량 설정
+                Damage_Second = sy.SetWeaponDamage(cp, Damage_Second, sy.SSD, Scale_Second, NEEDSCALE);
+                sy.WeaponSetting_Damage(LongRifle_Dog_WeaponId, Damage_Second);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(LongRifle_Attack_WeaponId, Damage);
+                setloc(Targetloc, PlayerX, PlayerY);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, LongRifle_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 6);
+                    wwrite_epd(tempepd + 0x8C/4, 0, CondTrigger);
+                    bwrite_epd(tempepd + 0x84/4, 2, Angle);
+                    RifleDogGroup.add(tempepd);
+                }
+                //이펙트
+                sy.ScanImage_Create(cp, 332, 34, 9, PlayerX, PlayerY, Targetloc);
+                break;
+            case 15: //신벌의철퇴
+                Damage = 10;
+                Scale = 80;
+                Size = 1;
+                Angle = 0; //추가공격 조건
+                Scale_Second = 0;
+                Radius = 50;
+                if (Tree_1 >= 1) Radius += 18;
+                if (Tree_1 >= 2) Cool -= 12;
+                if (Tree_1 >= 3) Size += 1;
+                if (Tree_1 >= 4) {
+                    Radius += 24;
+                    Scale += 40;
+                }
+                if (Tree_2 >= 1) Angle += 0x1;
+                if (Tree_2 >= 2) Angle += 0x10;
+                if (Tree_2 >= 3) Angle += 0x100;
+                if (Tree_2 >= 4) Scale_Second += 45;
+                //피해량 설정
+                if (Scale_Second > 0) Damage = sy.SetWeaponDamage_DoubleScale(cp, Damage, sy.SPD, Scale, sy.SMD, Scale_Second, NEEDSCALE);
+                else Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Mace_Attack_WeaponId, Damage);
+                setloc(Targetloc, PlayerX, PlayerY);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Mace_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 6);
+                    wwrite_epd(tempepd + 0x8C/4, 0, Angle);
+                    MaceGroup.add(tempepd);
+                }
+                //이펙트
+                // sy.ScanImage_Create(cp, 332, 34, 9, PlayerX, PlayerY, Targetloc);
+                break;
+            case 16: //저주받은검
+                Damage = 14;
+                Scale = 120;
+                Size = 5*24; //지속시간
+                Angle = 0; //고정피해량
+                WeaponRange_Max = 6;
+                Radius = 0;
+                Type = 6; //공격주기
+                if (Tree_1 >= 1) {
+                    WeaponRange_Max += 4;
+                    Angle += 3;
+                }
+                if (Tree_1 >= 2) {
+                    Angle += 1;
+                    Type -= 2;
+                }
+                if (Tree_1 >= 3) {
+                    Angle += 1;
+                    Size += 3*24;
+                }
+                if (Tree_1 >= 4) {
+                    Angle += 3;
+                    Scale += 200;
+                }
+                if (Tree_2 >= 1) {
+                    WeaponRange_Max -= 2;
+                    Cool -= 2*24;
+                }
+                if (Tree_2 >= 2) Radius += 15;
+                if (Tree_2 >= 3) {
+                    Radius += 15;
+                    Cool -= 2*24;
+                }
+                if (Tree_2 >= 4) Radius += 25;
+                //사거리 설정
+                sy.WeaponSetting_Range(CurseSword_Attack, WeaponRange_Max);
+                //공격범위 설정
+                sy.WeaponSetting_Radius(CurseSword_Attack_WeaponId, Radius);
+                sy.WeaponSetting_Radius(CurseSword_TrueAttack_WeaponId, Radius);
+                //피해량 설정
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(CurseSword_Attack_WeaponId, Damage);
+                if (Angle > 0) sy.WeaponSetting_Damage(CurseSword_TrueAttack_WeaponId, Angle);
+                setloc(Targetloc, PlayerX, PlayerY);
+                addExecutor_Skill(cp, Index, Type, Size, PlayerX, PlayerY, Angle, ComboSkill);
+                
+                //이펙트
+                // sy.ScanImage_Create(cp, 332, 34, 9, PlayerX, PlayerY, Targetloc);
+                break;
+            case 17: //쾌속의쌍검
+                Damage = 5;
+                Scale = 40;
+                Size = 1;
+                Angle = 1*24; //지속시간
+                CondTrigger = 0; //특수 조건
+                WeaponRange_Max = 4;
+                if (Tree_1 >= 1) CondTrigger = 0x1; //주변에 옮겨가기
+                if (Tree_1 >= 2) {
+                    Size += 1;
+                    Scale += 10;
+                }
+                if (Tree_1 >= 3) {
+                    Angle += 1*24;
+                }
+                if (Tree_1 >= 4) {
+                    Size += 1;
+                    Angle += 1*24;
+                }
+                if (Tree_2 >= 1) CondTrigger += 0x10; //범위공격 추가
+                if (Tree_2 >= 3) {
+                    Damage *= 2;
+                    Cool -= 12;
+                }
+                if (Tree_2 >= 4) Cool -= 24;
+                //피해량 설정
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NONEEDSCALE);
+                sy.WeaponSetting_Damage(FastKnife_Radius_Attack_WeaponId, Damage);
+                setloc(Targetloc, PlayerX, PlayerY);
+                //공격 유닛 생성
+                for (var i = 0; i < Size; i++) {
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, FastKnife_Target, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 3);
+                    sy.SetExtraDb(tempepd, 0, 7);
+                    sy.SetExtraDb(tempepd, 1, Index);
+                    sy.SetExtraDb(tempepd, 2, Ownedidx);
+                    sy.SetExtraDb(tempepd, 3, CondTrigger);
+                    sy.SetExtraDb(tempepd, 4, Angle);
+                    sy.SetExtraDb(tempepd, 5, Damage);
+                    CheckingUnitEpd.add(tempepd);
+                }
+                
+                //이펙트
+                // sy.ScanImage_Create(cp, 332, 34, 9, PlayerX, PlayerY, Targetloc);
+                break;
+            case 18: //레이저완드
+                Damage = 8;
+                Scale = 30;
+                Size = 8; //레이저 길이
+                Angle = 0; //레이저 각도
+                LaserCond = 0; //여럿 조건
+                Radius = 25; //레이저 범위
+                Type = 4*24; //지속시간
+                if (Tree_1 >= 1) Size += 4;
+                if (Tree_1 >= 2) Cool -= 24;
+                if (Tree_1 >= 3) LaserCond += 0x1; //삼각형 형태
+                if (Tree_1 >= 4) {
+                    Size += 4;
+                    Type += 1*24;
+                }
+                if (Tree_2 >= 1) Radius += 10;
+                if (Tree_2 >= 2) Scale += 20;
+                if (Tree_2 >= 3) LaserCond += 0x10; //지속시간 끝날 때 폭발 피해
+                if (Tree_2 >= 4) {
+                    Type -= 2*24;
+                    Cool -= 4*24;
+                }
+                //피해량 설정
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale, NONEEDSCALE);
+                sy.WeaponSetting_Damage(LaserWand_Attack_WeaponId, Damage);
+                sy.WeaponSetting_Damage(LaserWand_Explosion_Attack_WeaponId, Damage*3);
+                Angle = rand()%360; //랜덤 각도
+                addExecutor_Skill(cp, Index, Size, Type, PlayerX, PlayerY, Angle, ComboSkill);
+                
+                //이펙트
+                // sy.ScanImage_Create(cp, 332, 34, 9, PlayerX, PlayerY, Targetloc);
+                break;
+            case 19: //운명의손짓
+                Type = 3;
+                CondTrigger = 0; //특수 조건
+                Damage = 0;
+                Scale = 0;
+                Repeat = 1; //시전 횟수
+                if (Tree_1 >= 1) {
+                    CondTrigger += 0x1; //모든 주문 시전
+                    SkillType = 50; //효과 비율
+                }
+                if (Tree_1 >= 2) SkillType = 56; //효과 비율
+                if (Tree_1 >= 3) SkillType = 65; //효과 비율
+                if (Tree_1 >= 4) SkillType = 75; //효과 비율
+                if (Tree_2 >= 1) CondTrigger += 0x10; //마법계수 +50%
+                if (Tree_2 >= 2) CondTrigger += 0x100; //25% 확률로 1번 더 시전
+                if (Tree_2 >= 3) Type = 4; //단일피해 3회 마법 추가
+                if (Tree_2 >= 4) Cool -= 36;
+                setloc(Targetloc, PlayerX, PlayerY);
+                if (CondTrigger & 0x1) {
+                    //모든 주문 시전
+                    //쉴드생성
+                    Damage = sy.SetWeaponDamage(cp, 3, sy.SMD, 40, NONEEDSCALE) * SkillType / 100;
+                    sy.Set_Stat_permanent(cp, sy.SSH, Damage);
+                    sy.ScanImage_Create(cp, 371, 34, 9, PlayerX, PlayerY, Targetloc);
+                    //체력회복
+                    Damage = sy.SetWeaponDamage(cp, 6, sy.SMD, 80, NONEEDSCALE) * SkillType / 100;
+                    sy.Player_HP_Heal(cp, Damage, 0);
+                    sy.ScanImage_Create(cp, 967, 34, 13, PlayerX, PlayerY, Targetloc);
+                    //범위피해
+                    Damage = sy.SetWeaponDamage(cp, 12, sy.SMD, 120, NEEDSCALE) * SkillType / 100;
+                    sy.WeaponSetting_Damage(FateHand_Attack_WeaponId, Damage);
+                    const tempepd = sy.SetNextUnitEPD();    
+                    CreateUnit(1, FateHand_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 6);
+                } else {
+                    var R_1 = rand()%100;
+                    R_1 = sy.Player_LuckTest(cp, R_1, 100, 1);
+                    if (R_1 < 25) Repeat = 2;
+                    for (var j = 0; j < Repeat; j++) {
+                        const R = rand()%Type; //무작위 시전
+                        if (R == 0) {
+                            //쉴드생성
+                            Scale = 40; //쉴드 생성량
+                            if (CondTrigger & 0x10) Scale += 20; //마법계수 +50%
+                            Damage = sy.SetWeaponDamage(cp, 3, sy.SMD, Scale, NONEEDSCALE);
+                            sy.Set_Stat_permanent(cp, sy.SSH, Damage);
+                            sy.ScanImage_Create(cp, 371, 34, 9, PlayerX, PlayerY, Targetloc);
+                        } else if (R == 1) {
+                            //체력회복
+                            Scale = 80; //체력 회복량
+                            if (CondTrigger & 0x10) Scale += 40; //마법계수 +50%
+                            Damage = sy.SetWeaponDamage(cp, 6, sy.SMD, Scale, NONEEDSCALE);
+                            sy.Player_HP_Heal(cp, Damage, 0);
+                            sy.ScanImage_Create(cp, 967, 34, 13, PlayerX, PlayerY, Targetloc);
+                        } else if (R == 2) {
+                            //범위피해
+                            Scale = 120; //범위 피해량
+                            if (CondTrigger & 0x10) Scale += 60; //마법계수 +50%
+                            Damage = sy.SetWeaponDamage(cp, 12, sy.SMD, Scale, NEEDSCALE);
+                            sy.WeaponSetting_Damage(FateHand_Attack_WeaponId, Damage);
+                            const tempepd = sy.SetNextUnitEPD();
+                            CreateUnit(1, FateHand_Attack, Targetloc, cp);
+                            wwrite_epd(tempepd + 0x110/4, 0, 6);
+                        } else if (R == 3) {
+                            //단일피해
+                            Scale = 300; //단일 피해량
+                            if (CondTrigger & 0x10) Scale += 150; //마법계수 +50%
+                            Damage = sy.SetWeaponDamage(cp, 15, sy.SMD, Scale, NEEDSCALE);
+                            sy.WeaponSetting_Damage(FateHand_SingleAttack_WeaponId, Damage);
+                            for (var i = 0; i < 3; i++) {
+                                const tempepd = sy.SetNextUnitEPD();
+                                CreateUnit(1, FateHand_SingleAttack, Targetloc, cp);
+                                wwrite_epd(tempepd + 0x110/4, 0, 6);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 20: //하늘의부름
+                Damage = 14;
+                Scale = 60;
+                Radius = 196;
+                Repeat = 3; //시전 횟수
+                CondTrigger = 0;
+                if (Tree_1 >= 1) Radius += 32;
+                if (Tree_1 >= 2) CondTrigger += 0x1; //낙하지점에 지속피해
+                if (Tree_1 >= 3) Radius += 48;
+                if (Tree_1 >= 4) Repeat = 5;
+                if (Tree_2 >= 1) Scale += 20;
+                if (Tree_2 >= 2) {
+                    Radius -= 64;
+                    Cool -= 24;   
+                }
+                if (Tree_2 >= 3) {
+                    Repeat = 1;
+                    Cool -= 3*24;
+                }
+                if (Tree_2 >= 4) Cool -= 18;
+                sy.WeaponSetting_Radius(MeteorRain_Attack_WeaponId, Radius);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(MeteorRain_Attack_WeaponId, Damage);
+                dx, dy = lengthdir(180, 315); //낙하 위치
+                for (var i = 0; i < Repeat; i++) {
+                    dx2, dy2 = rand()%128 - 64, rand()%128 - 64; //낙하 위치 오차
+                    setloc(Targetloc, PlayerX + dx + dx2, PlayerY + dy + dy2);
+                    setloc(Temploc, PlayerX + dx2, PlayerY + dy2);
+                    TE.AttackGround(Targetloc, Temploc, MeteorRain_Attack, DummyUnit, cp);
+                    if (CondTrigger & 0x1) {
+                        addExecutor_Skill(cp, Index, Radius, 60 + 1*24, PlayerX + dx2, PlayerY + dy2, 0, ComboSkill);
+                    }
+                }
+                break;
+            case 21: //신의징벌
+                Damage = 8;
+                Scale = 40;
+                CondTrigger = 0;
+                Radius = 64;
+                Repeat = 1;
+                Type = 150;
+                if (Tree_1 >= 1) CondTrigger += 0x1; //영웅한테도 떨어지기
+                if (Tree_1 >= 2) { //이동속도 버프
+                    sy.Callbuff(cp, sy.SSP, 35, 5*24);
+                }
+                if (Tree_1 >= 3) { //쉴드 생성
+                    const Amount = sy.SetWeaponDamage(cp, 3, sy.SMD, 40, NONEEDSCALE);
+                    sy.Set_Stat_permanent(cp, sy.SSH, Amount);
+                }
+                if (Tree_1 >= 4) Cool -= 24;
+                if (Tree_2 >= 1) Repeat += 1;
+                if (Tree_2 >= 2) Cool -= 6;
+                if (Tree_2 >= 3) {
+                    CondTrigger += 0x10; //지정범위 확장 및 피해범위 증가
+                    Radius += 64;
+                }
+                if (Tree_2 >= 4) Repeat += 2;
+                sy.WeaponSetting_Radius(GodImpact_Attack_WeaponId, Radius);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(GodImpact_Attack_WeaponId, Damage);
+                addExecutor_Skill(cp, Index, Repeat, 24, PlayerX, PlayerY, CondTrigger, ComboSkill);
+                break;
+            case 22: //얼음왕관
+                Damage = 9;
+                Scale = 30;
+                CondTrigger = 0; //특수 조건
+                Size = 10*24; //지속시간
+                if (Tree_1 >= 1) CondTrigger += 0x1; //주변 적 둔화
+                if (Tree_1 >= 2) Cool -= 3*24;
+                if (Tree_1 >= 3) CondTrigger += 0x10; //넓은 범위 빙결
+                if (Tree_1 >= 4) ey.MoreIceTime += 2*3;
+                if (Tree_2 >= 1) CondTrigger += 0x100; //지속피해 속도 증가
+                if (Tree_2 >= 2) Size += 2*24; //지속시간 증가
+                if (Tree_2 >= 3) {
+                    CondTrigger += 0x1000; //확률적으로 추가 공격
+                    Size += 2*24; //지속시간 증가
+                }
+                if (Tree_2 >= 4) CondTrigger += 0x10000; //추가피해량 적용
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Radius(IceCrown_Attack_WeaponId, Damage);
+                setloc(Targetloc, PlayerX, PlayerY);
+                tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, IceCrown_Unit, Targetloc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, Size);
+                sy.SetExtraDb(tempepd, 0, 2);
+                sy.SetExtraDb(tempepd, 2, CondTrigger);
+                IceCrownGroup.add(tempepd);
+                break;
+            case 23: //별소나기
+                Damage = 13;
+                Scale = 120;
+                Size = 20; //별의 개수
+                CondTrigger = 0; //특수 조건
+                //강화 적용
+                if (Tree_1 >= 1) Size += 5;
+                if (Tree_1 >= 2) {
+                    Size += 5;
+                    Cool -= 3*24;
+                }
+                if (Tree_1 >= 3) {
+                    Size += 10;
+                    Scale += 30;
+                }
+                if (Tree_1 >= 4) {
+                    Size += 10;
+                    CondTrigger += 0x1; //재부활 가능성 +5%
+                }
+                if (Tree_2 >= 1) CondTrigger += 0x10; //소멸 시 주변 피해
+                if (Tree_2 >= 2) {
+                    Scale -= 40;
+                    sy.WeaponSetting_ExplosionChange(Starfall_Attack_WeaponId, 1);
+                    sy.WeaponSetting_Radius(Starfall_Attack_WeaponId, 25);
+                } else {
+                    sy.WeaponSetting_ExplosionChange(Starfall_Attack_WeaponId, 0);
+                    sy.WeaponSetting_Radius(Starfall_Attack_WeaponId, 0);
+                }
+                if (Tree_2 >= 3) {
+                    sy.WeaponSetting_TypeChange(Starfall_Attack_WeaponId, 4);
+                    sy.WeaponSetting_ExplosionChange(Starfall_Attack_WeaponId, 1);
+                    sy.WeaponImage_Change(Starfall_Attack_WeaponId, 203);
+                    sy.WeaponSetting_Range(Starfall_Attack, 4);
+                } else {
+                    sy.WeaponSetting_TypeChange(Starfall_Attack_WeaponId, 2);
+                    sy.WeaponSetting_ExplosionChange(Starfall_Attack_WeaponId, 0);
+                    sy.WeaponImage_Change(Starfall_Attack_WeaponId, 154);
+                }
+                if (Tree_2 >= 4) {
+                    sy.WeaponSetting_Radius(Starfall_Attack_WeaponId, 35);
+                    sy.WeaponSetting_Radius(Starfall_Remove_Attack_WeaponId, 70);
+                } else {
+                    sy.WeaponSetting_Radius(Starfall_Attack_WeaponId, 25);
+                    sy.WeaponSetting_Radius(Starfall_Remove_Attack_WeaponId, 50);
+                }
+                //피해량 설정
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Starfall_Attack_WeaponId, Damage);
+                Damage = sy.SetWeaponDamage(cp, 6, sy.SMD, 20, NEEDSCALE);
+                sy.WeaponSetting_Damage(Starfall_Remove_Attack_WeaponId, Damage);
+                //이펙트 뽑기
+                const Star_Array_1 = dw.draw.ConcaveStar("Location 22", 5, 2, 120, dots=20);
+                const Star_Array_2 = dw.draw.ConcaveStar("Location 22", 5, 2, 120, dots=25);
+                const Star_Array_3 = dw.draw.ConcaveStar("Location 22", 5, 2, 150, dots=30);
+                const Star_Array_4 = dw.draw.ConcaveStar("Location 22", 5, 2, 180, dots=40);
+                const Star_Array_5 = dw.draw.ConcaveStar("Location 22", 5, 2, 180, dots=50);
+                for (var i = 0; i < Size; i++) {
+                    var x, y;
+                    if (Size == 20) {
+                        x, y = Star_Array_1[i];
+                    } else if (Size == 25) {
+                        x, y = Star_Array_2[i];
+                    } else if (Size == 30) {
+                        x, y = Star_Array_3[i];
+                    } else if (Size == 40) {
+                        x, y = Star_Array_4[i];
+                    } else if (Size == 50) {
+                        x, y = Star_Array_5[i];
+                    }
+                    setloc(Targetloc, PlayerX + x, PlayerY + y);
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Starfall_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 80); //80프레임 지속
+                    sy.SetExtraDb(tempepd, 0, 1); //별소나기
+                    sy.SetExtraDb(tempepd, 1, CondTrigger);
+                    StarfallGroup.add(tempepd);
+                }
+                break;
+            case 24: //지옥의부름
+                Damage = 8;
+                Scale = 40;
+                Repeat = 1;
+                Radius = 128; //피해범위
+                Radius_Large = 128; //끌당범위
+                Type = 5*24; //지속시간
+                CondTrigger = 0;
+                Angle, dx, dy = 0, 0, 0;
+                if (Tree_1 >= 1) {
+                    Cool -= 1*24;
+                    Type += 1*24;
+                }
+                if (Tree_1 >= 2) {
+                    Radius += 64;
+                    Radius_Large += 64;
+                }
+                if (Tree_1 >= 3) {
+                    Cool -= 1*24;
+                    Scale += 20;
+                }
+                if (Tree_1 >= 4) Radius_Large += 128;
+                if (Tree_2 >= 1) {
+                    Radius -= 32;
+                    Cool -= 1*24;
+                }
+                if (Tree_2 >= 2) {
+                    Radius_Large -= 32;
+                    Repeat += 1;
+                }
+                if (Tree_2 >= 3) Repeat += 1;
+                if (Tree_2 >= 4) CondTrigger += 0x1; //사라질 때 범위피해
+                sy.WeaponSetting_Radius(Hell_Attack_WeaponId, Radius);
+                sy.WeaponSetting_Radius(Hell_EndAttack_WeaponId, Radius);
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Hell_Attack_WeaponId, Damage);
+                Damage = sy.SetWeaponDamage(cp, 20, sy.SMD, 100, NEEDSCALE);
+                sy.WeaponSetting_Damage(Hell_EndAttack_WeaponId, Damage);
+                for (var i = 0; i < Repeat; i++) {
+                    if (Repeat > 1) {
+                        Angle = i * (360 / 3);
+                        dx, dy = lengthdir(Radius_Large, Angle);
+                    }
+                    addExecutor_Skill(cp, Index, Radius_Large, Type, PlayerX + dx, PlayerY + dy, CondTrigger, ComboSkill);
+                }
+                break;
+            case 25: //달의공명
+                Damage = 5;
+                Scale = 120;
+                Damage_Second = 20;
+                Scale_Second = 100;
+                Damage_Third = 25;
+                Scale_Third = 250;
+                Type = 6*24; //추락시간
+                Angle = 6; //단일피해 공격주기
+                Radius = 196;
+                Repeat = 1;
+                SkillType = 0;
+                if (Tree_1 >= 1) Angle = 3;
+                if (Tree_1 >= 2) {
+                    Type += 3*24;
+                    Scale += 40;
+                }
+                if (Tree_1 >= 3) Repeat += 1;
+                if (Tree_1 >= 4) CondTrigger += 0x1; //플레이어 쫓아다니기
+                if (Tree_2 >= 1) SkillType += 1;
+                if (Tree_2 >= 2) CondTrigger += 0x10; //악마 강화
+                if (Tree_2 >= 3) {
+                    Type -= 2*24;
+                    Cool -= 3*24;
+                }
+                if (Tree_2 >= 4) SkillType += 1;
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(Moon_Attack_WeaponId, Damage);
+                Damage_Second = sy.SetWeaponDamage(cp, Damage_Second, sy.SMD, Scale_Second, NEEDSCALE);
+                sy.WeaponSetting_Damage(Moon_Radius_Attack_WeaponId, Damage_Second);
+                Damage_Third = sy.SetWeaponDamage(cp, Damage_Third, sy.SMD, Scale_Third, NEEDSCALE);
+                sy.WeaponSetting_Damage(Moon_Radius_Attack_WeaponId, Damage_Third);
+                if (CondTrigger & 0x1) dx, dy = lengthdir(Type-32, 270);
+                else dx, dy = lengthdir(120, 270);
+                setloc(Targetloc, PlayerX + dx, PlayerY + dy);
+                tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, Moon_Unit, Targetloc, cp);
+                if (!(CondTrigger & 0x1)) {
+                    wwrite_epd(tempepd + 0x110/4, 0, Type);
+                    Order(Moon_Unit, cp, "Anywhere", Move, Player_Hero_loc+cp);
+                }
+                MoonLightGroup.add(tempepd);
+                sy.SetExtraDb(tempepd, 0, 6);
+                sy.SetExtraDb(tempepd, 1, Repeat);
+                sy.SetExtraDb(tempepd, 2, Angle);
+                sy.SetExtraDb(tempepd, 3, CondTrigger);
+                sy.SetExtraDb(tempepd, 4, SkillType);
+                break;
+            case 26: //피의화관
+                Damage = 5;
+                Scale = 30;
+                Repeat = 2;
+                Radius = 15;
+                Size = 7;
+                if (Tree_1 >= 1) {
+                    Repeat += 1;
+                    Size = 2;
+                    CondTrigger = 0x1;
+                }
+                if (Tree_1 >= 2) {
+                    Cool -= 24;
+                    Radius += 8;
+                }
+                if (Tree_1 >= 3) {
+                    sy.WeaponSetting_TypeChange(BloodFlower_Attack_WeaponId, 3);
+                } else {
+                    sy.WeaponSetting_TypeChange(BloodFlower_Attack_WeaponId, 4);
+                }
+                if (Tree_1 >= 4) Cool -= 2*24;
+                if (Tree_2 >= 1) Size += 3;
+                if (Tree_2 >= 2) Repeat += 2;
+                if (Tree_2 >= 3) {
+                    Scale += 10;
+                    Repeat += 3;
+                }
+                if (Tree_2 >= 4) CondTrigger += 0x100;
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SMD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(BloodFlower_Attack_WeaponId, Damage);
+                sy.WeaponSetting_Radius(BloodFlower_Attack_WeaponId, Radius);
+                sy.WeaponSetting_Range(BloodFlower_Attack, Size);
+                setloc(Targetloc, PlayerX, PlayerY);
+                for (var i = 0; i < Repeat; i++) {
+                    Angle = i * (256 / Repeat);
+                    if (CondTrigger & 0x100) addExecutor_Skill(cp, Index, CondTrigger, 60, PlayerX, PlayerY, Angle, ComboSkill);
+                    else addExecutor_Skill(cp, Index, CondTrigger, 24, PlayerX, PlayerY, Angle, ComboSkill);
+                }
+                break;
+            case 27: //지옥의문
+                Damage = 15;
+                Scale = 80;
+                SummonLimit = 3;
+                SummonUnit_Hp = 225;
+                SummonScale_First = 150;
+                Repeat = 0; //공격 횟수
+                Range = 3;
+                Radius = 12;
+                Radius_Large = 24; //공격속도
+                Type = 20; //소형악마 능력치비율
+                CondTrigger = 0; //특수 조건
+                if (Tree_1 >= 1) {
+                    Scale -= 30;
+                    Repeat += 2;
+                }
+                if (Tree_1 >= 2) {
+                    SummonLimit += 1;
+                    Repeat += 1;
+                }
+                if (Tree_1 >= 3) {
+                    Range += 2;
+                    Radius_Large -= 12;
+                }
+                if (Tree_1 >= 4) {
+                    Radius += 12;
+                    ShieldAmount = sy.SetWeaponDamage(cp, 5, sy.SSD, 50, NONEEDSCALE);
+                    sy.SummonUnit_AddShield(HellGate_BigUnit, ShieldAmount);
+                    sy.SummonUnit_AddShield(HellGate_SmallUnit, ShieldAmount*Type/100);
+                } else {
+                    sy.SummonUnit_AddShield(HellGate_BigUnit, 0);
+                    sy.SummonUnit_AddShield(HellGate_SmallUnit, 0);
+                }
+                if (Tree_2 >= 1) CondTrigger += 0x1; //소형악마 소환
+                if (Tree_2 >= 2) Type = 33;
+                if (Tree_2 >= 3) CondTrigger += 0x10; //소형악마 추가소환
+                if (Tree_2 >= 4) {
+                    CondTrigger += 0x100; //소형악마 최대치 추가
+                    Type = 50;
+                }
+                //소환수 능력치 설정
+                //체력
+                SummonUnit_Hp = sy.SetWeaponDamage(cp, SummonUnit_Hp, sy.SSD, SummonScale_First, NONEEDSCALE);
+                sy.SummonUnit_SetHp(HellGate_BigUnit, SummonUnit_Hp);
+                sy.SummonUnit_SetHp(HellGate_SmallUnit, SummonUnit_Hp*Type/100);
+                //공격력
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SSD, Scale, NEEDSCALE);
+                sy.WeaponSetting_Damage(HellGate_BigUnit_WeaponId, Damage);
+                sy.WeaponSetting_Damage(HellGate_SmallUnit_WeaponId, Damage* Type/100);
+                //공격속도
+                sy.WeaponSetting_AtSpeed(HellGate_SmallUnit_WeaponId, Radius_Large*100/Type);
+                //사거리
+                sy.WeaponSetting_Range(HellGate_BigUnit, Range);
+                sy.WeaponSetting_Range(HellGate_SmallUnit, Range*Type/100);
+                //스플범위
+                sy.WeaponSetting_Radius(HellGate_BigUnit_WeaponId, Radius);
+                //유닛소환
+                if (Command(cp, AtMost, SummonLimit-1, HellGate_BigUnit)) {
+                    setloc(Targetloc, PlayerX, PlayerY);
+                    tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, HellGate_BigUnit, Targetloc, cp);
+                    sy.SetExtraDb(tempepd, 0, 5); //지옥의문
+                    sy.SetExtraDb(tempepd, 1, CondTrigger);
+                    sy.SetExtraDb(tempepd, 3, Repeat);
+                    sy.SetExtraDb(tempepd, 4, Radius_Large);
+                    HellGateGroup.add(tempepd);
+                }
+                break;
+            case 28: //야수부리미
+                Damage = 10;
+                Scale = 100;
+                Damage_Second = 12;
+                Scale_Second = 120;
+                SummonUnit_Hp = 65;
+                SummonScale_First = 100;
+                SummonUnit_Hp_Second = 90;
+                SummonScale_Second = 120;
+                SummonLimit = 6;
+                Type = 6; //야수 체력재생력
+                SkillType = 1; //일반소환
+                if (Tree_1 >= 1) {
+                    Scale += Scale/2;
+                    Scale_Second += Scale_Second/2;
+                    SummonScale_First += SummonScale_First/2;
+                    SummonScale_Second += SummonScale_Second/2;
+                }
+                if (Tree_1 >= 2) CondTrigger += 0x1; //소환수 이속&공속 증가
+                if (Tree_1 >= 3) {
+                    SummonLimit += 4;
+                    Type += 30; //야수 체력재생력 증가
+                }
+                if (Tree_1 >= 4) CondTrigger += 0x10; //공격시 소환공격력만큼 회복
+                if (Tree_2 >= 1) {
+                    SkillType = 2; //웅합소환
+                    SummonLimit = 2;
+                }
+                if (Tree_2 >= 2) Condition += 0x100; //공격시 공격력만큼 회복
+                if (Tree_2 >= 3) CondTrigger += 0x1000; //영구강화 트리거
+                if (Tree_2 >= 4) CondTrigger += 0x10000; //영구강화 2배
+                //소환수 능력치 설정
+                //체력
+                SummonUnit_Hp = sy.SetWeaponDamage(cp, SummonUnit_Hp, sy.SSD, SummonScale_First, NONEEDSCALE);
+                SummonUnit_Hp_Second = sy.SetWeaponDamage(cp, SummonUnit_Hp_Second, sy.SSD, SummonScale_Second, NONEEDSCALE);
+                sy.SummonUnit_SetHp(BeastCall_Snake_Unit, SummonUnit_Hp);
+                sy.SummonUnit_SetHp(BeastCall_Wolf_Unit, SummonUnit_Hp_Second);
+                break;
+        
+            default:
+                break;
+        }
+        if (sy.SkillCool_LuckCheck(cp, Ownedidx)) Cool = 0;
+        CurCool[Ownedidx] = Cool;
+    }
+    else if (CurCool[Ownedidx] > 0) {
+        CurCool[Ownedidx] -= 1;
+        if (Index == 25) { //달의공명 달이 영구히 유지 상태면 쿨타임 감소하지 않음
+            if (Tree_1 >= 4 && Command(cp, AtLeast, 1, Moon_Unit)) {
+                CurCool[Ownedidx] += 1;
+                Order(Moon_Unit, cp, "Anywhere", Move, Player_Hero_loc+cp);
+            }
+        }
+    }
+}
+
+function ComboSkill(e: Executor) {
+    //cp, Index, Type, Timer, x, y, Angle, Fucntion
+    //연속스킬
+    const cp = e.cp;
+    var Timer = e.Timer;
+    const TMAX = e.Tmax;
+    var Repeat = e.Extra[0];
+    var CondTrigger = e.Extra[1];
+    var Angle = e.Extra[2];
+    var ETCData = e.Extra[3];
+    const Index = e.Index;
+    var Type = e.Type;
+    var TargetX = e.TargetX;
+    var TargetY = e.TargetY;
+    var temptimershift = 0;
+    switch (Index) { 
+        case 1: //방패와검: 1칸 범위에 범위피해를 준 다음 사거리 4내의 적에게 검격을 휘두릅니다.
+            if (Type == 1) {
+                if (Timer%4 == 0 && Timer > 0) { //4프레임마다 이펙트 찍어주기 0 4
+                    const Size = (Timer/4+1)*16;
+                    setloc(Targetloc, TargetX, TargetY);
+                    wwrite_epd(EPD(0x666458), 0, 494);
+                    dw.DrawCircle(Size);
+                    wwrite_epd(EPD(0x666458), 0, 546);
+                }
+            }
+            else if (Type == 2) { //검격공격 프레임마다 찍기?
+                if (Timer%6 == 0 && Timer > 0) {
+                    Angle = rand()%360;
+                    const dx, dy = lengthdir(12*(Repeat/2), Angle+180);
+                    const dx1, dy1 = lengthdir(12, Angle);
+                    const x, y = TargetX + dx, TargetY + dy;
+                    for (var i = 0; i < Repeat; i++) {
+                        setloc(Targetloc, x + dx1*i, y + dy1*i);
+                        TE.AttackGround(Targetloc, Targetloc, Heron_SwordAttack, DummyUnit, cp);
+                    }
+                }
+            }
+            break;
+        case 2: //탄성궁: 6칸 내의 적에게 6번에 걸쳐 피해를 줍니다.
+            if (Timer%2 == 0 && Timer > 0) { //2프레임마다 공격
+                const x, y = sy.GetPlayerPox(cp);
+                setloc(Targetloc, x, y);
+                //피해량 설정
+                if (Type & 0x10) sy.WeaponSetting_Damage_PerAdd(Wreath_ArrowAttack_WeaponId, 12);
+                //공격유닛 생성
+                const epd = sy.SetNextUnitEPD();
+                CreateUnit(1, Wreath_ArrowAttack, Targetloc, cp);
+                wwrite_epd(epd + 0x110/4, 0, 6);
+                //이펙트
+                sy.ScanImage_Create(cp, 213, 34, 0, x, y, Targetloc);
+                if (Type & 0x100) { //덫깔기
+                    const temp = sy.SetNextUnitEPD();
+                    CreateUnit(1, Wreath_ArrowAttack_Mine, Targetloc, cp);
+                    wwrite_epd(temp + 0x110/4, 0, 640);
+                    if (Angle > 0) wwrite_epd(temp + 0x8C/4, 0, Angle);
+                }
+            }
+            break;
+        case 3: //달빛스태프: 10칸 내의 적에게 화염구 2회 시전
+            if (CondTrigger == 0) {
+                if (Timer%3 == 0 && Timer > 0) { //4프레임마다 공격
+                    const x, y = sy.GetPlayerPox(cp);
+                    setloc(Targetloc, x, y);
+                    sy.ScanImage_Create(cp, 377, 34, 9, x, y, Targetloc);
+                    //공격유닛 생성
+                    const epd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Neffrim_FireBall, Targetloc, cp);
+                    wwrite_epd(epd + 0x110/4, 0, 6);
+                    wwrite_epd(epd + 0x8C/4, 0, Angle);
+                    FireBallGroup.add(epd);
+                }
+            }
+            else if (CondTrigger == 1) {
+                if (Timer%4 == 0 && Timer > 0) { //4프레임마다 공격
+                    for (var i = 0; i < 4; i++) {
+                        const R = rand()%3;
+                        if (R == 0) sy.ScanImage_Create(cp, 489, 34, 0, TargetX + (rand()%96) - 48, TargetY + (rand()%96) - 48, Targetloc);
+                        if (R == 1) sy.ScanImage_Create(cp, 489, 34, 10, TargetX + (rand()%96) - 48, TargetY + (rand()%96) - 48, Targetloc);
+                        if (R == 2) sy.ScanImage_Create(cp, 489, 34, 13, TargetX + (rand()%96) - 48, TargetY + (rand()%96) - 48, Targetloc);
+                    }
+                    setloc(Targetloc, TargetX, TargetY);
+                    //공격유닛 생성
+                    TE.AttackGround(Targetloc, Targetloc, Neffrim_Ignite, DummyUnit, cp);
+                }
+            }
+            break;
+        case 5: //데스티니:
+            temptimershift = 4;
+            if (CondTrigger & 0x10) temptimershift = 2;
+            if (Timer%temptimershift == 0 && Timer > 0) { //4프레임마다 좌표 갱신해서 공격
+                if (CondTrigger & 0x1) { //적 지정
+                    setloc(Temploc, TargetX, TargetY);
+                    dilateloc(Temploc, 48, 48);
+                    if (Bring(P4, AtLeast, 1, "Men", Temploc)) {
+                        MoveLocation(Targetloc, "Men", P4, Temploc);
+                        TargetX, TargetY = getlocTL(Targetloc);
+                    } else {
+                        const dx, dy = lengthdir(48, rand()%360);
+                        TargetX += dx;
+                        TargetY += dy;
+                        setloc(Targetloc, TargetX, TargetY);
+                    }
+                } else { //적 미지정
+                    const dx, dy = lengthdir(48, rand()%360);
+                    TargetX += dx;
+                    TargetY += dy;
+                    setloc(Targetloc, TargetX, TargetY);
+                }
+                if (Angle > 0) { //확률조건으로 추가발동
+                    var R = rand()%100;
+                    R = sy.Player_LuckTest(cp, R, 100, 1);
+                    if (R < Angle/10) { 
+                        e.Timer -= temptimershift;
+                    }
+                }
+                TE.AttackGround(Targetloc, Targetloc, Forture_Dice, DummyUnit, cp);
+                sy.ScanImage_Create(cp, 357, 34, 0, TargetX, TargetY, Targetloc);
+            }
+            break;
+        case 9: //삼지창: 추가 이펙트 뽑기
+            if (Timer%ETCData == 0 && Timer > 0) { //일정 프레임마다 공격
+                var Size = 1;
+                if (CondTrigger & 0x1) Size = 5;
+                if (CondTrigger & 0x10) Size = 10; //더 큰 삼지창
+                var x, y = TargetX, TargetY;
+                const dx, dy = lengthdir(12, Angle);
+                const dx1, dy1 = lengthdir(24, Angle+90);
+                setloc(Targetloc, x - dx1*(Size/2), y - dy1*(Size/2));
+                for (var i = 0; i < Size; i++) {
+                    sy.ScanImage_Create(cp, 557, 34, 0, x, y, Targetloc);
+                    TE.AttackGround(Targetloc, Targetloc, Forture_Dice, DummyUnit, cp);
+                    x += dx1;
+                    y += dy1;
+                }
+                //좌표이동
+                TargetX += dx;
+                TargetY += dy;
+            }
+            break;
+        case 10: //거대도끼: 부채꼴 공격
+            if (Timer%8 == 0 && Timer > 0) { //4프레임마다 이펙트?
+                //이펙트
+                var x, y = TargetX, TargetY;
+                var More_Big = 32;
+                if (Type & 0x1) More_Big = 48; //더 큰 부채꼴
+                for (var i = 0; i < Repeat; i++) { //사거리 반복
+                    var count = i * 2 + 1;
+                    var half = count / 2; // 중심 offset
+                    for (var j = 0; j < i*2+1; j++) {
+                        const SubAngle = Angle + (j - half) * 15; //부채꼴 각도
+                        var dx, dy = lengthdir(More_Big*i, SubAngle);
+                        setloc(Targetloc, x + dx, y + dy); //부채꼴 길이만큼 이동
+                        TE.AttackGround(Targetloc, Targetloc, HugeAxe_Attack, DummyUnit, cp);
+                        sy.ScanImage_Create(cp, 557, 34, 0, x + dx, y + dy, Targetloc);
+                    }
+                }
+                e.Extra[2] += 60; //다음 공격 각도 변경
+            }
+            break;
+        case 13: //신벌의철퇴: 추가공격
+            if (Angle & 0x1) { //주변공격 1회
+                if (Timer == 12) { //조건에 따라서 공격
+                    setloc(Targetloc, TargetX, TargetY);
+                    const temp = dw.draw.Circle("Location 22", 32, dots=9); //원
+                    for (var i = 0; i < 9; i++) {
+                        const x, y = temp[i];
+                        setloc(Targetloc, TargetX + x, TargetY + y);
+                        TE.AttackGround(Targetloc, Targetloc, Mace_Attack, DummyUnit, cp);
+                    }
+                }
+            }
+            if (Angle & 0x10) { //주변공격 2회
+                if (Timer == 24) { //조건에 따라서 공격
+                    setloc(Targetloc, TargetX, TargetY);
+                    const temp = dw.draw.Circle("Location 22", 64, dots=9); //원
+                    for (var i = 0; i < 9; i++) {
+                        const x, y = temp[i];
+                        setloc(Targetloc, TargetX + x, TargetY + y);
+                        TE.AttackGround(Targetloc, Targetloc, Mace_Attack, DummyUnit, cp);
+                    }
+                }
+            }
+            if (Type == 0) {
+                if (Angle & 0x100) { //1번더 공격
+                    if (Timer == TMAX) {
+                        e.Timer = 0;
+                        Timer = 0;
+                        e.Type = 1;
+                    }
+                }
+            }
+            break;
+        case 16: //저주받은 검
+            if (Timer%Type == 0 && Timer > 0) {
+                setloc(Targetloc, TargetX, TargetY);
+                const epd = sy.SetNextUnitEPD();
+                CreateUnit(1, CurseSword_Attack, Targetloc, cp);
+                wwrite_epd(epd + 0x110/4, 0, 3);
+                if (Angle > 0) { //고정피해
+                    TE.AttackGround(Targetloc, Targetloc, CurseSword_TrueAttack, DummyUnit, P4);
+                }
+                //이펙트 추가
+                for (var i = 0; i < 4; i++) {
+                    sy.ScanImage_Create(cp, 3, 34, 0, TargetX + rand()%36-18, TargetY + rand()%36-18, Targetloc);
+                }
+            }
+            break;
+        case 18: //레이저완드
+            if (Timer%6 == 0 && Timer > 0) {
+                var Repeat = 1;
+                if (LaserCond & 0x1) Repeat = 3; //삼각형
+                for (var i = 0; i < Repeat; i++) {
+                    const dx, dy = lengthdir(7*Type, Angle); //레이저 시작지점
+                    setloc(Targetloc, TargetX + dx, TargetY + dy);
+                    const dx1, dy1 = lengthdir(24, Angle + 90); //레이저 끝지점
+                    addloc(Targetloc, -dx1*(Type/2), -dy1*(Type/2));
+                    for (var j = 0; j < Type; j++) {
+                        TE.AttackGround(Targetloc, Targetloc, LaserWand_Attack, DummyUnit, cp);
+                        addloc(Targetloc, dx1, dy1); //레이저 길이만큼 이동
+                    }
+                    Angle += 360/Repeat; //각도 변경
+                }
+            }
+            if (Timer == TMAX) { //지속시간 끝날 때 폭발
+                if (LaserCond & 0x10) {
+                    var Repeat = 1;
+                    if (LaserCond & 0x1) Repeat = 3; //삼각형
+                    for (var i = 0; i < Repeat; i++) {
+                        const dx, dy = lengthdir(7*Type, Angle); //레이저 시작지점
+                        setloc(Targetloc, TargetX + dx, TargetY + dy);
+                        const dx1, dy1 = lengthdir(24, Angle + 90); //레이저 끝지점
+                        addloc(Targetloc, -dx1*(Type/2), -dy1*(Type/2));
+                        for (var j = 0; j < Type; j++) {
+                            TE.AttackGround(Targetloc, Targetloc, LaserWand_Explosion_Attack, DummyUnit, cp);
+                            addloc(Targetloc, dx1, dy1); //레이저 길이만큼 이동
+                        }
+                        Angle += 360/Repeat; //각도 변경
+                    }
+                }
+            }
+            break;
+        case 20: //하늘의부름
+            if (Timer%6 == 0 && Timer > 60) {
+                for (var i = 0; i < 4; i++) {
+                    const dx, dy = rand()%Type - Type/2, rand()%Type - Type/2; //낙하 위치 오차
+                    setloc(Targetloc, TargetX + dx, TargetY + dy);
+                    TE.AttackGround(Targetloc, Targetloc, MeteorRain_DOT_Attack, DummyUnit, cp);
+                    sy.ScanImage_Create(cp, 489, 34, 0, TargetX + dx, TargetY + dy, Targetloc);
+                }
+            }
+            break;
+        case 21: //신의징벌
+            if (Timer == 0) {
+                for (var i = 0; i < Type; i++) {
+                    const dx, dy = rand()%256 - 128, rand()%256 - 128; //낙하 위치 오차
+                    e.Extra_XY[i] = (TargetX+dx)*10000 + (TargetY+dy); //낙하 위치 저장
+                }
+            }
+            if (Timer %3 == 0 && Timer < 15) { //3프레임마다 낙하 위치 찍기
+                for (var i = 0; i < Type; i++) {
+                    const Tx, Ty = e.Extra_XY[i]/10000, e.Extra_XY[i]%10000; //낙하 위치
+                    if (Angle & 0x10) sy.ScanImage_Create(cp, 580, 272, 10, Tx, Ty, Targetloc); //큰 원
+                    else sy.ScanImage_Create(cp, 579, 272, 10, Tx, Ty, Targetloc); //작은 원
+                }
+                if (Angle & 0x1) {
+                    //영웅한테도 떨어지기
+                    sy.ScanImage_Create(cp, 576, 272, 10, TargetX, TargetY, Targetloc);
+                }
+            }
+            else if (Timer == 15) { //낙하 위치에 공격
+                for (var i = 0; i < Type; i++) {
+                    const Tx, Ty = e.Extra_XY[i]/10000, e.Extra_XY[i]%10000; //낙하 위치
+                    setloc(Targetloc, Tx, Ty);
+                    TE.AttackGround(Targetloc, Targetloc, GodImpact_Attack, DummyUnit, cp);
+                    //이펙트 따로 뽑기
+                    sy.ScanImage_Create(cp, 525, 34, 10, Tx, Ty, Targetloc);
+                }
+                if (Angle & 0x1) {
+                    //영웅한테도 떨어지기
+                    setloc(Targetloc, TargetX, TargetY);
+                    TE.AttackGround(Targetloc, Targetloc, GodImpact_Attack, DummyUnit, cp);
+                    sy.ScanImage_Create(cp, 525, 34, 10, TargetX, TargetY, Targetloc);
+                }
+            }
+            break;
+        case 24: //지옥의부름
+            if (Timer%8 == 0 && Timer > 0) {
+                //로케이션 이동 및 끌땅
+                setloc(Temploc, TargetX - Type/2, TargetY - Type/2, TargetX + Type/2, TargetY + Type/2);
+                Order("Men", P4, Temploc, Move, Temploc);
+                //공격
+                setloc(Targetloc, TargetX, TargetY);
+                //지속피해
+                TE.AttackGround(Targetloc, Targetloc, Hell_Attack, DummyUnit, cp);
+                sy.ScanImage_Create(cp, 391, 34, 13, TargetX, TargetY, Targetloc);
+                for (var i = 0; i < 4; i++) {
+                    const dx, dy = rand()%(Type) - (Type/2), rand()%(Type) - (Type/2);
+                    sy.ScanImage_Create(cp, 517, 34, 10, TargetX + dx, TargetY + dy, Targetloc);
+                }
+            }
+            if (Timer == TMAX) {
+                //공격
+                setloc(Targetloc, TargetX, TargetY);
+                TE.AttackGround(Targetloc, Targetloc, Hell_EndAttack, DummyUnit, cp);
+            }
+            break;
+        case 26: //피의화관
+            if (Type & 0x1) {
+                if (Timer%2 == 0) {
+                    const tempAngle = (Timer/2) * (256/9);
+                    const dx, dy = lengthdir_256(64*(Timer/2), Angle);
+                    // sy.ScanImage_Create(cp, 387, 34, 0, TargetX + dx, TargetY + dy, Targetloc);
+                    setloc(Targetloc, TargetX + dx, TargetY + dy);
+                    sy.AttackGround2(Targetloc, Targetloc, BloodFlower_Attack, DummyUnit, Angle, cp);
+                }
+            } else {
+                if (Timer == 5) {
+                    const dx, dy = lengthdir_256(64, Angle);
+                    // sy.ScanImage_Create(cp, 387, 34, 0, TargetX + dx, TargetY + dy, Targetloc);
+                    setloc(Targetloc, TargetX, TargetY);
+                    sy.AttackGround2(Targetloc, Targetloc, BloodFlower_Attack, DummyUnit, Angle, cp);
+                }
+                if (Timer == 22 && Type & 0x100) {
+                    const dx, dy = lengthdir_256(320, Angle);
+                    setloc(Targetloc, TargetX + dx, TargetY + dy);
+                    const tempAngle = (Angle+128)%256;
+                    sy.AttackGround2(Targetloc, Targetloc, BloodFlower_Attack, DummyUnit, tempAngle, cp);
+                }
+                if (Timer == 39 && Type & 0x100) {
+                    setloc(Targetloc, TargetX, TargetY);
+                    sy.AttackGround2(Targetloc, Targetloc, BloodFlower_Attack, DummyUnit, Angle, cp);
+                }
+                if (Timer == 56 && Type & 0x100) {
+                    const dx, dy = lengthdir_256(320, Angle);
+                    setloc(Targetloc, TargetX + dx, TargetY + dy);
+                    const tempAngle = (Angle+128)%256;
+                    sy.AttackGround2(Targetloc, Targetloc, BloodFlower_Attack, DummyUnit, tempAngle, cp);
+                }
+            }
+            break;
+        default:
+            break;
+    }
+
+    if (Timer == TMAX) return false;
+    e.TargetX = TargetX;
+    e.TargetY = TargetY;
+    return true;
+}
+function UnitAttackChecking(cp, IsHeroDead, CpWeaponList: EUDArray) { //타겟스킬 유닛 공격 확인용
+    const ExtraData = EUDArray(4); //추가 데이터 (반복횟수, 조건변수, 공격각도, 기타정보)
+    foreach(unit : CheckingUnitEpd.cploop) {
+        const epd = unit.epd;
+        unit.set_cp(0x4C/4);
+        foreach(dead : unit.dying) {
+            sy.ExtraDb_Reset(epd);
+        }
+        const cp = bread_epd(epd + 0x4C/4, 0);
+        const OrderTarget = dwread_epd(epd + 0x5C/4);
+        const Index = sy.GetExtraDb(epd, 1);
+        const Ownedidx = sy.GetExtraDb(epd, 2);
+        const WCool = bread_epd(epd + 0x54/4, 1);
+        if (OrderTarget > 0 && !IsHeroDead) {
+            const Tx, Ty = posread_epd(epd + 0x58/4);
+            const Weapon = WeaponList.cast(CpWeaponList[Ownedidx]);
+            const Tree_1 = Weapon.WeaponTree_1;
+            const Tree_2 = Weapon.WeaponTree_2;
+            if (Index == 1) { //검격공격
+                bwrite_epd(epd + 0x4C/4, 1, 0);
+                var Repeat = 16;
+                var Damage = 14;
+                var Scale = 5;
+                var Again = 1;
+                if (Tree_2 >= 1) Repeat += 16;
+                if (Tree_2 >= 2) Scale += 2;
+                if (Tree_2 >= 3) Again += 1;
+                if (Tree_2 >= 4) Again += 1;
+                Damage = sy.SetWeaponDamage(cp, Damage, sy.SPD, Scale*100, NEEDSCALE);
+                sy.WeaponSetting(1, 6, Damage, 162);
+                AddData(ExtraData, Repeat, 0, 0, 0);
+                addExecutor_Skill(cp, Index, 2, Again*6, Tx, Ty, ExtraData, ComboSkill);
+            }
+            else if (Index == 10) { //거대도끼
+                const Timer = sy.GetExtraDb(epd, 3); //지속시간
+                const CondTrigger = sy.GetExtraDb(epd, 4); //특수조건
+                const Repeat = sy.GetExtraDb(epd, 5); //공격크기
+                const x, y = posread_epd(epd + 0x28/4);
+                const Angle = atan2(Ty-y, Tx-x);
+                AddData(ExtraData, Repeat, CondTrigger, Angle, 0);
+                addExecutor_Skill(cp, 10, CondTrigger, Timer*8, x, y, ExtraData, ComboSkill);
+                bwrite_epd(epd + 0x4C/4, 1, 0);
+            }
+            else if (Index == 17) { //쾌속의쌍검
+                var Type = sy.GetExtraDb(epd, 3); //특수조건 0x1: 주변에 옮기기 0x10: 공격대상 없으면 회복
+                var Timer = sy.GetExtraDb(epd, 4); //지속시간
+                var Damage = sy.GetExtraDb(epd, 5); //피해량
+                const Target = EPD(OrderTarget);
+                if (bread_epd(Target + 0x4C/4, 1) != 0) { //공격대상이 사망 중이 아니면 넣기
+                    const temp = Index + Ownedidx*256 + Type*65536 + Timer*16777216; //고정타이머
+                    const temp_2 = Timer + cp * 65536; //줄어드는 타이머
+                    sy.SetExtraDb(Target, 5, temp);
+                    sy.SetExtraDb(Target, 6, Damage);
+                    sy.SetExtraDb(Target, 7, temp_2);
+                }
+            }
+            else if (Index == 22) { //얼음왕관
+                if (WCool == 0) {
+                    const CondTrigger = sy.GetExtraDb(epd, 3); //특수조건
+                    if (CondTrigger & 0x10000) {
+                        const Target = EPD(OrderTarget);
+                        if (bread_epd(Target + 0x4C/4, 1) != 0) { //공격대상이 사망 중이 아니면 넣기
+                            const Amount = bread_epd(Target + 0x124/4, 2);
+                            if (Amount + 3 >= 255) bwrite_epd(Target + 0x124/4, 2, 255);
+                            else bwrite_epd(Target + 0x124/4, 2, Amount + 3);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    foreach(unit : IcicleGroup.cploop) { //생성되고 1초 뒤에 폭발
+        const cp = bread_cp(0, 0);
+        const epd = unit.epd;
+        foreach(dead : unit.dying) {
+            unit.set_cp(0x28/4);
+            const x, y = posread_cp(0);
+            const Repeat = sy.GetExtraDb(epd, 1);
+            if (Repeat == 1) {
+                setloc(Targetloc, x, y);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+            } else if (Repeat == 4) {
+                setloc(Targetloc, x + 64, y);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x - 64, y);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x, y + 64);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x, y - 64);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+            } else {
+                setloc(Targetloc, x + 64, y);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                setloc(Targetloc, x - 64, y);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                setloc(Targetloc, x, y + 64);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                setloc(Targetloc, x, y - 64);
+                TE.AttackGround(Targetloc, Targetloc, Roira_Frost, DummyUnit, cp);
+                //빙결만
+                setloc(Targetloc, x - 128, y - 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x, y - 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x + 128, y - 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x - 128, y);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x, y);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x + 128, y);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x - 128, y + 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x, y + 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                setloc(Targetloc, x + 128, y + 128);
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+            }
+            sy.ExtraDb_Reset(epd);
+        }
+    }
+    foreach(unit : ToxicGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        foreach(dead : unit.dying) {
+            
+        }
+        unit.set_cp(0x54/4);
+        if (DeathsX(CurrentPlayer, AtLeast, 100*256, 0, 0xFF00)) {
+            unit.set_cp(0x8C/4);
+            const Damage = wread_cp(0, 0);
+            unit.move_cp(0x84/4);
+            const Lock = bread_cp(0, 2);
+            const OrderTarget = unit.epd + 0x5C/4;
+            if (MemoryEPD(OrderTarget, AtLeast, 0x59CCA8)) {
+                const Target = cunitepdread_epd(OrderTarget)[[1]];
+                sy.SetExtraDb(Target, 0, 4);
+                sy.SetExtraDb(Target, 1, Damage);
+                sy.SetExtraDb(Target, 2, 24);
+                sy.SetExtraDb(Target, 3, cp);
+                sy.SetExtraDb(Target, 4, Lock);
+            }
+        }
+    }
+    foreach(unit : FireBallGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        foreach(dead : unit.dying) {
+            
+        }
+        unit.set_cp(0x8C/4);
+        const FireTrigger = wread_cp(0,0);
+        unit.move_cp(0x58/4);
+        const x, y = posread_cp(0);
+        unit.move_cp(0x54/4);
+        const WCool = bread_cp(0,1);
+        if (WCool > 100 && FireTrigger) {
+            unit.move_cp(0x4C/4);
+            SetDeathsX(CurrentPlayer, SetTo, 0, 0, 0xFF00);
+            const IgniteDamage = sy.SetWeaponDamage(cp, 2, sy.SMD, 40, NEEDSCALE);
+            sy.WeaponSetting_Damage(Neffrim_Ignite_WeaponId, IgniteDamage);
+            addExecutor_Skill(cp, 3, 1, 2*24, x, y, 0, ComboSkill);
+        }
+    }
+    foreach(unit : RifleDogGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        foreach(dead : unit.dying) {
+            
+        }
+        unit.set_cp(0x54/4);
+        if (DeathsX(CurrentPlayer, AtLeast, 100*256, 0, 0xFF00)) {
+            unit.move_cp(0x4C/4);
+            SetDeathsX(CurrentPlayer, SetTo, 0, 0, 0xFF00);
+            unit.move_cp(0x58/4);
+            const x, y = posread_cp(0);
+            unit.move_cp(0x8C/4);
+            const DogCond = wread_cp(0,0);
+            unit.move_cp(0x84/4);
+            const DogAmount = bread_cp(0,2);
+            setloc(Targetloc, x, y);
+            if (DogCond && 0x1) {
+                for (var i = 0; i < DogAmount; i++) {
+                    const epd = sy.SetNextUnitEPD();
+                    CreateUnit(1, LongRifle_Dog, Targetloc, cp);
+                    wwrite_epd(epd + 0x110/4, 0, 4*24);
+                    if (DogCond && 0x10) {
+                        SetMemoryXEPD(epd + 0xDC/4, SetTo, 0x10000000, 0x10000000);
+                        SetMemoryXEPD(epd + 0xDC/4, SetTo, 0x20000000, 0x20000000);
+                    }
+                }
+            }
+        }
+    }
+    foreach(unit : MaceGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        foreach(dead : unit.dying) {
+            
+        }
+        unit.set_cp(0x54/4);
+        if (DeathsX(CurrentPlayer, AtLeast, 100*256, 0, 0xFF00)) {
+            unit.move_cp(0x58/4);
+            const x, y = posread_cp(0);
+            unit.move_cp(0x8C/4);
+            const Cond = wread_cp(0,0);
+            setloc(Targetloc, x, y);
+            if (Cond & 0x1) {
+                addExecutor_Skill(cp, 13, 0, 36, x, y, Cond, ComboSkill);
+            }
+            unit.set_cp(0x4C/4);
+            SetDeathsX(CurrentPlayer, SetTo, 0, 0, 0xFF00);
+        } 
+    }
+    foreach(unit : IceCrownGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        const epd = unit.epd;
+        const CondTrigger = sy.GetExtraDb(epd, 2);
+        const Timer = sy.GetExtraDb(epd, 1);
+        unit.set_cp(0x4C/4);
+        foreach(dead : unit.dying) {
+            sy.ExtraDb_Reset(epd);
+            if (CondTrigger & 0x10) {
+                const x, y = posread_epd(epd + 0x28/4);
+                setloc(Targetloc, x - 96, y - 96);
+                for (var i = 0; i < 3; i++) {
+                    for (var j = 0; j < 3; j++) {
+                        TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+                        addloc(Targetloc, 96, 0);
+                    }
+                    addloc(Targetloc, -(96*3), 96);
+                }
+            }
+        }
+        var temp = 8;
+        if (CondTrigger & 0x100) {
+            const AliveTime = wread_epd(epd + 0x110/4, 0);
+            if (AliveTime < 5*24) {
+                temp = 2; //지속피해 속도 증가
+            } else if (AliveTime < 9*24) {
+                temp = 3; //지속피해 속도 증가
+            } else if (AliveTime < 12*24) {
+                temp = 5; //지속피해 속도 증가
+            } else {
+                temp = 8; //지속피해 속도 증가
+            }
+        }
+        if (Timer == 0) {
+            sy.SetExtraDb(epd, 1, temp);
+            //공격 및 추가효과
+            const x, y = posread_epd(epd + 0x28/4);
+            setloc(Targetloc, x, y);
+            const tempepd = sy.SetNextUnitEPD();
+            CreateUnit(1, IceCrown_Attack, Targetloc, cp);
+            wwrite_epd(tempepd + 0x110/4, 0, 4); //지속시간
+            sy.SetExtraDb(tempepd, 0, 2);
+            sy.SetExtraDb(tempepd, 1, 22);
+            sy.SetExtraDb(tempepd, 2, 0);
+            sy.SetExtraDb(tempepd, 3, CondTrigger);
+            CheckingUnitEpd.add(tempepd);
+            sy.ScanImage_Create(cp, 213, 34, 0, x, y, Targetloc); //이펙트
+            if (CondTrigger & 0x1) { //주변 적 둔화
+                TE.AttackGround(Targetloc, Targetloc, Frost_Effect, DummyUnit, cp);
+            }
+            if (CondTrigger & 0x1000) { //확률적으로 추가 공격
+                var R = rand()%100;
+                R = sy.Player_LuckTest(cp, R, 100, 1);
+                if (R < 25) { //20% 확률로 추가 공격
+                    const Extraepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, IceCrown_Attack, Targetloc, cp);
+                    wwrite_epd(Extraepd + 0x110/4, 0, 4); //지속시간
+                    sy.SetExtraDb(Extraepd, 0, 2);
+                    sy.SetExtraDb(Extraepd, 1, 22);
+                    sy.SetExtraDb(Extraepd, 2, 0);
+                    sy.SetExtraDb(Extraepd, 3, CondTrigger);
+                    CheckingUnitEpd.add(Extraepd);
+                }
+            }
+        } else {
+            sy.ExtraSubDb(epd, 1, 1);
+        }
+    }
+    foreach(unit : StarfallGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        const epd = unit.epd;
+        const CondTrigger = sy.GetExtraDb(epd, 1);
+        unit.set_cp(0x4C/4);
+        foreach(dead : unit.dying) {
+            if (CondTrigger & 0x1) { //소멸 시 확률적으로 재생성
+                var R = rand()%100;
+                R = sy.Player_LuckTest(cp, R, 100, 1);
+                if (R < 10) {
+                    const x, y = posread_epd(epd + 0x28/4);
+                    setloc(Targetloc, x, y);
+                    const tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, Starfall_Attack, Targetloc, cp);
+                    wwrite_epd(tempepd + 0x110/4, 0, 80);
+                    sy.SetExtraDb(tempepd, 0, 1);
+                    sy.SetExtraDb(tempepd, 1, CondTrigger);
+                    StarfallGroup.add(tempepd);
+                }
+            }
+            if (CondTrigger & 0x10) { //소멸 시 추가 피해
+                const x, y = posread_epd(epd + 0x28/4);
+                setloc(Targetloc, x, y);
+                TE.AttackGround(Targetloc, Targetloc, Starfall_Remove_Attack, DummyUnit, cp);
+            }
+            sy.ExtraDb_Reset(epd);
+        }
+        unit.set_cp(0x54/4);
+        if (DeathsX(CurrentPlayer, AtLeast, 100*256, 0, 0xFF00)) {
+            unit.move_cp(0x4C/4);
+            SetDeathsX(CurrentPlayer, SetTo, 0, 0, 0xFF00);
+        }
+    }
+    foreach(unit : MoonLightGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        const epd = unit.epd;
+        const CondTrigger = sy.GetExtraDb(epd, 3);
+        const DevilAmount = sy.GetExtraDb(epd, 4);
+        unit.set_cp(0x4C/4);
+        foreach(dead : unit.dying) {
+            if (DevilAmount > 0) {
+                for (var i = 0; i < DevilAmount; i++) {
+                    const x, y = posread_epd(epd + 0x28/4);
+                    const tempepd = sy.SetNextUnitEPD();
+                    setloc(Targetloc, x, y);
+                    CreateUnit(1, Moon_Devil, Targetloc, cp);
+                    if (CondTrigger & 0x1) { //악마 강화
+                        SetMemoryXEPD(tempepd + 0xDC/4, SetTo, 0x30000000, 0x30000000);
+                    }
+                }
+            }
+            //사망 시 범위피해
+            const x, y = posread_epd(epd + 0x28/4);
+            setloc(Targetloc, x, y);
+            TE.AttackGround(Targetloc, Targetloc, Moon_Radius_Attack, DummyUnit, cp);
+            sy.ScanImage_Create(cp, 318, 34, 10, x, y, Targetloc);
+            sy.ExtraDb_Reset(epd);
+        }
+        const Roop = sy.GetExtraDb(epd, 2);
+        const Repeat = sy.GetExtraDb(epd, 1);
+        const Timer = sy.GetExtraDb(epd, 5);
+        if (Timer == 0) {
+            sy.SetExtraDb(epd, 5, Roop);
+            for (var i = 0; i < Repeat; i++) {
+                const x, y = posread_epd(epd + 0x28/4);
+                const tempepd = sy.SetNextUnitEPD();
+                setloc(Targetloc, x, y);
+                CreateUnit(1, Moon_Attack, Targetloc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, 6);
+                sy.ScanImage_Create(cp, 951, 34, 10, x, y, Targetloc);
+            }
+        } else {
+            sy.ExtraSubDb(epd, 5, 1);
+        }
+    }
+    foreach(unit : HellGateGroup.cploop) {
+        const cp = bread_cp(0, 0);
+        const epd = unit.epd;
+        foreach(dead : unit.dying) {
+            sy.ExtraDb_Reset(epd);
+        }
+        const CondTrigger = sy.GetExtraDb(epd, 1);
+        const Timer = sy.GetExtraDb(epd, 2);
+        if (CondTrigger & 0x1) { //지옥의 문
+            var Max_Amount = 8;
+            var SummonAmount = 1;
+            if (CondTrigger & 0x10) SummonAmount = 2;
+            if (CondTrigger & 0x100) Max_Amount = 16; //최대치 증가
+            if (Timer == 0 && Command(cp, AtMost, Max_Amount-1, HellGate_SmallUnit)) {
+                const x, y = posread_epd(epd + 0x28/4);
+                setloc(Targetloc, x, y);
+                for (var i = 0; i < SummonAmount; i++) {
+                    const tempepd = sy.SetNextUnitEPD();
+                    CreateUnit(1, HellGate_SmallUnit, Targetloc, cp);
+                    sy.ScanImage_Create(cp, 430, 34, 0, x, y, Targetloc);
+                }
+                sy.SetExtraDb(epd, 2, 8*24);
+            } else {
+                sy.ExtraSubDb(epd, 2, 1);
+            }
+        }
+        const WCool = sy.GetExtraDb(epd, 4);
+        unit.set_cp(0x54/4);
+        if (DeathsX(CurrentPlayer, AtLeast, 100*256, 0, 0xFF00)) {
+            unit.move_cp(0x54/4);
+            SetDeathsX(CurrentPlayer, SetTo, WCool*256, 0, 0xFF00);
+            unit.move_cp(0x28/4);
+            const x, y = posread_cp(0);
+            const Repeat = sy.GetExtraDb(epd, 3); //반복횟수
+            for (var i = 0; i < Repeat; i++) {
+                setloc(Targetloc, x, y);
+                const tempepd = sy.SetNextUnitEPD();
+                CreateUnit(1, HellGate_Attack, Targetloc, cp);
+                wwrite_epd(tempepd + 0x110/4, 0, 6);
+            }
+        } 
+    }
+}
+
+function SkillActivation(cp, epd, CpWeaponList: EUDArray) { //게임 도중에 스킬 발동
+    for (var i = 0; i < 4; i++) {
+        const temp = WeaponList.cast(CpWeaponList[i]);
+        if (temp.Index > 0 && epd > 0) { //무기가 있다면 스킬 발동
+            temp.Skill(epd);
+        }
+    }
+}

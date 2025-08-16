@@ -1,0 +1,397 @@
+import System as sy;
+import Display as tx;
+import Skill as sq;
+import Mousedisplay as mp;
+
+const Shop_Status = PVariable();    //초기값 0(중앙) 스킬강화 1~8 아이템상점 9 스킵 10
+                                    //WASD키로 이동가능 스킵버튼은 P로 실수로 누르지 않게 설정
+const Shop_Help = PVariable();      //필요한 정보에 대한 설명 0~7 스탯창 10
+const HelpOn = PVariable();         //도움말창 열/닫기
+const Waiting_Help = PVariable();   //스킵한 후 대기하는 동안 도움말 출력
+
+const CostUpgradeQ1 = [3000, 2250, 2400, 3500, 3000, 4000, 2250, 2500, 3000];
+const CostUpgradeQ2 = [3500, 2500, 2500, 2000, 4000, 2500, 2500, 2750, 3250];
+const CostUpgradeW1 = [3150, 3500, 3750,
+                    2500, 3000, 2200, 
+                    2900, 3000, 4500, 
+                    2800, 3000, 3250, 
+                    3000, 4500, 3500, 
+                    5000, 3000, 3250, 
+                    2750, 3200, 4250, 
+                    3000, 4599, 2750, 
+                    3500, 3500, 3500];
+const CostUpgradeW2 = [4000, 4500, 2800, 
+                    4500, 3000, 2500, 
+                    3500, 2750, 3200, 
+                    3000, 3200, 2500, 
+                    3250, 4000, 4000, 
+                    3700, 2500, 4000, 
+                    2500, 4000, 4500, 
+                    5000, 2500, 3500, 
+                    4000, 4000, 3500];
+const EnhanceTreeCost = [500, 1000, 1250, 2000];
+
+object ItemList { //아이템 정보 객체
+    var Index;                  //아이템번호
+    var ItemName;               //아이템이름
+    var Grade;                  //아이템등급
+    var Limit;                  //아이템구매제한 0은제한없음
+    var StatList: EUDArray;     //아이템스탯목록
+    var Amount: EUDArray;       //아이템스탯수치
+    var ListLength;             //아이템스탯목록길이
+    var Cost;                   //아이템가격
+    
+    function constructor(Index_, Name_, Grade_, Limit_, StatList_:EUDArray, Amount_:EUDArray, Length_, Cost_){
+        // constructor(생성자) 함수는 할당될 때 작동됨
+        this.Index = Index_;
+        this.ItemName = Name_;
+        this.Grade = Grade_;
+        this.Limit = Limit_;
+        this.StatList = StatList_;
+        this.Amount = Amount_;
+        this.ListLength = Length_;
+        this.Cost = Cost_;
+    }
+};
+//플레이어 아이템 내부값은 아이템 구매수
+const PlayerItem = [EUDArray(120), EUDArray(120), EUDArray(120)];
+const PlayerRerollAmount = PVariable();
+const PlayerRerollTimer = PVariable();
+
+//아이템 배열안에는 객체 주소가 할당
+const PlayerShopList = [EUDArray(5), EUDArray(5), EUDArray(5)];
+const ItemArray = EUDArray(120);
+const ItemSumAmount = [40, 30, 25, 15];
+function ItemInit() {
+    ItemArray[0] = ItemList.alloc(0, Db("공란"), 0, 0, [sy.SHP, sy.SPM], [0], 0, 0);
+    ItemArray[1] = ItemList.alloc(1, Db("체력수정"), 0, 0, [sy.SHP, sy.SPM], [8, 2], 2, 840);
+    ItemArray[2] = ItemList.alloc(2, Db("강철군화"), 0, 0, [sy.SHP, sy.SAM, sy.SGD], [9, 2, -3], 3, 928);
+    ItemArray[3] = ItemList.alloc(3, Db("작은동전"), 0, 0, [sy.SPM, sy.SGD, sy.SGC], [-1, 5, 3], 3, 875);
+    ItemArray[4] = ItemList.alloc(4, Db("청동뱃지"), 0, 0, [sy.SPM, sy.SAM], [2, 2], 2, 860);
+    ItemArray[5] = ItemList.alloc(5, Db("힘의보구"), 0, 0, [sy.SPA, sy.SPD, sy.SMD], [4, 1, 1], 3, 1000);
+    ItemArray[6] = ItemList.alloc(6, Db("사슬갑옷"), 0, 0, [sy.SPM, sy.SPA], [4, 1], 2, 870);
+    ItemArray[7] = ItemList.alloc(7, Db("주사위"), 0, 0, [sy.SHR, sy.SSM, sy.SSP], [1, 1, 2], 3, 900);
+    ItemArray[8] = ItemList.alloc(8, Db("화염투구"), 0, 0, [sy.SAM, sy.SPA, sy.SPD], [3, -1, 1], 3, 850);
+    ItemArray[9] = ItemList.alloc(9, Db("톱날단검"), 0, 0, [sy.SAM, sy.SPA, sy.SPD], [-2, 5, 2], 3, 900);
+    ItemArray[10] = ItemList.alloc(10, Db("보호의서"), 0, 0, [sy.SSR, sy.SMD, sy.SGD], [2, 1, 1], 3, 940);
+    ItemArray[11] = ItemList.alloc(11, Db("소환의서"), 0, 0, [sy.SSR, sy.SMD, sy.SSP], [2, 1, 1], 3, 975);
+    ItemArray[12] = ItemList.alloc(12, Db("구명조끼"), 0, 0, [sy.SHR, sy.SSR, sy.SGD], [1, 1, 5], 3, 845);
+    ItemArray[13] = ItemList.alloc(13, Db("유리조각"), 0, 0, [sy.SPM, sy.SPA, sy.SPD], [-3, 1, 6], 3, 950);
+    ItemArray[14] = ItemList.alloc(14, Db("돌빵"), 0, 0, [sy.SHP, sy.SLU, sy.SDC], [7, 2, 3], 3, 800);
+    ItemArray[15] = ItemList.alloc(15, Db("삼원체"), 0, 0, [sy.SPD, sy.SMD, sy.SSD], [1, 2, 1], 3, 800);
+    ItemArray[16] = ItemList.alloc(16, Db("네잎클로버"), 0, 0, [sy.SEN, sy.SDA], [5, 2], 2, 890);
+    ItemArray[17] = ItemList.alloc(17, Db("붉은낫"), 0, 0, [sy.SHP, sy.SHR, sy.SPA], [8, 1, 2], 3, 930);
+    ItemArray[18] = ItemList.alloc(18, Db("재생의구슬"), 0, 0, [sy.SPM, sy.SHR, sy.SSD], [1, 3, 1], 3, 830);
+    ItemArray[19] = ItemList.alloc(19, Db("수호부적"), 0, 0, [sy.SGD, sy.SGC], [4, 2], 2, 880);
+    ItemArray[20] = ItemList.alloc(20, Db("거지의저주"), 0, 0, [sy.SSM, sy.SMD, sy.SLU], [2, 2, -4], 3, 850);
+    ItemArray[21] = ItemList.alloc(21, Db("혼의조각"), 0, 0, [sy.SPA, sy.SLD, sy.SEN], [1, 2, 2], 3, 975);
+    ItemArray[22] = ItemList.alloc(22, Db("지방덩어리"), 0, 0, [sy.SHP, sy.SDC], [10, 3], 2, 960);
+    ItemArray[23] = ItemList.alloc(23, Db("행운의감자"), 0, 0, [sy.SPA, sy.SGD, sy.SDR, sy.SDA], [-1, 5, 2, 2], 4, 965);
+    ItemArray[24] = ItemList.alloc(24, Db("두번째목숨"), 0, 0, [sy.SHP, sy.SPM, sy.SDA], [4, 1, 1], 3, 920);
+    ItemArray[25] = ItemList.alloc(25, Db("좀비혈청"), 0, 0, [sy.SAM, sy.SHR, sy.SSR], [-2, 6, 1], 3, 970);
+    ItemArray[26] = ItemList.alloc(26, Db("해골지팡이"), 0, 0, [sy.SPA, sy.SPD, sy.SSD], [-1, 2, 3], 3, 875);
+    ItemArray[27] = ItemList.alloc(27, Db("전령의깃발"), 0, 0, [sy.SPA, sy.SGD, sy.SLU], [2, 6, 2], 3, 1000);
+    ItemArray[28] = ItemList.alloc(28, Db("붉은보석"), 0, 0, [sy.SPA, sy.SMD, sy.SLD], [1, 2, 3], 3, 945);
+    ItemArray[29] = ItemList.alloc(29, Db("철퇴"), 0, 0, [sy.SPA, sy.SPD, sy.SMD], [3, 1, 1], 3, 850);
+    ItemArray[30] = ItemList.alloc(30, Db("무거운족쇄"), 0, 0, [sy.SPM, sy.SAM, sy.SLD, sy.SSP], [2, 1, 2, -3], 4, 898);
+    ItemArray[31] = ItemList.alloc(31, Db("수상한가죽"), 0, 0, [sy.SSP, sy.SGD, sy.SSU, sy.SDA], [3, 1, 3, 1], 4, 875);
+    ItemArray[32] = ItemList.alloc(32, Db("월석파편"), 0, 0, [sy.SSM, sy.SSR, sy.SMD], [2, -1, 2], 3, 940);
+    ItemArray[33] = ItemList.alloc(33, Db("영원한상처"), 0, 0, [sy.SHP, sy.SPM, sy.SHR], [3, 5, -2], 3, 930);
+    ItemArray[34] = ItemList.alloc(34, Db("소형금고"), 0, 0, [sy.SGD, sy.SGC], [5, 2], 2, 825);
+    ItemArray[35] = ItemList.alloc(35, Db("가죽지갑"), 0, 0, [sy.SPA, sy.SPD, sy.SMD], [1, 5, 2], 3, 805);
+    ItemArray[36] = ItemList.alloc(36, Db("장독대"), 0, 0, [sy.SHP, sy.SPD, sy.SMD, sy.SDR], [6, 2, -1, 1], 4, 810);
+    ItemArray[37] = ItemList.alloc(37, Db("해골머리"), 0, 0, [sy.SHR, sy.SSD, sy.SSP], [3, 3, -1], 3, 993);
+    ItemArray[38] = ItemList.alloc(38, Db("카르마"), 0, 0, [sy.SPA, sy.SMD, sy.SLU], [4, -1, 1], 3, 1000);
+    ItemArray[39] = ItemList.alloc(39, Db("술잔"), 0, 0, [sy.SAM, sy.SLD, sy.SLU], [2, 2, -1], 3, 840);
+    ItemArray[40] = ItemList.alloc(40, Db("지옥반지"), 0, 0, [sy.SAM, sy.SSM, sy.SGC], [1, 2, -3], 3, 800);
+
+    ItemArray[41] = ItemList.alloc(41, Db("세계수씨앗"), 1, 0, [sy.SHR, sy.SSM, sy.SLD, sy.SSP], [3, 4, -2, 2], 4, 1300);
+    ItemArray[42] = ItemList.alloc(42, Db("거대화물약"), 1, 0, [sy.SHP, sy.SPM, sy.SPA], [16, -2, 5], 3, 1280);
+    ItemArray[43] = ItemList.alloc(43, Db("적혈도"), 1, 0, [sy.SPM, sy.SMD, sy.SSD], [6, 3, -1], 3, 1330);
+    ItemArray[44] = ItemList.alloc(44, Db("사자의서"), 1, 0, [sy.SSD, sy.SLD, sy.SSP], [3, 2, 10], 3, 1500);
+    ItemArray[45] = ItemList.alloc(45, Db("루비스태프"), 1, 0, [sy.SLD, sy.SGC, sy.SLU], [3, 5, 3], 3, 1300);
+    ItemArray[46] = ItemList.alloc(46, Db("가시방패"), 1, 0, [sy.SPM, sy.SAM], [1, 5], 2, 1180);
+    ItemArray[47] = ItemList.alloc(47, Db("할인쿠폰"), 1, 0, [sy.SEN, sy.SLB, sy.SDR], [3, 1, 8], 3, 1030);
+    ItemArray[48] = ItemList.alloc(48, Db("우는가면"), 1, 0, [sy.SHR, sy.SSM, sy.SSR], [2, 2, 2], 3, 1390);
+    ItemArray[49] = ItemList.alloc(49, Db("광석탐지기"), 1, 0, [sy.SEN, sy.SDR, sy.SDA], [5, 5, 4], 3, 1450);
+    ItemArray[50] = ItemList.alloc(50, Db("거대한석상"), 1, 0, [sy.SHP, sy.SHR], [20, 3], 2, 1400);
+    ItemArray[51] = ItemList.alloc(51, Db("금화주머니"), 1, 0, [sy.SMD, sy.SGC, sy.SLU], [1, 10, -4], 3, 1120);
+    ItemArray[52] = ItemList.alloc(52, Db("생명의돌"), 1, 0, [sy.SHR, sy.SSD], [10, 3], 2, 1475);
+    ItemArray[53] = ItemList.alloc(53, Db("월석갑옷"), 1, 0, [sy.SSM, sy.SSR, sy.SSD], [4, -2, 2], 3, 1230);
+    ItemArray[54] = ItemList.alloc(54, Db("혈석조각"), 1, 0, [sy.SHP, sy.SHR, sy.SMD], [22, -3, 3], 3, 1445);
+    ItemArray[55] = ItemList.alloc(55, Db("미스릴반지"), 1, 0, [sy.SMD, sy.SLD], [8, 2], 2, 1350);
+    ItemArray[56] = ItemList.alloc(56, Db("밀짚모자"), 1, 0, [sy.SLB, sy.SDA], [6, 4], 2, 1370);
+    ItemArray[57] = ItemList.alloc(57, Db("혈사꽃"), 1, 0, [sy.SSP, sy.SGC, sy.SLU], [8, 4, 1], 3, 1250);
+    ItemArray[58] = ItemList.alloc(58, Db("트롤의피"), 1, 0, [sy.SHR, sy.SSM, sy.SSR], [4, -1, 4], 3, 1280);
+    ItemArray[59] = ItemList.alloc(59, Db("오우거가죽"), 1, 0, [sy.SPM, sy.SPA], [10, -2], 2, 1400);
+    ItemArray[60] = ItemList.alloc(60, Db("황금당근"), 1, 0, [sy.SHP, sy.SSP, sy.SGD], [7, 7, 7], 3, 1500);
+    ItemArray[61] = ItemList.alloc(61, Db("오크의반지"), 1, 0, [sy.SDA], [5], 1, 1095);
+    ItemArray[62] = ItemList.alloc(62, Db("마나의원천"), 1, 0, [sy.SSM, sy.SPD, sy.SMD], [3, 4, -2], 3, 1400);
+    ItemArray[63] = ItemList.alloc(63, Db("악마의보구"), 1, 0, [sy.SPM, sy.SPA, sy.SLD], [6, 6, -6], 3, 1505);
+    ItemArray[64] = ItemList.alloc(64, Db("폭풍의병"), 1, 0, [sy.SPA, sy.SPD, sy.SLD, sy.SSP], [3, 2, -1, 12], 4, 1400);
+    ItemArray[65] = ItemList.alloc(65, Db("늑대의이빨"), 1, 0, [sy.SSP, sy.SGD, sy.SLU], [3, 5, 7], 3, 1140);
+    ItemArray[66] = ItemList.alloc(66, Db("신관의축복"), 1, 0, [sy.SPM, sy.SAM, sy.SHR], [4, -2, 8], 3, 1420);
+    ItemArray[67] = ItemList.alloc(67, Db("부활의정수"), 1, 0, [sy.SHP, sy.SDA], [10, 2], 2, 1350);
+    ItemArray[68] = ItemList.alloc(68, Db("피의잔"), 1, 0, [sy.SLD, sy.SSP, sy.SGD], [3, 2, 5], 3, 1125);
+    ItemArray[69] = ItemList.alloc(69, Db("혼의지팡이"), 1, 0, [sy.SSD, sy.SSP, sy.SDR], [3, 2, -2], 3, 1080);
+    ItemArray[70] = ItemList.alloc(70, Db("활력의팔찌"), 1, 0, [sy.SPM, sy.SHR, sy.SSR, sy.SMD], [3, 2, -1, 4], 4, 1230);
+
+    ItemArray[71] = ItemList.alloc(71, Db("신의장난"), 2, 0, [sy.SSP, sy.SGC, sy.SLU], [7, 2, 8], 3, 1885);
+    ItemArray[72] = ItemList.alloc(72, Db("불안정함"), 2, 0, [sy.SPA, sy.SPD, sy.SMD, sy.SSD], [3, 3, 3, 3], 4, 2000);
+    ItemArray[73] = ItemList.alloc(73, Db("오우거의눈"), 2, 1, [sy.SPM, sy.SHR, sy.SLD, sy.SLU], [-4, -2, -5, 1], 4, 2403);
+    ItemArray[74] = ItemList.alloc(74, Db("리치의함"), 2, 0, [sy.SPA, sy.SSD, sy.SSP], [4, 5, 7], 3, 2405);
+    ItemArray[75] = ItemList.alloc(75, Db("천사의날개"), 2, 0, [sy.SHP, sy.SAM, sy.SSD], [-5, 2, 22], 3, 1600);
+    ItemArray[76] = ItemList.alloc(76, Db("황금생성기"), 2, 0, [sy.SDC, sy.SEN], [20, -5], 2, 1850);
+    ItemArray[77] = ItemList.alloc(77, Db("마나증폭기"), 2, 0, [sy.SHR, sy.SSM, sy.SSR], [2, 6, -4], 3, 1920);
+    ItemArray[78] = ItemList.alloc(78, Db("절대갑주"), 2, 0, [sy.SPM, sy.SAM, sy.SHR], [10, 3, -2], 3, 2000);
+    ItemArray[79] = ItemList.alloc(79, Db("변형물질"), 2, 0, [sy.SHR, sy.SSM, sy.SSR, sy.SPD], [2, 1, 5, -2], 4, 1650);
+    ItemArray[80] = ItemList.alloc(80, Db("저주받은금"), 2, 0, [sy.SDC, sy.SEN, sy.SLB], [10, 5, 5], 3, 1875);
+    ItemArray[81] = ItemList.alloc(81, Db("부활석"), 2, 0, [sy.SHR, sy.SSR, sy.SPD, sy.SGD], [-2, 8, 2, 2], 4, 1500);
+    ItemArray[82] = ItemList.alloc(82, Db("혈석목걸이"), 2, 0, [sy.SHP, sy.SHR, sy.SPA], [20, 5, 1], 3, 1750);
+    ItemArray[83] = ItemList.alloc(83, Db("대형마창"), 2, 0, [sy.SMD, sy.SLD, sy.SSP], [10, 3, -5], 3, 1513);
+    ItemArray[84] = ItemList.alloc(84, Db("신의결정"), 2, 0, [sy.SMD], [2], 1, 1875);
+    ItemArray[85] = ItemList.alloc(85, Db("용갑투구"), 2, 0, [sy.SHP, sy.SPM, sy.SAM], [15, 2, 5], 3, 2110);
+    ItemArray[86] = ItemList.alloc(86, Db("절대반지"), 2, 0, [sy.SHR, sy.SSR, sy.SPD, sy.SMD], [2, 6, -2, 5], 4, 2000);
+    ItemArray[87] = ItemList.alloc(87, Db("대지의각반"), 2, 0, [sy.SHP, sy.SSM, sy.SPD, sy.SMD], [8, 3, -2, 10], 4, 1590);
+    ItemArray[88] = ItemList.alloc(88, Db("전설의돌"), 2, 0, [sy.SSU, sy.SDC, sy.SLB], [-1, 6, 8], 3, 1700);
+    ItemArray[89] = ItemList.alloc(89, Db("골렘의눈"), 2, 0, [sy.SMD, sy.SGC], [3, 6], 2, 1520);
+    ItemArray[90] = ItemList.alloc(90, Db("신의힘"), 2, 0, [sy.SHP, sy.SPA], [10, 15], 2, 2450);
+    ItemArray[91] = ItemList.alloc(91, Db("초월의물약"), 2, 0, [sy.SPM, sy.SAM, sy.SHR], [1, 4, 10], 3, 2280);
+    ItemArray[92] = ItemList.alloc(92, Db("여신의축복"), 2, 0, [sy.SDR, sy.SDA], [1, 5], 2, 1870);
+    ItemArray[93] = ItemList.alloc(93, Db("유리대포"), 2, 0, [sy.SAM, sy.SSM, sy.SPA], [-3, -2, 20], 3, 1525);
+    ItemArray[94] = ItemList.alloc(94, Db("무작위성"), 2, 0, [sy.SLB, sy.SDA], [5, 3], 2, 1585);
+    ItemArray[95] = ItemList.alloc(95, Db("성검"), 2, 0, [sy.SHP, sy.SAM, sy.SSR, sy.SGC], [12, 3, 3, -2], 4, 1545);
+    
+    ItemArray[96] = ItemList.alloc(96, Db("초재생세포"), 3, 0, [sy.SHP, sy.SPM, sy.SAM, sy.SHR], [15, 5, 5, 5], 4, 3050);
+    ItemArray[97] = ItemList.alloc(97, Db("종말의검"), 3, 0, [sy.SPA, sy.SPD], [15, 7], 2, 2900);
+    ItemArray[98] = ItemList.alloc(98, Db("지옥스태프"), 3, 0, [sy.SHR, sy.SSM, sy.SPD], [4, 6, 7], 3, 3970);
+    ItemArray[99] = ItemList.alloc(99, Db("드래곤하트"), 3, 0, [sy.SPM, sy.SPA], [8, 20], 2, 3690);
+    ItemArray[100] = ItemList.alloc(100, Db("황금의투구"), 3, 0, [sy.SSU, sy.SDC, sy.SEN], [15, 20, 1], 3, 3575);
+    ItemArray[101] = ItemList.alloc(101, Db("월장석팔찌"), 3, 0, [sy.SAM, sy.SSM, sy.SSR, sy.SMD], [4, 4, 2, 3], 4, 2890);
+    ItemArray[102] = ItemList.alloc(102, Db("불멸의혼"), 3, 0, [sy.SHP, sy.SPM, sy.SLD], [20, 8, 2], 3, 2890);
+    ItemArray[103] = ItemList.alloc(103, Db("상점열쇠"), 3, 0, [sy.SPA, sy.SGD, sy.SLU], [8, 10, 10], 3, 3410);
+    ItemArray[104] = ItemList.alloc(104, Db("현자의돌"), 3, 0, [sy.SHP, sy.SHR, sy.SPA, sy.SMD], [10, 4, 9, 5], 4, 2800);
+    ItemArray[105] = ItemList.alloc(105, Db("행운의팔찌"), 3, 0, [sy.SLB, sy.SDR, sy.SDA], [7, 7, 7], 3, 2715);
+    ItemArray[106] = ItemList.alloc(106, Db("천체목걸이"), 3, 0, [sy.SPA, sy.SSD, sy.SLD], [4, 8, 8], 3, 2850);
+    ItemArray[107] = ItemList.alloc(107, Db("운명의돌"), 3, 1, [sy.SDC, sy.SLB], [8, 1], 2, 3550);
+    ItemArray[108] = ItemList.alloc(108, Db("구원의징표"), 3, 1, [sy.SHP, sy.SDR], [20, 1], 2, 3950);
+    ItemArray[109] = ItemList.alloc(109, Db("광휘의검"), 3, 0, [sy.SSP, sy.SGD, sy.SEN, sy.SLB], [6, 6, 5, 3], 4, 2700);
+    ItemArray[110] = ItemList.alloc(110, Db("절망의피리"), 3, 0, [sy.SSM, sy.SSR, sy.SPD], [2, 10, 2], 3, 3550);
+    for (var i = 0; i < 3; i++) {
+        const cpItemList = EUDArray.cast(PlayerShopList[i]);
+        for (var j = 0; j < 5; j++) {
+            cpItemList[j] = 1;
+        }
+    }
+}
+const ShopRerollCost = PVariable();
+
+const WeaponList_Physic = EUDDeque(9)();
+const WeaponList_Magic = EUDDeque(9)();
+const WeaponList_Summon = EUDDeque(9)();
+const WeaponList_Luck = EUDDeque(9)();
+function WeaponListInit() {
+    const tempArray = EUDArray(9);
+    const Size = 9;
+    //물리무기
+    //배열 선언
+    for (var i = 0; i < 9; i++) {
+        tempArray[i] = i+9;
+    }
+    //무작위 섞기
+	for (var i = 0; i < Size-1; i++) {
+        const R = (rand()%(Size-1-i))+1+i;
+        sy.Swap_AtoB(tempArray, i, R);
+    }
+    //데큐에 삽입
+    for (var i = 0; i < Size; i++) {
+        WeaponList_Physic.append(tempArray[i]);
+        tempArray[i] = 0;
+    }
+    //마법무기
+    //배열 선언
+    for (var i = 0; i < 9; i++) {
+        tempArray[i] = i+9+9;
+    }
+    //무작위 섞기
+	for (var i = 0; i < Size-1; i++) {
+        const R = (rand()%(Size-1-i))+1+i;
+        sy.Swap_AtoB(tempArray, i, R);
+    }
+    //데큐에 삽입
+    for (var i = 0; i < Size; i++) {
+        WeaponList_Magic.append(tempArray[i]);
+        tempArray[i] = 0;
+    }
+    //소환무기
+    //배열 선언
+    for (var i = 0; i < 9; i++) {
+        tempArray[i] = i+9+9+9;
+    }
+    //무작위 섞기
+	for (var i = 0; i < Size-1; i++) {
+        const R = (rand()%(Size-1-i))+1+i;
+        sy.Swap_AtoB(tempArray, i, R);
+    }
+    //데큐에 삽입
+    for (var i = 0; i < Size; i++) {
+        WeaponList_Summon.append(tempArray[i]);
+        tempArray[i] = 0;
+    }
+    //행운무기
+    //배열 선언
+    for (var i = 0; i < 9; i++) {
+        tempArray[i] = i+9+9+9+9;
+    }
+    //무작위 섞기
+	for (var i = 0; i < Size-1; i++) {
+        const R = (rand()%(Size-1-i))+1+i;
+        sy.Swap_AtoB(tempArray, i, R);
+    }
+    //데큐에 삽입
+    for (var i = 0; i < Size; i++) {
+        WeaponList_Luck.append(tempArray[i]);
+        tempArray[i] = 0;
+    }
+}
+
+const CurWeapon = PVariable(); //플레이어가 뽑은 현재 무기
+const WeaponGachaCost = PVariable();
+function GachaCostSetting(cp, OwnedWeapon) { //플레이어 무기뽑기 가격 설정
+    if (OwnedWeapon >= 4) WeaponGachaCost[cp] = 0;
+    else WeaponGachaCost[cp] = 300 + OwnedWeapon*OwnedWeapon*150; //1개: 450 2개: 900 3개: 1550
+}
+function WeaponGacha(cp, OwnedWeapon) {
+    if (OwnedWeapon >= 4) { //최대치의 무기를 보유하고 있으면 뽑지 않음
+        tx.Display_NotAffordable(cp);
+    } else {
+        const R = rand()%4;
+        if (R == 0) { //물리무기
+            if (WeaponList_Physic.empty()) { //비어있으면 실행하지 않기
+                tx.Display_EmptyList(cp);
+            } else {
+                CurWeapon[cp] = WeaponList_Physic.popleft();
+            }
+        }
+        else if (R == 1) { //마법무기
+            if (WeaponList_Magic.empty()) { //비어있으면 실행하지 않기
+                tx.Display_EmptyList(cp);
+            } else {
+                CurWeapon[cp] = WeaponList_Magic.popleft();
+            }
+        }
+        else if (R == 2) { //소환무기
+            // if (WeaponList_Summon.empty()) { //비어있으면 실행하지 않기
+            //     tx.Display_EmptyList(cp);
+            // } else {
+            //     CurWeapon[cp] = WeaponList_Summon.popleft();
+            // }
+            CurWeapon[cp] = 27;
+        }
+        else if (R == 3) { //행운무기
+            if (WeaponList_Luck.empty()) { //비어있으면 실행하지 않기
+                tx.Display_EmptyList(cp);
+            } else {
+                CurWeapon[cp] = WeaponList_Luck.popleft();
+            }
+        }
+    }
+}
+function Gacha_Reset(cp) {
+    //뽑지 않은 무기 다시 집어넣기
+    if (CurWeapon[cp] >= 9 && CurWeapon[cp] <= 17) WeaponList_Physic.append(CurWeapon[cp]);
+    else if (CurWeapon[cp] >= 18 && CurWeapon[cp] <= 26) WeaponList_Magic.append(CurWeapon[cp]);
+    else if (CurWeapon[cp] >= 27 && CurWeapon[cp] <= 35) WeaponList_Summon.append(CurWeapon[cp]);
+    else if (CurWeapon[cp] >= 36 && CurWeapon[cp] <= 44) WeaponList_Luck.append(CurWeapon[cp]);
+    CurWeapon[cp] = 0;
+}
+
+function ClearList(cp) {
+    CurWeapon[cp] = 0;
+}
+
+function WeaponEnhance(cp, Index, SkillTree, AnotherTree) {
+    if (AnotherTree >= 1) {
+        tx.Display_TreeCapping(cp);
+    } else {
+        if (SkillTree > Index) tx.Display_AlreadyBought(cp);
+        else if (SkillTree < Index) tx.Display_NotAffordable(cp);
+        else {
+            const Cost = EnhanceTreeCost[Index];
+            if (Accumulate(cp, AtLeast, Cost, Ore)) {
+                SetResources(cp, Subtract, Cost, Ore);
+                tx.Display_Successbuying(cp);
+                return 1;
+            } else {
+                tx.Display_NotEnoughGold(cp);
+            }
+        }
+    }
+    return 0;
+}
+function RefillWeaponToList(Index) {
+    if (Index >= 9 && Index <= 17) WeaponList_Physic.append(Index);
+    else if (Index >= 18 && Index <= 26) WeaponList_Magic.append(Index);
+    else if (Index >= 27 && Index <= 35) WeaponList_Summon.append(Index);
+    else if (Index >= 36 && Index <= 44) WeaponList_Luck.append(Index);
+}
+const Chance_Normal = [95, 85, 77, 67, 52, 34];
+const Chance_Rare =   [5,  10, 15, 20, 28, 38];
+const Chance_Epic =   [0,   5,  6, 10, 15, 20];
+const Chance_Legend = [0,   0,  2,  3,  5,  8];
+
+function ItemRoll(cp, IsFree) {
+    const cpItemList = EUDArray.cast(PlayerShopList[cp]);
+    var temp = 0;
+    for (var i = 0; i < 5; i++) {
+        var Choosen = 0;
+        var R = rand()%100;
+        R = sy.Player_LuckTest(cp, R, 100, 0);
+        const Level = sy.Player_ShopLevel[cp];
+        while (true) {
+            if (R < Chance_Normal[Level]) { //노말아이템 뽑기
+                Choosen = (rand()%ItemSumAmount[0]) + 1;
+            }
+            else if (R < Chance_Normal[Level] + Chance_Rare[Level]) { //레어아이템 뽑기
+                Choosen = (rand()%ItemSumAmount[1]) + ItemSumAmount[0] + 1;
+            }
+            else if (R < Chance_Normal[Level] + Chance_Rare[Level] + Chance_Epic[Level]) { //에픽아이템 뽑기
+                Choosen = (rand()%ItemSumAmount[2]) + ItemSumAmount[1] + ItemSumAmount[0] + 1;
+            }
+            else { //전설아이템 뽑기
+                Choosen = (rand()%ItemSumAmount[3]) + ItemSumAmount[2] + ItemSumAmount[1] + ItemSumAmount[0] + 1;
+            }
+            //아이템 안샀으면 관련 아이템 안뜨게 막기
+            // if (sy.Stat_Rune_Open[cp] == 0 && Choosen >= 87 && Choosen <= 91) {
+            //     continue;
+            // }
+            // if (sy.Stat_God_Open[cp] == 0 && Choosen >= 103 && Choosen <= 106) {
+            //     continue;
+            // }
+            //아이템 한계 이상 구매 불가
+            const OwnedAmount = EUDArray.cast(PlayerItem[cp]);
+            const temp = ItemList.cast(ItemArray[Choosen]);
+            if (temp.Limit > 0 && OwnedAmount >= temp.Limit) { //아이템 구매한계 넘기면 다시 뽑기
+                continue;
+            }
+            cpItemList[i] = Choosen;
+            break;
+        }
+    }
+    if (!IsFree) PlayerRerollAmount[cp] += 1;
+    ShopRerollCost[cp] = 15 + PlayerRerollAmount[cp]*50;
+    sy.PlayerGetEXP(cp, 5);
+}
+function ShopPlay(cp) {
+    if (PlayerRerollTimer[cp] == 0) {
+        if (sy.Stat_God_Time[cp]) PlayerRerollTimer[cp] = 30*24;
+        else PlayerRerollTimer[cp] = 60*24;
+        PlayerRerollAmount[cp] = 0;
+        ShopRerollCost[cp] = 0;
+        ItemRoll(cp, 1);
+        tx.Display_ShopReroll(cp);
+    }
+    else {
+        PlayerRerollTimer[cp] -= 1;
+    }
+}

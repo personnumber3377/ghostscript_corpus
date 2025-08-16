@@ -1,0 +1,581 @@
+%! panel.ps	dialog box (control panel)
+%
+%		Copyright (c) 1988 UniPress Software, Inc.
+% 
+% A control panel turns out to be equivalent to a frame font.  It is an
+% indexed set of items that may be placed in a canvas.
+% 
+systemdict /Item known not { (NeWS/liteitem.ps) run } if
+
+EmacsDict begin
+
+%======================================================================
+% Panel Items built on top of system items (NeWS liteitems)
+%======================================================================
+
+/SetPanelItemDefaults {
+    /ItemX		-1		def
+    /ItemY		-1		def
+%   /ItemWidth		40		def
+%   /ItemHeight		20		def
+    /ItemRadius		5		def
+    /ItemBorder		2		def
+    /ItemFrame		2		def
+    /ItemLabel		null		def
+    /ItemLabelLoc	/Left		def
+    /ItemNotifyMsg  { (\033[P%\n) [ ItemKeyCode ] sprintf } def
+    /NotifyUser	    { ItemNotifyMsg sendtoemacs } def
+} def
+
+/PanelItemDefaults 20 dict dup begin
+    SetPanelItemDefaults
+end def
+
+% All the XxxItem classes have /new and /SetDefaults.
+%
+
+% 
+/PanelButtonItem ButtonItem PanelItemDefaults dup maxlength dict copy
+classbegin
+
+    % initproc parentcanvas new item
+    /new {
+	/ItemParent exch def
+	(Button) nullproc ItemParent 40 20
+	    % label notify canvas w h
+	    /new super send begin
+	currentdict
+	end
+    } def
+
+    /SetDefaults {
+	/ItemNotifyMsg { (\033[P%\n) [ ItemKeyCode] sprintf } def
+    } def
+classend def
+
+/PanelSliderItem SliderItem PanelItemDefaults dup maxlength dict copy
+classbegin
+
+    % initproc parentcanvas new item
+    /new {
+	/ItemParent exch def
+	(Slider) [ 0 100 100 ] /Right nullproc ItemParent 40 100
+	    % label initstring loc notify canvas w h
+	    /new super send begin
+	currentdict
+	end
+    } def
+
+    /SetDefaults {
+	/ItemBorder	10	def
+	/ItemHeight	20	def
+	/ItemFrame	1	def
+	/ItemNotifyMsg { (\033[P% %\n) [ ItemKeyCode ItemValue] sprintf } def
+    } def
+classend def
+
+/PanelTextItem TextItem PanelItemDefaults
+classbegin
+    % initproc parentcanvas new item
+    /new {
+	/ItemParent exch def
+	(Text) (A Forgotten Initialization!) /Right nullproc ItemParent 40 100
+	    % label initstring loc notify canvas w h
+	    /new super send begin
+	currentdict
+	end
+    } def
+
+    /SetDefaults {
+	/ItemBorder	5	def
+	/ItemHeight	20	def
+	/ItemFrame	1	def
+	/ItemNotifyMsg { (\033[P% %\n) [ ItemKeyCode ItemValue] sprintf } def
+    } def
+classend def
+
+/PanelMessageItem MessageItem PanelItemDefaults
+classbegin
+
+    % initproc parentcanvas new item
+    /new {
+	/ItemParent exch def
+	(Message) (A Forgotten Initialization!)
+	    /Right nullproc ItemParent 40 100
+	    % label [min max init] loc notify canvas w h
+	    /new super send begin
+	currentdict
+	end
+    } def
+
+    /SetDefaults {
+	/ItemBorder	5	def
+	/ItemHeight	20	def
+	/ItemFrame	1	def
+    } def
+classend def
+
+
+%----------------------------------------------------------------------
+% ControlPanel	    a canvas containing a set of items
+%----------------------------------------------------------------------
+
+/numPanels  0 def
+
+/ControlPanel Object dictbegin
+    /PanelCanvas    null def
+    /PanelItems	    null def
+    /PanelItemMgr   null def
+    /ParentCanvas   null def	    % items are mapped onto this canvas
+
+    /PanelX	    0 def
+    /PanelY	    0 def
+    /PanelHeight    150 def
+    /PanelWidth	    500 def
+
+    /ThisItem	    null def	    % item currently being defined
+    /ThisItemClass  null def	    % class of item (button, slider, etc.)
+    /Name	    null def
+    /Client	    null def
+
+    % panel layout policy variables
+    /ThisItemWidth  0 def
+    /ThisItemHeight 0 def
+    /PanelSpaceX    20 def
+    /PanelSpaceY    20 def
+    /PanelBorder    20 def
+
+    /NextItemX	    PanelBorder def
+    /NextItemY	    PanelBorder def
+
+    /NextItemKeyCode	0   def
+    /PanelItemBase	100 def
+
+dictend
+classbegin
+    % parentframe  panelcanvas /new panel
+    % 
+    /new {
+	/new super send begin
+	    /PanelCanvas exch def
+	    /ptr /ptr_m PanelCanvas setstandardcursor
+	    PanelCanvas begin
+		/EventsConsumed /MatchedEvents def
+		/Transparent true def
+	    end
+	    /PanelItems 30 dict def
+% 	    /numPanels numPanels 1 add store
+% 	    /PanelItemBase numPanels 100 imul def
+	    currentdict
+	end
+    } def    
+
+    /suspend {
+	gsave
+	    PanelCanvas setcanvas
+	    initclip clippath pathbbox points2rect
+	grestore
+
+	/PanelHeight    exch def
+	/PanelWidth	exch def
+	/PanelY		exch def
+	/PanelX		exch def
+
+	/NextItemX PanelBorder def
+	/NextItemY PanelHeight PanelBorder sub def
+	/NextItemKeyCode	PanelItemBase   def
+
+	PanelItemMgr null ne {
+	    PanelItemMgr killprocess
+	    /PanelItemMgr null def
+	} if
+    } def
+
+    /resume {
+	PanelItemMgr null eq {
+	    /PanelItemMgr PanelItems forkitems def
+	} if
+    } def
+
+    /destroy {
+	PanelItemMgr null ne { PanelItemMgr killprocess } if
+    } def
+
+    % paint -- redraws the items
+    % 
+    /paint {
+	gsave
+	PanelCanvas setcanvas
+	erasepage
+	0 strokecanvas
+ 	PanelItems paintitems
+	grestore
+    } def
+
+    % proc WithItems
+    % executes its arg in the context of the item list dictionary.
+    % 
+    /WithItems {
+	PanelItems begin
+	    cvx exec
+	end
+    } def
+
+    % x y w h	PlaceItem   x y
+    % 
+    % Given a proposed bounding box for an item, returns the position at which
+    % the item should be placed according to the panel's layout policy.  This
+    % must be done after the item has shaped itself (via move, paint, etc.),
+    % which in turn must be done after setting up the information needed to
+    % compute the item's size (label, borderwidth, etc.).  If ItemX and ItemY
+    % are not -1, then the item will be placed as dictated by them.  Otherwise,
+    % the item will be positioned according to the panel's layout policy:
+    % 
+    %   -   Make sure it fits below top PanelBorder; if not, adjust
+    %	    its baseline so it does
+    %   -   Make sure it fits to the left of right PanelBorder; if not, move it
+    %	    down to the next line
+    % 
+    /PlaceItem {				% x y w h
+	/ThisItemHeight exch def		% x y w
+	/ThisItemWidth exch def			% x y
+
+	% if the y position is -1, assign a real one, otherwise use given value
+	% 
+	dup -1 eq {
+	    pop
+	    ThisItemHeight NextItemY add PanelHeight PanelBorder sub gt {
+		/NextItemY PanelHeight PanelBorder sub ThisItemHeight sub def
+	    } if
+	} {
+	    /NextItemY exch def
+	} ifelse				% x
+
+	% if the x position is -1, assign a real one, otherwise use given value
+	% 
+	dup -1 eq {
+	    pop
+	    ThisItemWidth NextItemX add PanelWidth PanelBorder sub gt {
+		/NextItemY NextItemY ThisItemHeight sub PanelSpaceY sub def
+		/NextItemX PanelBorder def
+	    } if
+	} {
+	    /NextItemX exch def
+	} ifelse
+
+	NextItemX NextItemY			% leave the position on stack
+
+	%  Adjust the next position to be assigned
+	%  
+	/NextItemX NextItemX ThisItemWidth add PanelSpaceX add def
+    } def
+
+    % name initproc class panelitem
+    % 
+    /panelitem {
+	/ThisItemClass exch def			% name initproc
+	exch					% initproc name
+	/Name	exch def			% initproc
+
+ 	PanelItems Name known {
+
+	    % The item has already been created in this panel.
+	    % 
+	    PanelItems Name get			% initproc item
+
+ 	} {
+	    % Create the raw item and store it by its name in the panel item
+	    % list dictionary
+	    % 
+	    PanelCanvas /new ThisItemClass send	% initproc item
+	    PanelItems Name 2 index put		% initproc item
+
+ 	} ifelse
+
+	% store the (possibly newly created) item in ThisItem
+	% 
+	/ThisItem exch def			% initproc
+
+
+
+	% Set default values in the newly created raw item.
+	% Set the default item label to the name of the item sans leading
+	% slash. Set position X and Y to -1 so it may be overidden by the
+	% startup procedure, or set by the layout policy otherwise.
+	%
+	Name 50 string cvs			% initproc label
+	version (1.0) eq {
+	    % remove leading slash
+	    dup 1 exch length 1 sub getinterval	% initproc label
+	} if
+	Client
+
+	{   
+	    /Client exch def
+	    SetPanelItemDefaults
+	    /ItemNotifyMsg  (\033[P% %\n) [ ItemLabel ItemValue ] sprintf  def
+	    SetDefaults
+	    /ItemLabel	exch	def
+	    /ItemX	-1	def
+	    /ItemY	-1	def
+	} ThisItem send				% initproc
+
+	% Assign it a key code that will be sent to the client when it is
+	% activated
+	% 
+	NextItemKeyCode	 {   /ItemKeyCode exch def } ThisItem send
+
+	ThisItem send			% -- execute the customization proc
+
+	/ItemKeyCode ThisItem send 1 add    /NextItemKeyCode exch def
+
+	% Now enough of the item's parameters have been set so it can
+	% compute its size (label, border width, etc.).
+	% Force it to do so, so we can get its bounding box.
+	% 
+
+	0 0 /move ThisItem send			% force item to shape itself
+
+	% Place the item as dictated by ItemX,ItemY set by setup proc, or as
+	% dictated by the panel's layout policy if the setup proc didn't set
+	% them.  PlaceItem accepts the proposed bounding box of the item, and
+	% returns a position adjusted to fit in the panel.  If ItemX and ItemY
+	% are -1 (i.e., if the setup proc didn't set them), then the position
+	% returned is assigned by the panel's layout policy.
+	% 
+	{ ItemX ItemY ItemWidth ItemHeight } ThisItem send
+	PlaceItem				% x y
+	/move ThisItem send
+
+    } def
+
+    % name initproc button --
+    % 
+    /button { PanelButtonItem panelitem } def
+
+    /slider { PanelSliderItem panelitem } def
+
+    /text { PanelTextItem panelitem } def
+
+    /message { PanelMessageItem panelitem } def
+
+    /cycleitem { PanelCycleItem panelitem } def
+
+classend def
+
+%----------------------------------------------------------------------
+%  EmacsPanelFrame -- subclass of DefaultWindow that holds a ControlPanel
+%----------------------------------------------------------------------
+
+/EmacsPanelFrame MainEmacsWindow dictbegin
+    /thePanel	    null def
+    /LayoutProc {} def
+dictend
+classbegin
+    /destroy {
+	/destroy super send
+	thePanel null ne { /destroy thePanel send } if
+    } def
+
+    /PaintClient {
+ 	thePanel null ne {
+ 	    /paint thePanel send
+ 	} if
+    } def
+
+    % proc /setpaintclient
+    % 
+    % records the given procedure as the panel layout procedure, and executes
+    % it.  The layout procedure will also be executed upon subsequent
+    % /reshape messages.
+    % 
+    /setpaintclient {
+	/LayoutProc exch def
+	/layout self send
+    } def
+    
+    % layout creates the control panel (opens the item font), if necessary,
+    % and lays out the items in it.
+    % 
+    /layout {
+	ClientCanvas null ne {
+	    ClientCanvas setcanvas
+	    thePanel null eq {
+		/thePanel currentcanvas /new ControlPanel send def
+	    } if
+	    /suspend thePanel send
+	    /LayoutProc load thePanel send
+	    /resume thePanel send
+	} if
+    } def
+
+    % x y w h /reshape
+    %
+    % Reshapes the frame to the given bounding box and lays out the panel
+    % items to fit the new shape.
+    % 
+    /reshape {
+	/reshape super send
+	/layout self send
+    } def
+classend def
+
+% PanelFrame treats its paint proc (set by setpaintclient) as the definition
+% of the items to be created within it.
+% 
+
+/PanelFrame DefaultWindow dictbegin
+    /thePanel	    null def
+    /LayoutProc {} def
+dictend
+classbegin
+    /destroy {
+	/destroy super send
+	thePanel null ne { /destroy thePanel send } if
+    } def
+
+    /PaintClient {
+	thePanel null ne {
+	    /paint thePanel send
+	} if
+    } def
+
+    % proc /setpaintclient
+    % 
+    % records the given procedure as the panel layout procedure, and executes
+    % it.  The layout procedure will also be executed upon subsequent
+    % /reshape messages.
+    % 
+    /setpaintclient {
+	/LayoutProc exch def
+	/layout self send
+    } def
+    
+    % layout creates the control panel (opens the item font), if necessary,
+    % and lays out the items in it.
+    % 
+    /layout {
+	ClientCanvas null ne {
+	    ClientCanvas setcanvas
+	    thePanel null eq {
+		/thePanel currentcanvas /new ControlPanel send def
+	    } if
+	    /suspend thePanel send
+	    /LayoutProc load thePanel send
+	    /resume thePanel send
+	} if
+    } def
+
+    % x y w h /reshape
+    %
+    % Reshapes the frame to the given bounding box and lays out the panel
+    % items to fit the new shape.
+    % 
+    /reshape {
+	/reshape super send
+	/layout self send
+    } def
+classend def
+
+
+
+%----------------------------------------------------------------------
+%  Creating a panel window outside of Emacs
+%----------------------------------------------------------------------
+
+% panel-definition-proc StartEmacsPanel
+% 
+% Creates a new PanelFrame and creates a panel within its ClientCanvas.
+% The PanelFrame will not be under the direct control of Emacs, but it will
+% be able to send events (keys) to Emacs.
+% 
+/StartEmacsPanel {
+    5 dict begin
+    {
+	newprocessgroup
+	/win framebuffer /new PanelFrame send def
+	/setpaintclient win send
+
+%  	gsave framebuffer setcanvas getcursorlocation grestore
+%  	400 200 /reshape win send
+ 	500 500 400 200 /reshape win send
+	/map win send
+	/win null def
+    } fork pop
+    end
+} def
+
+
+%----------------------------------------------------------------------
+%  testing
+%----------------------------------------------------------------------
+
+/test {
+    {
+	SetPanelItemDefaults
+	/Print {
+	} button
+
+	/Previous {
+	} button
+
+	/Next {
+	} button
+
+	/Shrink {
+	} button
+
+	/Grow {
+	} button
+
+	/Undo {
+	} button
+
+	/Paste {
+	    /ItemLabel  (Paste selection) def
+	} button
+
+	/Cut {
+	    /ItemFrame	3 def
+	    /ItemLabel  (Cut selection) def
+	} button
+	/DotCharacter {
+	    /SliderMax 300 def
+	} slider
+
+	/DotLine {
+	    /SliderMax 300 def
+	} slider
+
+
+	/Search {
+	    /ItemValue (Search Value) def
+	} text
+
+	/Replace {
+	    /ItemValue (Replace Value) def
+	    /NotifyUser {   (panel Replace "%" "%"\n)
+			    
+			    [	/PanelItems thePanel send begin 
+					{ItemValue} Search send
+				    end
+				ItemValue
+			    ]
+			    printf
+	    } def
+	} text
+
+	/MLisp {
+	    /ItemValue ((full-emacs-version)) def
+	} text
+    }
+    StartEmacsPanel
+} def
+
+% size dot linenum setscrollsliders
+% 
+/setscrollsliders {
+    pop pop pop
+} def
+
+end % EmacsDict

@@ -1,0 +1,116 @@
+import draw;
+
+
+function DrawCircle(CircleRange) {
+    switch (CircleRange) {
+        case 16:
+            draw.Circle("Location 22", 16, dots=6).draw();
+            break;
+        case 32:
+            draw.Circle("Location 22", 32, dots=12).draw();
+            break;
+        case 48:
+            draw.Circle("Location 22", 48, dots=18).draw();
+            break;
+        case 64:
+            draw.Circle("Location 22", 64, dots=24).draw();
+            break;
+        case 80:
+            draw.Circle("Location 22", 80, dots=30).draw();
+            break;
+        case 96:
+            draw.Circle("Location 22", 96, dots=36).draw();
+            break;
+        case 112:
+            draw.Circle("Location 22", 112, dots=42).draw();
+            break;
+        case 128:
+            draw.Circle("Location 22", 128, dots=48).draw();
+            break;
+        case 144:
+            draw.Circle("Location 22", 144, dots=54).draw();
+            break;
+        case 160:
+            draw.Circle("Location 22", 160, dots=60).draw();
+            break;
+        case 176:
+            draw.Circle("Location 22", 176, dots=66).draw();
+            break;
+        case 192:
+            draw.Circle("Location 22", 192, dots=72).draw();
+            break;
+        case 208:
+            draw.Circle("Location 22", 208, dots=78).draw();
+            break;
+        case 224:
+            draw.Circle("Location 22", 224, dots=84).draw();
+            break;
+        case 240:
+            draw.Circle("Location 22", 240, dots=90).draw();
+            break;
+        case 256:
+            draw.Circle("Location 22", 256, dots=96).draw();
+            break;
+        case 272:
+            draw.Circle("Location 22", 272, dots=102).draw();
+            break;
+        case 288:
+            draw.Circle("Location 22", 288, dots=108).draw();
+            break;
+        case 304:
+            draw.Circle("Location 22", 304, dots=114).draw();
+            break;
+        case 320:
+            draw.Circle("Location 22", 320, dots=120).draw();
+            break;
+        case 336:
+            draw.Circle("Location 22", 336, dots=126).draw();
+            break;
+        case 352:
+            draw.Circle("Location 22", 352, dots=132).draw();
+            break;
+        case 368:
+            draw.Circle("Location 22", 368, dots=138).draw();
+            break;
+        case 384:
+            draw.Circle("Location 22", 384, dots=144).draw();
+            break;
+    
+        default:
+            break;
+    }
+}
+
+function DrawSummonCircle(cp, x, y) {
+    wwrite_epd(EPD(0x666458), 0, 384);
+    setloc("Location 22", x, y);
+    draw.Circle("Location 22", 120, dots=30).draw();
+    draw.Circle("Location 22", 168, dots=42).draw();
+    draw.RegularStar("Location 22", 5, 2, 168, dots=62).draw();
+    wwrite_epd(EPD(0x666458), 0, 232);
+}
+// function return_Draw_Star(Size) {
+//     const tempArray = EUDArray(50);
+//     switch (Size) {
+//         case 20:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=20);
+//             break;
+//         case 25:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=25);
+//             break;
+//         case 30:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=30);
+//             break;
+//         case 35:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=35);
+//             break;
+//         case 40:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=40);
+//             break;
+//         case 45:
+//             tempArray = draw.ConcaveStar("Location 22", 5, 2, 120, dots=45);
+//             break;
+//         default:
+//             break;
+//     }
+// }

@@ -1,0 +1,80 @@
+import Opening as op;
+import System as sy;
+import Player as pr;
+import Skill as sq;
+import Shop as so;
+import Enemy as ey;
+import Mousedisplay as md;
+const s = StringBuffer(1024);
+
+const saveMX	= PVariable();
+const saveMY	= PVariable();
+const saveSX	= PVariable();
+
+function onPluginStart() {
+    randomize();
+    op.KeyInit();
+    sy.ArrayPoolinit();
+    sq.WeaponInit();
+	sy.variableInit();
+    so.WeaponListInit();
+    so.ItemInit();
+    ey.EnemyInit();
+    ey.EnemyListInit();
+    md.MD_Init();
+	foreach(cp : EUDLoopPlayer("Human")){
+		setcurpl(cp);
+		sy.textUpdate[cp] = 1; //최초 화면갱신
+	}
+    /* 방어구 피해량 설정 */
+    /*             아군          */
+    /* 1피 소형 2피 중형 3피 대형 */
+    //적군무기 타입은 진동형으로 통일
+    /*                 적군                 */
+    /* 일반 소형 엘리 중형 보스 중형 특수 대형 */
+    //플레이어무기 타입은 일반형으로 통일 소형/중형/대형에 100/75/50만큼 피해
+    //일부무기 타입은 방어무시피해로써 폭발형 모든 방어구에 100%
+    SetMemory(0x515BA0, SetTo, 256); //폭발형 무기 (방어무시 무기) 소형 데미지 100%
+    SetMemory(0x515BA4, SetTo, 256); //폭발형 무기 (방어무시 무기) 중형 데미지 100%
+    SetMemory(0x515BA8, SetTo, 256); //폭발형 무기 (방어무시 무기) 대형 데미지 100%
+    SetMemory(0x515BB4, SetTo, 256); //진동형 무기 (적군 무기) 소형(1피) 데미지 100%
+    SetMemory(0x515BB8, SetTo, 256); //진동형 무기 (적군 무기) 중형(2피) 데미지 100%
+    SetMemory(0x515BBC, SetTo, 256); //진동형 무기 (적군 무기) 대형(3피) 데미지 100%
+    SetMemory(0x515BC8, SetTo, 256); //일반형 무기 (플레이어 무기) 소형(일반몹) 데미지 100%
+    SetMemory(0x515BCC, SetTo, 128); //일반형 무기 (플레이어 무기) 중형(엘리트,보스몹) 데미지 50%
+    SetMemory(0x515BD0, SetTo, 25);  //일반형 무기 (플레이어 무기) 대형(특수) 데미지 10%
+    //쉴드방어력 적용 1,2,3,5피
+    SetMemoryXEPD(3030, SetTo, 150*16777216, 0xFF000000);
+    SetMemoryXEPD(3042, SetTo, 150*256, 0xFF00);
+    SetMemoryXEPD(3053, SetTo, 150*16777216, 0xFF000000);
+    SetMemoryXEPD(3076, SetTo, 150*16777216, 0xFF000000);
+}
+function beforeTriggerExec() {
+    SetMemory(0x6509A0, SetTo, 0);//EUD터보
+    //테스트코드
+    //테스트코드
+
+    sy.SoloCheck(); //솔로플레이 확인
+    sy.MainController_Check(); //선택권자 확인
+	foreach(cp : EUDLoopPlayer("Human")){
+		setcurpl(cp);
+		sy.checkScreenMouse(); //비공유 좌표 및 크기 산출
+		/*if (sy.mouseClick[cp] == 1) {
+			saveMX[cp] = sy.mouseUserX[cp];
+			saveMY[cp] = sy.mouseUserY[cp];
+			saveSX[cp] = sy.screenUserX[cp];
+		}
+		s.printAt(9, "\x13mouseX : ", saveMX[cp], "  mouseY : ", saveMY[cp], "  screenSizeX : ", saveSX[cp], "  screenX : ", saveMX[cp]+320-saveSX[cp], "  screenY : ", saveMY[cp]);*/
+	}
+}
+function afterTriggerExec(){
+    var cp = 0;
+    //모든 콜백 함수들 실행하기
+    sy.runExecutor_Stat();  
+    sq.runExecutor_SKill();
+    //플레이어루프
+    //컴퓨터
+    cp = 4;
+    setcurpl(cp);
+    op.Opening();
+}

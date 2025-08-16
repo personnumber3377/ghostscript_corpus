@@ -1,0 +1,155 @@
+(util.ps) run
+
+/f (day8.txt) (r) file def
+/lines
+[
+    {
+        f 1024 string readline
+        not { pop exit } if
+        % skip empty line
+        dup () eq { pop } if
+    } loop
+] def
+f closefile
+
+/visited lines length array def
+/PC 0 def
+/ACC 0 def
+
+/instructions <<
+    /nop {
+        pop
+        /PC PC 1 add def
+    }
+    /acc {
+        /ACC exch ACC add def
+        /PC PC 1 add def
+    }
+    /jmp {
+        /PC exch PC add def
+    }
+>> def
+
+/dbg_show_acc {
+    (  # acc: ) print
+    ACC =
+} def
+
+/dbg_show_pc {
+    (  # pc: ) print
+    PC =
+} def
+
+{
+    % check if this instruction has already been executed
+    % if not, mark the instruction as executed
+    % otherwise, exit here since the accumulator is the answer to part 1
+    visited PC get
+    % unfortunately the default is null, not false, so we do an explicit comparison against true
+    true eq {
+        exit
+    } {
+        visited PC true put
+    } ifelse
+
+    % ok, we can actually run this instruction now :)
+    lines PC get
+    ( ) strsplit
+    % put the instruction and arg on the stack and discard the array
+    aload pop
+    % arguments are all ints
+    cvi
+    % get the proc for this instruction!
+    exch instructions exch get
+    exec
+} loop
+
+(=== PART 1 ===\n) print
+(Tried to execute twice!\n) print
+(  PC=) print PC =
+(  ACC=) print ACC =
+
+% ok part 2 time lol
+(=== PART 2 ===\n) print
+
+/terminates {
+    % This is basically the same as p1
+    % except we reset the state first, and
+    % the input is taken from the stack rather than `lines`
+    /visited over length array def
+    /PC 0 def
+    /ACC 0 def
+
+    {
+        % check if we terminated: pc > number of instructions
+        PC over length ge {
+            pop % don't need the input instructions anymore
+            true
+            exit
+        } if
+
+        % check if this instruction has already been executed
+        % if not, mark the instruction as executed
+        % otherwise, exit here since the accumulator is the answer to part 1
+        visited PC get
+        % unfortunately the default is null, not false, so we do an explicit comparison against true
+        true eq {
+            % keep the input on the stack, but add `false`
+            false
+            exit
+        } {
+            visited PC true put
+        } ifelse
+
+        % ok, we can actually run this instruction now :)
+        dup PC get
+        ( ) strsplit
+        % put the instruction and arg on the stack and discard the array
+        aload pop
+        % arguments are all ints
+        cvi
+        % get the proc for this instruction!
+        exch instructions exch get
+        exec
+    } loop
+} def
+
+/should_modify { dup (nop) eq exch (jmp) eq or } def
+
+% does NOT modify input string
+% (jmp +1) edit_jmp_or_nop -> (nop +1)
+% (nop +1) edit_jmp_or_nop -> (jmp +1)
+% (acc +1) edit_jmp_or_nop -> (acc +1)
+/edit_jmp_or_nop {
+    dup ( ) strsplit 0 get
+
+    dup (nop) eq {
+        exch % swap duplicated (nop) for input string
+        dup length string copy % make a same-length copy of the input
+        dup 0 (jmp) putinterval % overwrite nop with jmp
+        exch % now let the next comparison consume the (nop)
+    } if
+
+    (jmp) eq {
+        dup length string copy
+        dup 0 (nop) putinterval
+    } if
+} def
+
+0 1 lines length 1 sub {
+    % make a copy of the input array
+    lines
+    lines length array
+    copy
+    /new_input exch def % keep around the 'new' input array
+
+    new_input over get edit_jmp_or_nop
+    new_input 3 1 roll put
+    new_input terminates {
+        exit
+    } if
+} for
+
+(Found input that terminates!) =
+(ACC=) print ACC =
+quit

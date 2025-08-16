@@ -1,0 +1,476 @@
+%!ps
+/calYear 2025 def
+
+/mm {2.83465 mul} def	%converts mm to points
+/point_mm {1 mm div} def	%converts poits to mm
+/inch {72 mul} def  %converts inch to points
+
+/pageH 297 mm def
+/pageW 210 mm def
+
+/pagePaddingLR 8 mm def
+/pagePaddingTB 30 mm def
+
+/gCageHeight 40 mm def
+/gHeaderHeight 8.5 mm def
+/gCageWidth 58 mm def
+
+/w [(Mo) (Tu) (We) (Th) (Fr) (Sa) (Su)] def
+/months [(January) (February) (March) (April) (May) (June) (July) (August) (September) (October) (November) (December)] def
+/calModeEnum <</fullpage 0 /diarymode 1>> def
+/calMode calModeEnum /diarymode get def
+
+/gHeaderFontHeight 5 mm def
+/gDateFontHeight 4 mm def
+/LegendFontHeight 3 mm def
+/yearFontHeight 18 mm def
+
+/gHeaderColor [1 0.701961 0.839216] def
+
+/publicHolidayColor [ 1 .8 0.894118] def
+/mercantileColor [1 0.901961	  0.945098] def
+/gHolidayRectWidth 5 mm def
+/gPoyacircleRadius 3 mm def
+
+/useSerifFont false def
+useSerifFont true eq {/selectedFont /Times-Roman def /selectedBoldFont /Times-Bold def} {/selectedFont /Helvetica def  /selectedBoldFont /Helvetica-Bold def} ifelse
+/gDrawCage true def
+
+/holidays [[[13 (Duruthu Full Moon Poya Day) (f)] [14 (Tamil Thai Pongal Day) (MPB)]]
+[[04 (Independence Day) (MPB) ] [12 (Nawam Full Moon Poya Day) (f)] [26 (Maha Sivarathri Day) (PB)]]
+[[13 (Medin Full Moon Poya Day) (f)] [31 (Id-Ul-Fitr Ramazan Festival Day) (PB)]]
+[[12 (Bak Full Moon Poya Day) (f)] [13 (Day Prior to Sinhala and Tamil New Year Day) (MPB)] [14 (Sinhala and Tamil New Year Day) (MPB)] [15 (Special Bank Holiday) (B)] [18 (Good Friday) (PB)]]
+[[01 (May Day International Workers Day) (MPB)] [12 (Vesak Full Moon Poya Day) (f)] [13 (Day Following Vesak Full Moon Poya Day) (MPB)]]
+[[07 (Id-Ul-Alha Hadji Festival Day) (PB)] [10 (Poson Full Moon Poya Day) (f)]]
+[[10 (Esala Full Moon Poya Day) (f)]]
+[[08 (Nikini Full Moon Poya Day) (f)]]
+[[05 (Milad-Un-Nabi Holy Prophet’s Birthday) (MPB)] [07 (Binara Full Moon Poya Day) (f)]]
+[[06 (Vap Full Moon Poya Day) (f)] [20 (Deepavali Festival Day) (PB)]]
+[[05 (Il Full Moon Poya Day) (f)]]
+[[04 (Unduvap Full Moon Poya Day) (f)] [25 (Christmas Day) (MPB) ]]] def
+
+calMode calModeEnum /fullpage get eq {
+	(Render Mode: FullPage ------) ==
+} {
+	calMode calModeEnum /diarymode get eq {
+		(Render Mode: Diary ------) ==
+		/tmp pageH def
+		/pageH pageW def
+		/pageW tmp def
+	} {
+		(Undefined calender Mode) ==
+	} ifelse
+} ifelse
+
+<< /PageSize [pageW pageH] >> setpagedevice
+
+/CloneDrawState {
+	15 dict
+	dup /headerHeight gHeaderHeight put
+	dup /cageWidth gCageWidth put
+	dup /cageHeight gCageHeight put
+	dup /headerColor gHeaderColor put
+	dup /headerFontHeight gHeaderFontHeight put
+	dup /dateFontHeight gDateFontHeight put
+	dup /hightlite true put
+	dup /drawCage gDrawCage put
+	dup /poyacircleRadius gPoyacircleRadius put
+	dup /holidayRectWidth gHolidayRectWidth put
+} def
+
+%dicToDump
+/dumpDict {
+    % Expects a dictionary on the stack
+    dup type /dicttype ne {
+        (Error: Not a dictionary!\n) print
+        exit
+    } if
+    % Begin iterating over the dictionary
+    {
+        exch                             % value key → key value
+        (\nKey: ) print
+        dup type /nametype eq {
+            =                   % convert name to string and print
+        } {
+            print                       % print key
+        } ifelse
+        (  Value: ) print
+			dup type /arraytype eq {
+				(%array%) print
+			} {
+				dup type /dicttype eq {
+					(%dict%) print
+				} {
+					=
+				} ifelse
+			} ifelse
+        (\n) print
+    } forall
+} def
+
+/SetArrayColor {
+	{ } forall setrgbcolor
+} def
+
+/BullsEye {
+	newpath
+	2 copy
+	5 0 360 arc
+	moveto
+	-20 0 rlineto
+	40 0 rlineto
+	-20 -20 rmoveto
+	0 40 rlineto
+	.5 setlinewidth
+	stroke
+} def
+
+/getBaseToCenterYDis {
+	currentfont /FontBBox get
+	dup 1 get
+	exch 3 get
+	add 2 div
+	currentfont /FontMatrix get 0 get mul
+} def
+
+/getTextHeight {
+	% Get the font dictionary and retrieve FontBBox
+	gsave
+	currentfont /FontBBox get % Get FontBBox array [llx lly urx ury]
+	dup 3 get					% Extract lly (bottom)
+	exch 1 get					% Extract ury (top)
+	sub					  % Subtract bottom from top (height)
+	currentfont /FontMatrix get 0 get mul % Scale to font size
+	grestore
+} def
+
+%year
+/isLeapYear {
+	/y exch def
+	y 4 mod 0 eq y 100 mod 0 ne and y 400 mod 0 eq or	
+} def
+
+%Find number of days of a given month in a given year
+%year month
+/noOfDays {
+	/m exch def
+	/y exch def
+	1 3 5 7 8 10 12 
+	m eq
+	6 {
+		exch m eq or
+	} repeat
+	{31} {
+		4 6 9 11
+		m eq
+		3 {
+			exch m eq or
+		} repeat
+		{30} {y isLeapYear {29} {28} ifelse} ifelse
+	} ifelse
+} def
+
+%year month day
+/dayOfWeek {
+	/d exch def
+	/m exch def
+	/y exch def
+	/t [0 3 2 5 0 3 5 1 4 6 2 4] def
+	m 3 lt {/y y 1 sub def} if
+	y y 4 idiv add y 100 idiv sub y 400 idiv add t m 1 sub get add d add 7 mod	%index for week starting from Sunday
+	6 add 7 mod	%adjustment for week starting from Monday
+	%w exch get
+	%==
+} def
+
+%year monthIndex
+/FillMonthGrid {
+	/month exch def
+	/year exch def
+	/days year month noOfDays def
+	/arr 35 array def
+	/firstDay year month 1 dayOfWeek def
+	0 1 34 {
+		arr exch (*) put
+	} for
+
+	firstDay 1 firstDay days add 1 sub{
+		/tmpStr 2 string def
+		dup /intDay exch firstDay sub 1 add def
+		intDay 10 lt {/tmpStr 1 string def} if
+		intDay tmpStr cvs pop
+		arr exch 35 mod tmpStr  put
+	} for
+	arr
+} def
+
+%string x y
+/DrawText_center_aligned {
+	gsave
+		moveto
+		/fScale currentfont /FontMatrix get 0 get def
+		dup stringwidth pop 2 div neg
+		currentfont /FontBBox get
+		dup 3 get 2 div exch 1 get add neg fScale  mul
+		rmoveto
+		show
+	grestore
+
+} def
+
+%string x y
+/DrawText_right_aligned {
+	gsave
+		moveto
+		/fScale currentfont /FontMatrix get 0 get def
+		dup stringwidth pop neg
+		currentfont /FontBBox get
+		dup 3 get 2 div exch 1 get add neg fScale mul
+		rmoveto
+		show
+	grestore
+} def
+
+%string x y noFill
+/DrawText_right_bottom_aligned {
+	/noFill exch def
+	gsave
+		moveto
+		/fScale currentfont /FontMatrix get 0 get def
+		dup stringwidth pop neg
+		currentfont /FontBBox get
+		dup 3 get exch 1 get add neg fScale mul
+		rmoveto
+		noFill{
+			true charpath
+			stroke
+		} {
+			show
+		} ifelse
+	grestore
+} def
+
+%string x y
+/DrawText_baseline_right_aligned {
+	gsave
+		moveto
+		/fScale currentfont /FontMatrix get 0 get def
+		dup stringwidth pop neg
+		0 rmoveto
+		show
+	grestore
+} def
+
+%upperRight {x, y} _g
+/DrawMonthCage {
+	/_g exch def
+	2 copy		
+	/cageWidth _g /cageWidth get def
+	/cageHeight _g /cageHeight get def
+	/headerHeight _g /headerHeight get def
+	.5 setlinewidth
+	cageHeight add
+	_g /headerColor get SetArrayColor
+	cageWidth headerHeight rectfill
+	
+	0 0 0 setrgbcolor
+	cageWidth cageHeight headerHeight add rectstroke
+} def
+
+%str1 str2
+/strcat {
+	/str2 exch def
+	/str1 exch def
+	/strNew str1 length str2 length add string def
+	strNew 0 str1 putinterval
+	strNew str1 length str2 putinterval
+	strNew
+} def
+
+%centerX centerY radius
+/DrawPoyadayMarker {
+	3 dict begin
+	/r exch def
+	/cy exch def
+	/cx exch def
+	gsave
+		newpath
+		1 1 0 setrgbcolor
+		cx cy r 0 360 arc fill
+		1 0 0 setrgbcolor
+		0.2 setlinewidth
+		cx cy r 0 360 arc stroke
+	grestore
+	end
+} def
+
+%centerX centerY radius
+/DrawBankHolidayMarker {
+	3 dict begin
+	/r exch def
+	/cy exch def
+	/cx exch def
+	gsave
+		newpath
+		1 0 0 setrgbcolor
+		0.2 setlinewidth
+		cx cy r 0 360 arc stroke
+	grestore
+	end
+} def
+
+%centerX centerY width height
+/DrawMercentileMarker {
+	4 dict begin
+	/h exch def
+	/w exch def
+	/cy exch def
+	/cx exch def
+	gsave
+		mercantileColor SetArrayColor
+		cx cy w h rectfill
+		1 0 0 setrgbcolor
+		0.3 setlinewidth
+		cx cy w h rectstroke
+	grestore
+	end
+} def
+
+%centerX centerY width height
+/DrawPublicHolidayMarker {
+	4 dict begin
+	/h exch def
+	/w exch def
+	/cy exch def
+	/cx exch def
+	gsave
+		publicHolidayColor SetArrayColor
+		cx cy w h rectfill
+	grestore
+	end
+} def
+
+%year monthIndex(starts from 1) llcX llcY _g
+/DrawMonth {
+	/_g exch def
+	/y0 exch def
+	/x0 exch def
+	/monthIndex exch def
+	/year exch def
+	/headerHeight _g /headerHeight get def
+	/cageWidth _g /cageWidth get def
+	/cageHeight _g /cageHeight get def
+	/headerColor _g /headerColor get def
+	/headerFontHeight _g /headerFontHeight get def
+	/dateFontHeight _g /dateFontHeight get def
+	/drawCage _g /drawCage get def
+	/holidayRectWidth _g /holidayRectWidth get def
+	/poyacircleRadius _g /poyacircleRadius get def
+	drawCage true eq { x0 y0 _g DrawMonthCage} if
+	selectedBoldFont findfont headerFontHeight scalefont setfont
+	/headerCenterX x0 cageWidth 2  div add def
+	/headerCenterY y0 cageHeight headerHeight 2 div add add def
+	%headerCenterX headerCenterY BullsEye
+	months monthIndex 1 sub get headerCenterX headerCenterY DrawText_center_aligned
+
+	%draw the days header
+	%get the widths of all characters in the days header (SuMoTu...)
+	selectedBoldFont findfont dateFontHeight scalefont setfont
+	()	%puhs empty string first
+	w {
+		strcat
+	} forall
+	stringwidth pop
+	cageWidth exch sub 8 div	% calculate the x  spacing value
+	/incX exch def
+	%calculate y spacing value (row spacing))
+	cageHeight getTextHeight 5 mul sub 7.6 div
+	/incY exch def
+	w 0 get stringwidth pop
+	/x exch x0 add incX 0.8 mul add def
+	/yPos y0 cageHeight add 1.2 incY mul sub dateFontHeight sub def
+
+	/posXArr 7 array def
+	/arrayIndex 0 def
+	/monthSpecialArr holidays monthIndex 1 sub get def
+	/specialArrIndexFrwd 0 def
+	/specialArrIndexBcwd monthSpecialArr length 0 gt{ monthSpecialArr length 1 sub} {-1} ifelse  def
+	/specialDayFrd  monthSpecialArr length specialArrIndexFrwd gt {monthSpecialArr specialArrIndexFrwd get} {[-1 (n) (n)]} ifelse def
+	/specialDayBcwd specialArrIndexBcwd -1 gt {monthSpecialArr specialArrIndexBcwd get} {[-1 (n) (n)]} ifelse def
+	
+	w {
+		dup
+		w w length 1 sub get eq {1 0 0 setrgbcolor} if dup	%set sunday lable color to red
+		x yPos DrawText_baseline_right_aligned
+		stringwidth pop dup
+		posXArr exch arrayIndex exch 0.15 mul x exch sub  put	%dates column is shifted slightly to the left of the left edge of the week lable
+		/arrayIndex arrayIndex 1 add def
+		/x exch incX add x add def
+	} forall
+	0 0 0 setrgbcolor	%Reset to black from Red Sundays
+	/yPos yPos 1.4  incY mul sub def
+	selectedFont findfont dateFontHeight scalefont setfont
+	/mArr year monthIndex FillMonthGrid def
+	0 1 34 {
+		/i exch def
+		/weekI i 7 mod def
+		weekI 0 eq{
+			%start of a new week row
+			/yPos yPos incY sub dateFontHeight sub def
+		} {
+			weekI 6 eq { %sunday
+				1 .1 0 setrgbcolor
+			} {
+				0 0 0 setrgbcolor
+			} ifelse
+		} ifelse
+		/strDate mArr i get def
+		strDate (*) ne _g /hightlite get and{
+			/specialDay [-1] def
+			strDate cvi specialDayFrd 0 get eq {
+				/specialDay specialDayFrd def
+				/specialArrIndexFrwd specialArrIndexFrwd 1 add def
+				/specialDayFrd monthSpecialArr length specialArrIndexFrwd gt {monthSpecialArr specialArrIndexFrwd get} {[-1 (n) (n)] } ifelse def
+			} {
+				strDate cvi specialDayBcwd 0 get eq {
+					/specialDay specialDayBcwd def
+					/specialArrIndexBcwd specialArrIndexBcwd 1 sub def
+					/specialDayBcwd specialArrIndexBcwd -1 gt {monthSpecialArr specialArrIndexBcwd get} {[-1 (n) (n)]} ifelse def
+				} if
+			} ifelse
+			strDate cvi specialDay 0 get eq {
+				/cellCenterX posXArr weekI get strDate stringwidth pop 2 div sub def
+				/cellCenterY yPos getBaseToCenterYDis add def
+				specialDay 2 get 0 get (f) 0 get eq { %poya day
+						cellCenterX cellCenterY poyacircleRadius DrawPoyadayMarker
+				} {
+					specialDay 2 get 0 get (M) 0 get eq {% Mercantile holiday
+						cellCenterX holidayRectWidth 2 div sub cellCenterY holidayRectWidth 2 div sub holidayRectWidth holidayRectWidth DrawMercentileMarker
+					} {
+						specialDay 2 get 0 get (P) 0 get eq {% Public holiday
+							
+							cellCenterX holidayRectWidth 2 div sub cellCenterY holidayRectWidth 2 div sub holidayRectWidth holidayRectWidth DrawPublicHolidayMarker
+						} {
+							specialDay 2 get 0 get (B) 0 get eq {% Mercantile holiday 
+								cellCenterX cellCenterY poyacircleRadius DrawBankHolidayMarker
+							} if
+						} ifelse
+					} ifelse
+				} ifelse
+			} if
+		} if
+		strDate posXArr weekI get yPos DrawText_baseline_right_aligned
+		0 0 0 setrgbcolor
+	}for
+
+} def
+
+calMode calModeEnum /fullpage get eq {
+	(./fullpage_renderer.ps) run
+} {
+	calMode calModeEnum /diarymode get eq {
+	   (./diary_renderer.ps) run
+	} {
+		(Undefined calender Mode) ==
+	} ifelse
+} ifelse

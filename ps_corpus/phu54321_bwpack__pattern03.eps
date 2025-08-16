@@ -1,0 +1,29 @@
+// Circular shooter
+
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+
+function stagestart() {
+}
+
+function stageproc() {
+    const n = 10;
+    const maxAngle = 360 / n;
+    foreach(i : tL.Timeline(maxAngle)) {
+        // Stagle processor
+        if(i % 3 == 0) {
+            bTool.shootCircularTiled($P7, $U('Fast Missile'), 7,
+                5, 5, i, n);
+            bTool.shootCircularTiled($P8, $U('Fast Missile'), 7,
+                5, 5, maxAngle - i, n);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("Cross spiral"),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

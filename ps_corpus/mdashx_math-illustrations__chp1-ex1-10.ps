@@ -1,0 +1,207 @@
+% Dependencies
+%
+% cat page-setup.ps vector-procedures.ps drawing-procedures.ps chp1-ex1-10.ps > tmp.ps
+% (or use the Makefile: `make ex10`)
+
+% Exercise 1.10. Draw in PostScript the following pictures, taken, with
+% modifications, from the proof of Proposition I.47 in the standard
+% edition of Euclid’s Elements. Of course you might want to look up
+% Euclid’s argument first. One thing to keep in mind is that in drawing
+% a complex figure, each conceptual component in the program should be
+% handled as a unit. A triangle is not just a bunch of line segments,
+% but line segments assembled in a particular order and style. You
+% should also think here about about using colors in an intelligent way
+% to help explain Euclid’s proof.
+
+% https://mathcs.clarku.edu/~djoyce/elements/bookI/propI47.html
+
+% I'd like to actually do this by using compass and ruler methods in
+% PostScript, but for the sake of getting the exercise done in a way
+% that follows the book, I'm going to calculate coordinates for now.
+
+% I'm not completely following the book though, because I need to use
+% some variables and procedures, otherwise it's just too much of a mess.
+
+% My plan is to first calculate all of the points in the drawing, and
+% then use them to draw the various paths I need 9 coordinates total,
+% 3 for the triangle and then two more for each square.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CALCULATE THE POINTS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Triangle: (-1, 0), (3, 0), (0, sqrt 3)
+/sqrt3 {3 sqrt} def
+/left [-1 0] def
+/right [3 0] def
+/top [0 sqrt3] def
+
+% Left square
+/leftLength { left top getLength } def  % Left side of triangle
+/topvector { right top getUnitVector } def  % Normalized vector of hypotenuse
+/leftSquareTop { leftLength topvector top pointFromVector } def % length, vector, start
+/leftSquareBottom { leftLength topvector left pointFromVector } def % length, vector, start
+
+% Right Square
+/rightLength { top right getLength } def % Length of hypotenuse
+/leftVector { left top getUnitVector } def % Unit vector from left side of triangle
+/rightSquareTop { rightLength leftVector top pointFromVector } def
+/rightSquareBottom { rightLength leftVector right pointFromVector } def
+
+% Bottom Square
+/bottomLength { right left getLength} def % Length of bottom of triangle
+/verticalVector { [0 0] [0 -1] getUnitVector } def % Vector going straight down
+/bottomSquareLeft { bottomLength verticalVector left pointFromVector } def
+/bottomSquareRight{ bottomLength verticalVector right pointFromVector } def
+
+% Parallel
+/parallelLength { sqrt3 bottomLength add } def
+/parallelBottom { parallelLength verticalVector top pointFromVector } def
+/parallelTop { sqrt3 verticalVector top pointFromVector } def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CREATE THE DRAWING
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/theTriangle { % Construct triangle out of two 30-60-90 triangles with a height of sqrt 3
+    gsave
+    drawSmaller
+    newpath [right top] left closedPathFromPoints stroke
+    grestore
+} def
+
+/leftSquare { % Draw the left square
+    newpath [leftSquareTop leftSquareBottom left] top closedPathFromPoints
+} def
+
+/rightSquare { % Draw the right square
+    newpath [rightSquareTop rightSquareBottom right] top closedPathFromPoints
+} def
+
+/bottomSquare { % Draw the bottom square
+    newpath [bottomSquareLeft bottomSquareRight right] left closedPathFromPoints
+} def
+
+/theSquares {
+    gsave
+    drawSmaller
+    leftSquare stroke
+    rightSquare stroke
+    bottomSquare stroke
+    grestore
+} def
+
+/theParallel {
+    gsave
+    drawSmaller
+    [parallelBottom] top pathFromPoints stroke
+    grestore
+} def
+
+/theParallelogramTriangles {
+    gsave
+    drawSmaller
+    drawThicker
+    newpath
+
+    /firstColor 255 80 80 convertHexColor def
+    firstColor aload pop setrgbcolor
+    
+    [left bottomSquareLeft] top closedPathFromPoints stroke
+    [leftSquareBottom left] right closedPathFromPoints stroke
+
+    /secondColor 51 153 255 convertHexColor def
+    
+    secondColor aload pop setrgbcolor
+
+    [rightSquareBottom left] right closedPathFromPoints stroke
+    [bottomSquareRight top] right closedPathFromPoints stroke
+
+    
+    grestore
+} def
+
+/fillParallelograms {
+    gsave
+    drawSmaller
+    newpath
+    /leftFill 255 153 153  convertHexColor def
+    leftFill aload pop setrgbcolor
+    
+    [parallelTop parallelBottom bottomSquareLeft] left closedPathFromPoints fill
+    [parallelTop parallelBottom bottomSquareLeft] left closedPathFromPoints stroke
+
+    leftSquare fill
+    leftSquare stroke
+
+    /rightFill 153 204 255 convertHexColor def
+    rightFill aload pop setrgbcolor
+
+    [parallelTop parallelBottom bottomSquareRight] right closedPathFromPoints fill
+    [parallelTop parallelBottom bottomSquareRight] right closedPathFromPoints stroke
+
+    rightSquare fill
+    rightSquare stroke
+    
+    grestore
+    
+} def
+
+% Setup page
+eightByElevenCenteredOneInchGrid
+
+% Draw the diagram
+theTriangle
+theSquares
+theParallel
+fillParallelograms
+theParallelogramTriangles
+
+
+% Calculate the bounding box
+
+% normalText
+% 0 0 moveto
+
+% /backToPts {
+%     .40 mul
+%     72 mul
+% } def
+
+% /height
+% bottomSquareLeft 1 get backToPts abs
+% rightSquareTop 1 get backToPts abs
+% add
+% def
+
+% leftSquareBottom 0 get
+% backToPts abs
+% 306 add
+% 20 string cvs show
+% (  ) show
+
+% bottomSquareLeft 1 get
+% backToPts abs
+% 792 2 div sub
+
+% 20 string cvs show
+% (  ) show
+
+% (  ---  ) show
+% rightSquareBottom 0 get
+% backToPts abs
+% 306 sub
+
+% 20 string cvs show
+% (  ) show
+% rightSquareTop 1 get
+% backToPts abs
+% 280.8 height add
+% 20 string cvs show
+

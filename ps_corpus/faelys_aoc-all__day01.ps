@@ -1,0 +1,113 @@
+%!PS
+%
+% Copyright (c) 2022, Natacha Porté
+%
+% Permission to use, copy, modify, and distribute this software for any
+% purpose with or without fee is hereby granted, provided that the above
+% copyright notice and this permission notice appear in all copies.
+%
+% THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+% WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+% MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+% ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+% WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+% ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+% OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+%
+% Usage:
+% gs -q- -sDEVICE=png16m -o- -r300 -dDownScaleFactor=3 day01.ps <day01.txt | display
+
+/str_to_int {
+  0 exch { exch 10 mul add 48 sub } forall
+} bind def
+
+/int_to_str {
+  % number
+  1 10
+  { % number length upper-bound
+    2 index 1 index lt { exit } if
+    exch 1 add exch 10 mul } loop
+  pop dup string exch 1 sub
+  { % number string index
+    2 copy 1 sub 5 1 roll exch
+    % next_index number string string index
+    3 index 10 mod 48 add
+    % next_index number string string index digit
+    put
+    % next_index number next_string
+    3 1 roll 10 idiv
+    % next_string next_index next_number
+    dup 0 eq { pop pop exit } if
+    % next_string next_index next_number
+    3 1 roll
+    % next_nubmer next_string next_index
+  } loop
+} bind def
+
+/apush {
+  % array new_item
+  exch aload length 1 add array astore
+} bind def
+
+/apop {
+  aload length 1 sub array astore exch
+} bind def
+
+/datafile (%stdin) (r) file def
+
+/data [
+  []
+  {
+    datafile 100 string readline
+    not {pop exit} if
+    dup length 0 eq
+    { pop [] }
+    { str_to_int apush }
+    ifelse
+  } loop
+] def
+
+/sums [
+  data
+  { 0 exch
+    { add } forall
+  } forall
+] def
+
+/Helvetica 20 selectfont
+
+(First Puzzle: )
+72 700 moveto show
+% compute max (sums)
+0 sums {
+  % max-so-far new-value
+  2 copy lt { exch } if
+  % max(max-so-far, new-value) min(max-so-far, new-value)
+  pop
+} forall
+int_to_str show
+
+(Second Puzzle: )
+72 664 moveto show
+% compute three largest
+0 0 0 sums {
+  % save3 save2 save1 new
+  2 copy gt { exch } if
+  % save3 save2 rank2(save1,new) rank1(save1,new)
+  4 1 roll
+  % rank1(save1,new) save3 save2 rank2(save1,new)
+  2 copy gt { exch } if
+  % rank1(save1,new) save3 rank3(save2,save1,new) rank2(save2,save1,new)
+  4 1 roll
+  % rank2(save2,save1,new) rank1(save1,new) save3 rank3(save2,save1,new)
+  2 copy gt { exch } if
+  % rank2(save2,save1,new) rank1(save1,new) rank4(all) rank3(all)
+  4 1 roll
+  % rank3(all) rank2(save2,save1,new) rank1(save1,new) rank4(all)
+  pop
+} forall
+add add
+int_to_str show
+
+showpage
+quit

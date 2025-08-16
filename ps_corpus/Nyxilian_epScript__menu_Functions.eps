@@ -1,0 +1,37 @@
+var screenGridX     = 0; //화면 x좌표
+var screenGridY     = 0; //화면 y좌표
+var screenSizeX     = 0; //화면 크기
+var screenSizeY     = 0; //화면 크기
+var mouseX          = 0; //마우스 x좌표(상대)
+var mouseY          = 0; //마우스 y좌표(상대)
+const mouseMX       = EPD(0x6CDDC4);
+const mouseMY       = EPD(0x6CDDC8);
+const mouseUserX    = PVariable();
+const mouseUserY    = PVariable();
+const screenUserX   = PVariable();
+//일단 몰라서 복붙
+
+
+function variableInit(){
+    EUDRegisterObjectToNamespace("screenSizeX", screenSizeX);
+    EUDRegisterObjectToNamespace("mouseUserX", mouseUserX);
+    EUDRegisterObjectToNamespace("mouseUserY", mouseUserY);
+    EUDRegisterObjectToNamespace("screenUserX", screenUserX);
+}
+// 얘도 몰라서 복붙
+
+function checkScreenX(){
+    const ScreenX1 = dwread_epd(EPD(0x62848C));
+    const ScreenY1 = dwread_epd(EPD(0x6284A8));
+    setloc(로케이션, 맵중앙, 맵중앙); //중앙
+    CenterView(로케이션);
+    const ScreenX2 = dwread_epd(EPD(0x62848C));
+    const ScreenY2 = dwread_epd(EPD(0x6284A8));
+    const dx = 맵중앙 - ScreenX2;
+    const dy = 맵중앙 - ScreenY2;
+    const screenX = ScreenX1 + dx;
+    const screenY = ScreenY1 + dy;
+    setloc(로케이션, screenX, screenY);
+    CenterView(로케이션);
+    return 2*dx;
+}

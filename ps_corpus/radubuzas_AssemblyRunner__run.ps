@@ -1,0 +1,72 @@
+$RED = "`e[31m"
+$GREEN = "`e[32m"
+$NC = "`e[0m" # No Color
+
+function Init {
+    Write-Host "${GREEN}Checking${NC} if winget is installed..."
+
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host "${RED}winget is not installed. Please install winget manually."
+        exit 1
+    }
+
+    Write-Host "${GREEN}Installing${NC} Docker..."
+
+    winget install --id Docker.DockerDesktop -e
+    winget install --id Docker.DockerCli -e
+}
+
+if ($args.Length -eq 1 -and $args[0] -eq "init") {
+    if (Test-Path ./init) {
+        Write-Host "${RED}There exists a file named 'init'. Please remove it and try again if you want to initialize the environment."
+        exit 1
+    }
+    Init
+    exit 0
+}
+
+if ($args.Length -eq 0) {
+    $programName = Get-ChildItem -File | Where-Object { $_.Extension -match '\.asm|\.s' } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    [System.IO.File]::WriteAllText('.env', "PROGRAM_NAME=$programName")
+    Write-Host "Going to compile the latest file: ${GREEN} $programName"
+
+    docker-compose up -or docker compose up
+} else {
+    if ($args[0] -eq 'gdb') {
+        $programName = $args[1]
+        [System.IO.File]::WriteAllText('.env', "PROGRAM_NAME=$programName")
+        Write-Host "Going to compile the latest file: ${GREEN} $programName"
+
+        docker-compose -f docker-compose.debug.yml up -or docker compose -f docker-compose.debug.yml up
+
+        $pid = $LastExitCode
+        Start-Sleep -Seconds 2
+
+        $logs = docker-compose logs -or docker compose logs
+        if ($logs -match "gcc: fatal error: no input files") {
+            Write-Host "${RED}You did not pass the correct file to compile."
+            exit 1
+        }
+    } else {
+        if ($args.Length -gt 1) {
+            Write-Host "Pass only one argument."
+            exit 1
+        } else {
+            $programName = $args[0]
+            Write-Host "Going to compile the latest file: ${GREEN} $programName"
+            [System.IO.File]::WriteAllText('.env', "PROGRAM_NAME=$programName")
+
+            # CheckIfMacArm64AndRunColima
+            docker-compose up -or docker compose up
+
+            $pid = $LastExitCode
+            Start-Sleep -Seconds 2
+
+            $logs = docker-compose logs -or docker compose logs
+            if ($logs -match "gcc: fatal error: no input files") {
+                Write-Host "${RED}You did not pass the correct file to compile."
+                exit 1
+            }
+        }
+    }
+}

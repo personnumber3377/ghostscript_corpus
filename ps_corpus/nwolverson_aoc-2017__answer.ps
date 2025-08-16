@@ -1,0 +1,67 @@
+/answer1_line {
+    /cmp exch def
+    /input exch def
+    /n input length def
+    false
+    0 1 n 1 sub
+    {
+        /i exch def
+        /w input i get def
+        input i 1 add n i 1 add sub getinterval { w cmp or } forall 
+    } for
+} def
+ 
+/answer1 {
+    0 exch { { eq } answer1_line not { 1 add } if } forall
+} def
+
+% https://www.tinaja.com/glib/strconv.pdf
+/mergestr {2 copy length exch length add string dup dup
+4 3 roll 4 index length exch putinterval 3 1 roll exch
+0 exch putinterval} def
+
+/is_anagram {
+    /word1 exch def
+    /word2 exch def
+    word1 length word2 length eq not { false }
+    {
+        word1 length 0 eq { true } {
+            word2 word1 0 1 getinterval search
+            { 
+                exch pop mergestr
+                word1 1 word1 length 1 sub getinterval
+                is_anagram
+            } { pop false } ifelse
+        } ifelse
+    } ifelse
+} def
+
+/answer2 {
+    0 exch { { is_anagram } answer1_line not { 1 add } if } forall
+} def
+
+%% Input handling
+
+% split - https://stackoverflow.com/questions/12325634/how-to-split-a-string-into-array-in-postscript
+/split {              % str del
+    [ 3 1 roll        % [ str del
+    {                 % [ ... str del
+        search {      % [ ... post match pre
+            3 1 roll   % [ ... pre post match  %ie. [ ... pre str' del
+        }{            % [ ... str
+            exit       % [ ... str  %% break-from-loop
+        }ifelse
+    }loop             % [ ...
+    ]                 % [ ... ]
+} def
+
+/input (input.txt)(r)file def
+[
+{ input 99 string readline { ( ) split }{ exit } ifelse } loop
+pop
+]
+
+dup
+
+answer1 =
+answer2 =

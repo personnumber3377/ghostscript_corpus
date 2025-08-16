@@ -5,9 +5,10 @@ import random
 
 # ==== CONFIG ====
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")  # set your token in env
-SEARCH_QUERY = '(extension:ps OR extension:eps) size:<200000'  # tweak for size limits
+# SEARCH_QUERY = 'extension:ps OR extension:eps size:<200000'  # tweak for size limits
+SEARCH_QUERY = 'extension:eps size:<2000000'  # tweak for size limits
 OUTPUT_DIR = "ps_corpus"
-MAX_PAGES = 40  # number of search pages to fetch (100 files per page)
+MAX_PAGES = 20  # number of search pages to fetch (100 files per page)
 # ===============
 
 if not GITHUB_TOKEN:
@@ -35,7 +36,10 @@ def download_file(item):
         print(f"[✓] Already have {filename} !!!")
         return
     r = session.get(raw_url)
-    r.raise_for_status()
+    try:
+        r.raise_for_status()
+    except:
+        return
     data = r.content
 
     if is_git_annex(data):
@@ -48,9 +52,9 @@ def download_file(item):
         f.write(data)
     print(f"    [✓] Saved {filepath} ({len(data)} bytes)")
 
-for page in range(1, 1000):
+for page in range(0, 1000):
     actual_page = random.randrange(1, MAX_PAGES)
-    search_url = f"https://api.github.com/search/code?q={quote(SEARCH_QUERY)}&page={actual_page}&per_page=100"
+    search_url = f"https://api.github.com/search/code?q={quote(SEARCH_QUERY)}&page={page}&per_page=100"
     print(f"[PAGE {page}] {search_url}")
     r = session.get(search_url)
     r.raise_for_status()

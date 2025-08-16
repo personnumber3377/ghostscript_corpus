@@ -1,0 +1,89 @@
+import functions as fc;
+import Player.playerUnit as ppu;
+import Player.playerSetting as pps;
+import Player.visionMachine as pvm;
+import Player.encounterField as pef;
+import Player.encounterTrainer as pet;
+import Variables.mainSentence as vms;
+import Variables.etcData as ved;
+import Variables.locationInfo as vli;
+import readTile as rt;
+
+const s = StringBuffer(1024);
+
+function jumpPlayer(cp){
+    if(Deaths(cp, Exactly, 16, "A Key")){
+        vms.moveLocationPlayer(cp, vli.tempMoveLoc, 0, 64);
+        MoveUnit(1, pps.playerUnit[cp], cp, 64, vli.tempMoveLoc);
+        fc.scanEffect(vli.tempMoveLoc, 496);
+        PlayWAV("staredit\\wav\\Player jump.wav");
+    }
+}
+
+function unitPosition(cp){
+    const x,y = posread_epd(ppu.playerEPD[cp]+0x28/4);
+    const x1,y1 = x/32, y/32;
+
+    //플레이어의 위치가 변한 경우
+    if(ppu.playerGridX[cp] != x1 || ppu.playerGridY[cp] != y1){
+        const tileInfo = rt.tilesetInfo[y1*256+x1]; //현재 위치의 타일정보 가져오기
+        pps.currentTileset[cp] = tileInfo;
+        //풀 밟는 효과 주기
+        if(tileInfo == 1 || tileInfo == 2){
+            fc.scanEffect(vli.moveLoc+cp, 514);
+            const encounter = dwrand() % 10;
+            if(encounter == 0){pef.encounterPokemon(cp);}
+        }
+    }
+    const curTileset = pps.currentTileset[cp];
+    //내려갈 수 있는 언덕
+    if(curTileset == 3){jumpPlayer(cp);}
+    pvm.machine_Surfing(cp); //파도타기
+    ppu.playerPosX[cp],ppu.playerPosY[cp] = x,y;
+    ppu.playerGridX[cp],ppu.playerGridY[cp] = x1,y1;
+}
+
+function movePlayer(cp){
+    if(ppu.playerEPD[cp]){
+        MoveLocation(vli.moveLoc+cp, pps.playerUnit[cp], cp, 64);
+        if(pps.battleState[cp] == 0){
+            pet.encounterTrainer(cp); //트레이너 전투
+            if(pps.moveState[cp] == 1){
+                unitPosition(cp);
+                //화면고정 옵션
+                if(pps.setScreen[cp] == 0){CenterView(vli.moveLoc+cp);}
+
+                if(ved.order_Delay[cp] == 0){
+                    const pUnit = pps.playerUnit[cp];
+                    for(var key = 0; key < 8; key++){
+                        if(Deaths(cp, Exactly, pps.keyInput[key], "A Stick")){
+                            const moveSt = pvm.machine_SurfingMove(cp, key); //파도타기
+                            if(moveSt){
+                                MoveLocation(vli.tempMoveLoc, pUnit, cp, 64);
+                                addloc(vli.tempMoveLoc, pps.moveDirectX[key],pps.moveDirectY[key]);
+                                RemoveUnitAt(1, ved.junkUnit, vli.tempMoveLoc, cp);
+                                if(Bring(AllPlayers, AtLeast, 2, "(any unit)", vli.tempMoveLoc)){return;}
+                                const tempEPD = fc.SetNextUnitEPD();
+                                CreateUnit(1, 13, vli.tempLoc, cp);
+                                SetMemoryEPD(tempEPD+0x110/4, Add, 1);
+                                MoveUnit(1, 13, cp, vli.tempLoc, vli.tempMoveLoc);
+                                if(pps.using_Surfing[cp] == 0 && Bring(cp, Exactly, 1, 13, vli.tempLoc)){return;}
+                                if(pps.using_Surfing[cp]){Order(ved.surfingUnit, cp, 64, Move, vli.tempMoveLoc); ved.order_Delay[cp] = 2;}
+                                else{Order(pUnit, cp, 64, Move, vli.tempMoveLoc);}
+                                return;
+                            }
+                            else{return;}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function changeMoveState(cp, value){
+    pps.moveState[cp] = value;
+    if(IsUserCP()){SetVariables(pps.moveStateMSQC, value);}
+    const pUnit = pps.playerUnit[cp];
+    if(value == 0){Order(pUnit, cp, 64, Move, vli.moveLoc+cp);}
+}

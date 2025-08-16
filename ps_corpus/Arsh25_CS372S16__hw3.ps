@@ -1,0 +1,154 @@
+% Arsh Chauhan
+% CS 372 Assn 3
+% Source for Assn 3
+% 4/4/2016
+
+% Based on code by Peter Weingartner (www.tailrecursive.org)
+% Original code distributed under Creative Commons License 2.5 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/ 
+
+%!
+%Exercise 1
+%% Draws a one inch 3 sided box an inch in from the bottom left
+
+/inch {72 mul} def      % Convert inches->points (1/72 inch)
+
+newpath                 
+1 inch 1 inch moveto    % an inch in from the lower left
+2 inch 1 inch lineto    % bottom side
+2 inch 2 inch lineto    % right side
+1 inch 2 inch lineto    % top side
+stroke                  
+showpage                
+
+%Exercise 2
+% Draws 36 lines in a circular pattern
+% Increase size of line as rotation progresses 
+
+0 10 360 {		% Go from 0 to 360 degrees in 10 degree steps
+  dup			% Duplicate the counter 
+  newpath		
+
+	gsave			
+    144 144 moveto
+    rotate		% Rotate by degrees on stack from 'for'
+    72 add
+    2 div 
+    0 rlineto	
+    stroke
+  grestore		% Get back the unrotated state
+
+} for			
+
+showpage
+
+%Exercise 3
+% Draw a 3x3 array of boxes
+
+% operator box: xcoord ycoord box -
+% Creates one inch box at xcoord, ycoord
+/box {
+   newpath
+   moveto
+   72 0 rlineto
+   0 72 rlineto
+   -72 0 rlineto
+   closepath
+} def
+
+gsave				% Preserve the old coordinates
+  72 72 translate		% Set origin to (72, 72)
+  %Create a 3x3 array of boxes 
+  [0 0 box stroke [72 0 box stroke 144 0 box stroke] 
+  0 72 box stroke [72 72 box stroke 144 72 box stroke] 
+  0 144 box stroke [ 72 144 box stroke 144 144 box stroke]]
+  
+grestore			% Restore the old coordinates
+
+showpage
+
+%Exercise 4
+% Define an operator box which builds a path for a one inch square box
+% Note that box does not draw or fill the box.
+
+/box {
+  newpath
+  moveto				% Current point is on stack
+  0 72 rlineto			% Left
+  72 0 rlineto			% Top
+  0 -72 rlineto			% Right
+  closepath				% Bottom
+} def
+
+0 setgray				
+1 setlinewidth			
+72 72 moveto 72 144 lineto stroke	% Draw a one inch line
+
+gsave					
+  0.5 setgray			
+  3 setlinewidth		
+  144 72 moveto 144 144 lineto stroke	% Draw a one inch wide line
+  gsave % Save current position 
+  216 72 box stroke % Draw gray outline 
+  0.35 setgray
+  grestore %Restore old current position 
+  %Now draw the filled box 
+  216 72 box                    
+  0.35 setgray			
+  fill	 			
+grestore                % Go back to the original settings
+
+3 setlinewidth			% Make the box lines wider
+300 72 box stroke		% Draw a black box
+
+showpage
+
+%Exercise 5
+%Draw rotated copies of last box from Ex 4
+
+0 setgray				
+1 setlinewidth			
+72 72 moveto 72 144 lineto stroke	% Draw a one inch line
+
+gsave				
+  0.5 setgray			
+  3 setlinewidth		
+  144 72 moveto 144 144 lineto stroke	% Draw a one inch wide line
+  gsave % Save current position 
+  216 72 box stroke % Draw gray outline 
+  0.35 setgray
+  grestore %Restore old current position 
+  %Now draw the filled box 
+  216 72 box                    
+  0.35 setgray			
+  fill	 			
+grestore
+
+% Draw 9 boxes, each rotated by 9 degrees from the previous
+0 9 90 { % Go from 0 to 90 degrees in 9 degree steps
+	gsave
+	rotate
+	3 setlinewidth			
+	300 72 box stroke		 
+	grestore
+
+}for 
+
+showpage
+
+%Exercise 6
+
+72 72 moveto
+gsave
+72 72 box 
+0.5 setgray
+fill
+grestore 
+72 72 box
+0.5 setgray 
+fill
+72 144 72 0 90 arc
+0 -72 rlineto
+0.35 setgray
+fill 
+showpage
